@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -n \"img\\\\\\\\|fig\" \"C:\\\\Users\\\\GastonEsman\\\\OneDrive - ShipBob Inc\\\\Desktop\\\\SB know how\\\\personalKB\\\\topics\\\\concepts\\\\design-rate-limiter.md\")",
+      "PowerShell(python -c \"import matplotlib; print\\(matplotlib.__version__\\)\")",
+      "PowerShell(python \"C:\\\\Users\\\\GastonEsman\\\\OneDrive - ShipBob Inc\\\\Desktop\\\\SB know how\\\\personalKB\\\\assets\\\\diagrams\\\\src\\\\generate_two_pointers.py\")",
+      "Bash(export PATH=\"/c/nvm4w/nodejs:$PATH\")",
+      "Bash(C:/Users/GastonEsman/AppData/Roaming/npm/mmdc.cmd -i assets/diagrams/src/__TRACKED_VAR__.mmd -o topics/concepts/img/__TRACKED_VAR__.png -p assets/diagrams/src/puppeteer-config.json -t default -b white -w 1400)",
+      "Bash(start *)",
+      "Bash(pandoc --version)",
+      "Bash(python -c \"import markdown; print\\(markdown.__version__\\)\")",
+      "Bash(python -c \"import yaml; print\\(yaml.__version__\\)\")",
+      "Bash(python -c \"import pygments; print\\(pygments.__version__\\)\")",
+      "Bash(pip install *)",
+      "Bash(python _assets/build_html.py)",
+      "Bash(python -c ' *)",
+      "Bash(python *)"
+    ]
+  }
+}
