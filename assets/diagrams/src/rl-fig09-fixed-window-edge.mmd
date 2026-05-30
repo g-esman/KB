@@ -1,0 +1,11 @@
+flowchart TD
+    subgraph W1["Window 2:00:00 → 2:01:00 (limit 5)"]
+        Q1["5 requests<br/>concentrated at 2:00:55"]
+    end
+    subgraph W2["Window 2:01:00 → 2:02:00 (limit 5)"]
+        Q2["5 requests<br/>concentrated at 2:01:05"]
+    end
+    Bug["⚠️ BUG<br/>Rolling 1-minute window<br/>2:00:30 → 2:01:30:<br/>━━━━━━━━━━<br/>10 requests passed!<br/>(2× the allowed limit)"]
+    W1 -.-> Bug
+    W2 -.-> Bug
+    style Bug fill:#fee2e2,stroke:#dc2626

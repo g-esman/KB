@@ -1,0 +1,10 @@
+flowchart TD
+    U[User<br/>browser / mobile] --> DNS[(DNS)]
+    U -->|"v1/me/feed?content=Hello&auth_token={...}"| LB{Load Balancer}
+    LB --> WS[Web Servers]
+    WS --> Post[Post Service]
+    WS --> Fan[Fanout Service]
+    WS --> Notif[Notification Service]
+    Post --> PCache[(Post Cache)]
+    PCache --> PDB[(Post DB)]
+    Fan --> NFCache[(News Feed Cache)]

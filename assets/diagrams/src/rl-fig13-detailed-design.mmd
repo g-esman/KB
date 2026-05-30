@@ -1,0 +1,12 @@
+flowchart TD
+    Rules[("📜 Rules on disk")]
+    Workers["Workers"]
+    Workers -->|"pull rules<br/>periodically"| Rules
+    Workers -->|"cache rules"| RC[("Cached rules")]
+    Client[Client] --> RL[Rate Limiter<br/>middleware]
+    RL -->|"load rules"| RC
+    RL <-->|"counters"| Redis[(Redis)]
+    RL -->|"✅ if OK"| API[API Servers]
+    RL -.->|"❌ if rate limited<br/>option 1: drop<br/>+ HTTP 429"| Drop["🗑️ dropped"]
+    RL -.->|"❌ option 2:<br/>enqueue for later"| MQ[("Message Queue")]
+    style RL fill:#fef3c7,stroke:#f59e0b

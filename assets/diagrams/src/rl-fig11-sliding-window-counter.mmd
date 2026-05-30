@@ -1,0 +1,10 @@
+flowchart TD
+    Prev["📊 Previous minute<br/>5 requests"]
+    Cur["📊 Current minute<br/>3 requests<br/>(30% elapsed)"]
+    Prev --> Formula
+    Cur --> Formula
+    Formula["Estimate =<br/>current + previous × overlap%<br/>━━━━━━━━━━<br/>3 + 5 × 0.7 = 6.5<br/>≈ 6 requests"]
+    Formula --> Limit{"Limit: 7/min<br/>6 ≤ 7?"}
+    Limit -->|"yes"| Allow["✅ Allow"]
+    Limit -->|"no"| Deny["❌ Deny"]
+    style Allow fill:#d1fae5,stroke:#059669

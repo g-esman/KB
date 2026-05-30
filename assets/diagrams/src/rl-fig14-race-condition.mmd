@@ -1,0 +1,12 @@
+sequenceDiagram
+    participant R1 as Request 1
+    participant Redis
+    participant R2 as Request 2
+    Note over Redis: counter = 3
+    R1->>Redis: read counter
+    Redis-->>R1: 3
+    R2->>Redis: read counter
+    Redis-->>R2: 3
+    R1->>Redis: write counter = 4
+    R2->>Redis: write counter = 4
+    Note over Redis: ⚠️ should be 5, is 4

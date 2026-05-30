@@ -1,0 +1,5 @@
+flowchart LR
+    U[User<br/>browser / mobile] --> DNS[(DNS)]
+    U -->|HTTP| WS[Web server<br/>www.mysite.com / api.mysite.com]
+    WS -->|read / write / update| DB[(Database)]
+    DB -->|return data| WS

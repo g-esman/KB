@@ -1,0 +1,6 @@
+flowchart TD
+    U[User<br/>browser / mobile] --> DNS[(DNS)]
+    U -->|"v1/me/feed"| LB{Load Balancer}
+    LB --> WS[Web Servers]
+    WS --> NFS[News Feed Service]
+    NFS --> NFCache[(News Feed Cache)]

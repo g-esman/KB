@@ -1,0 +1,9 @@
+flowchart LR
+    subgraph U[User]
+        B[Web browser<br/>www.mysite.com]
+        M[Mobile app<br/>api.mysite.com]
+    end
+    U --> DNS[(DNS)]
+    DNS -->|IP address| U
+    U -->|HTTP request| WS[Web server<br/>app + DB + cache]
+    WS -->|HTML / JSON| U

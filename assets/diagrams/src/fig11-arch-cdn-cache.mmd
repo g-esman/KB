@@ -1,0 +1,21 @@
+flowchart TD
+    User[User<br/>browser / mobile] --> DNS[(DNS)]
+    User --> CDN[(CDN<br/>static assets)]
+    User -->|HTTP| LB{Load Balancer}
+    LB --> S1[Server 1]
+    LB --> S2[Server 2]
+    subgraph Web[Web tier]
+        S1
+        S2
+    end
+    S1 --> Cache[(Cache)]
+    S2 --> Cache
+    subgraph Data[Data tier]
+        Master[(Master DB)]
+        Slave[(Slave DB)]
+        Master -.replicate.-> Slave
+    end
+    S1 -->|writes| Master
+    S2 -->|writes| Master
+    S1 -->|reads| Slave
+    S2 -->|reads| Slave

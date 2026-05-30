@@ -1,0 +1,8 @@
+sequenceDiagram
+    participant U as User (browser/mobile)
+    participant DNS as DNS
+    participant WS as Web server (15.125.23.214)
+    U->>DNS: 1. resolve api.mysite.com
+    DNS-->>U: 2. 15.125.23.214
+    U->>WS: 3. HTTP request
+    WS-->>U: 4. HTML page / JSON

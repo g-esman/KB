@@ -1,0 +1,13 @@
+flowchart LR
+    subgraph Prod[Producer — Web servers]
+        W1[w1]
+        W2[w2]
+        W3[w3]
+    end
+    Prod -->|publish| Q[(queue for<br/>photo processing)]
+    Q -->|consume| Cons
+    subgraph Cons[Consumer — Photo processing workers]
+        P1[w1]
+        P2[w2]
+        P3[w3]
+    end

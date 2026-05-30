@@ -1,0 +1,5 @@
+flowchart TD
+    User[User] --> GeoDNS[(GeoDNS)]
+    GeoDNS -->|100% traffic| DC1[DC1 — US-East ✅]
+    GeoDNS -.X.- DC2[DC2 — US-West ❌ offline]
+    DC1 --> NoSQL[(Shared NoSQL)]

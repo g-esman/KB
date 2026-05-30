@@ -1,0 +1,37 @@
+flowchart TD
+    Start(["letters = list(s)"])
+    P1["pivot = n - 2"]
+    P2{{"pivot &gt;= 0 AND<br/>letters[pivot] &gt;= letters[pivot+1] ?"}}
+    P3["pivot -= 1"]
+    NoPivot{{"pivot == -1 ?"}}
+    Reverse(["return reversed(s)<br/>(string ya era la última perm)"])
+    R1["rs = n - 1"]
+    R2{{"letters[rs] &lt;= letters[pivot] ?"}}
+    R3["rs -= 1"]
+    Swap["swap(letters[pivot], letters[rs])"]
+    RevTail["reverse letters[pivot+1 ..]"]
+    End(["return joined letters  ✓"])
+
+    Start --> P1 --> P2
+    P2 -- yes --> P3 --> P2
+    P2 -- no --> NoPivot
+    NoPivot -- yes --> Reverse
+    NoPivot -- no --> R1 --> R2
+    R2 -- yes --> R3 --> R2
+    R2 -- no --> Swap --> RevTail --> End
+
+    classDef start fill:#fef3c7,stroke:#d97706,stroke-width:2px
+    classDef cond fill:#dbeafe,stroke:#2563eb,stroke-width:1.5px
+    classDef proc fill:#f3f4f6,stroke:#6b7280
+    classDef stage1 fill:#ccfbf1,stroke:#0d9488,color:#134e4a
+    classDef stage2 fill:#f3e8ff,stroke:#a855f7,color:#581c87
+    classDef ok fill:#d1fae5,stroke:#059669,stroke-width:2px,color:#064e3b
+    classDef wrap fill:#fef9c3,stroke:#ca8a04,color:#713f12
+
+    class Start start
+    class P2,NoPivot,R2 cond
+    class P1,P3 stage1
+    class R1,R3 stage2
+    class Swap,RevTail proc
+    class End ok
+    class Reverse wrap

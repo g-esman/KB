@@ -1,0 +1,13 @@
+sequenceDiagram
+    participant UA as User A
+    participant CDN
+    participant Origin
+    participant UB as User B
+    UA->>CDN: 1. get image.png
+    Note over CDN: not in cache
+    CDN->>Origin: 2. get image.png from server
+    Origin-->>CDN: 3. store image.png + TTL
+    CDN-->>UA: 4. return image.png
+    UB->>CDN: 5. get image.png
+    Note over CDN: cache hit (TTL not expired)
+    CDN-->>UB: 6. return image.png

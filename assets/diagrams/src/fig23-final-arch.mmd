@@ -1,0 +1,16 @@
+flowchart TD
+    User[User] --> DNS[(DNS)]
+    User --> CDN[(CDN)]
+    User -->|HTTP| LB{Load Balancer}
+    subgraph DC1[Data Center 1]
+        LB --> Web[Web servers]
+        Web --> Cache[(Cache)]
+        Web --> Shards[("Databases — Sharded<br/>shard0 · shard1 · shard2 · shard3")]
+        Web -->|publish| MQ[(Message Queue)]
+        MQ -->|consume| Workers[Workers]
+        Workers --> NoSQL[(NoSQL)]
+        Web --> NoSQL
+    end
+    Tools["📊 Logging · Metrics · Monitoring · Automation"]
+    Web -.-> Tools
+    Workers -.-> Tools

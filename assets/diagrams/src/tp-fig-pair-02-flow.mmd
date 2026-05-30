@@ -1,0 +1,31 @@
+flowchart TD
+    Start(["left = 0<br/>right = n - 1"])
+    Cond{{"left &lt; right ?"}}
+    Sum["sum = nums[left] + nums[right]"]
+    Less{{"sum &lt; target ?"}}
+    Greater{{"sum &gt; target ?"}}
+    LeftPP["left += 1"]
+    RightMM["right -= 1"]
+    Found(["return [left, right]  ✓"])
+    Empty(["return [ ]"])
+
+    Start --> Cond
+    Cond -- no --> Empty
+    Cond -- yes --> Sum
+    Sum --> Less
+    Less -- yes --> LeftPP --> Cond
+    Less -- no --> Greater
+    Greater -- yes --> RightMM --> Cond
+    Greater -- no --> Found
+
+    classDef start fill:#fef3c7,stroke:#d97706,stroke-width:2px
+    classDef cond fill:#dbeafe,stroke:#2563eb,stroke-width:1.5px
+    classDef proc fill:#f3f4f6,stroke:#6b7280
+    classDef ok fill:#d1fae5,stroke:#059669,stroke-width:2px,color:#064e3b
+    classDef bad fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#7f1d1d
+
+    class Start start
+    class Cond,Less,Greater cond
+    class Sum,LeftPP,RightMM proc
+    class Found ok
+    class Empty bad

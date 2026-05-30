@@ -1,0 +1,4 @@
+flowchart LR
+    C1[Client] -->|120 ms| Origin[Origin]
+    C2[Client] -->|30 ms| CDN[(CDN ⚡)]
+    CDN --> Origin

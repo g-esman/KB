@@ -1,0 +1,17 @@
+flowchart TD
+    User[User] --> DNS[(DNS)]
+    User --> CDN[(CDN)]
+    User -->|HTTP| LB{Load Balancer}
+    subgraph DC1[Data Center 1]
+        LB --> Web[Web servers]
+        Web --> Cache[(Cache)]
+        Web --> Master[(Master DB)]
+        Master -.replicate.-> Slave[(Slave DB)]
+        Web --> Slave
+        Web -->|publish| MQ[(Message Queue 1)]
+        MQ -->|consume| Workers[Workers]
+        Workers --> NoSQL[(NoSQL)]
+    end
+    Tools["📊 Tools 2 — Logging · Metrics · Monitoring · Automation"]
+    Web -.-> Tools
+    Workers -.-> Tools

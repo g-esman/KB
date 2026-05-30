@@ -1,0 +1,9 @@
+flowchart TD
+    Req["📨 New request at time T"]
+    Req --> Remove["1. Remove timestamps<br/>older than (T - window)"]
+    Remove --> Add["2. Add timestamp T<br/>to the log"]
+    Add --> Check{"3. log size ≤ limit?"}
+    Check -->|"yes"| Allow["✅ Allow request"]
+    Check -->|"no"| Deny["❌ Deny<br/>(but timestamp stays in log)"]
+    style Allow fill:#d1fae5,stroke:#059669
+    style Deny fill:#fee2e2,stroke:#dc2626

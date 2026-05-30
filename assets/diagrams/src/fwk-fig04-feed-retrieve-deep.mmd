@@ -1,0 +1,13 @@
+flowchart TD
+    U[User] --> DNS[(DNS)]
+    U --> CDN[("CDN ⑥")]
+    U -->|"①"| LB{Load Balancer}
+    LB -->|"②"| WS["Web Servers<br/>auth + rate limit"]
+    WS -->|"③"| NFS[News Feed Service]
+    NFS -->|"④"| NFCache[(News Feed Cache)]
+    NFS -->|"⑤"| UCache[(User Cache)]
+    UCache --> UDB[(User DB)]
+    NFS -->|"⑤"| PCache[(Post Cache)]
+    PCache --> PDB[(Post DB)]
+    style CDN fill:#dbeafe,stroke:#2563eb
+    style NFS fill:#fef3c7,stroke:#f59e0b

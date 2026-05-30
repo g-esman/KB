@@ -1,0 +1,8 @@
+flowchart TD
+    C1[Client 1] --> RL1[Rate Limiter 1]
+    C1 --> RL2[Rate Limiter 2]
+    C2[Client 2] --> RL1
+    C2 --> RL2
+    RL1 -->|"shared state"| Redis[("Redis<br/>centralized<br/>counters")]
+    RL2 -->|"shared state"| Redis
+    style Redis fill:#fee2e2,stroke:#dc2626

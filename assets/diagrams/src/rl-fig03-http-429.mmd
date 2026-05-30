@@ -1,0 +1,8 @@
+flowchart LR
+    Client[Client<br/>3 req in 1s<br/>limit: 2 req/s] -->|"req 1"| RL{Rate Limiter}
+    Client -->|"req 2"| RL
+    Client -->|"req 3"| RL
+    RL -->|"✅ req 1 allowed"| API[API Servers]
+    RL -->|"✅ req 2 allowed"| API
+    RL -.->|"❌ req 3<br/>HTTP 429: Too many requests"| Client
+    style RL fill:#fef3c7,stroke:#f59e0b

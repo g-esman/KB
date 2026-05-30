@@ -1,0 +1,6 @@
+flowchart LR
+    Client[Client<br/>💻 📱] -->|"1. request"| RL[Rate Limiter<br/>middleware]
+    RL <-->|"2. INCR / EXPIRE"| Redis[("Redis<br/>counters")]
+    RL -->|"3. if OK, forward"| API[API Servers]
+    RL -.->|"3. if blocked,<br/>HTTP 429"| Client
+    style RL fill:#fef3c7,stroke:#f59e0b

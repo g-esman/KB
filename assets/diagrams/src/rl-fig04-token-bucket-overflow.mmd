@@ -1,0 +1,4 @@
+flowchart TD
+    Refill["🪙 Refill source<br/>2 tokens / second"] -->|drop tokens| Bucket["🪣 Bucket<br/>capacity: 4<br/>━━━━━━<br/>🪙 🪙 🪙 🪙"]
+    Bucket -->|"overflow when full"| Trash["🗑️ extra tokens<br/>discarded"]
+    style Bucket fill:#d1fae5,stroke:#059669

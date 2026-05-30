@@ -1,0 +1,14 @@
+sequenceDiagram
+    participant Web as Web server
+    participant Cache
+    participant DB as Database
+    Web->>Cache: 1. read data
+    alt cache hit
+        Cache-->>Web: return data
+    else cache miss
+        Cache-->>Web: nil
+        Web->>DB: 2.1 query
+        DB-->>Web: row
+        Web->>Cache: store result
+        Note over Web: 2.2 return data to web server
+    end

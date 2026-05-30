@@ -1,0 +1,7 @@
+flowchart LR
+    U[User<br/>mywebsite.com] --> DNS[(DNS<br/>mywebsite.com → 88.88.88.1)]
+    U -->|public IP 88.88.88.1| LB{Load Balancer}
+    subgraph Private[Private network]
+        LB -->|10.0.0.1| S1[Server 1]
+        LB -->|10.0.0.2| S2[Server 2]
+    end

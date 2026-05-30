@@ -1,0 +1,15 @@
+flowchart LR
+    subgraph V["Vertical Scaling — Increase CPU, RAM, DISK, etc."]
+        V1[Server S]
+        V2[Server M]
+        V3[Server XL]
+        V1 --> V2 --> V3
+    end
+    subgraph H["Horizontal Scaling — Add more servers"]
+        H1[Srv]
+        H2[Srv]
+        H3[Srv]
+        H4[Srv]
+        H5[Srv]
+        H6[Srv]
+    end

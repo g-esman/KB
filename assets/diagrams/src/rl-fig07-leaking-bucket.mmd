@@ -1,0 +1,7 @@
+flowchart LR
+    Reqs["📨 Incoming requests"] --> Q{Bucket full?}
+    Q -->|"no"| Queue["FIFO Queue<br/>━━━━━━━━━━<br/>📨 📨 📨 ⬜ ⬜"]
+    Q -->|"yes"| Drop["❌ dropped"]
+    Queue -->|"processed at fixed rate<br/>(e.g. 1 / second)"| Out["✅ Requests go through"]
+    style Out fill:#d1fae5,stroke:#059669
+    style Drop fill:#fee2e2,stroke:#dc2626

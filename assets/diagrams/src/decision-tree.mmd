@@ -1,0 +1,14 @@
+flowchart TD
+    Start{What's slow?} --> A{App server CPU/mem?}
+    A -->|yes| AddSrv[Add web servers behind LB]
+    A -->|no| B{DB read latency?}
+    B -->|yes| Cache[Add cache layer]
+    Cache --> Replica[Then add read replicas]
+    B -->|no| C{Static asset latency?}
+    C -->|yes| AddCDN[Put assets on CDN]
+    C -->|no| D{Sync work blocks requests?}
+    D -->|yes| Queue[Introduce message queue]
+    D -->|no| E{DB writes saturated?}
+    E -->|yes| Shard[Shard the DB]
+    E -->|no| F{Single-region SPOF?}
+    F -->|yes| MultiDC[Add second DC + GeoDNS]

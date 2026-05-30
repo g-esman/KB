@@ -1,0 +1,8 @@
+flowchart TD
+    Web[Web servers] -->|writes| Master[(Master DB)]
+    Master -.DB replication.-> S1[(Slave DB 1)]
+    Master -.DB replication.-> S2[(Slave DB 2)]
+    Master -.DB replication.-> S3[(Slave DB 3)]
+    Web -->|reads| S1
+    Web -->|reads| S2
+    Web -->|reads| S3

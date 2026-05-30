@@ -1,0 +1,26 @@
+flowchart TD
+    User[User<br/>browser / mobile] --> DNS[(DNS)]
+    User --> CDN[(CDN)]
+    User -->|HTTP| LB{Load Balancer}
+    subgraph Web["Web tier — autoscaled"]
+        S1[Server 1]
+        S2[Server 2]
+        S3[Server 3]
+        S4[Server 4]
+    end
+    LB --> S1
+    LB --> S2
+    LB --> S3
+    LB --> S4
+    Web --> Cache[(Cache)]
+    Web --> NoSQL[(NoSQL<br/>session data)]
+    subgraph Data[Data tier]
+        Master[(Master DB)]
+        Slave1[(Slave DB)]
+        Slave2[(Slave DB)]
+    end
+    Web -->|writes| Master
+    Web -->|reads| Slave1
+    Web -->|reads| Slave2
+    Master -.replicate.-> Slave1
+    Master -.replicate.-> Slave2

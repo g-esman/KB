@@ -1,0 +1,4 @@
+flowchart LR
+    Producer -->|publish| Q[(Message Queue<br/>📨 📨 📨)]
+    Q -->|consume| Consumer
+    Consumer -.subscribe.-> Q

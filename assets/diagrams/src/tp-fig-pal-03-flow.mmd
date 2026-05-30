@@ -1,0 +1,33 @@
+flowchart TD
+    Start(["left = 0<br/>right = n - 1"])
+    Cond{{"left &lt; right ?"}}
+    SkipL{{"s[left] no es<br/>alfanumérico ?"}}
+    SkipLInc["left += 1"]
+    SkipR{{"s[right] no es<br/>alfanumérico ?"}}
+    SkipRDec["right -= 1"]
+    Compare{{"s[left] == s[right] ?"}}
+    Move["left += 1<br/>right -= 1"]
+    True_(["return True  ✓"])
+    False_(["return False"])
+
+    Start --> Cond
+    Cond -- no --> True_
+    Cond -- yes --> SkipL
+    SkipL -- yes --> SkipLInc --> SkipL
+    SkipL -- no --> SkipR
+    SkipR -- yes --> SkipRDec --> SkipR
+    SkipR -- no --> Compare
+    Compare -- no --> False_
+    Compare -- yes --> Move --> Cond
+
+    classDef start fill:#fef3c7,stroke:#d97706,stroke-width:2px
+    classDef cond fill:#dbeafe,stroke:#2563eb,stroke-width:1.5px
+    classDef proc fill:#f3f4f6,stroke:#6b7280
+    classDef ok fill:#d1fae5,stroke:#059669,stroke-width:2px,color:#064e3b
+    classDef bad fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#7f1d1d
+
+    class Start start
+    class Cond,SkipL,SkipR,Compare cond
+    class SkipLInc,SkipRDec,Move proc
+    class True_ ok
+    class False_ bad

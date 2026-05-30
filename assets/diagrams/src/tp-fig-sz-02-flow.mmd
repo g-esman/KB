@@ -1,0 +1,26 @@
+flowchart TD
+    Start(["left = 0"])
+    Loop["for right in 0 .. n-1"]
+    Check{{"nums[right] != 0 ?"}}
+    SkipNote["(right avanza solo)"]
+    Swap["swap(nums[left], nums[right])"]
+    LeftPP["left += 1"]
+    End(["fin  ✓"])
+
+    Start --> Loop
+    Loop --> Check
+    Check -- no --> SkipNote --> Loop
+    Check -- yes --> Swap --> LeftPP --> Loop
+    Loop -. exit .-> End
+
+    classDef start fill:#fef3c7,stroke:#d97706,stroke-width:2px
+    classDef cond fill:#dbeafe,stroke:#2563eb,stroke-width:1.5px
+    classDef proc fill:#f3f4f6,stroke:#6b7280
+    classDef note fill:#f9fafb,stroke:#d1d5db,color:#6b7280,font-style:italic
+    classDef ok fill:#d1fae5,stroke:#059669,stroke-width:2px,color:#064e3b
+
+    class Start start
+    class Check cond
+    class Loop,Swap,LeftPP proc
+    class SkipNote note
+    class End ok

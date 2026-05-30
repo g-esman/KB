@@ -1,0 +1,23 @@
+flowchart LR
+    subgraph CPU["⚡ CPU — nanoseconds"]
+        L1["L1 cache<br/>0.5 ns"]
+        BM["Branch miss<br/>5 ns"]
+        L2["L2 cache<br/>7 ns"]
+        Mtx["Mutex<br/>100 ns"]
+        Mem["Main memory<br/>100 ns"]
+    end
+    subgraph Local["💨 Local — microseconds"]
+        Cmp["Compress 1KB<br/>10 µs"]
+        N1["Send 2KB / 1Gbps<br/>20 µs"]
+        Mread["Read 1MB from RAM<br/>250 µs"]
+    end
+    subgraph DC["🏢 Data center — milliseconds"]
+        RT["DC round-trip<br/>0.5 ms"]
+        Disk["Disk seek<br/>10 ms"]
+        Nread["Read 1MB over net<br/>10 ms"]
+        Dread["Read 1MB from disk<br/>30 ms"]
+    end
+    subgraph WAN["🌍 Cross-region — 100s ms"]
+        CA["CA → NL → CA<br/>150 ms"]
+    end
+    CPU --> Local --> DC --> WAN

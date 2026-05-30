@@ -1,0 +1,27 @@
+flowchart TD
+    Start(["left = 0<br/>right = n - 1<br/>max_water = 0"])
+    Cond{{"left &lt; right ?"}}
+    Calc["water = min(heights[left], heights[right])<br/>· (right - left)"]
+    Update["max_water = max(max_water, water)"]
+    Compare{{"heights[left] vs heights[right] ?"}}
+    LeftMove["left += 1"]
+    RightMove["right -= 1"]
+    BothMove["left += 1<br/>right -= 1"]
+    End(["return max_water  ✓"])
+
+    Start --> Cond
+    Cond -- no --> End
+    Cond -- yes --> Calc --> Update --> Compare
+    Compare -- "L &lt; R" --> LeftMove --> Cond
+    Compare -- "L &gt; R" --> RightMove --> Cond
+    Compare -- "L == R" --> BothMove --> Cond
+
+    classDef start fill:#fef3c7,stroke:#d97706,stroke-width:2px
+    classDef cond fill:#dbeafe,stroke:#2563eb,stroke-width:1.5px
+    classDef proc fill:#f3f4f6,stroke:#6b7280
+    classDef ok fill:#d1fae5,stroke:#059669,stroke-width:2px,color:#064e3b
+
+    class Start start
+    class Cond,Compare cond
+    class Calc,Update,LeftMove,RightMove,BothMove proc
+    class End ok

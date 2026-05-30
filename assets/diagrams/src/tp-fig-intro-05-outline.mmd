@@ -1,0 +1,22 @@
+flowchart TD
+    TP([Two Pointers])
+    TP --> IN[Inward Traversal<br/>extremos al centro]
+    TP --> UNI[Unidirectional Traversal<br/>mismo sentido]
+    TP --> ST[Staged Traversal<br/>uno busca, otro confirma]
+
+    IN --> P1[Pair Sum - Sorted]
+    IN --> P2[Triplet Sum]
+    IN --> P3[Largest Container]
+    IN --> P4[Is Palindrome Valid]
+
+    UNI --> P5[Shift Zeros to the End]
+
+    ST --> P6[Next Lexicographical Sequence]
+
+    classDef root fill:#fef3c7,stroke:#d97706,stroke-width:2.5px,color:#92400e
+    classDef strategy fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e3a8a
+    classDef problem fill:#f3f4f6,stroke:#6b7280,color:#111827
+
+    class TP root
+    class IN,UNI,ST strategy
+    class P1,P2,P3,P4,P5,P6 problem

@@ -1,0 +1,27 @@
+flowchart TD
+    Sort["Sort nums ascending"]
+    Loop["for i in 0 .. n-1"]
+    Pos{{"nums[i] &gt; 0 ?"}}
+    Dup{{"i &gt; 0 AND<br/>nums[i] == nums[i-1] ?"}}
+    Pair["pair_sum_all_pairs<br/>start = i+1<br/>target = -nums[i]"]
+    Add["for each pair → triplets += [nums[i] + pair]"]
+    End(["return triplets  ✓"])
+
+    Sort --> Loop
+    Loop --> Pos
+    Pos -- yes --> End
+    Pos -- no --> Dup
+    Dup -- yes --> Loop
+    Dup -- no --> Pair
+    Pair --> Add
+    Add --> Loop
+
+    classDef start fill:#fef3c7,stroke:#d97706,stroke-width:2px
+    classDef cond fill:#dbeafe,stroke:#2563eb,stroke-width:1.5px
+    classDef proc fill:#f3f4f6,stroke:#6b7280
+    classDef ok fill:#d1fae5,stroke:#059669,stroke-width:2px,color:#064e3b
+
+    class Sort start
+    class Pos,Dup cond
+    class Loop,Pair,Add proc
+    class End ok

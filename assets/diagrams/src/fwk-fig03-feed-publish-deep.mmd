@@ -1,0 +1,17 @@
+flowchart TD
+    U[User] --> DNS[(DNS)]
+    U --> LB{Load Balancer}
+    LB --> WS["Web Servers<br/>auth + rate limit"]
+    WS --> Post[Post Service]
+    Post --> PCache[(Post Cache)]
+    PCache --> PDB[(Post DB)]
+    WS --> Fan[Fanout Service]
+    Fan -->|"① get friend IDs"| Graph[(Graph DB)]
+    Fan -->|"② get user info"| UCache[(User Cache)]
+    UCache --> UDB[(User DB)]
+    Fan -->|"③ send to queue"| MQ[(Message Queue)]
+    MQ -->|"④ consume"| FW[Fanout Workers]
+    FW -->|"⑤ update"| NFCache[(News Feed Cache)]
+    WS --> Notif[Notification Service]
+    style Fan fill:#fef3c7,stroke:#f59e0b
+    style FW fill:#fef3c7,stroke:#f59e0b

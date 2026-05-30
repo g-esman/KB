@@ -1,0 +1,5 @@
+flowchart TD
+    UA[User A] -->|http request| Pool[Web servers<br/>any can handle any user]
+    UB[User B] -->|http request| Pool
+    UC[User C] -->|http request| Pool
+    Pool -->|fetch state| Store[(Shared Storage<br/>session data)]

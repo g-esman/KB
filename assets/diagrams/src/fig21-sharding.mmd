@@ -1,0 +1,5 @@
+flowchart TD
+    Q{user_id % 4} -->|0| S0[(Shard 0)]
+    Q -->|1| S1[(Shard 1)]
+    Q -->|2| S2[(Shard 2)]
+    Q -->|3| S3[(Shard 3)]

@@ -1,0 +1,11 @@
+flowchart TD
+    A["300M monthly active users"] --> B["× 50% daily"]
+    B --> C["= 150M Daily Active Users (DAU)"]
+    C --> D["× 2 tweets per day"]
+    D --> E["= 300M tweets/day"]
+    E --> F["÷ 86,400 sec/day<br/>(24 × 3600)"]
+    F --> G["≈ 3,500 QPS (average)"]
+    G --> H["× 2 peak factor"]
+    H --> I["≈ 7,000 peak QPS"]
+    style A fill:#dbeafe,stroke:#2563eb
+    style I fill:#fef3c7,stroke:#f59e0b

@@ -1,0 +1,3 @@
+flowchart LR
+    Client[Client] -->|HTTP request| RL[Rate Limiter<br/>middleware]
+    RL --> API[API Servers]
