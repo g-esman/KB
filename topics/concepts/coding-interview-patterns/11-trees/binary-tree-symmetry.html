@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Binary Tree Symmetry · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 11 — Trees</span><span class="sep">/</span><span class="current">Binary Tree Symmetry</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Binary Tree Symmetry</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">trees</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Binary Tree Symmetry
+Determine if a binary tree is vertically symmetric. That is, the left subtree of the root node is a mirror of the right subtree.</p>
+<p>Example:
+Image represents a binary tree data structure.  The tree is composed of nodes, represented by circles, each containing a numerical value. The root node, at the top, contains the value &lsquo;5&rsquo;.  This root node connects to two child nodes, each containing the value &lsquo;2&rsquo;. Each of these &lsquo;2&rsquo; nodes further branches into two child nodes: one with the value &lsquo;1&rsquo; and another with the value &lsquo;4&rsquo;. The &lsquo;4&rsquo; nodes then connect to a child node with the value &lsquo;3&rsquo;.  The entire structure is mirrored across a dashed vertical line, creating a symmetrical tree.  No URLs or parameters are present. The numbers within the nodes do not appear to represent any specific data other than their position within the tree structure. The dashed line serves as a visual aid to highlight the symmetry of the tree.
+Output: True
+Intuition
+To check a binary tree&rsquo;s symmetry, we need to assess its left and right subtrees. The first thing to note is that the root node itself doesn’t affect the symmetry of the tree. Therefore, we don&rsquo;t need to consider the root node. We now have the task of comparing two subtrees to check if one vertically mirrors the other.</p>
+<p>Consider the root node’s left and right subtrees in the following example:</p>
+<p>Image represents a binary tree data structure.  The topmost node, colored light gray, contains the value &lsquo;5&rsquo; and serves as the root of the tree.  From the root, two branches extend downwards, each connecting to a node with the value &lsquo;2&rsquo;.  Each of these &lsquo;2&rsquo; nodes further branches into two child nodes.  The left &lsquo;2&rsquo; node connects to a node with the value &lsquo;1&rsquo; and another with the value &lsquo;4&rsquo;. The &lsquo;4&rsquo; node then connects to a child node with the value &lsquo;3&rsquo;.  Similarly, the right &lsquo;2&rsquo; node connects to a node with the value &lsquo;4&rsquo; and another with the value &lsquo;1&rsquo;. The &lsquo;4&rsquo; node on the right also connects to a child node with the value &lsquo;3&rsquo;. All connections between nodes are represented by lines, with the lines connecting the root node to its children being light gray and the remaining connections being black.  The numbers within each circle represent the data stored in each node of the tree. The structure visually demonstrates a hierarchical relationship between the data elements.
+The key observation here is that the right subtree is an inverted version of the left subtree.</p>
+<p>We’ve learned from the problem Invert Binary Tree that an inversion is performed by swapping the left and right child of every node. This suggests the value of each node&rsquo;s left child in the left subtree should match the value of the right child of the corresponding node in the right subtree, and vice versa.</p>
+<p>We can start by using DFS to traverse both subtrees. During this traversal, we compare the left and right children of each node in the left subtree with the right and left children of its corresponding node in the right subtree, respectively.</p>
+<p>If the values of any two nodes being compared are not the same, the tree is not symmetric.</p>
+<p>If, at any point, one of the child nodes being compared is null while the other isn’t, the tree is also not symmetric.</p>
+<p>Initially, we see the values of the root nodes of the left and right subtrees are equal:</p>
+<p>Image represents a comparison of two tree structures labeled &lsquo;node1&rsquo; and &lsquo;node2&rsquo;, each rooted at a node with value &lsquo;2&rsquo;.  &lsquo;node1&rsquo; branches into a left child with value &lsquo;1&rsquo; and a right child with value &lsquo;4&rsquo;, which further branches into a child with value &lsquo;3&rsquo;. Similarly, &lsquo;node2&rsquo; branches into a left child with value &lsquo;4&rsquo; (which further branches into a child with value &lsquo;3&rsquo;) and a right child with value &lsquo;1&rsquo;.  Arrows point from the labels &lsquo;node1&rsquo; and &lsquo;node2&rsquo; to their respective root nodes, indicating the input to a function &lsquo;dfs(node1, node2)&rsquo;.  A separate, light-grey, dashed-bordered box to the right describes the function&rsquo;s first step: &lsquo;1. check that node1.val == node2.val&rsquo;, indicating a comparison of the root node values of the two input trees.
+Since they’re equal, proceed by comparing their children through recursive DFS calls. Specifically, make two recursive DFS calls to compare the left child of one node with the right child of the other. This checks that node2’s children contain the same values as node1’s children, but inverted.</p>
+<p>Image represents two binary trees labeled &lsquo;node1&rsquo; and &lsquo;node2&rsquo;, each rooted at a node with value &lsquo;2&rsquo;.  In &lsquo;node1&rsquo;, the left child of the root is &lsquo;1&rsquo; and the right child is &lsquo;4&rsquo;.  Node &lsquo;4&rsquo; has a child &lsquo;3&rsquo;. In &lsquo;node2&rsquo;, the left child of the root is &lsquo;4&rsquo; and the right child is &lsquo;1&rsquo;. Node &lsquo;4&rsquo; has a child &lsquo;3&rsquo;.  Cyan arrows indicate the &lsquo;left&rsquo; and &lsquo;right&rsquo; branches in both trees. Magenta arrows highlight the comparison between the left subtree of &lsquo;node1&rsquo; and the right subtree of &lsquo;node2&rsquo;, and vice-versa. Dashed cyan lines connect nodes &lsquo;1&rsquo; and &lsquo;3&rsquo; from &lsquo;node1&rsquo; to nodes &lsquo;1&rsquo; and &lsquo;3&rsquo; from &lsquo;node2&rsquo;, respectively, labeled &lsquo;compare&rsquo;.  To the right, a gray box describes a check:  &lsquo;2. check that dfs(node1.left, node2.right) and dfs(node1.right, node2.left) are True,&rsquo; indicating a depth-first search comparison between the specified subtrees to verify their structural equality.
+If either DFS call returns false, the subtrees are not symmetric. If both DFS calls return true, the subtrees are symmetric. This process is repeated for the entire tree.</p>
+<p>Try it yourself
+Write your solution to the problem before checking the reference implementation.
+Implementation
+Python
+JavaScript
+Java
+from ds import TreeNode
+    
+def binary_tree_symmetry(root: TreeNode) -&gt; bool:
+    if not root:
+        return True
+    return compare_trees(root.left, root.right)
+    
+def compare_trees(node1: TreeNode, node2: TreeNode) -&gt; bool:
+    # Base case: if both nodes are null, they&rsquo;re symmetric.
+    if not node1 and not node2:
+        return True
+    # If one node is null and the other isn&rsquo;t, they aren&rsquo;t symmetric.
+    if not node1 or not node2:
+        return False
+    # If the values of the current nodes don&rsquo;t match, trees aren&rsquo;t symmetric.
+    if node1.val != node2.val:
+        return False
+    # Compare the &lsquo;node1&rsquo;s left subtree with &lsquo;node2&rsquo;s right subtree. If these
+    # aren&rsquo;t symmetric, the whole tree is not symmetric.
+    if not compare_trees(node1.left, node2.right):
+        return False
+    # Compare the &lsquo;node1&rsquo;s right subtree with &lsquo;node2&rsquo;s left subtree.
+    return compare_trees(node1.right, node2.left)
+Complexity Analysis
+Time complexity: The time complexity of binary_tree_symmetry is 
+O
+(
+n
+)
+O(n), where 
+n
+n denotes the number of nodes in the tree. This is because we process each node recursively at most once.</p>
+<p>Space complexity: The space complexity is 
+O
+(
+n
+)
+O(n) due to the space taken up by the recursive call stack, which can grow as large as the height of the binary tree. The largest possible height of a binary tree is 
+n
+n.</p>
+<p>Interview Tip
+Tip: Cover null cases. Always check for null or empty inputs before using their attributes in a function. In this problem, the main binary_tree_symmetry function itself accesses the left and right attributes of the input node, necessitating an initial null check.</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="maximum-sum-of-continuous-path.html"><div class="label">← Anterior</div><div class="title">Maximum Sum of a Continuous Path in a Binary Tree</div></a><a class="next" href="binary-tree-columns.html"><div class="label">Siguiente →</div><div class="title">Binary Tree Columns</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="binary-tree-symmetry.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

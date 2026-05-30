@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phone Keypad Combinations · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 14 — Backtracking</span><span class="sep">/</span><span class="current">Phone Keypad Combinations</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Phone Keypad Combinations</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">backtracking</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Phone Keypad Combinations
+You are given a string containing digits from 2 to 9 inclusive. Each digit maps to a set of letters as on a traditional phone keypad:</p>
+<p>1 <br />
+2 abc</p>
+<p>3 def</p>
+<p>4 ghi</p>
+<p>5 jkl</p>
+<p>6 mno</p>
+<p>7 pqrs</p>
+<p>8 tuv</p>
+<p>9 wxyz</p>
+<p>Return all possible letter combinations the input digits could represent.</p>
+<p>Example:
+Input: digits = &lsquo;69&rsquo;
+Output: [&lsquo;mw&rsquo;, &lsquo;mx&rsquo;, &lsquo;my&rsquo;, &lsquo;mz&rsquo;, &lsquo;nw&rsquo;, &lsquo;nx&rsquo;, &lsquo;ny&rsquo;, &lsquo;nz&rsquo;, &lsquo;ow&rsquo;, &lsquo;ox&rsquo;, &lsquo;oy&rsquo;, &lsquo;oz&rsquo;]
+Intuition
+At each digit in the string, we have a decision to make: which letter will this digit represent? Based on this decision, let&rsquo;s illustrate the state space tree that represents the choices at each digit of the input string.</p>
+<p>State space tree
+Consider the input string &ldquo;69&rdquo;. Let&rsquo;s start with the root node of the tree, which is an empty string:</p>
+<p>Image represents a simplified diagram showing four vertical, rectangular blocks arranged horizontally with small gaps between them.  There are no labels, URLs, parameters, or other textual information present within or around the blocks.  The blocks are all identical in appearance, being solid black rectangles of seemingly equal size and shape.  The arrangement suggests a linear or sequential process, with information potentially flowing from left to right, although no arrows or other indicators of direction or data flow are visible. The image lacks any further detail or context to specify the nature of the blocks or their interaction.
+At the first digit, 6, we have the choice of starting our combination with &lsquo;m&rsquo;, &lsquo;n&rsquo;, or &lsquo;o&rsquo;:</p>
+<p>Image represents a decision tree illustrating a choice process.  A central node labeled &lsquo;&rsquo;&lsquo;&rsquo; (empty string) branches into three directions.  The top-most branch, labeled &lsquo;choose m&rsquo; in orange text, points left to a terminal node labeled <code>'m'</code> (representing the character &lsquo;m&rsquo;). The bottom branch, labeled &lsquo;choose n&rsquo; in orange text, points downwards to a terminal node labeled <code>'n'</code> (representing the character &lsquo;n&rsquo;). The right-most branch, labeled &lsquo;choose o&rsquo; in orange text, points right to a terminal node labeled <code>'o'</code> (representing the character &lsquo;o&rsquo;).  The leftmost node is further labeled &lsquo;digit 6: &lsquo;m&rsquo;&rsquo; indicating that this diagram might be part of a larger process related to digit 6, where &lsquo;m&rsquo; is a possible outcome.  The arrows indicate the flow of information or the decision path taken, with each branch representing a choice between different characters (&lsquo;m&rsquo;, &lsquo;n&rsquo;, or &lsquo;o&rsquo;).
+For each of these combinations we&rsquo;ve created, we now have a new decision to make: which letter of digit 9 (&lsquo;w&rsquo;, &lsquo;x&rsquo;, &lsquo;y&rsquo;, &lsquo;z&rsquo;) should we choose? These choices are illustrated below:</p>
+<p>Image represents a tree-like structure illustrating a coding pattern.  The root node is labeled with double quotes (&rsquo; &lsquo;), from which three branches extend, each labeled with a single character: &lsquo;m&rsquo; (in orange), &lsquo;n&rsquo; (in orange), and &lsquo;o&rsquo; (in orange). Each of these nodes then branches further into four child nodes, each labeled with a two-character string.  The first character in each child node&rsquo;s label is inherited from its parent node (&lsquo;m&rsquo;, &lsquo;n&rsquo;, or &lsquo;o&rsquo;), while the second character is one of &lsquo;w&rsquo;, &lsquo;x&rsquo;, &lsquo;y&rsquo;, or &lsquo;z&rsquo; (all in orange), resulting in combinations like &lsquo;mw&rsquo;, &lsquo;mx&rsquo;, &lsquo;my&rsquo;, &lsquo;mz&rsquo;, &lsquo;nw&rsquo;, &lsquo;nx&rsquo;, &lsquo;ny&rsquo;, &lsquo;nz&rsquo;, &lsquo;ow&rsquo;, &lsquo;ox&rsquo;, &lsquo;oy&rsquo;, and &lsquo;oz&rsquo;.  The left side of the image is labeled &lsquo;digit 6:&rsquo; and the bottom left &lsquo;digit 9:&rsquo;, suggesting a relationship between the tree structure and these digits, possibly representing a coding scheme where digit 6 maps to the three parent nodes (&lsquo;m&rsquo;, &lsquo;n&rsquo;, &lsquo;o&rsquo;) and digit 9 maps to the twelve leaf nodes (the two-character strings).  The arrows indicate the flow of information from parent nodes to their respective children.
+One important thing missing from this state space tree is information on which digit we&rsquo;re making a decision on at each node. We can use an index i to determine which digit we&rsquo;re considering at each node:</p>
+<p>Image represents a tree-like structure illustrating a coding pattern, possibly related to string manipulation or code generation.  The diagram&rsquo;s top shows a root node labeled  “&rsquo;&rsquo; representing an initial state. From this root, three branches descend, each labeled with a single character: &lsquo;m&rsquo;, &lsquo;n&rsquo;, and &lsquo;o&rsquo;. Each of these nodes further branches into four child nodes, each representing a two-character string.  For example, the &lsquo;m&rsquo; node branches into &lsquo;mw&rsquo;, &lsquo;mx&rsquo;, &lsquo;my&rsquo;, and &lsquo;mz&rsquo;. Similarly, &lsquo;n&rsquo; branches into &lsquo;nw&rsquo;, &lsquo;nx&rsquo;, &lsquo;ny&rsquo;, and &lsquo;nz&rsquo;, and &lsquo;o&rsquo; branches into &lsquo;ow&rsquo;, &lsquo;ox&rsquo;, &lsquo;oy&rsquo;, and &lsquo;oz&rsquo;.  To the left of the main tree, three separate boxes are shown, each labeled &lsquo;i = 0&rsquo;, &lsquo;i = 1&rsquo;, and &lsquo;i = 2&rsquo; respectively, with a downward arrow pointing to &lsquo;digit = &lsquo;69&rsquo;&rsquo; in each case. This suggests an iterative process where the value of &lsquo;i&rsquo; increments, and the &lsquo;digit&rsquo; remains constant at &lsquo;69&rsquo; throughout the iterations. The overall structure suggests a recursive or combinatorial generation of strings based on an initial input (&lsquo;69&rsquo;) and an iterative counter (&lsquo;i&rsquo;).
+The final level of this decision tree (i.e., when i == n, where n denotes the length of the input string) represents all possible combinations that can be created from the provided string. Similar to our approach in Find All Subsets, let&rsquo;s use backtracking to obtain these keypad combinations.</p>
+<p>Mapping digits to letters
+The final thing we need to figure out is a way to determine which letters correspond to which digits. A hash map is great for this purpose. In the hash map, digits are the keys, and the associated sets of letters are their values. This allows us to access the letters in constant time:</p>
+<p>Image represents a table titled &lsquo;keypad_map&rsquo; that maps digits to corresponding letters on a telephone keypad.  The table is divided into two columns. The left column, labeled &lsquo;digit&rsquo; at the bottom, lists the digits &lsquo;2&rsquo; through &lsquo;9&rsquo;, each enclosed in single quotes. The right column, labeled &lsquo;letters&rsquo; at the bottom, shows the corresponding letters associated with each digit on a standard telephone keypad, also enclosed in double quotes.  For example, the digit &lsquo;2&rsquo; maps to the letters &lsquo;abc&rsquo;, &lsquo;3&rsquo; maps to &lsquo;def&rsquo;, and so on, up to &lsquo;9&rsquo; mapping to &lsquo;wxyz&rsquo;.  There is no explicit information flow depicted; the table simply presents a static mapping between digits and letter combinations.
+Try it yourself
+Write your solution to the problem before checking the reference implementation.
+Implementation
+Python
+JavaScript
+Java
+def phone_keypad_combinations(digits: str) -&gt; List[str]:
+    keypad_map = {
+        &lsquo;2&rsquo;: &lsquo;abc&rsquo;, &lsquo;3&rsquo;: &lsquo;def&rsquo;, &lsquo;4&rsquo;: &lsquo;ghi&rsquo;, &lsquo;5&rsquo;: &lsquo;jkl&rsquo;,
+        &lsquo;6&rsquo;: &lsquo;mno&rsquo;, &lsquo;7&rsquo;: &lsquo;pqrs&rsquo;, &lsquo;8&rsquo;: &lsquo;tuv&rsquo;, &lsquo;9&rsquo;: &lsquo;wxyz&rsquo;
+    }
+    res = []
+    backtrack(0, [], digits, keypad_map, res)
+    return res</p>
+<p>def backtrack(i: int, curr_combination: List[str], digits: str,
+             keypad_map: Dict[str, str], res: List[str]) -&gt; None:
+    # Termination condition: if all digits have been considered, add the
+    # current combination to the output list.
+    if len(curr_combination) == len(digits):
+        res.append(&ldquo;&rdquo;.join(curr_combination))
+        return
+    for letter in keypad_map[digits[i]]:
+       # Add the current letter.
+        curr_combination.append(letter)
+        # Recursively explore all paths that branch from this combination.
+        backtrack(i + 1, curr_combination, digits, keypad_map, res)
+        # Backtrack by removing the letter we just added.
+        curr_combination.pop()
+Complexity Analysis
+Time complexity: The time complexity of phone_keypad_combinations is 
+O
+(
+n
+⋅
+4
+n
+)
+O(n⋅4 
+n
+ ). This is because the state space tree will branch down until a decision is made for all 
+n
+n elements. This results in a tree of height 
+n
+n with a branching factor of 4 since there are up to 4 decisions we can make at each digit. For each of the 
+4
+n
+4 
+n
+  combinations created, we convert it into a string and add it to the output list, which takes 
+O
+(
+n
+)
+O(n) time per combination. This results in a total time complexity of 
+O
+(
+n
+⋅
+4
+n
+)
+O(n⋅4 
+n
+ ).</p>
+<p>Space complexity: The space complexity is 
+O
+(
+n
+)
+O(n) due to the recursive call stack, which can grow up to a maximum depth of 
+n
+n. The keypad_map only takes constant space since there are only 8 key-value pairs.</p>
+<p>Interview Tip
+Tip: Check if you can skip trivial implementations.</p>
+<p>During an interview, it&rsquo;s crucial to manage your time effectively. If you encounter a trivial and time-consuming task, such as creating the keypad_map in this problem, it&rsquo;s possible the interviewer may allow you to skip it or implement it later if there&rsquo;s time left in the interview. Ensure you at least briefly mention how the implementation you&rsquo;re skipping would work before requesting to move on to the core logic of the problem.</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="combinations-of-a-sum.html"><div class="label">← Anterior</div><div class="title">Combinations of a Sum</div></a><a class="next" href="../15-dynamic-programming/introduction.html"><div class="label">Siguiente →</div><div class="title">Introduction to Dynamic Programming</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="phone-keypad-combinations.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

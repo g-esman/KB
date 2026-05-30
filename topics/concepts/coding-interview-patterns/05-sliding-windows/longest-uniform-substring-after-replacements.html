@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Longest Uniform Substring After Replacements · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 5 — Sliding Windows</span><span class="sep">/</span><span class="current">Longest Uniform Substring After Replacements</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Longest Uniform Substring After Replacements</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">sliding-window</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Longest Uniform Substring After Replacements
+A uniform substring is one in which all characters are identical. Given a string, determine the length of the longest uniform substring that can be formed by replacing up to k characters.</p>
+<p>Example:
+The image represents a visual illustration of finding the longest uniform substring within a given string.  The input string &lsquo;a b c d c c c a&rsquo; is shown on the left.  Two &lsquo;c&rsquo; characters within this string are highlighted with orange diagonal lines, indicating they are part of a uniform substring. A rightward-pointing arrow separates the input string from the output. The output, displayed in a light-blue rectangular box, shows the identified longest uniform substring &lsquo;c c c c c&rsquo;. Above the output box, the text &lsquo;Longest uniform substring&rsquo; is written in light-blue, clearly labeling the purpose of the diagram. The diagram visually demonstrates the process of identifying and extracting the longest consecutive sequence of identical characters from a given input string.
+Input: s = &lsquo;aabcdcca&rsquo;, k = 2
+Output: 5
+Explanation: if we can only replace 2 characters, the longest uniform substring we can achieve is &ldquo;ccccc&rdquo;, obtained by replacing &lsquo;b&rsquo; and &lsquo;d&rsquo; with &lsquo;c&rsquo;.</p>
+<p>Intuition
+Determining if a substring is uniform
+Before we try finding the longest uniform substring, let’s first determine the most efficient way to make a string uniform with the fewest character replacements. Consider the example below:</p>
+<p>Image represents a sequence of lowercase letters arranged horizontally.  The sequence is &lsquo;a b a a b a c&rsquo;, where each letter is individually spaced. There are no connections or arrows between the letters; they are simply presented as a linear string of characters. No URLs, parameters, or other information beyond the letters themselves are present in the image.  The letters appear to be a simple example data set, possibly illustrating a concept within the context of coding patterns, such as sequence analysis or pattern recognition.
+Which characters should we replace to ensure the minimum number of replacements are performed to make the string uniform? There are three main choices: make the string all ‘a’s, or all ‘b’s, or all ‘c’s. The most efficient choice, requiring the fewest replacements, is to make all characters ‘a’, which involves just three replacements:</p>
+<p>Image represents a transformation process illustrated using sequences of characters.  On the left, we see three subsequences: &lsquo;ab&rsquo;, &lsquo;aa&rsquo;, and &lsquo;ac&rsquo;.  Each subsequence is individually marked with an orange arrow pointing diagonally upwards and labeled with &lsquo;a&rsquo;, indicating that the &lsquo;a&rsquo; element is being processed or removed. A thick black arrow points from the left-hand sequences to the right-hand sequence.  The right-hand side shows a sequence of eight &lsquo;a&rsquo;s. The diagram visually depicts a transformation where the input consists of three subsequences containing &lsquo;a&rsquo;s and other characters (&lsquo;b&rsquo; and &lsquo;c&rsquo;). The transformation removes elements other than &lsquo;a&rsquo; from each subsequence, resulting in an output sequence containing only &lsquo;a&rsquo;s, effectively filtering or extracting &lsquo;a&rsquo;s from the input.
+The key observation is that the minimum number of replacements needed to achieve uniformity is obtained by replacing all characters except the most frequent one.</p>
+<p>This suggests that if we know the highest frequency of a character in a substring, we can determine if our value of k is sufficient to make that substring uniform. The number of characters that need to be replaced (num_chars_to_replace) can be found by subtracting this highest frequency from the total number of characters in the substring:</p>
+<p>Image represents a calculation to determine the number of characters to replace in a substring.  At the top, a sequence of characters &lsquo;a b a a b a c&rsquo; is shown, with the character &lsquo;b&rsquo; and &lsquo;c&rsquo; crossed out in orange, indicating they are to be replaced. Below this, a grey box contains a calculation: <code>num_chars_to_replace = len(substring) - highest_freq</code>. This equation calculates the number of characters to replace by subtracting the highest frequency of any single character (<code>highest_freq</code>) from the total length of the substring (<code>len(substring)</code>).  The calculation is then shown step-by-step:  <code>len(substring)</code> is explicitly given as 7, <code>highest_freq</code> as 4, resulting in a final answer of 3 characters to replace (<code>num_chars_to_replace = 3</code>).  The variables <code>num_chars_to_replace</code>, <code>len(substring)</code>, and <code>highest_freq</code> are written in orange, black, and blue respectively, highlighting their roles in the calculation.
+Once we’ve calculated num_chars_to_replace for a given substring, we can assess if the substring can be made uniform:</p>
+<p>If num_chars_to_replace ≤ k, the substring can be made uniform.
+If num_chars_to_replace &gt; k, the substring cannot be made uniform.
+To calculate num_chars_to_replace, we need to know the value of highest_freq. This requires tracking the frequency of each character, which can be efficiently managed using a hash map (freqs). This hash map allows us to update highest_freq whenever we encounter a character with a higher frequency. Below is an illustration of how freqs is updated:</p>
+<p>Image represents a data flow diagram illustrating the process of finding the highest frequency of a character in a sequence.  The input, shown as &lsquo;a b c&rsquo; with a downward arrow indicating data flow, represents a sequence of characters. This input feeds into a table labeled &lsquo;freqs&rsquo;, which is a two-column table with headers &lsquo;char&rsquo; and &lsquo;freq&rsquo;.  The table shows the character &lsquo;a&rsquo; and its frequency &lsquo;1&rsquo;.  This table acts as an intermediate data structure storing character frequencies.  A separate box contains a code snippet: <code>highest_freq = max(highest_freq, freqs['a'])</code>, which calculates the highest frequency encountered so far.  The variable <code>highest_freq</code> is updated using the <code>max</code> function, comparing its current value with the frequency of character &lsquo;a&rsquo; (obtained from the <code>freqs</code> table using the key &lsquo;a&rsquo;). The result of this calculation, &lsquo;1&rsquo;, is displayed below the equation, indicating that the highest frequency found so far is 1.  The overall diagram shows how the input sequence is processed to determine the highest character frequency.
+Image represents a data flow diagram illustrating a frequency counting algorithm.  The input consists of a sequence of characters &lsquo;a&rsquo;, &lsquo;b&rsquo;, &lsquo;b&rsquo;, &lsquo;c&rsquo;, depicted by a downward-pointing arrow above the sequence. This input feeds into a table labeled &lsquo;freqs,&rsquo; which is a two-column table with headers &lsquo;char&rsquo; and &lsquo;freq.&rsquo;  The table stores the frequency of each character; &lsquo;a&rsquo; has a frequency of 1, and &lsquo;b&rsquo; has a frequency of 1.  A separate, light-grey, dashed-bordered box contains a Python code snippet: <code>highest_freq = max(highest_freq, freqs['b'])</code>, which calculates the highest frequency encountered so far.  The result of this calculation, <code>= 1</code>, is shown below the code snippet.  The code implies an iterative process where <code>highest_freq</code> is updated by comparing it with the frequency of each character in the <code>freqs</code> table.  The &lsquo;b&rsquo; is used as an example in the code snippet, suggesting the algorithm iterates through each character in the input sequence.
+Image represents a data flow diagram illustrating the process of finding the highest frequency of characters in a sequence.  The input is a sequence of characters &lsquo;a b b c&rsquo;, depicted as a horizontal list. A downward arrow indicates this sequence is processed to generate a frequency table labeled &lsquo;freqs&rsquo;. This table is a 2-column structure with the left column labeled &lsquo;char&rsquo; representing characters and the right column labeled &lsquo;freq&rsquo; representing their frequencies. The table shows &lsquo;a&rsquo; with frequency 1 and &lsquo;b&rsquo; with frequency 2.  To the right, a separate box shows a Python-like code snippet calculating the highest frequency. The code <code>highest_freq = max(highest_freq, freqs['b'])</code> calculates the maximum frequency by comparing a current <code>highest_freq</code> (implicitly initialized to 0 or a lower value not shown) with the frequency of character &lsquo;b&rsquo; (which is 2 from the table). The result, <code>= 2</code>, is displayed below, indicating that 2 is the highest frequency found in the input sequence.
+Image represents a data flow diagram illustrating the process of finding the highest frequency of characters in a sequence.  The input is a sequence of characters &lsquo;a b b c&rsquo; shown with a downward arrow indicating data flow into a frequency table labeled &lsquo;freqs&rsquo;. This table is a two-column structure with &lsquo;char&rsquo; representing the character and &lsquo;freq&rsquo; representing its frequency. The table shows &lsquo;a&rsquo; with frequency 1, &lsquo;b&rsquo; with frequency 2, and &lsquo;c&rsquo; with frequency 1.  To the right, a calculation is shown: <code>highest_freq = max(highest_freq, freqs['c']) = 2</code>. This equation indicates that the <code>highest_freq</code> variable is updated by taking the maximum value between its current value (implicitly assumed to be initialized to a value less than or equal to 2) and the frequency of character &lsquo;c&rsquo; (which is 1 from the table), resulting in a final <code>highest_freq</code> value of 2.  The diagram visually demonstrates how the frequency table is generated from the input sequence and how a maximum frequency is calculated using the table&rsquo;s data.
+Now that we have the tools to determine if a substring can be made uniform, the next step is to figure out how to identify the longest uniform substring. Let’s explore a technique that lets us do this.</p>
+<p>Dynamic sliding window
+We know sliding windows can be useful for solving problems involving substrings. This problem requires that we find the longest substring that satisfies a specific condition:</p>
+<p>num_chars_to_replace &lt;= k</p>
+<p>So, a dynamic sliding window might be appropriate, as discussed in the chapter introduction.</p>
+<p>We can use the above condition to determine how to expand or shrink the window:</p>
+<p>If the condition is met (i.e., the window is valid), we expand the window to find a longer window that still meets this condition.</p>
+<p>If the condition is violated (i.e., the window is invalid), we shrink the window until it meets the condition again.</p>
+<p>Let’s see how this works over the example below:</p>
+<p>Image represents a sequence of characters &lsquo;a a b c d c c a&rsquo; followed by a comma and then an equation &lsquo;k = 2&rsquo;.  The sequence of characters appears to be a data set or input, possibly representing a string or an array of elements.  The characters &lsquo;a&rsquo;, &lsquo;b&rsquo;, &lsquo;c&rsquo;, and &lsquo;d&rsquo; are individual elements within this sequence, arranged linearly from left to right.  There&rsquo;s no explicit connection shown between the character sequence and the equation &lsquo;k = 2&rsquo;, but the proximity suggests a relationship, possibly indicating that &lsquo;k&rsquo; is a parameter or variable related to the processing or analysis of the character sequence.  The value &lsquo;2&rsquo; assigned to &lsquo;k&rsquo; might represent a length, a count, or some other relevant property of the sequence.  The comma acts as a separator between the character sequence and the equation.
+Start by defining the left and right boundaries of the window at index 0. Continue expanding the window for as long as it satisfies our condition (nums_char_to_replace &lt;= k):</p>
+<p>Image represents a visual explanation of a sliding window algorithm, possibly for character replacement or frequency analysis.  The left side shows a sequence of characters &lsquo;a a b c d c c a&rsquo; with a light-blue highlighted &lsquo;a&rsquo; at the beginning. Above this sequence, two boxes labeled &lsquo;left&rsquo; and &lsquo;right&rsquo; point downwards, indicating pointers or indices into the character sequence.  A value &lsquo;k = 2&rsquo; is displayed, likely representing a parameter limiting the number of replacements or operations. The right side shows a calculation box. Inside, the variable <code>highest_freq</code> is set to 1.  A formula <code>num_chars_to_replace = window_length - highest_freq</code> is presented, followed by its evaluation as <code>1 - 1 = 0</code>. Finally, the condition <code>0 ≤ k</code> is shown, resulting in the action &lsquo;expand,&rsquo; suggesting the window&rsquo;s size will increase. The overall diagram illustrates a step in an algorithm where the frequency of characters within a window is analyzed, and a decision is made based on the comparison of the number of characters to replace with the parameter &lsquo;k&rsquo; to determine whether to expand the window.
+Image represents a sliding window algorithm visualization.  Two labeled boxes, &lsquo;left&rsquo; (in gray) and &lsquo;right&rsquo; (in orange), point downwards with arrows towards a light-blue rectangular box containing the character sequence &lsquo;aa&rsquo;. This sequence is part of a larger sequence &lsquo;aabcdcca&rsquo; shown to the right.  A dashed arrow connects the &lsquo;right&rsquo; box to the second &lsquo;a&rsquo; in the light-blue box, indicating the window&rsquo;s current position. A separate gray box on the right displays calculations:  <code>highest_freq = 2</code>, representing the highest frequency of a character within the current window (which is &lsquo;a&rsquo;).  The next line calculates <code>num_chars_to_replace = window_length - highest_freq</code>, which evaluates to <code>2 - 2 = 0</code>. The final line states <code>0 ≤ k --&gt; expand</code>, indicating that because the number of characters to replace is 0 or less, the window should expand.  The overall diagram illustrates a step in a sliding window algorithm where the window&rsquo;s size is determined by character frequencies.
+Image represents a diagram illustrating a sliding window algorithm.  A sequence of characters &lsquo;a a b c d c c a&rsquo; is shown.  Two rectangular boxes labeled &lsquo;left&rsquo; and &lsquo;right&rsquo; in gray and orange respectively, point downwards with arrows indicating the left and right boundaries of a sliding window currently encompassing &lsquo;a a b&rsquo;.  A dashed orange arrow shows the window&rsquo;s right boundary moving one position to the right.  An upward red arrow labeled &lsquo;chars to replace&rsquo; points to the character &lsquo;b&rsquo; within the window, suggesting this character is a candidate for replacement. A separate gray box contains calculations:  <code>highest_freq</code> is set to 2, representing the highest frequency of a character within the window.  The formula <code>num_chars_to_replace = window_length - highest_freq</code> is shown, with a substitution using <code>window_length = 3</code> resulting in <code>num_chars_to_replace = 1</code>. Finally, the condition <code>1 ≤ k → expand</code> indicates that if the number of characters to replace (k) is greater than or equal to 1, the window should expand.
+Image represents a diagram illustrating a sliding window algorithm.  A light-blue rectangular box displays a sequence of characters: &lsquo;a a b_c_ d c c a&rsquo;.  A gray rectangular box to the right shows calculations: <code>highest_freq = 2</code>, <code>num_chars_to_replace = window_length - highest_freq = 4 - 2 = 2</code>, and <code>2 ≤ k → expand</code>.  Above the character sequence, a rectangular box labeled &lsquo;left&rsquo; points down with an arrow to the beginning of the sequence, and another rectangular box labeled &lsquo;right&rsquo; (in orange) points down with a dashed arrow to the characters &lsquo;b_c_&rsquo;. Red upward arrows under &lsquo;b_c_&rsquo; are labeled &lsquo;chars to replace&rsquo;, indicating these characters are targeted for replacement. The calculation in the gray box determines the number of characters to replace (<code>num_chars_to_replace</code>) based on the window length (4) and the highest frequency of any character within the window (2). The result (2) is compared to a variable &lsquo;k&rsquo;, and if 2 is less than or equal to k, the window expands.
+Once the window expands to the fifth character (‘d’), it will contain 3 characters that must be replaced to make the window uniform. Since we can only replace up to k = 2 characters, the window is invalid. So, we shrink the window:</p>
+<p>Image represents a sliding window algorithm visualization.  A sequence of characters &lsquo;a a b c_d c c a&rsquo; is shown, with a light-red background highlighting a sub-sequence &lsquo;a a b c_d&rsquo;.  Arrows pointing upwards from beneath this sub-sequence are labeled in red as &lsquo;chars to replace&rsquo;.  A grey box to the right displays calculations: &lsquo;highest_freq = 2&rsquo;, indicating the highest frequency of any character within the window.  The next line calculates &lsquo;num_chars_to_replace = window_length - highest_freq&rsquo;, substituting values to get &lsquo;5 - 2 = 3&rsquo;. Finally, &lsquo;3 &gt; k → shrink&rsquo; suggests that if the number of characters to replace (3) exceeds a threshold &lsquo;k&rsquo; (not explicitly defined), the window should shrink.  Rectangles labeled &lsquo;left&rsquo; and &lsquo;right&rsquo; above the character sequence indicate the direction of window movement, with a dashed arrow suggesting the right pointer&rsquo;s movement within the window.
+The image represents a data structure manipulation process.  A sequence of characters &lsquo;a b c d&rsquo; is shown centrally, highlighted in a light pink rectangle.  Above this sequence, two rectangular boxes labeled &lsquo;left&rsquo; (in orange) and &lsquo;right&rsquo; (in gray) indicate the direction of data input.  A downward-pointing arrow from &lsquo;left&rsquo; connects to the first &lsquo;a&rsquo; in the sequence, with a dashed arrow indicating an additional &lsquo;a&rsquo; to the left of the main sequence. A downward-pointing arrow from &lsquo;right&rsquo; connects to the last &lsquo;d&rsquo; in the sequence. Below the central sequence, red upward-pointing arrows connect to each character (b, c, and d) with the text &lsquo;chars to replace&rsquo; indicating these characters are targets for modification. To the right, a dashed-line rectangle displays the text &lsquo;highest_freq = 2 X&rsquo;, suggesting that the character with the highest frequency (presumably &lsquo;a&rsquo; or &lsquo;c&rsquo; based on the visible data) has a frequency of 2, and the &lsquo;X&rsquo; likely represents a placeholder or an operation to be performed based on this frequency. The overall diagram illustrates a process where data is input from left and right, and characters within a central sequence are identified and potentially replaced based on frequency analysis.
+Notice that after shrinking the window, the value of highest_freq is still 2, which is no longer correct. Recall that our current method for updating highest_freq only increases it when encountering a character with a higher frequency, meaning highest_freq can only remain the same or increase, but it can never decrease.</p>
+<p>One way to work around this is to develop a new method for updating highest_freq that accurately decreases it when the highest frequency in a window decreases. However, our goal is to find the longest substring that meets the condition, so shrinking the window might not even be necessary. The crucial point here is that when we find a valid window of a certain length, no shorter window will provide a longer uniform substring.</p>
+<p>This means we can just slide the window instead of shrinking it whenever we encounter an invalid window, effectively maintaining the length of the current window.</p>
+<p>With this observation, we should correct our previous logic:</p>
+<p>If the window satisfies the condition: expand.
+If the window doesn’t satisfy the condition: slide.
+Let’s correct the action taken in the first invalid window above by sliding instead of shrinking. Then, we can continue processing the rest of the string.</p>
+<p>Image represents a sliding window algorithm visualization.  Two rectangular boxes labeled &lsquo;left&rsquo; and &lsquo;right&rsquo; point downwards to a sequence of characters &lsquo;a a b c d c c a&rsquo; displayed horizontally. A light red background highlights the characters &lsquo;b c d&rsquo; within the sequence. Red upward-pointing arrows beneath these highlighted characters are labeled &lsquo;chars to replace&rsquo;.  To the right, a grey box shows a calculation:  <code>highest_freq</code> is set to 2; <code>num_chars_to_replace</code> is calculated as <code>window_length</code> (5) minus <code>highest_freq</code> (2), resulting in 3.  The final line indicates that if this result (3) is greater than some value <code>k</code> (not explicitly defined), a &lsquo;slide&rsquo; operation should occur, implying the window moves along the character sequence.  The diagram illustrates how a sliding window identifies characters to be replaced based on frequency within the window, and the calculation determines the window&rsquo;s movement.
+Image represents a sliding window algorithm visualization.  The left side shows a sequence of characters &lsquo;aabcdcca&rsquo; with a highlighted sub-sequence &lsquo;a_b_c_d_c&rsquo; in a light pink rectangle.  Orange boxes labeled &lsquo;left&rsquo; and &lsquo;right&rsquo; indicate pointers to the beginning and end of this window, respectively. Dashed orange arrows show the pointers moving across the sequence. Red upward arrows under the highlighted subsequence point to the text &lsquo;chars to replace,&rsquo; indicating these characters within the window are candidates for replacement. The right side displays a calculation:  <code>highest_freq</code> is set to 2, representing the highest frequency of a character within the window.  The number of characters to replace is calculated as <code>window_length</code> (5) minus <code>highest_freq</code> (2), resulting in 3.  The final line states that if this result (3) is greater than a variable <code>k</code> (not defined in the image), then the window should slide.  The entire diagram illustrates how a sliding window algorithm determines which characters to replace based on frequency within a given window size.
+Image represents a visual explanation of a sliding window algorithm, likely for character replacement or frequency analysis.  The left side shows a sequence of characters &lsquo;a a b c d c c a&rsquo; with a light-blue highlighted window encompassing &lsquo;b c d c c&rsquo;.  Orange rectangular boxes labeled &lsquo;left&rsquo; and &lsquo;right&rsquo; indicate pointers to the window&rsquo;s boundaries. Dashed arrows show the window&rsquo;s movement. Red upward arrows under the window point to the characters &lsquo;b&rsquo;, &lsquo;d&rsquo;, indicating these are characters to be replaced. The right side displays a calculation: <code>highest_freq</code> is set to 3, representing the highest frequency of a character within the window.  The number of characters to replace is calculated as <code>window_length - highest_freq</code> (5 - 3 = 2). The result (2) is compared to a variable &lsquo;k&rsquo; (2 ≤ k), implying a condition for window expansion based on this comparison.  If the condition is met, the window expands; otherwise, it might contract or remain the same.
+Image represents a sliding window algorithm visualization.  A sequence of characters &lsquo;a a b c d c c a&rsquo; is shown.  A light-red rectangular box highlights a sub-sequence &lsquo;b c d c c a&rsquo;, representing a sliding window of length 6.  A grey box to the right displays calculations: <code>highest_freq = 3</code> (indicating the highest frequency of any character within the window), and <code>num_chars_to_replace = window_length - highest_freq = 6 - 3 = 3</code>.  This calculation determines the number of characters to replace within the window.  Red upward arrows under the window point to the characters &lsquo;b&rsquo;, &lsquo;d&rsquo;, and &lsquo;c&rsquo; labeled &lsquo;chars to replace&rsquo;.  Rectangular boxes labeled &lsquo;left&rsquo; and &lsquo;right&rsquo; with arrows indicate the direction of the sliding window movement.  A dashed arrow shows the rightward movement of the window. The final equation <code>3 &lt; k → slide</code> suggests that if the number of characters to replace (3) is less than some variable &lsquo;k&rsquo;, the window slides to the right.
+The above window is the final window because we cannot expand or slide it any further. The longest valid window encountered during this process is a window of length 5.</p>
+<p>Try it yourself
+Write your solution to the problem before checking the reference implementation.
+Implementation
+Python
+JavaScript
+Java
+def longest_uniform_substring_after_replacements(s: str, k: int) -&gt; int:
+    freqs = {}
+    highest_freq = max_len = 0
+    left = right = 0
+    while right &lt; len(s):
+        # Update the frequency of the character at the right pointer and the highest
+        # frequency for the current window.
+        freqs[s[right]] = freqs.get(s[right], 0) + 1
+        highest_freq = max(highest_freq, freqs[s[right]])
+        # Calculate replacements needed for the current window.
+        num_chars_to_replace = (right - left + 1) - highest_freq
+        # Slide the window if the number of replacements needed exceeds &lsquo;k&rsquo;.
+        # The right pointer always gets advanced, so we just need to advance &lsquo;left&rsquo;.
+        if num_chars_to_replace &gt; k:
+            # Remove the character at the left pointer from the hash map before
+            # advancing the left pointer.
+            freqs[s[left]] -= 1
+            left += 1
+        # Since the length of the current window increases or stays the same, assign
+        # the length of the current window to &lsquo;max_len&rsquo;.
+        max_len = right - left + 1
+        # Expand the window.
+        right += 1
+    return max_len
+Complexity Analysis
+Time complexity: The time complexity of longest_uniform_substring_after_replacements is 
+O
+(
+n
+)
+O(n), where 
+n
+n is the length of the input string. This is because we traverse the string linearly with two pointers.</p>
+<p>Space complexity: The space complexity is 
+O
+(
+m
+)
+O(m), where 
+m
+m is the number of unique characters in the string stored in the hash map freqs.</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="longest-substring-with-unique-characters.html"><div class="label">← Anterior</div><div class="title">Longest Substring With Unique Characters</div></a><a class="next" href="../06-binary-search/introduction.html"><div class="label">Siguiente →</div><div class="title">Introduction to Binary Search</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="longest-uniform-substring-after-replacements.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Introduction to Sliding Windows · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 5 — Sliding Windows</span><span class="sep">/</span><span class="current">Introduction to Sliding Windows</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Introduction to Sliding Windows</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">sliding-window</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Introduction to Sliding Windows
+Intuition
+The sliding window technique is a subset of the two-pointer pattern, as it uses two pointers (generally left and right) to define the bounds of a &ldquo;window&rdquo; in iterable data structures like arrays. The window defines a subcomponent of the data structure (e.g., a subarray or substring), and it slides across the data structure unidirectionally, typically searching for a subcomponent that meets a certain requirement.</p>
+<p>The image represents a sliding window concept often used in algorithms.  It shows a sequence of elements represented by dots enclosed in square brackets <code>[ . . . . . . ]</code>. A light-blue rectangular area highlights a subset of these elements, labeled &lsquo;window&rsquo;.  Two rectangular boxes, labeled &lsquo;left&rsquo; and &lsquo;right,&rsquo; are positioned above the sequence.  A downward-pointing arrow connects &lsquo;left&rsquo; to the leftmost dot within the window, and a similar arrow connects &lsquo;right&rsquo; to the rightmost dot within the window.  A light-blue upward-pointing arrow labeled &lsquo;window&rsquo; indicates that this window can move along the sequence.  The arrangement visually demonstrates how the window&rsquo;s position is controlled by the &lsquo;left&rsquo; and &lsquo;right&rsquo; pointers, allowing it to slide across the data sequence, processing a fixed-size subset at a time.
+Sliding windows are particularly valuable in scenarios where algorithms might otherwise rely on using two nested loops to search through all possible subcomponents to find an answer, resulting in an 
+O
+(
+n
+2
+)
+O(n 
+2
+ ) time complexity, or worse. When using a sliding window, the subcomponent(s) we’re looking for can usually be found in 
+O
+(
+n
+)
+O(n) time, in comparison. But before discussing how they work, let’s establish some terminology:</p>
+<p>To expand the window is to advance the right pointer:</p>
+<p>Image represents a visual explanation of an array expansion operation.  The left side shows an initial state with a light-blue rounded rectangle representing an array containing several black dots (elements).  Above this array are two gray rectangular boxes labeled &lsquo;left&rsquo; and &lsquo;right,&rsquo; each with a downward arrow pointing to the corresponding end of the array.  A gap with additional dots indicates the array&rsquo;s continuation beyond the visible portion. A thick black arrow labeled &lsquo;expand&rsquo; connects the initial array to a modified array on the right. This expanded array is also a light-blue rounded rectangle with more black dots than the initial array, indicating the addition of elements.  The &lsquo;left&rsquo; box remains in a similar position above the expanded array, pointing to its left end. However, the &lsquo;right&rsquo; box is now orange, and its arrow points to a location within the expanded array, suggesting the insertion or addition of elements near the right end.  A dotted line connects the orange &lsquo;right&rsquo; box to the newly added elements, visually highlighting the expansion at the right side of the array.  The expanded array also shows a continuation gap with additional dots, similar to the initial array.
+To shrink the window is to advance the left pointer:</p>
+<p>Image represents a visual depiction of a &lsquo;shrink&rsquo; operation within a coding pattern context.  The diagram shows two stages. The first stage displays two rectangular boxes labeled &lsquo;left&rsquo; (grey) and &lsquo;right&rsquo; (grey), each pointing downwards with an arrow to a light-blue, horizontally-elongated oval shape containing several black dots representing data elements.  The second stage shows a similar structure, but with the &lsquo;left&rsquo; box now colored orange, indicating a change.  The light-blue oval in the second stage is smaller, containing fewer dots. A thick black arrow labeled &lsquo;shrink&rsquo; connects the two stages, illustrating the transformation. A dashed orange curved arrow connects the orange &lsquo;left&rsquo; box to the leftmost dot in the smaller light-blue oval, highlighting that the left side is the primary focus of the shrinking operation.  The overall arrangement demonstrates how data elements are reduced or removed, specifically from the left side, resulting in a smaller dataset.
+To slide the window is to advance both the left and right pointers:</p>
+<p>Image represents a visual depiction of a &lsquo;slide&rsquo; operation in a data structure, likely an array or list.  The left side shows an initial state with a light-blue, rounded-rectangle representing the data structure containing several black dots representing elements.  Above this structure are two gray rectangular boxes labeled &lsquo;left&rsquo; and &lsquo;right,&rsquo; indicating the source of data insertion.  Solid arrows point downwards from &lsquo;left&rsquo; and &lsquo;right&rsquo; to the leftmost and rightmost elements of the data structure, respectively.  A horizontal arrow labeled &lsquo;slide&rsquo; points to the right, separating the before and after states. The right side shows the data structure after the &lsquo;slide&rsquo; operation.  The light-blue rounded-rectangle again contains black dots, but now the &lsquo;left&rsquo; and &lsquo;right&rsquo; boxes are orange.  Dashed orange arrows indicate that the &lsquo;left&rsquo; and &lsquo;right&rsquo; elements have been moved to the leftmost and rightmost positions, respectively, causing a shift in the other elements.  The brackets &lsquo;[&rsquo; and &lsquo;]&rsquo; on both sides visually enclose the data structure, emphasizing its array-like nature.  The overall diagram illustrates how elements are shifted within the data structure when a &lsquo;slide&rsquo; operation is performed, with new elements potentially added at the beginning and end.
+Note that sliding is equivalent to expanding and shrinking the window at the same time.</p>
+<p>Now, let’s break down the two main types of sliding window algorithms:</p>
+<p>Fixed sliding window.
+Dynamic sliding window.
+Fixed Sliding Window
+A fixed sliding window maintains a specific length as it slides across a data structure.</p>
+<p>Image represents a visual depiction of coding patterns related to window manipulation.  The image shows three sequential stages.  Each stage features a light-blue rectangular &lsquo;window&rsquo; containing several black dots representing data elements, enclosed in square brackets.  Above each window, rectangular boxes labeled &lsquo;left&rsquo; (in gray) and &lsquo;right&rsquo; (in orange) indicate directional operations.  In the first stage, a gray &lsquo;left&rsquo; box points down with a solid arrow to the leftmost dot, while an orange &lsquo;right&rsquo; box points down with a dashed orange arrow to a dot near the right edge.  The text below the first window reads &lsquo;expand window to desired size,&rsquo; indicating that the window expands to accommodate new data.  The second and third stages depict a &lsquo;slide&rsquo; operation.  Here, the &lsquo;left&rsquo; and &lsquo;right&rsquo; boxes point to the leftmost and rightmost dots respectively, using dashed orange arrows.  The text &lsquo;slide&rsquo; appears below the second and third windows.  Solid black arrows connect the stages, showing the transition from expanding the window to sliding it.  The overall diagram illustrates how data is added to (expand) and then moved within (slide) a window, showcasing different data manipulation techniques.
+We use the fixed sliding window technique when the problem asks us to find a subcomponent of a certain length. If we know what this length is, we can fix our window to that length and slide it through the array.</p>
+<p>If a fixed window of length k traverses a data structure from start to finish, it’s guaranteed to see every subcomponent of length k in that data structure.</p>
+<p>Below is a generic template of how a fixed sliding window traverses a data structure.</p>
+<p>Python
+JavaScript
+Java
+left = right = 0
+while right &lt; n:
+    # If the window has reached the expected fixed length, we slide the window (move
+    # both left and right).
+    if right - left + 1 == fixed_window_size:
+        # Process the current window.
+        result = process_current_window()
+        left += 1
+    right += 1
+Dynamic Sliding Window
+Unlike fixed sliding windows, dynamic windows can expand or shrink in length as they traverse a data structure.</p>
+<p>Image represents a sequence of three diagrams illustrating a data structure manipulation.  The first diagram shows a light-blue rounded rectangle representing a data structure containing several black dots, enclosed in square brackets.  A grey box labeled &lsquo;left&rsquo; points down with an arrow to the leftmost dot, and an orange box labeled &lsquo;right&rsquo; points down with an arrow to a dot near the right edge.  Orange dashed lines connect the dots, indicating an expansion of the structure. The label &lsquo;expand&rsquo; is below the rectangle.  A solid arrow points to the second diagram, which shows the same structure but with fewer dots, labeled &lsquo;shrink,&rsquo; indicating a reduction in size.  The &lsquo;left&rsquo; and &lsquo;right&rsquo; boxes similarly point to the leftmost and rightmost dots, respectively.  Finally, a solid arrow leads to the third diagram, which is identical in structure to the first, again labeled &lsquo;expand,&rsquo; showing the data structure expanding again.  The &lsquo;left&rsquo; and &lsquo;right&rsquo; boxes maintain their positions and directional arrows.  The overall sequence demonstrates a dynamic data structure that can expand and shrink, with the &lsquo;left&rsquo; and &lsquo;right&rsquo; labels possibly indicating pointers or access points to the structure&rsquo;s boundaries.
+Generally, dynamic sliding windows can be applied to problems that ask us to find the longest or shortest subcomponent that satisfies a condition (for example, a condition could be that the numbers in the window must be greater than 10).</p>
+<p>When finding the longest subcomponent, the dynamics of expanding and shrinking are typically as follows:</p>
+<p>If a window satisfies the condition, expand it to see if we can find a longer window that also meets the condition.
+If the condition is violated, shrink the window until the condition is met again.
+Below is a generic template demonstrating how this works:</p>
+<p>Python
+JavaScript
+Java
+left = right = 0
+while right &lt; n:
+    # While the condition is violated, the window is invalid, so shrink the window by
+    # advancing the left pointer.
+    while condition is violated:
+        left += 1
+    # Once the window is valid, process it and then expand the window by advancing the
+    # right pointer.
+    result = process_current_window()
+    right += 1
+Note that the provided templates for fixed and dynamic windows primarily emphasize the movement of the left and right pointers rather than the specifics of updating the window itself. If the problem requires updating the window, the logic around it will be highly context-dependent. This is explored in detail through specific problems in this chapter.</p>
+<p>Real-world Example
+Buffering in video streaming: In video streaming, a dynamic sliding window can be used to manage buffering and ensure smooth playback.</p>
+<p>For instance, when streaming a video, the player downloads chunks of the video data and stores them in a buffer. A sliding window controls which part of the video is buffered, with the window &ldquo;sliding&rdquo; forward as the video plays. The sliding window ensures the video player can adapt to varying network conditions by dynamically adjusting the buffer size and position, leading to a smoother streaming experience for the viewer.</p>
+<p>Chapter Outline
+Image represents a hierarchical diagram illustrating the concept of &lsquo;Sliding Windows&rsquo; in coding patterns.  At the top, a rounded rectangle labeled &lsquo;Sliding Windows&rsquo; acts as the parent node.  From this node, two dashed lines descend, each pointing to a child node represented by a rounded rectangle with a dashed border. The left child node is labeled &lsquo;Fixed Sliding Window&rsquo; and contains a single bullet point: &lsquo;Substring Anagrams&rsquo;. The right child node is labeled &lsquo;Dynamic Sliding Window&rsquo; and contains two bullet points: &lsquo;Longest Substring With Unique Characters&rsquo; and &lsquo;Longest Uniform Substring After Replacements&rsquo;.  The arrangement shows that &lsquo;Sliding Windows&rsquo; is a broader category encompassing both &lsquo;Fixed Sliding Window&rsquo; and &lsquo;Dynamic Sliding Window&rsquo; approaches, with specific problem examples listed under each subtype.  No URLs or parameters are present.</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="../04-fast-and-slow-pointers/happy-number.html"><div class="label">← Anterior</div><div class="title">Happy Number</div></a><a class="next" href="substring-anagrams.html"><div class="label">Siguiente →</div><div class="title">Substring Anagrams</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="introduction.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

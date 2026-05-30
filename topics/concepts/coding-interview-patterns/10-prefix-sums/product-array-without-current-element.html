@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product Array Without Current Element · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 10 — Prefix Sums</span><span class="sep">/</span><span class="current">Product Array Without Current Element</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Product Array Without Current Element</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">prefix-sums</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Product Array Without Current Element
+Given an array of integers, return an array res so that res[i] is equal to the product of all the elements of the input array except nums[i] itself.</p>
+<p>Example:
+Input: nums = [2, 3, 1, 4, 5]
+Output: [60, 40, 120, 30, 24]
+Explanation: The output value at index 0 is the product of all numbers except nums[0] (3⋅1⋅4⋅5 = 60). The same logic applies to the rest of the output.</p>
+<p>Intuition
+The straightforward solution to this problem is to find the total product of the array and divide it by each of the values in nums individually to get the output array:</p>
+<p>Image represents a calculation demonstrating a coding pattern.  The left side shows an array <code>[2, 3, 1, 4, 5]</code> with each element visually connected via orange curved lines to a central node labeled &lsquo;product = 120&rsquo;. This indicates that the product of all elements in the array is 120. An arrow points to the right, leading to a calculation where 120 is divided by each element of the original array: <code>res = [120/2, 120/3, 120/1, 120/4, 120/5]</code>.  Below this, the results of these divisions are shown as a new array: <code>res = [60, 40, 120, 30, 24]</code>.  The diagram visually illustrates the process of calculating the result of dividing a product by each of its factors.
+This approach allows us to solve the problem in linear time and constant space. However, a potential follow-up question by an interviewer is: what if we can’t use division? Let’s explore a solution to this.</p>
+<p>Avoiding division
+A brute force approach involves calculating the output value for each index one by one. This would take 
+O
+(
+n
+)
+O(n) time per index, leading to an overall time complexity of 
+O
+(
+n
+2
+)
+O(n 
+2
+ ), where 
+n
+n denotes the length of the array. This is inefficient, so let&rsquo;s look at other approaches.</p>
+<p>An important insight is that the output for any given index can be determined by multiplying two things:</p>
+<p>The product of all numbers to the left of the index.
+The product of all numbers to the right of the index.
+Image represents a diagram illustrating a coding pattern, likely related to array processing or a similar data structure.  A top-level element labeled &lsquo;i&rsquo; points downwards to an array-like structure visually divided into two parts. The left part, highlighted in light blue, contains the numbers &lsquo;2&rsquo; and &lsquo;3&rsquo;, with a calculation &lsquo;product = 6&rsquo; indicating their multiplication. The right part, highlighted in light purple, contains &lsquo;4&rsquo; and &lsquo;5&rsquo;, with a corresponding calculation &lsquo;product = 20&rsquo;.  A gray brace connects the results of these sub-calculations (&lsquo;6&rsquo; and &lsquo;20&rsquo;), leading to a final calculation &lsquo;res[i] = 6 * 20 = 120&rsquo;, showing the multiplication of the two sub-products and assigning the result (120) to an array element &lsquo;res[i]&rsquo;, where &lsquo;i&rsquo; likely represents an index.  The diagram visually demonstrates a process where sub-arrays are processed independently to produce intermediate results, which are then combined to generate a final result.
+Why is this helpful? If we have precomputed the products of all values to the left and right of each index, we can quickly calculate the output for each index. More specifically, we would need two arrays that contain the left and right products of each index, respectively:</p>
+<p>left_products: an array where left_products[i] is the product of all values to the left of i.</p>
+<p>right_products: an array where right_products[i] is the product of all values to the right of i.</p>
+<p>To obtain the left_products array, we need to keep track of a cumulative product of all elements we encounter as we move from left to right. The value of this product at a specific index should represent the product of all values to its left. The same is true of the right_products array, but the cumulative products start from the right. Once we have these arrays, multiplying the left and right product values at each index gives us the output value of that index.</p>
+<p>Image represents a step-by-step calculation of the product of all elements in an array except the element at the current index.  The top row shows an input array <code>nums</code> containing the integers [2, 3, 1, 4, 5]. Below this, <code>left_products</code> array stores the cumulative product of elements to the left of each index in <code>nums</code>, starting with 1 (the product of zero elements).  Each element in <code>left_products</code> is calculated by multiplying the previous element by the corresponding element in <code>nums</code>. Similarly, <code>right_products</code> calculates the cumulative product of elements to the right of each index, starting from the rightmost element and moving left.  Asterisks (*) visually represent the multiplication operations between consecutive elements in <code>nums</code> to obtain <code>left_products</code>.  Double vertical lines (||) represent the multiplication between corresponding elements of <code>left_products</code> and <code>right_products</code> to produce the final <code>res</code> array, which contains the product of all elements in <code>nums</code> except the element at the current index.  For example, <code>res[0]</code> (60) is calculated as <code>left_products[0]</code> (1) * <code>right_products[0]</code> (60).
+Since the left and right product arrays are formed through cumulative multiplication, this leads us to the concept of prefix products.</p>
+<p>Prefix products
+Prefix products are created in the same way as a prefix sum array, with two key differences:</p>
+<p>Instead of cumulative addition, we use cumulative multiplication.
+We initialize the prefix product array with 1 instead of 0, to avoid multiplying the cumulative products by 0.
+Let’s try creating the left_products array, initializing it with 1 at index 0:</p>
+<p>Image represents a code snippet showcasing an array named <code>nums</code> initialized with the integer values [2, 3, 1, 4, 5].  Below it, another array named <code>left_products</code> is partially shown, initialized with the value <code>[1</code> suggesting it&rsquo;s an array intended to store the product of numbers to the left of each element in the <code>nums</code> array.  The arrangement is vertical, with <code>nums</code> above <code>left_products</code>, implying a sequential relationship where <code>left_products</code> is likely calculated based on the values in <code>nums</code>.  No explicit connections or information flow are visually depicted beyond the implied relationship between the two arrays; the image only shows the initial state of the arrays before any computation is performed.  There are no URLs or parameters present.
+For each subsequent index in the left_products array, we calculate its value by multiplying the running product by the previous value in the nums array:</p>
+<p>Image represents a visual depiction of a calculation step within a coding pattern, likely related to prefix or suffix product calculation.  The top line shows a list named &lsquo;nums&rsquo; containing the integer array [2, 3, 1, 4, 5].  Below, a list named &lsquo;left_products&rsquo; is initialized as an array.  Gray arrows indicate that the initial values of &lsquo;nums&rsquo; (2 and then 3) are being processed.  A central asterisk (<em>) symbolizes a calculation operation.  An orange arrow shows the result of this operation (2, likely the product of 2 and 1) being appended to &lsquo;left_products&rsquo;.  The diagram suggests an iterative process where elements from &lsquo;nums&rsquo; are sequentially multiplied and accumulated into &lsquo;left_products&rsquo;, representing a running product from the left side of the &lsquo;nums&rsquo; array.  The incomplete &lsquo;left_products&rsquo; array and the continuation of &lsquo;nums&rsquo; imply that the calculation is ongoing.
+Image represents a calculation step involving two arrays labeled <code>nums</code> and <code>left_products</code>. The array <code>nums</code> is displayed as <code>[ 2 3 1 4 5 ]</code>, and the array <code>left_products</code> is displayed as <code>[ 1 2 6 ]</code>. The diagram illustrates how the value &lsquo;6&rsquo; in the <code>left_products</code> array is derived. Two grey arrows point towards a red asterisk symbol located between the two arrays. One arrow originates from the number &lsquo;3&rsquo; in the <code>nums</code> array (specifically the second element, index 1). The other arrow originates from the number &lsquo;2&rsquo; in the <code>left_products</code> array (the second element, index 1). A curved orange arrow originates from the red asterisk and points towards the number &lsquo;6&rsquo; in the <code>left_products</code> array (the third element, index 2). The number &lsquo;6&rsquo; is highlighted in orange. This visual representation indicates that the value &lsquo;6&rsquo; in <code>left_products</code> is the result of multiplying the value &lsquo;3&rsquo; from <code>nums</code> by the value &lsquo;2&rsquo; from <code>left_products</code>, demonstrating a step in calculating prefix products where <code>left_products[i] = nums[i-1] * left_products[i-1]</code>. Specifically, it shows <code>left_products[2] = nums[1] * left_products[1]</code>, or 6 = 3 * 2.
+Image represents a visual depiction of a calculation step within a coding pattern, likely related to prefix or suffix product calculation in an array.  The top line shows an array named &lsquo;nums&rsquo; containing the integer values [2, 3, 1, 4, 5]. Below this, another array named &lsquo;left_products&rsquo; is shown, initialized with values [1, 2, 6, 6, 1].  Grey arrows indicate that the values 1, 3, and 1 from the &lsquo;nums&rsquo; array are being multiplied cumulatively to generate the corresponding values in the &lsquo;left_products&rsquo; array (1</em>1=1, 1<em>2=2, 1</em>2<em>3=6). An orange curved arrow points from the value &lsquo;4&rsquo; in the &lsquo;nums&rsquo; array to the value &lsquo;6&rsquo; in the &lsquo;left_products&rsquo; array, indicating that the next calculation step involves multiplying the current cumulative product (6) by 4 to update the next element in &lsquo;left_products&rsquo;.  A &lsquo;</em>&rsquo; symbol is placed near the point of calculation to highlight the multiplication operation. The final value in &lsquo;left_products&rsquo; (1) is not explicitly shown to be calculated in the image.
+Image represents a visual depiction of a calculation involving two arrays.  The top array, labeled &lsquo;nums = [2 3 1 4 5]&rsquo;, contains five numerical elements: 2, 3, 1, 4, and 5, enclosed within square brackets. The bottom array, labeled &lsquo;left_products = [1 2 6 6 24]&rsquo;, also contains five elements: 1, 2, 6, 6, and 24, similarly enclosed in square brackets.  Grey arrows point from the elements 4 and 6 in the &lsquo;nums&rsquo; array to the asterisk (*) symbol, indicating a multiplication operation. An orange curved arrow originates from the asterisk and points to the final element, 24, in the &lsquo;left_products&rsquo; array, signifying that 24 is the result of multiplying 4 and 6.  The arrangement visually demonstrates a cumulative product calculation from left to right within the &lsquo;nums&rsquo; array, resulting in the corresponding values in the &lsquo;left_products&rsquo; array.  The final element in &lsquo;left_products&rsquo; (24) is highlighted in orange to emphasize it as the result of the calculation.
+The same can be done for the right_products array, but starting on the right and moving leftward:</p>
+<p>Image represents a snippet of code illustrating a computation.  The top line declares a variable named <code>nums</code> and assigns it an array containing the integer values [2, 3, 1, 4, 5]. Below this, a second line declares a variable named <code>right_products</code> and initializes it as an array, currently empty except for a single closing bracket <code>]</code>.  The arrangement suggests that the <code>right_products</code> array will be populated based on calculations involving the <code>nums</code> array.  There is no explicit connection shown between the two arrays, only their declaration and initial values.  The image implies a process where the <code>right_products</code> array will be filled with values derived from the <code>nums</code> array, likely involving a right-to-left product calculation. The number <code>1</code> at the end of <code>right_products</code> suggests an initial value or a placeholder for the result of the computation.
+Image represents a visual depiction of a coding pattern, likely related to array manipulation.  The top line shows an array named &lsquo;nums&rsquo; initialized with the integer values [2, 3, 1, 4, 5]. Below this, a partially filled array named &lsquo;right_products&rsquo; is shown as an empty array <code>[]</code>.  An orange curved arrow points from the number 5 in the &lsquo;nums&rsquo; array to an asterisk (<em>), indicating a calculation is performed on this element.  Gray arrows point from both the 5 and the 1 (the last two elements of the &lsquo;nums&rsquo; array) to the asterisk, suggesting a multiplication operation. The result of this multiplication (5 * 1 = 5) is then shown as the first element (5) in the &lsquo;right_products&rsquo; array.  The diagram illustrates a step-by-step process of calculating the product of elements to the right of each element in the &lsquo;nums&rsquo; array and storing the results in the &lsquo;right_products&rsquo; array.  The diagram only shows the calculation for the last element, implying a similar process would be repeated for the preceding elements.
+Image represents a visual depiction of a coding pattern, likely illustrating the calculation of cumulative products from right to left within an array.  The top line shows an array named &lsquo;nums&rsquo; containing the integer values [2, 3, 1, 4, 5]. Below, an array named &lsquo;right_products&rsquo; is initialized as empty.  The core of the diagram shows the calculation process:  grey arrows point from the elements of the &lsquo;nums&rsquo; array (4 and 5) to a multiplication symbol (</em>), indicating that these elements are being multiplied. The result of 4 * 5 = 20 is shown in orange, and an orange curved arrow points to this result from the multiplication symbol, highlighting the flow of calculation.  This 20 is the first element of the &lsquo;right_products&rsquo; array. The next element of &lsquo;right_products&rsquo; (5) is calculated by multiplying the next element to the left in &lsquo;nums&rsquo; (1) with the previous result (20/5 = 4, which is not explicitly shown but implied). The final element of &lsquo;right_products&rsquo; (1) is simply the last element of &lsquo;nums&rsquo;. The diagram visually demonstrates a right-to-left cumulative product calculation.
+Image represents a diagram illustrating a coding pattern, likely related to calculating cumulative products from right to left within an array.  The top line shows an array named &lsquo;nums&rsquo; containing the integer values [2, 3, 1, 4, 5]. Below this, an array named &lsquo;right_products&rsquo; is partially shown, initialized as an empty array.  Gray arrows point from the &lsquo;nums&rsquo; array to the &lsquo;right_products&rsquo; array, indicating a calculation flow.  A multiplication symbol (<em>) is positioned centrally, suggesting that the calculation involves multiplication.  An orange curved arrow points from the last element (5) of &lsquo;nums&rsquo; to the first element (20) of &lsquo;right_products&rsquo;, indicating that the first element of &lsquo;right_products&rsquo; is the cumulative product of the elements in &lsquo;nums&rsquo; from right to left (5 * 4 * 1 * 3 * 2 = 120, but the image shows 20, which is likely a mistake or a simplified example). The subsequent elements in &lsquo;right_products&rsquo; (20, 5, 1) are also derived from this right-to-left cumulative product calculation, with each element representing the product of the remaining elements to its right in the &lsquo;nums&rsquo; array.  The diagram visually demonstrates the process of generating a new array containing cumulative products from the right side of the input array.
+Image represents a diagram illustrating a calculation of right products.  The top row shows a list labeled &lsquo;nums = [2 3 1 4 5]&rsquo;, representing an array named &lsquo;nums&rsquo; containing the integer values 2, 3, 1, 4, and 5.  Below this, labeled &lsquo;right_products =&rsquo;, is a second array showing the result of a calculation.  This array contains the values [60 20 20 5 1].  Gray arrows point from the &lsquo;nums&rsquo; array to the &lsquo;right_products&rsquo; array, indicating a dependency.  A prominent orange curved arrow points from the first element of the &lsquo;right_products&rsquo; array (60) to the asterisk (</em>) symbol, which is positioned between the two arrays, suggesting that the calculation starts from the rightmost element of the &lsquo;nums&rsquo; array and proceeds leftward, accumulating products.  The asterisk likely represents the multiplication operation used in the calculation.
+Once both arrays are populated, we can compute each value of the output array, where res[i] is equal to the product of left_products[i] and right_products[i], as previously demonstrated.</p>
+<p>Reducing space
+We have successfully found a solution that doesn&rsquo;t involve division and runs in linear time. However, this solution takes up linear space due to the left and right product arrays. Can we compute the output array in place without taking up extra space?</p>
+<p>An important thing to realize is that we don’t necessarily need to create the left and right product arrays to populate the output array. Instead, we can directly compute and store the left and right products in the output array as we calculate them.</p>
+<p>This can be done in two steps:</p>
+<ol>
+<li>First, populate the output array (res) the same way we populated left_products. This prepares the output array to be multiplied by the right products:</li>
+</ol>
+<p>Image represents a step-by-step calculation of the product of elements to the left of each element in an array.  The top line shows an array named <code>nums</code> containing the integer values [2, 3, 1, 4, 5]. Below it, <code>left_products</code> is an array initialized with the cumulative product of elements to the left of each corresponding element in <code>nums</code>, shown in gray.  The first element is 1 (as there are no elements to its left), the second is 2 (the product of the first element in <code>nums</code>), the third is 6 (2<em>3), the fourth is 6 (2</em>3<em>1), and the fifth is 24 (2</em>3<em>1</em>4). Finally, <code>res</code> is an array that appears to be a copy of <code>left_products</code>, displayed in black, with a gray arrow pointing to the right from the end of <code>res</code>, indicating the final result of the calculation.  The values in <code>res</code> are identical to those in <code>left_products</code>, suggesting that the calculation of the cumulative left products is complete and stored in <code>res</code>.</p>
+<ol>
+<li>Then, instead of populating a right_products array, we directly multiply the running product from the right (right_product) into the output array:</li>
+</ol>
+<p>Image represents a step-by-step illustration of a coding pattern, likely for calculating the product of array elements to the right of each element.  Two instances are shown, each depicting an array <code>nums</code> = [2, 3, 1, 4, 5] and an array <code>res</code> which is being populated.  The <code>res</code> array initially contains [1, 2, 6, 6, 24] in the first instance and [1, 2, 6, 30, 24] in the second.  A variable <code>right_product</code> is used; it starts at 1.  Each instance shows a dashed box containing calculations.  In the first instance, the calculation <code>res[i] = res[i] * right_product</code> updates <code>res[3]</code> (initially 6) to 24 by multiplying it with <code>right_product</code> (1). Then, <code>right_product</code> is updated to 5 (1 * 5).  The second instance shows a similar calculation, but now <code>res[3]</code> (initially 6) is updated to 30 (6 * 5), and <code>right_product</code> is updated to 20 (5 * 4).  Arrows indicate the flow of information:  the updated <code>right_product</code> value from one step feeds into the next step&rsquo;s calculation, and the updated <code>res[i]</code> value reflects the result of the calculation.  The <code>(i)</code> symbols above the <code>nums</code> arrays indicate the iteration index.
+Image represents a step-by-step illustration of an array manipulation algorithm.  The left side shows two arrays: <code>nums</code> containing the integer values [2, 3, 1, 4, 5], and <code>res</code> initialized to [1, 2,  ,  ,  ]. An arrow points from a small &lsquo;i&rsquo; symbol to the element &lsquo;1&rsquo; in <code>nums</code>, indicating the current index being processed. The third element of <code>res</code> is highlighted in peach and shows the value 120, resulting from a calculation. The right side displays the calculation details: <code>res[i] = res[i] * right_product</code>, where <code>res[i]</code> represents the current element in <code>res</code> (initially 6), and <code>right_product</code> is a variable. The calculation shows <code>6 * 20 = 120</code>, updating <code>res[i]</code>.  Below, the update of <code>right_product</code> is shown as <code>right_product = right_product * nums[i]</code>, which calculates <code>20 * 1 = 20</code>, implying that <code>right_product</code> is iteratively updated based on the elements in <code>nums</code>.  The overall diagram visualizes a process where an array (<code>res</code>) is populated by multiplying its elements with a dynamically updated <code>right_product</code>, derived from the <code>nums</code> array.
+Image represents a step-by-step illustration of a coding pattern, likely related to array manipulation.  The left side shows an array named <code>nums</code> containing the integer values [2, 3, 1, 4, 5], and another array <code>res</code> initialized as [1,  <em>, </em>, <em>, </em>].  A downward arrow points from a labeled box &lsquo;i&rsquo; to the element &lsquo;3&rsquo; in <code>nums</code>, indicating an iteration index. The second element of <code>res</code> is highlighted with a peach-colored circle containing the value 40. The right side displays a calculation demonstrating how the value 40 is derived: <code>res[i] = res[i] * right_product</code>, where <code>res[i]</code> (the second element of <code>res</code>) is calculated as 2 (the first element of <code>nums</code>) multiplied by 20 (the <code>right_product</code>).  Further calculations show that <code>right_product</code> is updated iteratively: initially it&rsquo;s 20, then it becomes 60 (20 * 3), implying a right-to-left product calculation across the <code>nums</code> array.  The overall diagram visualizes a single iteration of an algorithm, likely calculating the product of all elements to the right of each element in <code>nums</code> and storing the result in <code>res</code>.
+Image represents a step-by-step illustration of a coding pattern, likely related to array manipulation.  The left side shows an input array <code>nums</code> containing the integer values [2, 3, 1, 4, 5], and an output array <code>res</code> initialized with [60, 40, 120, 30, 24].  An arrow labeled &lsquo;i&rsquo; points from a small square to the <code>nums</code> array, indicating an iterative process. The highlighted value &lsquo;60&rsquo; in <code>res</code> corresponds to the first element. The right side displays a calculation box detailing the computation for the first element of <code>res</code>.  The formula <code>res[i] = res[i] * right_product</code> is shown, with <code>res[i]</code> initially set to 1.  The <code>right_product</code> variable is updated iteratively; in this example, it starts at 60 and is then updated to 120 (60 * 2) for the next iteration, implying a right-to-left calculation involving the product of elements in <code>nums</code>.  The calculation shows the intermediate steps: 1 * 60 = 60, and then the update of <code>right_product</code> to 120 for the next iteration.  The overall pattern suggests a cumulative product calculation from the right side of the <code>nums</code> array, influencing the values in the <code>res</code> array.
+Try it yourself
+Write your solution to the problem before checking the reference implementation.
+Implementation
+Python
+JavaScript
+Java
+from typing import List
+    
+def product_array_without_current_element(nums: List[int]) -&gt; List[int]:
+    n = len(nums)
+    res = [1] * n
+    # Populate the output with the running left product.
+    for i in range(1, n):
+        res[i] = res[i - 1] * nums[i - 1]
+    # Multiply the output with the running right product, from right to left.
+    right_product = 1
+    for i in range(n - 1, -1, -1):
+        res[i] <em>= right_product
+        right_product </em>= nums[i]
+    return res
+Complexity Analysis
+Time complexity: The time complexity of product_array_without_current_element is 
+O
+(
+n
+)
+O(n) because we iterate over the nums array twice.</p>
+<p>Space complexity: The space complexity is 
+O
+(
+1
+)
+O(1). The res array is not included in the space complexity analysis.</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="k-sum-subarrays.html"><div class="label">← Anterior</div><div class="title">K-Sum Subarrays</div></a><a class="next" href="../11-trees/introduction.html"><div class="label">Siguiente →</div><div class="title">Introduction to Trees</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="product-array-without-current-element.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

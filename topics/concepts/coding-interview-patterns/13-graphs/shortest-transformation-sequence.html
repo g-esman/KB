@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shortest Transformation Sequence · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 13 — Graphs</span><span class="sep">/</span><span class="current">Shortest Transformation Sequence</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Shortest Transformation Sequence</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">graphs</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Shortest Transformation Sequence
+Given two words, start and end, and a dictionary containing an array of words, return the length of the shortest transformation sequence to transform start to end. A transformation sequence is a series of words in which:</p>
+<p>Each word differs from the preceding word by exactly one letter.
+Each word in the sequence exists in the dictionary.
+If no such transformation sequence exists, return 0.</p>
+<p>Example:
+Input: start = &lsquo;red&rsquo;, end = &lsquo;hit&rsquo;,
+       dictionary = [
+            &lsquo;red&rsquo;, &lsquo;bed&rsquo;, &lsquo;hat&rsquo;, &lsquo;rod&rsquo;, &lsquo;rad&rsquo;, &lsquo;rat&rsquo;, &lsquo;hit&rsquo;, &lsquo;bad&rsquo;, &lsquo;bat&rsquo;
+       ]
+Output: 5
+Constraints:
+All words are the same length.
+All words contain only lowercase English letters.
+The dictionary contains no duplicate words.
+Intuition
+In a transformation sequence, each transformation involves changing one letter of a word to get another word. Consider the following example:</p>
+<p>Image represents a simple data structure used in a coding pattern, likely related to string manipulation or search algorithms.  The image displays two lines of code-like text. The top line defines two variables: <code>start</code> which is assigned the string value &lsquo;red&rsquo;, and <code>end</code> which is assigned the string value &lsquo;hit&rsquo;. The bottom line declares a variable named <code>dictionary</code> and assigns it a list or array containing a series of strings: &lsquo;red&rsquo;, &lsquo;bed&rsquo;, &lsquo;hat&rsquo;, &lsquo;rod&rsquo;, &lsquo;rad&rsquo;, &lsquo;rat&rsquo;, &lsquo;hit&rsquo;, &lsquo;bad&rsquo;, and &lsquo;bat&rsquo;.  There are no visible connections or information flow between the variables; they are simply defined and initialized with their respective values. The arrangement suggests that the <code>start</code> and <code>end</code> variables might represent the beginning and ending points of a search within the <code>dictionary</code>, although this is not explicitly shown.
+We know our transformation sequence should start with the word “red”, but how can we identify subsequent words in the sequence? The words that could immediately follow “red” are “bed”, “rad”, or “rod”, since each differs from “red” by one letter:</p>
+<p>Image represents a tree-like data structure, likely illustrating a concept in graph theory or a specific coding pattern.  The structure consists of four circular nodes connected by lines. A central node labeled &lsquo;red&rsquo; is connected to three subordinate nodes: &lsquo;bed&rsquo; on the left, &lsquo;rad&rsquo; below, and &lsquo;rod&rsquo; on the right.  The lines represent connections or relationships between the nodes, suggesting a hierarchical or parent-child relationship where &lsquo;red&rsquo; is the parent node and &lsquo;bed,&rsquo; &lsquo;rad,&rsquo; and &lsquo;rod&rsquo; are its children. No other information, such as URLs or parameters, is present within the image. The arrangement visually demonstrates a simple tree structure with a single root node (&lsquo;red&rsquo;) and three leaf nodes (&lsquo;bed,&rsquo; &lsquo;rad,&rsquo; and &lsquo;rod&rsquo;).
+Similarly, we can make a direct connection between each word and its one-letter-off neighbors:</p>
+<p>Image represents a directed acyclic graph (DAG) where nodes represent words and edges represent relationships between them.  The topmost node is labeled &lsquo;red,&rsquo; connected to three nodes below: &lsquo;bed,&rsquo; &lsquo;rad,&rsquo; and &lsquo;rod.&rsquo;  &lsquo;Bed&rsquo; connects to &lsquo;bad,&rsquo; which in turn connects to &lsquo;bat.&rsquo; &lsquo;Rad&rsquo; connects to both &lsquo;bad&rsquo; and &lsquo;rat.&rsquo; &lsquo;Rod&rsquo; has no outgoing connections. &lsquo;Rat&rsquo; connects to both &lsquo;bat&rsquo; and &lsquo;hat,&rsquo; and &lsquo;hat&rsquo; connects to &lsquo;hit.&rsquo;  The graph visually depicts a hierarchical or tree-like structure, although not strictly a tree due to the connection between &lsquo;rad&rsquo; and &lsquo;rat.&rsquo;  No URLs or parameters are present; the only information conveyed is the textual labels on the nodes and the connections between them, suggesting a potential relationship between the words, perhaps based on phonetic similarity or other linguistic criteria.
+This structure resembles a graph, indicating that finding the shortest transformation sequence involves finding the shortest path in this graph from the start node (“red”) to the end node (“hit”):</p>
+<p>The image represents a directed graph illustrating a word transformation problem.  The graph consists of nodes representing words (&lsquo;red,&rsquo; &lsquo;bed,&rsquo; &lsquo;bad,&rsquo; &lsquo;bat,&rsquo; &lsquo;rad,&rsquo; &lsquo;rod,&rsquo; &lsquo;rat,&rsquo; &lsquo;hat,&rsquo; &lsquo;hit&rsquo;) and edges representing single-letter changes between words.  Nodes are depicted as circles, with &lsquo;red&rsquo; and &lsquo;hit&rsquo; in light blue, &lsquo;rad,&rsquo; &lsquo;rat,&rsquo; and &lsquo;hat&rsquo; in orange, and the rest in black.  Edges are shown as arrows; grey arrows connect words with one letter difference, while orange arrows highlight the shortest transformation path from &lsquo;red&rsquo; to &lsquo;hit&rsquo;. The path follows the sequence: &lsquo;red&rsquo; → &lsquo;rad&rsquo; → &lsquo;rat&rsquo; → &lsquo;hat&rsquo; → &lsquo;hit&rsquo;.  To the right of the graph, the text &lsquo;shortest path → shortest transformation sequence&rsquo; explains that finding the shortest path in the graph corresponds to finding the shortest sequence of word transformations.
+Finding the shortest path
+When tasked with a graph problem that involves finding the shortest path between two nodes, BFS should come to mind. From the start node, BFS works by exploring all neighbors at a distance of 1 from the start node, followed by exploring nodes at a distance of 2, and so on. This means that once we find the end node, we’ve reached it via the shortest possible distance.</p>
+<p>So, let’s use level-order traversal, a variant of BFS, to find the shortest path in this graph, where each level we traverse represents nodes that are a specific distance from the start node:</p>
+<p>Image represents a three-stage visualization of a breadth-first search (BFS) algorithm on a graph.  The graph consists of nodes representing words (&lsquo;red,&rsquo; &lsquo;bed,&rsquo; &lsquo;rad,&rsquo; &lsquo;rod,&rsquo; &lsquo;bad,&rsquo; &lsquo;rat,&rsquo; &lsquo;bat,&rsquo; &lsquo;hat,&rsquo; &lsquo;hit&rsquo;) connected by edges. Stage 1 shows the initial state with the node &lsquo;red&rsquo; (highlighted in orange) at distance 0 from itself.  Stages 2 and 3 depict subsequent iterations of the BFS.  In each stage, nodes are colored orange as they are visited, with an associated &lsquo;dist&rsquo; value indicating their distance from the starting node &lsquo;red&rsquo;.  Grey edges represent existing connections in the graph, while orange arrows show the traversal path during the BFS algorithm.  Stage 2 shows nodes &lsquo;bed&rsquo; and &lsquo;rad&rsquo; (orange) at distance 1 from &lsquo;red,&rsquo; connected by orange arrows labeled &lsquo;dist=1&rsquo;. Stage 3 shows nodes &lsquo;bad&rsquo; and &lsquo;rat&rsquo; (orange) at distance 2 from &lsquo;red,&rsquo; connected by orange arrows labeled &lsquo;dist=2&rsquo;.  The algorithm progresses layer by layer, exploring nodes at increasing distances from the source node &lsquo;red&rsquo;.
+Image represents two directed acyclic graphs illustrating a shortest path algorithm.  Both graphs share a common upper structure consisting of three levels. The top level contains a single node labeled &lsquo;red,&rsquo; connected to three nodes (&lsquo;bed,&rsquo; &lsquo;rad,&rsquo; &lsquo;rod&rsquo;) on the second level. The second level nodes are connected to nodes on the third level (&lsquo;bad,&rsquo; &lsquo;rat&rsquo;).  The difference lies in the lower structure. In graph 4, &lsquo;bad&rsquo; connects to an orange-highlighted node &lsquo;bat,&rsquo; and &lsquo;rat&rsquo; connects to an orange-highlighted node &lsquo;hat.&rsquo;  &lsquo;bat&rsquo; and &lsquo;hat&rsquo; are connected to a black-highlighted node &lsquo;hit.&rsquo;  The edges connecting &lsquo;bad&rsquo; to &lsquo;bat&rsquo; and &lsquo;rat&rsquo; to &lsquo;hat&rsquo; are labeled &lsquo;dist=3,&rsquo; indicating a distance of 3. In graph 5, the upper structure remains identical, but the lower structure shows &lsquo;bad&rsquo; and &lsquo;rat&rsquo; connecting to &lsquo;bat&rsquo; and &lsquo;hat&rsquo; respectively, with additional connections between &lsquo;bad&rsquo; and &lsquo;bat,&rsquo; and &lsquo;bat&rsquo; and &lsquo;hat.&rsquo;  &lsquo;hat&rsquo; connects to &lsquo;hit,&rsquo; and the edge is labeled &lsquo;dist=4,&rsquo; indicating a distance of 4.  The orange highlighting suggests a path, and the black highlighting indicates a target node. The numbers &lsquo;4&rsquo; and &lsquo;5&rsquo; above each graph likely represent steps or iterations in the algorithm.
+As we can see, we managed to find the end node via the shortest path. To return the length of this path, we return dist, plus 1, to include the start node. If you’re unfamiliar with how level-order traversal works, review the Matrix Infection problem in this chapter.</p>
+<p>Note that during traversal, we need to ensure we don’t revisit previously traversed strings. By storing the visited strings in a hash set, we can quickly check if a string was already visited.</p>
+<p>Now, let’s figure out how to build the above graph.</p>
+<p>Building the graph
+We can represent the graph as an adjacency list, where each word has a list of all of its neighboring words:</p>
+<p>Image represents a graph data structure depicted in a textual format.  The text is labeled &lsquo;graph:&rsquo; and presents a series of key-value pairs. Each key is a string enclosed in double quotes (e.g., &lsquo;red&rsquo;), representing a node in the graph.  The value associated with each key is a list of strings, also enclosed in square brackets, representing the nodes directly connected to the key node (its neighbors). For instance, &lsquo;red&rsquo;: [ &lsquo;bed&rsquo;, &lsquo;rad&rsquo;, &lsquo;rod&rsquo;] indicates that the node &lsquo;red&rsquo; is connected to nodes &lsquo;bed&rsquo;, &lsquo;rad&rsquo;, and &lsquo;rod&rsquo;.  Similarly, &lsquo;bed&rsquo; connects to &lsquo;red&rsquo; and &lsquo;bad&rsquo;, &lsquo;hat&rsquo; connects to &lsquo;rat&rsquo;, &lsquo;bat&rsquo;, and &lsquo;hit&rsquo;, and &lsquo;hit&rsquo; connects only to &lsquo;hat&rsquo;.  The ellipsis (&hellip;) suggests that there might be more key-value pairs not shown in the image, implying a larger graph.  The overall structure represents an adjacency list representation of a directed or undirected graph, depending on whether the connections are considered bidirectional.
+The challenge here is finding each word’s neighbors. Consider the word “red”. One way we can identify all words that are one letter different from “red” is to generate all possible words by changing each letter in “red” to every other letter in the alphabet. For each of these generated words, we check if it exists in the dictionary. If it does, it’s a neighbor of “red”:</p>
+<p>Image represents a tree-like data structure, possibly illustrating a coding pattern related to string manipulation or data partitioning.  The root node is labeled &lsquo;red&rsquo;.  Three branches emanate from the root, labeled &lsquo;<em>ed&rsquo;, &lsquo;r_d&rsquo;, and &lsquo;re</em>&rsquo;. Each branch further subdivides into a series of nodes, indicated by right-pointing arrows.  The &lsquo;<em>ed&rsquo; branch contains nodes &lsquo;aed&rsquo;, &lsquo;bed&rsquo;, &lsquo;ced&rsquo;, and &lsquo;zed&rsquo;, suggesting an alphabetical sequence. Similarly, &lsquo;r_d&rsquo; branch shows &lsquo;rad&rsquo;, &lsquo;rod&rsquo;, and &lsquo;rzd&rsquo;, and the &lsquo;re</em>&rsquo; branch displays &lsquo;rea&rsquo;, &lsquo;reb&rsquo;, &lsquo;rec&rsquo;, and &lsquo;rez&rsquo;.  The ellipses (&hellip;) indicate potential continuation of the sequence in each branch, implying scalability.  The color coding (orange for some labels) might highlight specific elements or operations within the pattern, though the exact meaning is not explicitly defined in the image. The overall structure suggests a hierarchical breakdown of the root string &lsquo;red&rsquo; into substrings based on a defined pattern.
+To make checking the dictionary more efficient, we can store the words from the dictionary in a hash set, enabling us to verify the existence of a word in constant time.</p>
+<p>Note that before we build the graph, it’s important to check if start or end exists in the dictionary. If either is missing, we can immediately return 0, since each word in the sequence needs to be in the dictionary.</p>
+<p>Space optimization
+The purpose of the above adjacency list is to facilitate graph traversal. However, we can avoid building it altogether by leveraging the fact that each word in the dictionary is only visited once during the BFS traversal, indicating we only ever need access to the neighbors of each word once.</p>
+<p>If we had a way to generate each word’s neighbors when needed during BFS traversal, we could avoid creating the adjacency list, and save some space that would otherwise be taken up by it.</p>
+<p>Try it yourself
+Write your solution to the problem before checking the reference implementation.
+Implementation
+Python
+JavaScript
+Java
+def shortest_transformation_sequence(start: str, end: str, dictionary: List[str]) -&gt; int:
+    dictionary_set = set(dictionary)
+    if start not in dictionary_set or end not in dictionary_set:
+        return 0
+    if start == end:
+        return 1
+    lower_case_alphabet = &lsquo;abcdefghijklmnopqrstuvwxyz&rsquo;
+    queue = deque([start])
+    visited = set([start])
+    dist = 0
+    # Use level-order traversal to find the shortest path from the start word to the
+    # end word.
+    while queue:
+        for _ in range(len(queue)):
+            curr_word = queue.popleft()
+            # If we found the end word, we&rsquo;ve reached it via the shortest path.
+            if curr_word == end:
+                return dist + 1
+            # Generate all possible words that have a one-letter difference to the
+            # current word.
+            for i in range(len(curr_word)):
+                for c in lower_case_alphabet:
+                    next_word = curr_word[:i] + c + curr_word[i+1:]
+                    # If &lsquo;next_word&rsquo; exists in the dictionary, it&rsquo;s a neighbor of the
+                    # current word. If it&rsquo;s unvisited, add it to the queue to be
+                    # processed in the next level.
+                    if next_word in dictionary_set and next_word not in visited:
+                        visited.add(next_word)
+                        queue.append(next_word)
+        dist += 1
+    # If there is no way to reach the end node, then no path exists.
+    return 0
+Complexity Analysis
+Time complexity: The time complexity of shortest_transformation_sequence is 
+O
+(
+n
+⋅
+L
+2
+)
+O(n⋅L 
+2
+ ), where 
+n
+n denotes the number of words in the dictionary, and 
+L
+L denotes the length of a word. Here’s why:</p>
+<p>Creating a hash set containing all the words in the dictionary takes 
+O
+(
+n
+⋅
+L
+)
+O(n⋅L) time, because hashing each of the 
+n
+n words takes 
+O
+(
+L
+)
+O(L) time.</p>
+<p>Level-order traversal processes at most 
+n
+n words from the dictionary. At each of these words, we generate up to 
+26
+L
+26L transformations, and it takes 
+O
+(
+L
+)
+O(L) time to check if a transformation exists in the visited and dictionary_set hash sets, and to enqueue it. This means level-order traversal takes approximately 
+O
+(
+n
+⋅
+26
+L
+⋅
+L
+)
+=
+O
+(
+n
+⋅
+L
+2
+)
+O(n⋅26L⋅L)=O(n⋅L 
+2
+ ) time.</p>
+<p>Therefore, the overall time complexity is 
+O
+(
+n
+⋅
+L
+)
++
+O
+(
+n
+⋅
+L
+2
+)
+=
+O
+(
+n
+⋅
+L
+2
+)
+O(n⋅L)+O(n⋅L 
+2
+ )=O(n⋅L 
+2
+ ).</p>
+<p>Space complexity: The space complexity is 
+O
+(
+n
+⋅
+L
+)
+O(n⋅L), taken up by the dictionary_set hash set, the visited hash set, and the queue.</p>
+<p>Optimization - Bidirectional Traversal
+An important observation is that we don’t necessarily need to begin level-order traversal at the start word: we can also start a search at the end word. In fact, we can combine these by performing them simultaneously to find the shortest path. This is known as bidirectional BFS, or in this case, bidirectional level-order traversal.</p>
+<p>When we perform two searches, one from start and one from end, the idea is that they will meet in the middle if a path between these two words exists. If a path doesn’t exist, the searches will never meet, indicating that a transformation sequence does not exist.</p>
+<p>This optimization allows us to identify the shortest distance more quickly. We can see in the example below that regular level-order traversal ends up traversing through more nodes than in the bidirectional traversal, while also requiring 4 iterations instead of 2.</p>
+<p>Image represents a comparison of two graph traversal methods: level-order traversal and bidirectional level-order traversal.  The left side depicts a level-order traversal, showing a graph structured in levels (1 through 4), with nodes connected by black lines.  An orange curved line highlights the path taken during the traversal, starting from a node labeled &lsquo;start&rsquo; (orange fill) and ending at a node labeled &lsquo;end&rsquo; (light gray fill).  Level numbers are indicated in orange text next to the corresponding level&rsquo;s nodes. The right side illustrates a bidirectional level-order traversal, using the same graph structure but with two traversal paths highlighted: one orange, starting from a &lsquo;start&rsquo; node (light gray fill), and another light blue, starting from the &lsquo;end&rsquo; node (light blue fill). Both paths progress through the levels, with level numbers (in black text) indicating the level of each node.  The traversal paths converge in the middle of the graph, suggesting a meeting point during the bidirectional search.  Both sides include additional gray nodes extending beyond the main graph structure, representing potential further levels or branches not included in the primary traversal paths.
+To simulate this process, we alternate between the two level-order traversals and progress through each search one level at a time:</p>
+<p>Start traversal: progress one level in the traversal that started from the start node
+End traversal: progress one level in the traversal that started from the end node
+We alternate between these two steps until a node visited in one search has already been visited in the other search, indicating that the traversals have met. Here’s what this alternating process looks like:</p>
+<p>Image represents two diagrams illustrating traversal methods across a layered graph structure.  The left diagram, titled &lsquo;start traversal,&rsquo; shows a graph with a designated &lsquo;start&rsquo; node (orange) and an &lsquo;end&rsquo; node (light blue).  Nodes are arranged in layers, connected by lines. A thick orange curved line visually separates the nodes, indicating a traversal path. Above the diagram, a box displays &lsquo;level_start += 1,&rsquo; indicating an incrementing level counter during traversal.  Below, &lsquo;level_start = 1&rsquo; shows the initial value of this counter. The right diagram, titled &lsquo;end traversal,&rsquo; mirrors the structure but uses a light gray &lsquo;start&rsquo; node and a light blue &lsquo;end&rsquo; node. A thick light blue curved line represents the traversal path in this case.  Similarly, a box above displays &lsquo;level_end += 1,&rsquo; and &lsquo;level_end = 1&rsquo; is shown below, indicating a level counter incrementing from 1 during this traversal. Both diagrams use the same underlying graph structure, but the traversal paths and associated counters differ, highlighting different approaches to traversing the graph.
+Image represents a visual explanation of a graph traversal algorithm.  The image is divided into two parts, &lsquo;start traversal&rsquo; and &lsquo;end traversal,&rsquo; each showing a directed acyclic graph.  Both graphs have a &lsquo;start&rsquo; node (colored orange in the left graph, gray in the right) and an &lsquo;end&rsquo; node (colored cyan).  The &lsquo;start traversal&rsquo; section depicts a traversal from the start node, indicated by an orange curved line incrementing <code>level_start</code> from 1 to 2.  Simultaneously, a light-gray line shows a traversal from the end node, incrementing <code>level_end</code> from an implied 0 to 1.  The &lsquo;end traversal&rsquo; section shows the continuation of these traversals, with the orange line representing <code>level_start</code> (now equal to 2) and the cyan line representing <code>level_end</code> (now equal to 2).  These lines intersect, signifying the meeting of the traversals.  A box in the &lsquo;end traversal&rsquo; section states that when traversals meet, the algorithm returns <code>level_start + level_end + 1</code>.  Both graphs are structured similarly, with nodes connected to form a hexagonal pattern, and the traversals are visually represented by colored curved lines that pass through multiple nodes.
+To check if a node has already been visited by the other traversal, we can query the visited hash set used by the other traversal. If a word exists in the visited hash set of the other traversal, we know the searches have met.</p>
+<p>Try it yourself
+Write your solution to the problem before checking the reference implementation.
+Implementation - Bidirectional Traversal
+Python
+JavaScript
+Java
+from typing import List
+from collections import deque
+    
+def shortest_transformation_sequence_optimized(start: str, end: str, dictionary: List[str]) -&gt; int:
+    dictionary_set = set(dictionary)
+    if start not in dictionary_set or end not in dictionary_set:
+        return 0
+    if start == end:
+        return 1
+    start_queue = deque([start])
+    start_visited = {start}
+    end_queue = deque([end])
+    end_visited = {end}
+    level_start = level_end = 0
+    # Perform a level-order traversal from the start word and another from the end
+    # word.
+    while start_queue and end_queue:
+        # Explore the next level of the traversal that starts from the start word. If
+        # it meets the other traversal, the shortest path between &lsquo;start&rsquo; and &lsquo;end&rsquo;
+        # has been found.
+        level_start += 1
+        if explore_level(start_queue, start_visited, end_visited, dictionary_set):
+            return level_start + level_end + 1
+        # Explore the next level of the traversal that starts from the end word.
+        level_end += 1
+        if explore_level(end_queue, end_visited, start_visited, dictionary_set):
+            return level_start + level_end + 1
+    # If the traversals never met, then no path exists.
+    return 0
+    </p>
+<h1 id="this-function-explores-the-next-level-in-the-level-order-traversal-and-checks-if">This function explores the next level in the level-order traversal and checks if<a class="headerlink" href="#this-function-explores-the-next-level-in-the-level-order-traversal-and-checks-if" title="anchor">&para;</a></h1>
+<h1 id="two-searches-meet">two searches meet.<a class="headerlink" href="#two-searches-meet" title="anchor">&para;</a></h1>
+<p>def explore_level(queue, visited, other_visited, dictionary_set) -&gt; bool:
+    lower_case_alphabet = &lsquo;abcdefghijklmnopqrstuvwxyz&rsquo;
+    for _ in range(len(queue)):
+        current_word = queue.popleft()
+        for i in range(len(current_word)):
+            for c in lower_case_alphabet:
+                next_word = current_word[:i] + c + current_word[i+1:]
+                # If &lsquo;next_word&rsquo; has been visited during the other traversal, it means
+                # both searches have met.
+                if next_word in other_visited:
+                    return True
+                if next_word in dictionary_set and next_word not in visited:
+                    visited.add(next_word)
+                    queue.append(next_word)
+    # If no word has been visited by the other traversal, the searches have not met
+    # yet.
+    return False
+Complexity Analysis
+Time complexity: The time complexity of shortest_transformation_sequence_optimized is 
+O
+(
+n
+⋅
+L
+2
+)
+O(n⋅L 
+2
+ ), since we’re performing two level-order traversals. Note that this is more efficient in practice since there are potentially fewer nodes to traverse when using bidirectional traversal.</p>
+<p>Space complexity: The space complexity is 
+O
+(
+n
+⋅
+L
+)
+O(n⋅L), taken up by the dictionary_set hash set, the visited hash sets, and both queues.</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="longest-increasing-path.html"><div class="label">← Anterior</div><div class="title">Longest Increasing Path</div></a><a class="next" href="merging-communities.html"><div class="label">Siguiente →</div><div class="title">Merging Communities</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="shortest-transformation-sequence.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

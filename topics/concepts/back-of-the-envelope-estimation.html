@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Back-of-the-envelope Estimation · Personal KB</title>
+<link rel="stylesheet" href="../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book I — System Design</span><span class="sep">/</span><span class="current">Back-of-the-envelope Estimation</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <ul class="toc">
+<li class="toc-h2"><a href="#in-this-chapter">📖 In this chapter</a></li>
+<li class="toc-h2"><a href="#for-dummies-empeza-por-aca">🎓 For Dummies — empezá por acá</a></li>
+<li class="toc-h3"><a href="#que-es-back-of-the-envelope-estimation">¿Qué es “back-of-the-envelope estimation”?</a></li>
+<li class="toc-h3"><a href="#para-que-sirve">¿Para qué sirve?</a></li>
+<li class="toc-h3"><a href="#las-3-cosas-que-tenes-que-saber-de-memoria">Las 3 cosas que tenés que saber de memoria</a></li>
+<li class="toc-h4"><a href="#1-tamanos-de-datos-pensalos-como-recipientes">1. Tamaños de datos (pensalos como recipientes)</a></li>
+<li class="toc-h4"><a href="#2-latency-que-tan-rapido-es-cada-cosa">2. Latency (qué tan rápido es cada cosa)</a></li>
+<li class="toc-h4"><a href="#3-los-nueves-de-availability">3. Los “nueves” de availability</a></li>
+<li class="toc-h3"><a href="#el-ejemplo-de-twitter-paso-a-paso">🐦 El ejemplo de Twitter, paso a paso</a></li>
+<li class="toc-h3"><a href="#para-storage-cuanto-disco">📦 Para storage (cuánto disco)</a></li>
+<li class="toc-h3"><a href="#los-5-pasos-siempre">🪜 Los 5 pasos siempre</a></li>
+<li class="toc-h3"><a href="#trucos-rapidos">💡 Trucos rápidos</a></li>
+<li class="toc-h3"><a href="#listo-para-la-version-completa">¿Listo para la versión completa?</a></li>
+<li class="toc-h3"><a href="#amplification-the-estimation-methodology">⭐ Amplification — the estimation methodology</a></li>
+<li class="toc-h2"><a href="#power-of-two">Power of two</a></li>
+<li class="toc-h3"><a href="#table-1-data-volume-units">Table 1 — Data volume units</a></li>
+<li class="toc-h3"><a href="#amplification-kb-vs-kib-and-the-prefix-beyond-petabyte">⭐ Amplification — KB vs KiB, and the prefix beyond Petabyte</a></li>
+<li class="toc-h2"><a href="#latency-numbers-every-programmer-should-know">Latency numbers every programmer should know</a></li>
+<li class="toc-h3"><a href="#table-2-operation-latencies">Table 2 — Operation latencies</a></li>
+<li class="toc-h3"><a href="#figure-1-latency-tiers-operations-grouped-by-speed">Figure 1 — Latency tiers (operations grouped by speed)</a></li>
+<li class="toc-h3"><a href="#amplification-human-scaled-latency-the-ratio-is-what-matters">⭐ Amplification — human-scaled latency (the ratio is what matters)</a></li>
+<li class="toc-h2"><a href="#availability-numbers">Availability numbers</a></li>
+<li class="toc-h3"><a href="#table-3-availability-vs-downtime">Table 3 — Availability vs downtime</a></li>
+<li class="toc-h3"><a href="#amplification-what-each-level-of-9s-actually-requires">⭐ Amplification — what each level of 9s actually requires</a></li>
+<li class="toc-h2"><a href="#example-estimate-twitter-qps-and-storage-requirements">Example: Estimate Twitter QPS and storage requirements</a></li>
+<li class="toc-h3"><a href="#query-per-second-qps-estimate">Query per second (QPS) estimate</a></li>
+<li class="toc-h3"><a href="#storage-estimate">Storage estimate</a></li>
+<li class="toc-h3"><a href="#amplification-extending-the-twitter-estimate">⭐ Amplification — extending the Twitter estimate</a></li>
+<li class="toc-h2"><a href="#tips">Tips</a></li>
+<li class="toc-h2"><a href="#reference-materials">Reference materials</a></li>
+<li class="toc-h2"><a href="#amplification-estimation-methodology-and-cheat-sheets-added">⭐ Amplification — Estimation methodology and cheat sheets (added)</a></li>
+<li class="toc-h3"><a href="#magic-numbers-worth-memorizing">🧠 Magic numbers worth memorizing</a></li>
+<li class="toc-h3"><a href="#common-calculation-patterns">📐 Common calculation patterns</a></li>
+<li class="toc-h3"><a href="#common-interview-question-types">🎯 Common interview question types</a></li>
+<li class="toc-h3"><a href="#common-pitfalls">⚠️ Common pitfalls</a></li>
+<li class="toc-h3"><a href="#sanity-check-reference-points-real-world-scale">🧪 Sanity-check reference points (real-world scale)</a></li>
+</ul>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Back-of-the-envelope Estimation</h1>
+  <div class="meta-row">
+    <span class="status-badge active">✓ active</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-04-30</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">system-design</span><span class="meta-tag">estimation</span><span class="meta-tag">interview-prep</span><span class="meta-tag">scalability</span><span class="meta-tag">capacity-planning</span></div>
+</header>
+      
+      <p><a href="../../index.html">⬅ Back to KB index</a></p>
+<blockquote>
+<p><strong>TL;DR (added)</strong> — Back-of-the-envelope estimation is the skill of computing system capacity (QPS, storage, bandwidth, server count) using rounded numbers and a few memorized constants. You don&rsquo;t need precision — you need a good <em>feel</em> for the order of magnitude. It&rsquo;s the foundation of every system design interview and a daily tool for sizing real systems.</p>
+</blockquote>
+<hr />
+<h2 id="in-this-chapter">📖 In this chapter<a class="headerlink" href="#in-this-chapter" title="anchor">&para;</a></h2>
+<ol>
+<li><a href="#-for-dummies--empezá-por-acá">🎓 For Dummies — empezá por acá</a> ← <strong>si es la primera vez, leé esto primero</strong></li>
+<li><a href="#power-of-two">Power of two</a></li>
+<li><a href="#latency-numbers-every-programmer-should-know">Latency numbers every programmer should know</a></li>
+<li><a href="#availability-numbers">Availability numbers</a></li>
+<li><a href="#example-estimate-twitter-qps-and-storage-requirements">Example: Estimate Twitter QPS and storage requirements</a></li>
+<li><a href="#tips">Tips</a></li>
+<li><a href="#reference-materials">Reference materials</a></li>
+<li><a href="#-amplification--estimation-methodology-and-cheat-sheets-added">⭐ Amplification — Estimation methodology and cheat sheets (added)</a></li>
+</ol>
+<hr />
+<h2 id="for-dummies-empeza-por-aca">🎓 For Dummies — empezá por acá<a class="headerlink" href="#for-dummies-empeza-por-aca" title="anchor">&para;</a></h2>
+<h3 id="que-es-back-of-the-envelope-estimation">¿Qué es &ldquo;back-of-the-envelope estimation&rdquo;?<a class="headerlink" href="#que-es-back-of-the-envelope-estimation" title="anchor">&para;</a></h3>
+<p>Es <strong>hacer cuentas rápidas en una servilleta</strong> para saber qué tan grande necesita ser un sistema. No precisión — solo orden de magnitud.</p>
+<p>🍕 <strong>Analogía</strong>: organizás un asado para 50 personas. ¿Cuánta carne comprás? No vas a pesar exacto lo que come cada uno. Hacés <em>&ldquo;500g × 50 = 25 kg, compro 30 por las dudas&rdquo;</em>. Listo. Eso es back-of-the-envelope.</p>
+<p>En sistemas en vez de carne estimás 4 cosas:</p>
+<ol>
+<li><strong>QPS</strong> = pedidos por segundo (queries per second)</li>
+<li><strong>Storage</strong> = cuánto disco necesito</li>
+<li><strong>Bandwidth</strong> = cuánta data viaja por la red</li>
+<li><strong>Servers</strong> = cuántas computadoras necesito</li>
+</ol>
+<h3 id="para-que-sirve">¿Para qué sirve?<a class="headerlink" href="#para-que-sirve" title="anchor">&para;</a></h3>
+<p>Antes de construir algo querés saber: <em>&ldquo;¿necesito 1 servidor o 1,000?&rdquo;</em>. Si tu cuenta dice &ldquo;1 millón de servidores&rdquo; tu diseño está mal. Si dice &ldquo;1 servidor para 8 mil millones de usuarios&rdquo; también. Es un <strong>sanity check</strong>.</p>
+<h3 id="las-3-cosas-que-tenes-que-saber-de-memoria">Las 3 cosas que tenés que saber de memoria<a class="headerlink" href="#las-3-cosas-que-tenes-que-saber-de-memoria" title="anchor">&para;</a></h3>
+<h4 id="1-tamanos-de-datos-pensalos-como-recipientes">1. Tamaños de datos (pensalos como recipientes)<a class="headerlink" href="#1-tamanos-de-datos-pensalos-como-recipientes" title="anchor">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Tamaño</th>
+<th>Analogía</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1 KB</strong></td>
+<td>1,000 bytes</td>
+<td>🥤 vaso (≈ una página de texto)</td>
+</tr>
+<tr>
+<td><strong>1 MB</strong></td>
+<td>1,000 KB</td>
+<td>🪣 balde (≈ una foto)</td>
+</tr>
+<tr>
+<td><strong>1 GB</strong></td>
+<td>1,000 MB</td>
+<td>🛁 bañera (≈ una peli SD)</td>
+</tr>
+<tr>
+<td><strong>1 TB</strong></td>
+<td>1,000 GB</td>
+<td>🏊 pileta (≈ 250,000 fotos)</td>
+</tr>
+<tr>
+<td><strong>1 PB</strong></td>
+<td>1,000 TB</td>
+<td>🌊 lago (≈ 13 años de video HD)</td>
+</tr>
+</tbody>
+</table>
+<p>Cada paso = <strong>× 1,000</strong>.</p>
+<h4 id="2-latency-que-tan-rapido-es-cada-cosa">2. Latency (qué tan rápido es cada cosa)<a class="headerlink" href="#2-latency-que-tan-rapido-es-cada-cosa" title="anchor">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Cosa</th>
+<th>Tiempo</th>
+<th>Analogía</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cache del CPU</td>
+<td>nanosegundos (ns)</td>
+<td>leer una palabra que tenés enfrente</td>
+</tr>
+<tr>
+<td>RAM</td>
+<td>100 ns</td>
+<td>agarrar un libro de tu biblioteca</td>
+</tr>
+<tr>
+<td>SSD</td>
+<td>microsegundos</td>
+<td>ir a la biblioteca del barrio</td>
+</tr>
+<tr>
+<td>Disco rígido viejo</td>
+<td>10 ms</td>
+<td>ir a la biblioteca del otro barrio</td>
+</tr>
+<tr>
+<td>Red dentro del datacenter</td>
+<td>0.5 ms</td>
+<td>mensaje al depto de al lado</td>
+</tr>
+<tr>
+<td>Cruzar continentes</td>
+<td>150 ms</td>
+<td>llamada telefónica a Holanda</td>
+</tr>
+</tbody>
+</table>
+<p>🎯 <strong>Regla clave</strong>: cada nivel siguiente es ~1,000× más lento. Por eso importa tanto cachear y usar CDN cerca del usuario.</p>
+<h4 id="3-los-nueves-de-availability">3. Los &ldquo;nueves&rdquo; de availability<a class="headerlink" href="#3-los-nueves-de-availability" title="anchor">&para;</a></h4>
+<p>Cuánto tiempo al año está roto tu sistema:</p>
+<table>
+<thead>
+<tr>
+<th>Nines</th>
+<th>%</th>
+<th>Roto al año</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2 nueves</td>
+<td>99%</td>
+<td>3.65 días 😬</td>
+</tr>
+<tr>
+<td>3 nueves</td>
+<td>99.9%</td>
+<td>8.76 horas</td>
+</tr>
+<tr>
+<td>4 nueves</td>
+<td>99.99%</td>
+<td>52 minutos</td>
+</tr>
+<tr>
+<td>5 nueves</td>
+<td>99.999%</td>
+<td>5 minutos 💪</td>
+</tr>
+</tbody>
+</table>
+<p>Cada nueve más = <strong>10× más plata y esfuerzo</strong>.</p>
+<h3 id="el-ejemplo-de-twitter-paso-a-paso">🐦 El ejemplo de Twitter, paso a paso<a class="headerlink" href="#el-ejemplo-de-twitter-paso-a-paso" title="anchor">&para;</a></h3>
+<p><strong>Pregunta</strong>: ¿cuántos tweets por segundo?</p>
+<p><strong>Paso 1 — Asumí (números redondos)</strong>:</p>
+<ul>
+<li>300 millones de usuarios totales</li>
+<li>La mitad usa Twitter cada día → 150M usuarios activos diarios</li>
+<li>Cada uno tweetea 2 veces al día</li>
+</ul>
+<p><strong>Paso 2 — Multiplicá</strong>:
+<div class="highlight"><pre><span></span><code>150,000,000 usuarios × 2 tweets = 300,000,000 tweets/día
+</code></pre></div></p>
+<p><strong>Paso 3 — Convertí a &ldquo;por segundo&rdquo;</strong>:
+<div class="highlight"><pre><span></span><code>1 día = 86,400 segundos (redondeá a ~100,000 para hacer fácil)
+300,000,000 ÷ 100,000 ≈ 3,000 tweets/segundo
+</code></pre></div></p>
+<p><strong>Paso 4 — Hora pico</strong> (multiplicá × 2):
+<div class="highlight"><pre><span></span><code>3,000 × 2 ≈ 6,000 tweets/segundo en pico
+</code></pre></div></p>
+<p>¡Listo! Esa es tu estimación. No es exacta — es aproximada — pero te dice el orden de magnitud para diseñar.</p>
+<h3 id="para-storage-cuanto-disco">📦 Para storage (cuánto disco)<a class="headerlink" href="#para-storage-cuanto-disco" title="anchor">&para;</a></h3>
+<p><strong>Pregunta</strong>: ¿cuánto disco para guardar fotos por 5 años?</p>
+<div class="highlight"><pre><span></span><code>150M usuarios × 2 tweets × 10% con foto = 30M fotos/día
+30M fotos × 1 MB cada una = 30 TB/día
+30 TB × 365 días × 5 años ≈ 55 PB
+</code></pre></div>
+<h3 id="los-5-pasos-siempre">🪜 Los 5 pasos siempre<a class="headerlink" href="#los-5-pasos-siempre" title="anchor">&para;</a></h3>
+<ol>
+<li><strong>Anotá tus suposiciones</strong> — &ldquo;asumo X usuarios&rdquo;</li>
+<li><strong>Redondeá</strong> — 86,400 → 100,000. No pierdas tiempo en precisión</li>
+<li><strong>Etiquetá unidades</strong> — &ldquo;5&rdquo; no significa nada, &ldquo;5 MB&rdquo; sí</li>
+<li><strong>Calculá paso a paso</strong> — un número a la vez</li>
+<li><strong>Sanity check</strong> — &ldquo;¿1 EB/día para una app de chat? Mmm sospechoso&rdquo;</li>
+</ol>
+<h3 id="trucos-rapidos">💡 Trucos rápidos<a class="headerlink" href="#trucos-rapidos" title="anchor">&para;</a></h3>
+<ul>
+<li>⚡ Multiplicá QPS × 2 para hora pico</li>
+<li>📚 Lecturas:escrituras suelen ser 10:1 (la gente lee más de lo que escribe)</li>
+<li>💾 Cada servidor aguanta ~1,000-10,000 QPS</li>
+<li>🔁 Multiplicá storage × 3 si replicás (común para alta disponibilidad)</li>
+</ul>
+<h3 id="listo-para-la-version-completa">¿Listo para la versión completa?<a class="headerlink" href="#listo-para-la-version-completa" title="anchor">&para;</a></h3>
+<p>Ahora que tenés la idea, leé el resto del capítulo abajo. Si te perdés, volvé acá. ⬇️</p>
+<hr />
+<p>In a system design interview, sometimes you are asked to estimate system capacity or performance requirements using a back-of-the-envelope estimation. According to Jeff Dean, Google Senior Fellow, &ldquo;back-of-the-envelope calculations are estimates you create using a combination of thought experiments and common performance numbers to get a good feel for which designs will meet your requirements&rdquo; [1].</p>
+<p>You need to have a good sense of scalability basics to effectively carry out back-of-the-envelope estimation. The following concepts should be well understood: power of two [2], latency numbers every programmer should know, and availability numbers.</p>
+<blockquote>
+<h3 id="amplification-the-estimation-methodology">⭐ Amplification — the estimation methodology<a class="headerlink" href="#amplification-the-estimation-methodology" title="anchor">&para;</a></h3>
+<p>Before diving into the numbers, here&rsquo;s the systematic process I&rsquo;ll reference throughout. Every estimation question follows roughly the same 5-step flow:</p>
+<p><img alt="Estimation methodology" src="img/est-fig01-methodology.png" /></p>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>What to do</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. Assumptions</td>
+<td>Write down every number you assume (DAU, payload size, growth)</td>
+<td>Forces you to make them explicit; the interviewer can challenge them; you can change one and re-derive</td>
+</tr>
+<tr>
+<td>2. Round</td>
+<td>86,400 sec/day → ~100,000; 365 days → ~400</td>
+<td>You&rsquo;re not computing taxes — you&rsquo;re sizing infrastructure. ±20% is fine</td>
+</tr>
+<tr>
+<td>3. Label units</td>
+<td>&ldquo;5&rdquo; is meaningless. &ldquo;5 MB&rdquo; is a number</td>
+<td>Saves you from off-by-1000 errors</td>
+</tr>
+<tr>
+<td>4. Calculate</td>
+<td>Step by step, one transformation at a time</td>
+<td>Mistakes get caught in review</td>
+</tr>
+<tr>
+<td>5. Sanity-check</td>
+<td>Compare to known reference points</td>
+<td>&ldquo;Is 30 TB/day plausible? YouTube uploads ~720k hours/day…&rdquo;</td>
+</tr>
+</tbody>
+</table>
+</blockquote>
+<hr />
+<h2 id="power-of-two">Power of two<a class="headerlink" href="#power-of-two" title="anchor">&para;</a></h2>
+<p>Although data volume can become enormous when dealing with distributed systems, calculation all boils down to the basics. To obtain correct calculations, it is critical to know the data volume unit using the power of 2. A byte is a sequence of 8 bits. An ASCII character uses one byte of memory (8 bits). Below is a table explaining the data volume unit (Table 1).</p>
+<h3 id="table-1-data-volume-units">Table 1 — Data volume units<a class="headerlink" href="#table-1-data-volume-units" title="anchor">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Power</th>
+<th>Approximate value</th>
+<th>Full name</th>
+<th>Short name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10</td>
+<td>1 Thousand</td>
+<td>1 Kilobyte</td>
+<td>1 KB</td>
+</tr>
+<tr>
+<td>20</td>
+<td>1 Million</td>
+<td>1 Megabyte</td>
+<td>1 MB</td>
+</tr>
+<tr>
+<td>30</td>
+<td>1 Billion</td>
+<td>1 Gigabyte</td>
+<td>1 GB</td>
+</tr>
+<tr>
+<td>40</td>
+<td>1 Trillion</td>
+<td>1 Terabyte</td>
+<td>1 TB</td>
+</tr>
+<tr>
+<td>50</td>
+<td>1 Quadrillion</td>
+<td>1 Petabyte</td>
+<td>1 PB</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<h3 id="amplification-kb-vs-kib-and-the-prefix-beyond-petabyte">⭐ Amplification — KB vs KiB, and the prefix beyond Petabyte<a class="headerlink" href="#amplification-kb-vs-kib-and-the-prefix-beyond-petabyte" title="anchor">&para;</a></h3>
+<p><strong>The 1000 vs 1024 trap.</strong> Two prefix systems exist and people mix them up constantly:</p>
+<table>
+<thead>
+<tr>
+<th>Prefix</th>
+<th>Decimal (SI)</th>
+<th>Binary (IEC)</th>
+<th>Difference at this scale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Kilo</td>
+<td>KB = 10³ = 1,000 bytes</td>
+<td>KiB = 2¹⁰ = 1,024 bytes</td>
+<td>2.4%</td>
+</tr>
+<tr>
+<td>Mega</td>
+<td>MB = 10⁶</td>
+<td>MiB = 2²⁰ = 1,048,576</td>
+<td>4.9%</td>
+</tr>
+<tr>
+<td>Giga</td>
+<td>GB = 10⁹</td>
+<td>GiB = 2³⁰ ≈ 1.074 × 10⁹</td>
+<td>7.4%</td>
+</tr>
+<tr>
+<td>Tera</td>
+<td>TB = 10¹²</td>
+<td>TiB = 2⁴⁰ ≈ 1.1 × 10¹²</td>
+<td>10%</td>
+</tr>
+<tr>
+<td>Peta</td>
+<td>PB = 10¹⁵</td>
+<td>PiB = 2⁵⁰ ≈ 1.126 × 10¹⁵</td>
+<td>12.6%</td>
+</tr>
+</tbody>
+</table>
+<p>🧪 <strong>Real-world example</strong>: that &ldquo;1 TB&rdquo; SSD shows as &ldquo;931 GiB&rdquo; in your OS — same bytes, different prefix system. For estimation interviews, <strong>always use decimal (1 KB = 1,000)</strong> unless the question specifies binary.</p>
+<p><strong>Beyond Petabyte</strong> (you&rsquo;ll see these eventually):
+- Exabyte (EB) = 10¹⁸ — Google&rsquo;s monthly search index
+- Zettabyte (ZB) = 10²¹ — total annual internet traffic
+- Yottabyte (YB) = 10²⁴ — way beyond current scale</p>
+<p>🧪 <strong>Memorize for sizing</strong>: 1 GB ≈ 1,000 MP3 songs · 1 TB ≈ 250,000 photos · 1 PB ≈ 13 years of HD video.</p>
+</blockquote>
+<hr />
+<h2 id="latency-numbers-every-programmer-should-know">Latency numbers every programmer should know<a class="headerlink" href="#latency-numbers-every-programmer-should-know" title="anchor">&para;</a></h2>
+<p>Dr. Dean from Google reveals the length of typical computer operations in 2010 [1]. Some numbers are outdated as computers become faster and more powerful. However, those numbers should still be able to give us an idea of the fastness and slowness of different computer operations.</p>
+<h3 id="table-2-operation-latencies">Table 2 — Operation latencies<a class="headerlink" href="#table-2-operation-latencies" title="anchor">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Operation name</th>
+<th>Time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>L1 cache reference</td>
+<td>0.5 ns</td>
+</tr>
+<tr>
+<td>Branch mispredict</td>
+<td>5 ns</td>
+</tr>
+<tr>
+<td>L2 cache reference</td>
+<td>7 ns</td>
+</tr>
+<tr>
+<td>Mutex lock/unlock</td>
+<td>100 ns</td>
+</tr>
+<tr>
+<td>Main memory reference</td>
+<td>100 ns</td>
+</tr>
+<tr>
+<td>Compress 1K bytes with Zippy</td>
+<td>10,000 ns = 10 µs</td>
+</tr>
+<tr>
+<td>Send 2K bytes over 1 Gbps network</td>
+<td>20,000 ns = 20 µs</td>
+</tr>
+<tr>
+<td>Read 1 MB sequentially from memory</td>
+<td>250,000 ns = 250 µs</td>
+</tr>
+<tr>
+<td>Round trip within the same datacenter</td>
+<td>500,000 ns = 500 µs</td>
+</tr>
+<tr>
+<td>Disk seek</td>
+<td>10,000,000 ns = 10 ms</td>
+</tr>
+<tr>
+<td>Read 1 MB sequentially from the network</td>
+<td>10,000,000 ns = 10 ms</td>
+</tr>
+<tr>
+<td>Read 1 MB sequentially from disk</td>
+<td>30,000,000 ns = 30 ms</td>
+</tr>
+<tr>
+<td>Send packet CA (California) → Netherlands → CA</td>
+<td>150,000,000 ns = 150 ms</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Notes</strong></p>
+<ul>
+<li>ns = nanosecond, µs = microsecond, ms = millisecond</li>
+<li>1 ns = 10⁻⁹ seconds</li>
+<li>1 µs = 10⁻⁶ seconds = 1,000 ns</li>
+<li>1 ms = 10⁻³ seconds = 1,000 µs = 1,000,000 ns</li>
+</ul>
+<p>A Google software engineer built a tool to visualize Dr. Dean&rsquo;s numbers. The tool also takes the time factor into consideration. Figure 1 shows the visualized latency numbers as of 2020 (source of figures: reference material [3]).</p>
+<h3 id="figure-1-latency-tiers-operations-grouped-by-speed">Figure 1 — Latency tiers (operations grouped by speed)<a class="headerlink" href="#figure-1-latency-tiers-operations-grouped-by-speed" title="anchor">&para;</a></h3>
+<p><img alt="Figure 1 — Latency tiers" src="img/est-fig02-latency-tiers.png" /></p>
+<p>By analyzing the numbers in Figure 1, we get the following conclusions:</p>
+<ul>
+<li>Memory is fast but the disk is slow.</li>
+<li>Avoid disk seeks if possible.</li>
+<li>Simple compression algorithms are fast.</li>
+<li>Compress data before sending it over the internet if possible.</li>
+<li>Data centers are usually in different regions, and it takes time to send data between them.</li>
+</ul>
+<blockquote>
+<h3 id="amplification-human-scaled-latency-the-ratio-is-what-matters">⭐ Amplification — human-scaled latency (the ratio is what matters)<a class="headerlink" href="#amplification-human-scaled-latency-the-ratio-is-what-matters" title="anchor">&para;</a></h3>
+<p>Numbers in nanoseconds are abstract. Scale them up so <strong>1 ns = 1 second</strong>, then they map to human time. This is the <em>single most useful trick</em> for understanding why disk and cross-region latency dominate everything:</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Real time</th>
+<th>Scaled (1 ns = 1 sec)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>L1 cache reference</td>
+<td>0.5 ns</td>
+<td><strong>0.5 seconds</strong></td>
+</tr>
+<tr>
+<td>Branch mispredict</td>
+<td>5 ns</td>
+<td>5 seconds</td>
+</tr>
+<tr>
+<td>L2 cache reference</td>
+<td>7 ns</td>
+<td>7 seconds</td>
+</tr>
+<tr>
+<td>Main memory</td>
+<td>100 ns</td>
+<td><strong>1.5 minutes</strong></td>
+</tr>
+<tr>
+<td>Send 2KB over 1Gbps</td>
+<td>20 µs</td>
+<td>5.5 hours</td>
+</tr>
+<tr>
+<td>Read 1MB from RAM</td>
+<td>250 µs</td>
+<td><strong>3 days</strong></td>
+</tr>
+<tr>
+<td>DC round-trip</td>
+<td>500 µs</td>
+<td>6 days</td>
+</tr>
+<tr>
+<td>Disk seek</td>
+<td>10 ms</td>
+<td><strong>4 months</strong></td>
+</tr>
+<tr>
+<td>Read 1MB from network</td>
+<td>10 ms</td>
+<td>4 months</td>
+</tr>
+<tr>
+<td>Read 1MB from disk</td>
+<td>30 ms</td>
+<td><strong>1 year</strong></td>
+</tr>
+<tr>
+<td>CA → NL → CA</td>
+<td>150 ms</td>
+<td><strong>5 years</strong></td>
+</tr>
+</tbody>
+</table>
+<p>💡 <strong>Punchline</strong>: a single cross-continent round trip is to a CPU what <em>waiting 5 years</em> is to you. This is why CDNs, caches, and async processing matter so much.</p>
+<p><strong>What changed since 2010</strong>:
+- <strong>SSDs replaced spinning disks</strong> in most datacenters → &ldquo;disk seek&rdquo; is now ~16 µs (random read on SSD), not 10 ms. 600× faster.
+- <strong>NVMe</strong> dropped sequential reads further: 1 MB from NVMe ≈ 1 ms (vs 30 ms for spinning).
+- <strong>Network within DC</strong> still ~500 µs — physics hasn&rsquo;t changed.
+- <strong>Cross-region</strong> still ~100–200 ms — limited by the speed of light. CA→NL is ~6,000 miles × 2 = 12,000 mi @ ~125,000 mi/s through fiber = ~95 ms theoretical minimum. The other 50 ms is routing/queuing.</p>
+<p>⚠️ <strong>Speed of light limit</strong>: light travels ~300 km in 1 ms. Two servers 300 km apart can NEVER round-trip in less than ~2 ms, no matter how good your hardware is.</p>
+</blockquote>
+<hr />
+<h2 id="availability-numbers">Availability numbers<a class="headerlink" href="#availability-numbers" title="anchor">&para;</a></h2>
+<p>High availability is the ability of a system to be continuously operational for a desirably long period of time. High availability is measured as a percentage, with 100% means a service that has 0 downtime. Most services fall between 99% and 100%.</p>
+<p>A service level agreement (SLA) is a commonly used term for service providers. This is an agreement between you (the service provider) and your customer, and this agreement formally defines the level of uptime your service will deliver. Cloud providers Amazon [4], Google [5] and Microsoft [6] set their SLAs at 99.9% or above. Uptime is traditionally measured in nines. The more the nines, the better. As shown in Table 3, the number of nines correlate to the expected system downtime.</p>
+<h3 id="table-3-availability-vs-downtime">Table 3 — Availability vs downtime<a class="headerlink" href="#table-3-availability-vs-downtime" title="anchor">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Availability %</th>
+<th>Downtime per day</th>
+<th>Downtime per week</th>
+<th>Downtime per month</th>
+<th>Downtime per year</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>99%</td>
+<td>14.40 minutes</td>
+<td>1.68 hours</td>
+<td>7.31 hours</td>
+<td>3.65 days</td>
+</tr>
+<tr>
+<td>99.99%</td>
+<td>8.64 seconds</td>
+<td>1.01 minutes</td>
+<td>4.38 minutes</td>
+<td>52.60 minutes</td>
+</tr>
+<tr>
+<td>99.999%</td>
+<td>864.00 milliseconds</td>
+<td>6.05 seconds</td>
+<td>26.30 seconds</td>
+<td>5.26 minutes</td>
+</tr>
+<tr>
+<td>99.9999%</td>
+<td>86.40 milliseconds</td>
+<td>604.80 ms</td>
+<td>2.63 seconds</td>
+<td>31.56 seconds</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<h3 id="amplification-what-each-level-of-9s-actually-requires">⭐ Amplification — what each level of 9s actually requires<a class="headerlink" href="#amplification-what-each-level-of-9s-actually-requires" title="anchor">&para;</a></h3>
+<p><strong>Filling in the gap</strong> (the original table jumps from 99% to 99.99% — here&rsquo;s the in-between):</p>
+<table>
+<thead>
+<tr>
+<th>Nines</th>
+<th>Availability</th>
+<th>Downtime/year</th>
+<th>Realistic for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2 nines</td>
+<td>99%</td>
+<td>3.65 days</td>
+<td>Hobby / internal tools</td>
+</tr>
+<tr>
+<td>3 nines</td>
+<td>99.9%</td>
+<td>8.76 hours</td>
+<td>Small business SaaS</td>
+</tr>
+<tr>
+<td>4 nines</td>
+<td>99.99%</td>
+<td>52.6 min</td>
+<td>Production B2B SaaS</td>
+</tr>
+<tr>
+<td>5 nines</td>
+<td>99.999%</td>
+<td>5.26 min</td>
+<td>Critical systems (telephony, payments)</td>
+</tr>
+<tr>
+<td>6 nines</td>
+<td>99.9999%</td>
+<td>31.5 sec</td>
+<td>Stock exchanges, mission-critical</td>
+</tr>
+</tbody>
+</table>
+<p>💡 <strong>Each extra 9 is roughly 10× harder and ~10× more expensive.</strong> Going from 99.9% to 99.99% might mean adding a second region. Going to 99.999% means you can&rsquo;t even take systems down for deployment without orchestrated zero-downtime procedures.</p>
+<p><strong>Composability rule</strong> — if a request hits 3 services in series, total availability is the <em>product</em>:</p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Availability</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Service A</td>
+<td>99.9%</td>
+</tr>
+<tr>
+<td>Service B</td>
+<td>99.9%</td>
+</tr>
+<tr>
+<td>Service C</td>
+<td>99.9%</td>
+</tr>
+<tr>
+<td><strong>End-to-end</strong></td>
+<td>99.9% × 99.9% × 99.9% = <strong>99.7%</strong></td>
+</tr>
+</tbody>
+</table>
+<p>⚠️ Adding dependencies multiplies failure surface. To beat this, you add <strong>redundancy</strong> (parallel paths) — two 99% components in parallel give you 1 - (1-0.99)² = 99.99%.</p>
+<p><strong>Cloud SLA reality check</strong>: AWS/GCP/Azure offer 99.99% for most regional services, but only when used correctly (multi-AZ deployment, etc.). Ignoring the fine print = you don&rsquo;t actually get the SLA.</p>
+</blockquote>
+<hr />
+<h2 id="example-estimate-twitter-qps-and-storage-requirements">Example: Estimate Twitter QPS and storage requirements<a class="headerlink" href="#example-estimate-twitter-qps-and-storage-requirements" title="anchor">&para;</a></h2>
+<p>Please note the following numbers are for this exercise only as they are not real numbers from Twitter.</p>
+<p><strong>Assumptions:</strong></p>
+<ul>
+<li>300 million monthly active users.</li>
+<li>50% of users use Twitter daily.</li>
+<li>Users post 2 tweets per day on average.</li>
+<li>10% of tweets contain media.</li>
+<li>Data is stored for 5 years.</li>
+</ul>
+<p><strong>Estimations:</strong></p>
+<h3 id="query-per-second-qps-estimate">Query per second (QPS) estimate<a class="headerlink" href="#query-per-second-qps-estimate" title="anchor">&para;</a></h3>
+<ul>
+<li>Daily active users (DAU) = 300 million * 50% = <strong>150 million</strong></li>
+<li>Tweets QPS = 150 million * 2 tweets / 24 hour / 3600 seconds = <strong>~3,500</strong></li>
+<li>Peak QPS = 2 * QPS = <strong>~7,000</strong></li>
+</ul>
+<p><img alt="Twitter QPS calculation flow" src="img/est-fig03-twitter-qps.png" /></p>
+<h3 id="storage-estimate">Storage estimate<a class="headerlink" href="#storage-estimate" title="anchor">&para;</a></h3>
+<p>We will only estimate media storage here.</p>
+<p><strong>Average tweet size:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Size</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tweet_id</code></td>
+<td>64 bytes</td>
+</tr>
+<tr>
+<td><code>text</code></td>
+<td>140 bytes</td>
+</tr>
+<tr>
+<td><code>media</code></td>
+<td>1 MB</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Media storage: 150 million * 2 * 10% * 1 MB = <strong>30 TB per day</strong></li>
+<li>5-year media storage: 30 TB * 365 * 5 = <strong>~55 PB</strong></li>
+</ul>
+<p><img alt="Twitter storage calculation flow" src="img/est-fig04-twitter-storage.png" /></p>
+<blockquote>
+<h3 id="amplification-extending-the-twitter-estimate">⭐ Amplification — extending the Twitter estimate<a class="headerlink" href="#amplification-extending-the-twitter-estimate" title="anchor">&para;</a></h3>
+<p>The original chapter stops at QPS and media storage. In a real interview you&rsquo;d be asked to push further — here are the next 3 numbers and how to derive them:</p>
+<p><strong>1. Bandwidth (egress)</strong></p>
+<p>Reads usually dominate: assume 10:1 read:write ratio (people consume more than they post).</p>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Calculation</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tweet size (text only)</td>
+<td>64 + 140 ≈ 200 bytes</td>
+<td>200 B</td>
+</tr>
+<tr>
+<td>Read QPS</td>
+<td>7,000 peak × 10</td>
+<td>70,000 QPS</td>
+</tr>
+<tr>
+<td>Text egress</td>
+<td>70,000 × 200 B</td>
+<td>14 MB/s</td>
+</tr>
+<tr>
+<td>Media egress (10% × 1 MB × read amplification)</td>
+<td>7,000 × 0.1 × 1 MB × 10</td>
+<td>7 GB/s</td>
+</tr>
+<tr>
+<td><strong>Total egress</strong></td>
+<td>dominated by media</td>
+<td><strong>~7 GB/s = 56 Gbps</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>2. Cache size</strong> (rule of thumb: cache 20% of daily reads, 80/20 rule)</p>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Calculation</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Daily reads</td>
+<td>70,000 QPS × 86,400 sec</td>
+<td>6 B reads/day</td>
+</tr>
+<tr>
+<td>Daily unique tweets read</td>
+<td>assume 1B (de-dup)</td>
+<td>1 B</td>
+</tr>
+<tr>
+<td>Cache 20% of those</td>
+<td>200 M tweets × 200 B</td>
+<td>40 GB hot tweet cache</td>
+</tr>
+</tbody>
+</table>
+<p><strong>3. Number of servers</strong></p>
+<p>Assume each web server handles 1,000 QPS (typical for moderate work).</p>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Calculation</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Peak total QPS (read + write)</td>
+<td>7,000 + 70,000</td>
+<td>77,000 QPS</td>
+</tr>
+<tr>
+<td>Servers needed</td>
+<td>77,000 / 1,000</td>
+<td><strong>77 servers</strong></td>
+</tr>
+<tr>
+<td>+ redundancy (×2 for fault tolerance)</td>
+<td>77 × 2</td>
+<td><strong>~150 servers</strong></td>
+</tr>
+</tbody>
+</table>
+<p>💡 <strong>The pattern</strong>: QPS → Bandwidth → Cache → Servers. Master this chain and you can size any system.</p>
+</blockquote>
+<hr />
+<h2 id="tips">Tips<a class="headerlink" href="#tips" title="anchor">&para;</a></h2>
+<p>Back-of-the-envelope estimation is all about the process. Solving the problem is more important than obtaining results. Interviewers may test your problem-solving skills. Here are a few tips to follow:</p>
+<ul>
+<li>
+<p><strong>Rounding and Approximation.</strong> It is difficult to perform complicated math operations during the interview. For example, what is the result of &ldquo;99987 / 9.1&rdquo;? There is no need to spend valuable time to solve complicated math problems. Precision is not expected. Use round numbers and approximation to your advantage. The division question can be simplified as follows: &ldquo;100,000 / 10&rdquo;.</p>
+</li>
+<li>
+<p><strong>Write down your assumptions.</strong> It is a good idea to write down your assumptions to be referenced later.</p>
+</li>
+<li>
+<p><strong>Label your units.</strong> When you write down &ldquo;5&rdquo;, does it mean 5 KB or 5 MB? You might confuse yourself with this. Write down the units because &ldquo;5 MB&rdquo; helps to remove ambiguity.</p>
+</li>
+<li>
+<p><strong>Commonly asked back-of-the-envelope estimations:</strong> QPS, peak QPS, storage, cache, number of servers, etc. You can practice these calculations when preparing for an interview. Practice makes perfect.</p>
+</li>
+</ul>
+<p>Congratulations on getting this far! Now give yourself a pat on the back. Good job!</p>
+<hr />
+<h2 id="reference-materials">Reference materials<a class="headerlink" href="#reference-materials" title="anchor">&para;</a></h2>
+<ul>
+<li>[1] J. Dean. <em>Google Pro Tip: Use Back-Of-The-Envelope-Calculations To Choose The Best Design</em>: http://highscalability.com/blog/2011/1/26/google-pro-tip-use-back-of-the-envelope-calculations-to-choo.html</li>
+<li>[2] System design primer: https://github.com/donnemartin/system-design-primer</li>
+<li>[3] Latency Numbers Every Programmer Should Know (interactive): https://colin-scott.github.io/personal_website/research/interactive_latency.html</li>
+<li>[4] Amazon Compute Service Level Agreement: https://aws.amazon.com/compute/sla/</li>
+<li>[5] Compute Engine Service Level Agreement (SLA): https://cloud.google.com/compute/sla</li>
+<li>[6] SLA summary for Azure services: https://azure.microsoft.com/en-us/support/legal/sla/summary/</li>
+<li>Original chapter source: <em>System Design Interview – An Insider&rsquo;s Guide</em> (Alex Xu), Chapter 2.</li>
+</ul>
+<hr />
+<h2 id="amplification-estimation-methodology-and-cheat-sheets-added">⭐ Amplification — Estimation methodology and cheat sheets (added)<a class="headerlink" href="#amplification-estimation-methodology-and-cheat-sheets-added" title="anchor">&para;</a></h2>
+<h3 id="magic-numbers-worth-memorizing">🧠 Magic numbers worth memorizing<a class="headerlink" href="#magic-numbers-worth-memorizing" title="anchor">&para;</a></h3>
+<p>These come up so often they belong in muscle memory:</p>
+<table>
+<thead>
+<tr>
+<th>Constant</th>
+<th>Value</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Seconds in a day</td>
+<td>86,400 ≈ <strong>10⁵</strong></td>
+<td>Convert daily volume → QPS</td>
+</tr>
+<tr>
+<td>Seconds in a year</td>
+<td>31.5 M ≈ <strong>3 × 10⁷</strong></td>
+<td>Convert yearly storage → bytes</td>
+</tr>
+<tr>
+<td>Days in a year</td>
+<td>365 ≈ <strong>400</strong> (round up for headroom)</td>
+<td>Yearly multipliers</td>
+</tr>
+<tr>
+<td>Read:write ratio (typical web)</td>
+<td><strong>10:1</strong> to 100:1</td>
+<td>Cache sizing, replica count</td>
+</tr>
+<tr>
+<td>Peak factor</td>
+<td><strong>~2×</strong> average</td>
+<td>Provisioning</td>
+</tr>
+<tr>
+<td>80/20 rule</td>
+<td>20% of items get 80% of traffic</td>
+<td>Cache hit rate, hotspot analysis</td>
+</tr>
+<tr>
+<td>1 server typical capacity</td>
+<td><strong>1,000 – 10,000 QPS</strong></td>
+<td>Server count estimation</td>
+</tr>
+<tr>
+<td>TCP packet size</td>
+<td>~1.5 KB MTU</td>
+<td>Packet count</td>
+</tr>
+<tr>
+<td>Standard HTTP response</td>
+<td>~10 KB</td>
+<td>Bandwidth estimation</td>
+</tr>
+<tr>
+<td>One image</td>
+<td>~200 KB – 1 MB</td>
+<td>Storage per upload</td>
+</tr>
+<tr>
+<td>One video min</td>
+<td>~10 MB</td>
+<td>Video storage</td>
+</tr>
+</tbody>
+</table>
+<h3 id="common-calculation-patterns">📐 Common calculation patterns<a class="headerlink" href="#common-calculation-patterns" title="anchor">&para;</a></h3>
+<p><strong>Pattern 1 — Daily volume → QPS</strong></p>
+<div class="highlight"><pre><span></span><code>QPS = (DAU × actions/user) / 86,400
+peak_QPS = 2 × QPS
+</code></pre></div>
+<p><strong>Pattern 2 — QPS → storage per day</strong></p>
+<div class="highlight"><pre><span></span><code>storage/day = QPS × 86,400 × avg_record_size
+</code></pre></div>
+<p><strong>Pattern 3 — QPS → bandwidth</strong></p>
+<div class="highlight"><pre><span></span><code>bandwidth = QPS × avg_response_size × read_amplification
+</code></pre></div>
+<p><strong>Pattern 4 — Total storage with retention</strong></p>
+<div class="highlight"><pre><span></span><code>total = storage/day × retention_days × replication_factor
+</code></pre></div>
+<p><strong>Pattern 5 — Number of servers</strong></p>
+<div class="highlight"><pre><span></span><code>servers = peak_QPS / per_server_QPS_capacity
++ ~50–100% redundancy buffer
+</code></pre></div>
+<h3 id="common-interview-question-types">🎯 Common interview question types<a class="headerlink" href="#common-interview-question-types" title="anchor">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Question</th>
+<th>What they want to hear</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&ldquo;Estimate QPS for X&rdquo;</td>
+<td>Pattern 1 + reasonable peak factor</td>
+</tr>
+<tr>
+<td>&ldquo;How much storage in 5 years?&rdquo;</td>
+<td>Pattern 2 + Pattern 4 with retention</td>
+</tr>
+<tr>
+<td>&ldquo;How big should the cache be?&rdquo;</td>
+<td>Apply 80/20 rule to working set</td>
+</tr>
+<tr>
+<td>&ldquo;How many servers?&rdquo;</td>
+<td>Pattern 5 + redundancy</td>
+</tr>
+<tr>
+<td>&ldquo;Network bandwidth?&rdquo;</td>
+<td>Pattern 3 + identify dominant payload (text vs media)</td>
+</tr>
+<tr>
+<td>&ldquo;Database size?&rdquo;</td>
+<td>Records/day × retention + indexes (~30% extra)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="common-pitfalls">⚠️ Common pitfalls<a class="headerlink" href="#common-pitfalls" title="anchor">&para;</a></h3>
+<ul>
+<li>❌ <strong>Forgetting peak factor.</strong> Average QPS ≠ what you provision for.</li>
+<li>❌ <strong>Mixing decimal and binary prefixes.</strong> Pick one (decimal is easier).</li>
+<li>❌ <strong>Forgetting replication.</strong> A 30 TB workload often becomes 90 TB with 3× replication.</li>
+<li>❌ <strong>Forgetting indexes/metadata.</strong> A &ldquo;100 GB of records&rdquo; database is closer to 130–150 GB on disk.</li>
+<li>❌ <strong>Ignoring read amplification.</strong> Reads usually dominate writes by 10–100×.</li>
+<li>❌ <strong>Sub-second precision.</strong> &ldquo;3,472 QPS&rdquo; is suspicious. &ldquo;~3,500 QPS&rdquo; is professional.</li>
+<li>❌ <strong>No sanity check.</strong> &ldquo;1 EB per day for a chat app&rdquo; should set off alarms.</li>
+</ul>
+<h3 id="sanity-check-reference-points-real-world-scale">🧪 Sanity-check reference points (real-world scale)<a class="headerlink" href="#sanity-check-reference-points-real-world-scale" title="anchor">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>System</th>
+<th>Approximate scale (use to sanity-check your estimates)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Google search</td>
+<td>~100,000 QPS</td>
+</tr>
+<tr>
+<td>Twitter/X tweets</td>
+<td>~6,000 tweets/sec average</td>
+</tr>
+<tr>
+<td>YouTube uploads</td>
+<td>~720,000 hours/day</td>
+</tr>
+<tr>
+<td>Instagram photos</td>
+<td>~95M/day</td>
+</tr>
+<tr>
+<td>Netflix peak streaming</td>
+<td>~15% of internet traffic</td>
+</tr>
+<tr>
+<td>WhatsApp messages</td>
+<td>~100B/day</td>
+</tr>
+<tr>
+<td>Gmail users</td>
+<td>~1.8B</td>
+</tr>
+<tr>
+<td>Facebook DAU</td>
+<td>~2B</td>
+</tr>
+</tbody>
+</table>
+<p>If your estimate is wildly different from these reference points, double-check your assumptions.</p>
+      <nav class="prev-next"><a class="prev" href="scaling-from-zero-to-millions.html"><div class="label">← Anterior</div><div class="title">Scaling from Zero to Millions of Users</div></a><a class="next" href="framework-system-design-interviews.html"><div class="label">Siguiente →</div><div class="title">A Framework for System Design Interviews</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="back-of-the-envelope-estimation.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

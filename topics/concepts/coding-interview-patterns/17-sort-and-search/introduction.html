@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Introduction to Sort and Search · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 17 — Sort and Search</span><span class="sep">/</span><span class="current">Introduction to Sort and Search</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Introduction to Sort and Search</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">sort-search</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Introduction to Sort and Search
+Intuition
+When sorting and searching items in data structures, efficiency is key. This chapter covers common sorting methods and their roles in efficient searching.</p>
+<p>First, we present a comparison of the time and space complexities for various sorting algorithms. Below, 
+n
+n denotes the number of elements in the data structure:</p>
+<p>Algorithm   Time complexity         Space complexity
+Best case   Average case    Worst case<br />
+Insertion sort [1]<br />
+O
+(
+n
+)
+O(n)  <br />
+O
+(
+n
+2
+)
+O(n 
+2
+ )<br />
+O
+(
+n
+2
+)
+O(n 
+2
+ )<br />
+O
+(
+1
+)
+O(1)
+Selection sort [2]<br />
+O
+(
+n
+2
+)
+O(n 
+2
+ )<br />
+O
+(
+n
+2
+)
+O(n 
+2
+ )<br />
+O
+(
+n
+2
+)
+O(n 
+2
+ )<br />
+O
+(
+1
+)
+O(1)
+Bubble sort [3] 
+O
+(
+n
+)
+O(n)  <br />
+O
+(
+n
+2
+)
+O(n 
+2
+ )<br />
+O
+(
+n
+2
+)
+O(n 
+2
+ )<br />
+O
+(
+1
+)
+O(1)
+Merge sort<br />
+O
+(
+n
+log
+⁡
+(
+n
+)
+)
+O(nlog(n))<br />
+O
+(
+n
+log
+⁡
+(
+n
+)
+)
+O(nlog(n))<br />
+O
+(
+n
+log
+⁡
+(
+n
+)
+)
+O(nlog(n))<br />
+O
+(
+n
+)
+O(n)
+Quicksort <br />
+O
+(
+n
+log
+⁡
+(
+n
+)
+)
+O(nlog(n))<br />
+O
+(
+n
+log
+⁡
+(
+n
+)
+)
+O(nlog(n))<br />
+O
+(
+n
+2
+)
+O(n 
+2
+ )<br />
+O
+(
+log
+⁡
+(
+n
+)
+)
+O(log(n)) (average) 
+O
+(
+n
+)
+O(n) (worst)
+Heapsort [4]  <br />
+O
+(
+n
+log
+⁡
+(
+n
+)
+)
+O(nlog(n))<br />
+O
+(
+n
+log
+⁡
+(
+n
+)
+)
+O(nlog(n))<br />
+O
+(
+n
+log
+⁡
+(
+n
+)
+)
+O(nlog(n))<br />
+O
+(
+1
+)
+O(1)
+Counting sort1<br />
+O
+(
+n
++
+k
+)
+O(n+k)<br />
+O
+(
+n
++
+k
+)
+O(n+k)<br />
+O
+(
+n
++
+k
+)
+O(n+k)<br />
+O
+(
+n
++
+k
+)
+O(n+k)
+Bucket sort2 [5]  <br />
+O
+(
+n
++
+k
+)
+O(n+k)<br />
+O
+(
+n
++
+k
+)
+O(n+k)<br />
+O
+(
+n
+2
+)
+O(n 
+2
+ )<br />
+O
+(
+n
++
+k
+)
+O(n+k)
+Radix sort3 [6] 
+O
+(
+d
+(
+n
++
+k
+)
+)
+O(d(n+k)) <br />
+O
+(
+d
+(
+n
++
+k
+)
+)
+O(d(n+k)) <br />
+O
+(
+d
+(
+n
++
+k
+)
+)
+O(d(n+k)) <br />
+O
+(
+n
++
+k
+)
+O(n+k)</p>
+<p>This chapter focuses on merge sort, quicksort, and counting sort. There is additional information on the other algorithms in the references provided, as well as a tool for visualizing how these algorithms work [7].</p>
+<p>Fundamental concepts for sorting algorithms
+Here’s a list of fundamental attributes of sorting algorithms you should be familiar with:</p>
+<p>Stability: A sorting algorithm is considered stable if it preserves the relative order of equal elements in the sorted output. If two elements have equal values, their order in the sorted output is the same as in the input.</p>
+<p>In-place sorting: An in-place sorting algorithm transforms the input using a constant amount of extra storage space. It involves sorting the elements within the original data structure.</p>
+<p>Comparison-based sorting: Comparison-based sorting algorithms sort elements by comparing them pairwise. These algorithms typically have a lower bound of 
+O
+(
+n
+log
+⁡
+(
+n
+)
+)
+O(nlog(n)), whereas non-comparison-based sorting algorithms can achieve linear time complexity, but require specific assumptions about the input data.</p>
+<p>These concepts are referenced throughout the problems in this chapter.</p>
+<p>Real-world Example
+Sorting products by category: When users search for products, the platform often sorts the results based on various criteria such as lowest to highest price, highest to lowest rating, or even relevance to the search query. Efficient sorting algorithms ensure large datasets of products can be quickly arranged according to user preferences.</p>
+<p>Chapter Outline
+Image represents a hierarchical diagram illustrating the subcategories within the broader topic of &lsquo;Sort and Search&rsquo; algorithms.  A rounded rectangle at the top, labeled &lsquo;Sort and Search,&rsquo; serves as the root node.  From this root, a dashed line extends downwards, branching into two separate rectangular boxes with dashed borders. The left box is labeled &lsquo;Sort&rsquo; and contains a bulleted list of three specific sorting problems: &lsquo;Sort Linked List,&rsquo; &lsquo;Sort Array,&rsquo; and &lsquo;Dutch National Flag.&rsquo; The right box is labeled &lsquo;Search&rsquo; and lists a single search problem: &lsquo;Kth Largest Integer.&rsquo;  The dashed lines visually represent the hierarchical relationship, showing that &lsquo;Sort&rsquo; and &lsquo;Search&rsquo; are both sub-categories under the umbrella of &lsquo;Sort and Search.&rsquo;  No URLs or parameters are present in the diagram.
+Footnotes
+In counting sort, k represents the range of the values in the input array. ↩</p>
+<p>In bucket sort, k represents the number of buckets used. ↩</p>
+<p>In radix sort, k represents the range of the inputs and d represents the number of digits in the maximum element. ↩</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="../16-greedy/candies.html"><div class="label">← Anterior</div><div class="title">Candies</div></a><a class="next" href="sort-array.html"><div class="label">Siguiente →</div><div class="title">Sort Array</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="introduction.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

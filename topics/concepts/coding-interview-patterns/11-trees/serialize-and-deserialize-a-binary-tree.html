@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Serialize and Deserialize a Binary Tree · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 11 — Trees</span><span class="sep">/</span><span class="current">Serialize and Deserialize a Binary Tree</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Serialize and Deserialize a Binary Tree</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">trees</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Serialize and Deserialize a Binary Tree
+Write a function to serialize a binary tree into a string, and another function to deserialize that string back into the original binary tree structure.</p>
+<p>Image represents a serialization and deserialization process of a tree data structure.  The image shows two identical binary trees, each with a root node labeled &lsquo;5&rsquo;.  The left subtree of the root contains nodes &lsquo;9&rsquo;, &lsquo;2&rsquo;, and &lsquo;11&rsquo;, where &lsquo;2&rsquo; is a child of &lsquo;9&rsquo;, and &lsquo;11&rsquo; is a child of &lsquo;2&rsquo;. The right subtree contains nodes &lsquo;3&rsquo;, &lsquo;4&rsquo;, &lsquo;7&rsquo;, and &lsquo;6&rsquo;, where &lsquo;4&rsquo; and &lsquo;7&rsquo; are children of &lsquo;3&rsquo;, and &lsquo;6&rsquo; is a child of &lsquo;4&rsquo;.  An arrow labeled <code>serialize</code> points from the first tree to the string <code>serialized_string</code>, representing the process of converting the tree into a string representation. Another arrow labeled <code>deserialize</code> points from <code>serialized_string</code> to the second tree, illustrating the reconstruction of the tree from its string representation.  Both trees are structurally identical, demonstrating the successful serialization and deserialization of the tree data.
+Intuition
+The primary challenge of this problem lies in how we serialize the tree into a string since this will determine if it’s possible to reconstruct the tree using this string alone.</p>
+<p>Let&rsquo;s first decide on a traversal strategy because the method we use to serialize the tree will impact how we deserialize the string. Two options:</p>
+<p>Use BFS to serialize the tree level by level.</p>
+<p>Use DFS. In this case, we’d need to choose between inorder, preorder, and postorder traversal.</p>
+<p>There’s flexibility in choosing the traversal algorithm because serializing with a specific traversal method allows us to rebuild (deserialize) the tree using the same traversal algorithm.</p>
+<p>Serialization
+An important piece of information needed in our serialized string is the node values. In addition, we’ll need to ensure we can identify the root node&rsquo;s value, since this is the first node to create when we deserialize the string.</p>
+<p>As such, a traversal algorithm like preorder traversal is a good choice because it processes the root node first, then the left subtree, and finally the right subtree. This ensures the first value in our serialized string is the root node&rsquo;s value.</p>
+<p>So, let’s try serializing the following binary tree using preorder traversal, separating each node with a comma:</p>
+<p>Image represents a binary tree on the left, undergoing a preorder serialization process, resulting in a serialized string on the right. The tree&rsquo;s root node, labeled &lsquo;5&rsquo;, connects to two child nodes: &lsquo;9&rsquo; on the left and &lsquo;3&rsquo; on the right. Node &lsquo;9&rsquo; further connects to &lsquo;2&rsquo;, which in turn connects to &lsquo;11&rsquo;. Node &lsquo;3&rsquo; connects to &lsquo;4&rsquo; and &lsquo;7&rsquo;. Node &lsquo;4&rsquo; connects to &lsquo;6&rsquo;.  A horizontal arrow labeled &lsquo;preorder serialization&rsquo; points from the tree to a string &lsquo;5,9,2,11,3,4,6,7&rsquo;, representing the preorder traversal of the tree (root, left subtree, right subtree).  Each comma-separated number in the string corresponds to a node visited in the preorder traversal sequence.
+The issue with this serialization is that it doesn&rsquo;t guarantee we can reconstruct the exact original tree from its serialized string representation. This is because the string could represent multiple different trees, which means preorder deserialization could result in the creation of an invalid tree:</p>
+<p>Image represents three different binary search trees, each rooted at the number 5, generated from the input sequence &lsquo;5,9,2,11,3,4,6,7&rsquo;.  A curved gray arrow points from the input sequence to each of the three root nodes (5), each marked with a red &lsquo;X&rsquo;. Each tree visually depicts a different possible structure resulting from variations in the order of insertion of the numbers into the tree.  The numbers in the sequence are arranged as nodes in the trees, with each node having at most two children (left and right).  The left child is always smaller than the parent node, and the right child is always larger.  The differences between the three trees illustrate the non-uniqueness of binary search trees constructed from the same input sequence, depending on the insertion order.
+This is because the string is missing crucial information: null child nodes. For instance, after placing the root node with a value of 5 in the above example, we don&rsquo;t yet know where to place the node of value 9, which is the next value in the string. That is, we can&rsquo;t determine whether node 9 should be the left or right child of node 5:</p>
+<p>Image represents two simple tree structures separated by the word &lsquo;OR&rsquo;.  Both trees have a root node containing the number &lsquo;5&rsquo;. The left tree has a single child node connected to the root with a solid black line; this child node contains the number &lsquo;9&rsquo;. The right tree also has a single child node containing &lsquo;9&rsquo;, connected to the root with a solid black line.  Between the two trees, and below the root nodes, are two dashed-line circles, each containing the text &lsquo;null&rsquo; in light gray.  The left tree&rsquo;s root node is connected to one of the &lsquo;null&rsquo; nodes with a light gray line, and the right tree&rsquo;s root node is connected to the other &lsquo;null&rsquo; node with a light gray line. The overall image likely illustrates a concept of optional or alternative branches in a data structure, where the &lsquo;null&rsquo; nodes represent the absence of a connection or a specific value.
+If the string indicates where the null child nodes are, we can correctly deserialize the tree because we have a complete representation of the tree’s structure. Let&rsquo;s use the character &lsquo;#&rsquo; to represent a null node:</p>
+<p>Image represents a binary tree undergoing preorder serialization.  The tree&rsquo;s root node, labeled &lsquo;5&rsquo;, connects to two child nodes: &lsquo;9&rsquo; on the left and &lsquo;3&rsquo; on the right. Node &lsquo;9&rsquo; further connects to &lsquo;2&rsquo; (left) and a null node (right), while &lsquo;2&rsquo; connects to &lsquo;11&rsquo; (left) and another null node (right).  &lsquo;11&rsquo; has two null children. Node &lsquo;3&rsquo; connects to &lsquo;4&rsquo; (left) and &lsquo;7&rsquo; (right). Node &lsquo;4&rsquo; connects to &lsquo;6&rsquo; (right) and a null node (left), and &lsquo;6&rsquo; has two null children. Node &lsquo;7&rsquo; has two null children. All null nodes are represented by circles with the text &lsquo;null&rsquo; inside, displayed in light gray. A solid arrow labeled &lsquo;preorder serialization&rsquo; points from the tree to a string representation: &lsquo;5,9,2,11,#,#,#,#,3,4,#,6,#,#,7,#,#&rsquo;. This string represents the tree&rsquo;s preorder traversal, where each node&rsquo;s value is followed by &lsquo;#&rsquo; representing null children.  The order reflects the preorder traversal algorithm: root, left subtree, right subtree, recursively.
+Deserialization
+To deserialize a string created with preorder traversal, we also need to use preorder traversal to reconstruct the tree.</p>
+<p>The first step is to split the string using the comma delimiter, so each node value and ‘#’ is in a list:</p>
+<p>Image represents a data transformation process illustrating the &lsquo;split&rsquo; operation.  At the top, a string &lsquo;5,9,2,11,#,#,#,#,3,4,#,6,#,#,7,#,#&rsquo; is shown.  A downward-pointing arrow labeled &lsquo;split&rsquo; connects this string to a list-like structure below. This list contains the same elements as the string, but arranged in a vertical array within square brackets <code>[]</code>. Each element from the original string is now on a separate line within the list.  The &lsquo;#&rsquo; characters, representing null or placeholder values, maintain their positions relative to the numbers.  The process visually demonstrates how a string of comma-separated values is split into individual elements, effectively transforming the string into a list or array data structure.
+The first value in the list is the root node of the tree:</p>
+<p>Image represents a simple diagram illustrating a data structure, possibly an array or list.  The word &lsquo;root&rsquo; in orange text is positioned above a downward-pointing arrow, indicating the origin or starting point of the data structure. The arrow points to a bracketed sequence of numbers and hash symbols. The sequence begins with the numbers 5, 9, 2, and 11, followed by several hash symbols (#) representing null or placeholder values, then the numbers 3, 4, 6, and 7, with more hash symbols filling the remaining spaces within the brackets.  The numbers are presented in a linear fashion, suggesting a sequential arrangement.  There are no explicit connections between individual elements beyond their sequential order within the brackets.  The overall structure suggests a root node pointing to a linear data structure with some empty or unused slots.
+Starting from this root value, recursively construct the tree node by node using preorder traversal. Each new node will be created with the next value in the list of preorder values. Whenever we encounter a ‘#’, we return null. The code snippet for this:</p>
+<p>Python
+JavaScript
+Java</p>
+<h1 id="helper-function-to-construct-the-tree-using-preorder-traversal">Helper function to construct the tree using preorder traversal.<a class="headerlink" href="#helper-function-to-construct-the-tree-using-preorder-traversal" title="anchor">&para;</a></h1>
+<p>def build_tree(values: List[str]) -&gt; TreeNode:
+    val = next(values)
+    # Base case: &lsquo;#&rsquo; indicates a null node.
+    if val == &lsquo;#&rsquo;:
+        return None
+    # Use preorder traversal to create the current node first, then the left and
+    # right subtrees.
+    node = TreeNode(int(val))
+    node.left = build_tree(values)
+    node.right = build_tree(values)
+    return node
+Follow-up: what if you must use a different traversal algorithm?
+It’s possible to serialize and deserialize a binary tree using other traversal algorithms than preorder traversal. Let’s explore some alternatives.</p>
+<p>Postorder Traversal:
+‾
+Postorder Traversal:
+​</p>
+<p>When we serialize the tree using postorder traversal, we get the following string (ignoring the null nodes in this discussion to focus on the node values and their order):</p>
+<p>Image represents a binary tree on the left, undergoing a postorder serialization process, resulting in a serialized string on the right. The tree&rsquo;s root node, labeled &lsquo;5&rsquo;, connects to two child nodes: &lsquo;9&rsquo; on the left and &lsquo;3&rsquo; on the right. Node &lsquo;9&rsquo; further branches into &lsquo;2&rsquo; and &lsquo;11&rsquo;, while node &lsquo;3&rsquo; connects to &lsquo;4&rsquo; and &lsquo;7&rsquo;. Node &lsquo;4&rsquo; has a child node &lsquo;6&rsquo;, and node &lsquo;7&rsquo; has no children.  A horizontal arrow labeled &lsquo;postorder serialization&rsquo; points from the tree to the resulting string &lsquo;11,2,9,4,6,7,3,5&rsquo;.  The string represents the postorder traversal of the tree (left subtree, right subtree, root), with each node&rsquo;s value separated by commas. An orange arrow points to the &lsquo;5&rsquo; in the string, labeled &lsquo;root&rsquo;, indicating its position as the root node in the original tree.
+As we see, one big difference is that the root node will be the final value in the string, since postorder traversal processes the left subtree, then the right subtree, and finally the root node.</p>
+<p>During deserialization, we’d build the tree by iterating through the node values from right to left instead of left to right, since the root value is at the right. In addition, we’d need to create each node’s right subtree before we create its left subtree, as we go through the string in reverse.</p>
+<p>Inorder traversal:
+‾
+Inorder traversal:
+​</p>
+<p>A lot more care needs to be taken when serializing a tree using inorder traversal. The main reason is that it’s unclear where the root node of the tree is in the string, and where the root node of each subtree is, as we can see below:</p>
+<p>Image represents a binary tree on the left undergoing inorder serialization, resulting in a string representation on the right. The tree&rsquo;s root node, labeled &lsquo;5&rsquo;, connects to two child nodes: &lsquo;9&rsquo; on the left and &lsquo;3&rsquo; on the right.  Node &lsquo;9&rsquo; further branches into &lsquo;2&rsquo; and &lsquo;11&rsquo;, while node &lsquo;3&rsquo; connects to &lsquo;4&rsquo; and &lsquo;7&rsquo;. Node &lsquo;4&rsquo; has a child node &lsquo;6&rsquo;.  A horizontal arrow labeled &lsquo;inorder serialization&rsquo; points from the tree to a string &lsquo;11,2,9,5,3,4,6,7&rsquo;. This string represents the inorder traversal of the tree, meaning it lists the nodes in the order: left subtree, root, right subtree recursively.  A curved orange arrow points to the &lsquo;5&rsquo; within the string, labeled &lsquo;root&rsquo;, indicating its position as the root node in the original tree structure.
+This doesn’t make it impossible to use inorder traversal. It just means significantly more information needs to be provided in the serialized string to make deserialization possible. In particular, we need to include details about which value serves as the root node for each subtree as we iterate through them.</p>
+<p>Breadth-first search (BFS):
+‾
+Breadth-first search (BFS):
+​</p>
+<p>BFS starts processing each node from the root of the tree, and traverses through it level by level, and from left to right. Serializing the tree using BFS gives the following order of values:</p>
+<p>Image represents a tree data structure undergoing Breadth-First Search (BFS) serialization.  The left side shows a tree with node 5 as the root. Node 5 connects to nodes 9 and 3. Node 9 connects to node 2, which further connects to node 11. Node 3 connects to nodes 4 and 7, with node 4 connecting to node 6.  A horizontal arrow labeled &lsquo;BFS serialization&rsquo; points from the tree to a string &lsquo;5,9,3,2,4,7,11,6&rsquo;. This string represents the serialized form of the tree, generated by traversing the tree level by level from left to right using BFS.  The number 5, highlighted in a peach-colored box, is explicitly labeled as the &lsquo;root&rsquo; with an orange arrow pointing to it within the serialized string.  The entire process demonstrates how a tree structure can be converted into a linear representation using BFS.
+Similarly to preorder traversal, we just need to follow the exact traversal order for reconstructing the tree when deserializing the string.</p>
+<p>Try it yourself
+Write your solution to the problem before checking the reference implementation.
+Implementation
+In the following implementation, we opt for preorder traversal for serialization and deserialization.</p>
+<p>Python
+JavaScript
+Java
+from ds import TreeNode
+    
+def serialize(root: TreeNode) -&gt; str:
+    # Perform a preorder traversal to add node values to a list, then convert the
+    # list to a string.
+    serialized_list = []
+    preorder_serialize(root, serialized_list)
+    # Convert the list to a string and separate each value using a comma
+    # delimiter.
+    return &lsquo;,&rsquo;.join(serialized_list)
+    </p>
+<h1 id="helper-function-to-perform-serialization-through-preorder-traversal">Helper function to perform serialization through preorder traversal.<a class="headerlink" href="#helper-function-to-perform-serialization-through-preorder-traversal" title="anchor">&para;</a></h1>
+<p>def preorder_serialize(node, serialized_list) -&gt; None:
+    # Base case: mark null nodes as &lsquo;#&rsquo;.
+    if node is None:
+        serialized_list.append(&lsquo;#&rsquo;)
+        return
+    # Preorder traversal processes the current node first, then the left and right
+    # children.
+    serialized_list.append(str(node.val))
+    preorder_serialize(node.left, serialized_list)
+    preorder_serialize(node.right, serialized_list)
+    
+def deserialize(data: str) -&gt; TreeNode:
+    # Obtain the node values by splitting the string using the comma delimiter.
+    node_values = iter(data.split(&lsquo;,&rsquo;))
+    return build_tree(node_values)
+    </p>
+<h1 id="helper-function-to-construct-the-tree-using-preorder-traversal_1">Helper function to construct the tree using preorder traversal.<a class="headerlink" href="#helper-function-to-construct-the-tree-using-preorder-traversal_1" title="anchor">&para;</a></h1>
+<p>def build_tree(values: List[str]) -&gt; TreeNode:
+    val = next(values)
+    # Base case: &lsquo;#&rsquo; indicates a null node.
+    if val == &lsquo;#&rsquo;:
+        return None
+    # Use preorder traversal processes the current node first, then the left and
+    # right children.
+    node = TreeNode(int(val))
+    node.left = build_tree(values)
+    node.right = build_tree(values)
+    return node
+Complexity Analysis
+Time complexity: The time complexity of both serialize and deserialize is 
+O
+(
+n
+)
+O(n), where 
+n
+n denotes the number of nodes in the tree. This is because we visit each of the 
+n
+n nodes in the binary tree exactly once during preorder traversal. The serialize function additionally converts the serialized list to a string, which also takes 
+O
+(
+n
+)
+O(n) time.</p>
+<p>Space complexity: The space complexity of both serialize and deserialize is 
+O
+(
+n
+)
+O(n) due to the space taken up by the recursive call stack, which can grow as large as the height of the binary tree. The largest possible height of a binary tree is 𝑛.</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="kth-smallest-number-in-bst.html"><div class="label">← Anterior</div><div class="title">Kth Smallest Number in a Binary Search Tree</div></a><a class="next" href="../12-tries/introduction.html"><div class="label">Siguiente →</div><div class="title">Introduction to Tries</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="serialize-and-deserialize-a-binary-tree.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

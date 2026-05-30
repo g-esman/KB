@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Largest Overlap of Intervals · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 9 — Intervals</span><span class="sep">/</span><span class="current">Largest Overlap of Intervals</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Largest Overlap of Intervals</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">intervals</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Largest Overlap of Intervals
+Given an array of intervals, determine the maximum number of intervals that overlap at any point. Each interval is half-open, meaning it includes the start point but excludes the end point.</p>
+<p>Example:
+Image represents a horizontal number line ranging from 1 to 8, illustrating three overlapping intervals.  Four horizontal line segments, representing the intervals, are drawn above the number line.  The left endpoints of the segments are marked with solid circles, and the right endpoints with open circles. The first segment spans approximately from 1 to 3. The second segment starts around 2 and ends around 6. The third segment begins around 4 and ends around 7. The fourth segment starts at approximately 6 and ends at 7. A dashed orange rectangle highlights the area where three intervals (segments 2, 3, and 4) overlap, located roughly between 5 and 6 on the number line. An orange curved arrow points to this rectangle with the text &lsquo;3 overlapping intervals&rsquo; above it.  The number line provides a visual representation of the intervals&rsquo; positions and their degree of overlap.
+Input: intervals = [[1, 3], [5, 7], [2, 6], [4, 8]]
+Output: 3
+Constraints:
+The input will contain at least one interval.</p>
+<p>For every index i in the list, intervals[i].start &lt; intervals[i].end.</p>
+<p>Intuition
+Think about what it means when x intervals overlap at a certain point in time. This means at this point, there are x “active” intervals, where an interval is active if it has started but not ended.</p>
+<p>In the example below, we see three active intervals at time 5 (intervals that started at or before this time, and haven’t yet ended):</p>
+<p>Image represents a horizontal timeline ranging from 1 to 8, depicting four horizontal line segments representing intervals.  Each segment starts with a filled circle and ends with an unfilled circle, indicating a start and end point respectively. Three of these segments overlap within a region highlighted by a dashed orange rectangle around the 5 mark on the timeline. A curved orange arrow points from this overlapping region to a grey box labeled &lsquo;3 active intervals,&rsquo; further specifying that these three intervals &lsquo;have started&rsquo; and &lsquo;haven&rsquo;t yet ended.&rsquo; The fourth segment lies entirely to the left of the orange dashed rectangle, indicating it has already ended.  The lengths of the segments vary, representing different durations of the intervals.
+To find the number of active intervals at any point in time, we need to identify when an interval has started and when an interval has ended. The start point of an interval indicates the start of a new active interval, whereas an end point represents an active interval finishing. This suggests an approach which looks at start and end points individually could be useful. Let’s explore this idea further.</p>
+<p>Processing start points and end points
+Let’s step through each point in the array of intervals in chronological order, and see if we can determine the number of active intervals at each point.</p>
+<p>The first point is a start point, indicating the start of the first active interval. So, let’s increment our counter:</p>
+<p>Image represents a diagram illustrating a coding pattern, possibly related to interval management or event tracking.  The diagram features a numbered horizontal axis ranging from 1 to 8.  Above the axis are several horizontal line segments representing intervals; the lowest segment, highlighted in light blue at its left end, starts at point 1 and extends to point 3.  Above this are three more intervals: one starting at point 4 and ending at point 5, another starting at point 2 and ending at point 7, and a final one starting at point 6 and ending at point 7. A square box labeled &lsquo;i&rsquo; is positioned above the axis and a downward arrow connects it to the beginning of the lowest interval, suggesting an input or initialization point. To the right, a dashed-line box contains the code snippet &lsquo;start point -&gt; active_intervals += 1 = 1&rsquo;, indicating that when a &lsquo;start point&rsquo; is encountered (presumably the beginning of an interval), a variable named &lsquo;active_intervals&rsquo; is incremented by 1, resulting in a value of 1.  The overall diagram visually depicts how intervals are identified and counted, possibly within a larger algorithm.
+The next point is another start point. This is the start of the second active interval, so let’s increment our counter again. Now, the number of active intervals is 2, which correctly corresponds with the number of overlapping intervals at this point:</p>
+<p>Image represents a visualization of an algorithm, possibly related to interval scheduling or similar.  The diagram shows a number line spanning from 1 to 8, with several horizontal line segments representing intervals. A light-blue circle at point 2 on the number line indicates a starting point, marked by a downward-pointing arrow originating from a square box labeled &lsquo;i&rsquo;.  Three intervals are depicted: one extending from 1 to 3, another from 4 to 7, and a shorter one from 6 to 7.  A separate, dashed-line box to the right displays a code snippet: &lsquo;start point → active_intervals += 1 = 2&rsquo;, indicating that upon reaching the start point (2), the variable <code>active_intervals</code> is incremented by 1, resulting in a value of 2. This suggests the algorithm counts or tracks active intervals based on the starting point and the overlapping intervals on the number line.
+The next point is an end point, which means an active interval has just finished. So, let’s decrement our counter. Now, the number of active intervals is 1, which also corresponds with the current number of overlapping intervals:</p>
+<p>Image represents a diagram illustrating a coding pattern, likely related to interval management or event processing.  The diagram&rsquo;s core is a horizontal number line spanning from 1 to 8, representing a time or sequence axis.  On this line, several horizontal line segments are drawn, each representing an interval.  A thicker, peach-colored circle at point 3 marks a specific event or point of interest.  A square labeled &lsquo;i&rsquo; above the number line points downwards with an arrow to this circle, suggesting an input or trigger at this point.  Three distinct intervals are shown: one starting at approximately 1 and ending at 3 (peach circle), another starting at 2 and ending at 7, and a third starting at 6 and ending at 7.  The intervals are represented by thick black lines with endpoints marked by small circles. To the right, a light gray box with dashed borders contains a code snippet showing an operation: &lsquo;end point → active_intervals -= 1&rsquo; followed by &lsquo;= 1&rsquo;, indicating that when an interval&rsquo;s endpoint is reached, a variable named &lsquo;active_intervals&rsquo; is decremented by 1, and the result is 1.  This suggests the diagram visualizes how the number of active intervals changes over time based on interval endpoints.
+We’ve now rationalized what we need to do whenever we encounter a start point or end point:</p>
+<p>If we encounter a start point: increment active_intervals.
+If we encounter an end point: decrement active_intervals.
+Processing the remaining points allows us to attain the number of active intervals at each point. The final answer is obtained by recording the largest value of active_intervals.</p>
+<p>Edge case: processing concurrent start and end points
+An edge case to consider is when a start and end point occur simultaneously:</p>
+<p>Image represents a horizontal line graph illustrating the concept of overlapping intervals.  The x-axis is numbered from 1 to 8, representing a numerical scale. Four horizontal line segments of varying lengths are plotted above the x-axis.  The left endpoint of each segment indicates a start point, and the right endpoint indicates an end point, representing an interval.  The first segment spans from approximately 1 to 3. The second segment extends from approximately 4.2 to 7. The third segment runs from approximately 4.8 to 8. The fourth and shortest segment is positioned from approximately 5 to 5.5.  A dashed box highlights the intersection of the second and fourth segments, specifically around the x-axis value of 6. Within this box, a light peach-colored circle represents the endpoint of the fourth segment, and a light blue circle represents the start point of the second segment, indicating an overlap between these two intervals. The circles at the endpoints of the line segments are open, suggesting that the endpoints are not included in the intervals.
+Which point should we process first? Keep in mind the value of active_intervals is 3 right before we reach time = 6 in the above example.</p>
+<p>At time 6, if we process the start point first and increment active_intervals, we would update it to 4 first, which is incorrect as there are never 4 active intervals at this moment. This is an issue because our final answer is the largest value of active_intervals encountered, which means we’ll incorrectly record 4 as the answer.</p>
+<p>Image represents a flowchart illustrating a process where an initial value, <code>active_intervals = 3</code>, is processed.  A light-blue arrow labeled &lsquo;process start point&rsquo; indicates the flow from the initial value to an intermediate value of <code>4</code>, enclosed in a red box.  An orange arrow labeled &lsquo;process end point&rsquo; shows the flow from the intermediate value of <code>4</code> to a final value of <code>3</code>. A curved red arrow points from the intermediate value <code>4</code> to the text &lsquo;wrong: too high,&rsquo; indicating that the intermediate result is incorrect because it exceeds the expected final value.  The diagram visually demonstrates a process where an input value is transformed, resulting in an output that is evaluated for correctness based on a predefined constraint.
+If we process the end point first, we won’t encounter this issue:</p>
+<p>Image represents a diagram illustrating a process with two stages.  The diagram begins with the text &lsquo;active_intervals = 3&rsquo;, indicating an initial state where the number of active intervals is 3.  An orange arrow then extends from this initial state, labeled above with &lsquo;process&rsquo; in orange text and below with &lsquo;end point&rsquo; in orange text, pointing to the number &lsquo;2&rsquo;. This signifies a process that reduces the number of active intervals from 3 to 2.  Following this, a light-blue arrow starts from &lsquo;2&rsquo; and points to &lsquo;3&rsquo;, labeled above with &lsquo;process&rsquo; in light-blue text and below with &lsquo;start point&rsquo; in light-blue text. This represents a second process that increases the number of active intervals back to 3. The entire diagram visually depicts a cyclical process affecting the number of active intervals, starting and ending with a count of 3, with an intermediate state of 2.
+Therefore, for start and end points that occur simultaneously, we should process end points before start points.</p>
+<p>Iterating over interval points in order
+We need a way to iterate through the start and end points in the order they should be processed. To do this, we can combine all start and end points into a single array and sort it. For start and end points of the same value, we ensure end points are prioritized before start points while the points are being sorted.</p>
+<p>Let’s use ‘S’ and ‘E’ to differentiate between start and end points, respectively:</p>
+<p>Image represents a coding pattern illustration demonstrating the transformation of a list of intervals into a sorted list of points.  The top line shows a Python-like list called <code>intervals</code> containing five sub-lists, each representing an interval with a start and end point: <code>[1, 3]</code>, <code>[2, 6]</code>, <code>[4, 8]</code>, <code>[6, 7]</code>, and <code>[5, 7]</code>. A right arrow indicates a transformation to the <code>points</code> list below, which contains all the start and end points from the <code>intervals</code> list: <code>[1 2 3 4 5 6 6 7 7 8]</code>. Underneath each point in the <code>points</code> list, &lsquo;S&rsquo; (in light blue) denotes a start point of an interval and &lsquo;E&rsquo; (in orange) denotes an end point.  A small downward-pointing arrow underlines the &lsquo;E&rsquo; and &lsquo;S&rsquo; representing an end point appearing before a start point, highlighting a condition where the end point of one interval is sorted before the start point of another. The text &lsquo;end point sorted before start point&rsquo; explains this specific arrangement and the implication of the sorting process.
+The algorithm we used to solve this problem is known as a ‘sweeping line algorithm.’ It works by processing the start and end points of intervals in order, as if a vertical line was sweeping across them. This method efficiently handles the dynamic nature of interval overlaps by specifically focusing on start and end points, rather than individual intervals.</p>
+<p>Try it yourself
+Write your solution to the problem before checking the reference implementation.
+Implementation
+Python
+JavaScript
+Java
+from typing import List
+from ds import Interval
+    
+def largest_overlap_of_intervals(intervals: List[Interval]) -&gt; int:
+   points = []
+   for interval in intervals:
+       points.append((interval.start, &lsquo;S&rsquo;))
+       points.append((interval.end, &lsquo;E&rsquo;))
+   # Sort in chronological order. If multiple points occur at the same time, ensure
+   # end points are prioritized before start points in the sorting order.
+   points.sort(key=lambda x: (x[0], x[1]))
+   active_intervals = 0
+   max_overlaps = 0
+   for time, point_type in points:
+       if point_type == &lsquo;S&rsquo;:
+           active_intervals += 1
+       else:
+           active_intervals -= 1
+       max_overlaps = max(max_overlaps, active_intervals)
+   return max_overlaps
+Complexity Analysis
+Time complexity: The time complexity of largest_overlap_of_intervals is 
+O
+(
+n
+log
+⁡
+(
+n
+)
+)
+O(nlog(n)), where 
+n
+n denotes the number of intervals. This is because we sort the points array of size 
+2
+n
+2n before iterating over it in 
+O
+(
+n
+)
+O(n) time.</p>
+<p>Space complexity: The space complexity is 
+O
+(
+n
+)
+O(n) due to the space taken up by the points array.</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="identify-all-interval-overlaps.html"><div class="label">← Anterior</div><div class="title">Identify All Interval Overlaps</div></a><a class="next" href="../10-prefix-sums/introduction.html"><div class="label">Siguiente →</div><div class="title">Introduction to Prefix Sums</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="largest-overlap-of-intervals.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

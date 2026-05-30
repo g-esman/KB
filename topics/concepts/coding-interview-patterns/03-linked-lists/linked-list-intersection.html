@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linked List Intersection · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 3 — Linked Lists</span><span class="sep">/</span><span class="current">Linked List Intersection</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Linked List Intersection</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">linked-lists</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Linked List Intersection
+Return the node where two singly linked lists intersect. If the linked lists don&rsquo;t intersect, return null.</p>
+<p>Example:
+The image represents a directed acyclic graph (DAG) illustrating two distinct paths, labeled &lsquo;A:&rsquo; and &lsquo;B:&rsquo;.  Path &lsquo;A:&rsquo; starts with a node labeled &lsquo;1&rsquo;, which connects to a node labeled &lsquo;3&rsquo;, followed by a node labeled &lsquo;4&rsquo;. Node &lsquo;4&rsquo; then branches, connecting to a node labeled &lsquo;8&rsquo;. Path &lsquo;B:&rsquo; begins with a node labeled &lsquo;6&rsquo;, connecting to another node labeled &lsquo;4&rsquo;. This second &lsquo;4&rsquo; node also connects to node &lsquo;8&rsquo;. Node &lsquo;8&rsquo; subsequently connects to a node labeled &lsquo;7&rsquo;, which finally connects to a node labeled &lsquo;2&rsquo;.  The arrows indicate the direction of flow between the nodes, showing a sequential progression along each path.  The paths &lsquo;A&rsquo; and &lsquo;B&rsquo; represent different sequences or processes, converging at node &lsquo;8&rsquo; before diverging again.  The numbers within the nodes likely represent steps or stages in a process, and the overall structure suggests a workflow or dependency diagram.
+Output: Node 8
+Intuition
+Let’s first understand what an intersection between two linked lists is.</p>
+<p>An intersection occurs when two linked lists converge at a shared node and, from that point onwards, share all subsequent nodes.</p>
+<p>Note, this intersection has nothing to do with the values of the nodes.</p>
+<p>A naive approach is to use a hash set. We can traverse the first linked list once and store each node in a hash set. Next, we traverse the second linked list until we find the first node that exists in the hash set, signifying the intersection point since it’s the first node shared between the two linked lists. This approach solves the problem linearly, but can we find a solution that uses constant space?</p>
+<p>Consider the following example:</p>
+<p>Image represents a diagram illustrating a merge operation in a linked list data structure.  Two linked lists, labeled &lsquo;head_A&rsquo; and &lsquo;head_B,&rsquo; are depicted.  List &lsquo;head_A&rsquo; consists of three light-blue nodes connected sequentially by unidirectional arrows, indicating the flow of data. Similarly, list &lsquo;head_B&rsquo; comprises two light-purple nodes linked in the same manner.  The final nodes of both lists &lsquo;head_A&rsquo; and &lsquo;head_B&rsquo; converge at a common node, the first of a new linked list represented by three orange nodes. These orange nodes are also connected sequentially with unidirectional arrows. The arrows visually represent the pointers connecting the nodes in each list, showing the direction of traversal. The overall structure demonstrates how two separate linked lists are merged into a single, unified list.
+Treating these as two separate linked lists can get confusing with the above visualization. Instead, let’s visualize the input as two linked lists to help us think about the problem more clearly. Note that the tail nodes are still shared between the two linked lists, we’re just visualizing them separately:</p>
+<p>The image represents two linked lists merging into a single structure.  Two lists, labeled <code>head_A</code> and <code>head_B</code>, are depicted using light-blue and light-purple circles respectively, representing nodes, connected by black arrows indicating the direction of traversal.  Each list consists of three nodes.  These lists converge at a point where they share a common set of nodes, represented by three peach-colored circles enclosed within an orange rectangle.  These shared nodes are labeled as &lsquo;same tail nodes&rsquo; via a curved arrow pointing to the rectangle. The arrangement visually demonstrates how two separate linked lists can share a common tail section, a concept relevant to data structure optimization and merging algorithms.
+Notice that this problem is easier to solve if the two linked lists are of equal length. This is because the intersection node can be found at the same position from the heads of both linked lists. In other words, when we iterate through two linked lists of the same length, we’re guaranteed to reach the intersection node at the same time:</p>
+<p>Image represents two linked lists, labeled &lsquo;A&rsquo; and &lsquo;B&rsquo;, visually separated by a peach-colored rectangle containing the symbol &lsquo;||&rsquo; signifying a parallel structure.  List &lsquo;A&rsquo; uses light-blue nodes, while list &lsquo;B&rsquo; uses light-purple nodes. Each list starts with a labeled head node (&lsquo;head_A&rsquo; and &lsquo;head_B&rsquo;), pointed to by a rectangular box labeled &lsquo;ptr_A&rsquo; and &lsquo;ptr_B&rsquo; respectively, indicating pointers to the beginning of each list.  Solid arrows show the sequential connections within each list. Dashed gray arrows indicate additional pointers, possibly for iterative traversal or other operations, connecting nodes within each list.  Both lists converge at a point represented by orange nodes, forming a common section after the initial distinct parts.  The orange nodes continue in a linked list structure, suggesting a merging or concatenation of the two initial lists.
+Could we somehow replicate this behavior when dealing with linked lists of varying lengths? The key observation is that, while two linked lists ‘list A’ and ‘list B’ may have different lengths, ‘list A → list B’ has the same length as ‘list B → list A’ (where ‘→’ represents the connection of two lists). Conveniently, these combined linked lists also share the same tail nodes:</p>
+<p>Image represents two linked lists, A and B, initially separate, depicted as horizontal sequences of circles connected by arrows indicating direction.  List A starts with a light-blue circle labeled &lsquo;head_A&rsquo; and continues with several light-blue and orange circles. List B begins with a light-purple circle labeled &lsquo;head_B&rsquo; and proceeds with light-purple and orange circles.  The lists merge; the tail of list A connects to a light-blue circle, which is then followed by several more light-blue circles, and the tail of list B connects to a light-purple circle, followed by several more light-purple circles.  After the merge, a rectangular box encloses a section of the combined lists, containing four orange circles arranged in two rows of two, representing a sub-section of the merged list.  The labels &lsquo;A&rsquo; and &lsquo;B&rsquo; are placed above and below the initial sections of lists A and B respectively, indicating their initial separation, and are reversed below the merged section, indicating the merging point.  Arrows consistently point rightward, showing the direction of traversal through each list.
+We’ve now set up a scenario where we have two combined linked lists of the same length, which share the same tail nodes. By traversing these combined linked lists, we’ll eventually reach the intersection node simultaneously on both linked lists (if one exists).</p>
+<p>To do this, we can traverse both combined linked lists with two pointers, and stop once the nodes at both pointers are the same. This node would be the intersection node:</p>
+<p>Image represents two linked lists, A and B, visualized horizontally.  List A&rsquo;s nodes are light blue, while list B&rsquo;s nodes are light purple.  Both lists also contain orange nodes interspersed.  A rectangular box labeled &lsquo;ptr_A&rsquo; points down to the head of list A, labeled &lsquo;head_A,&rsquo; which is a light blue circle.  Similarly, a box labeled &lsquo;ptr_B&rsquo; points to the head of list B, &lsquo;head_B,&rsquo; a light purple circle.  Solid arrows indicate the forward links within each list. Dashed gray arrows show how the algorithm iterates through both lists simultaneously, comparing nodes.  The lists merge at a point where list A&rsquo;s orange node connects to list B&rsquo;s purple node, and vice-versa.  After the merging point, the lists continue with their respective node colors. A peach-colored rectangle separates the merged portion from the rest of the lists. A solid arrow emerges from this rectangle, pointing to a dashed-line box labeled &lsquo;return ptr_A,&rsquo; indicating that the algorithm returns a pointer to a node within list A after the merging process.
+If no intersection exists, both pointers will end up stopping at null nodes:</p>
+<p>Image represents two linked lists, A and B, visualized horizontally.  List A&rsquo;s head is labeled &lsquo;head_A&rsquo; and is a light-blue circle; list B&rsquo;s head is labeled &lsquo;head_B&rsquo; and is a purple circle.  Each list consists of several nodes represented by similarly colored circles connected by solid arrows indicating the next node in the sequence.  Above each list&rsquo;s head is a rectangular box labeled &lsquo;ptr_A&rsquo; and &lsquo;ptr_B&rsquo; respectively, representing pointers to the respective list heads.  Dashed arrows from these pointer boxes point to the respective list heads, showing the pointer&rsquo;s initial position.  Both lists terminate with a &lsquo;null&rsquo; node represented by a light-grey rectangle.  After the &lsquo;null&rsquo; nodes, a solid arrow points to a dashed-line rectangle labeled &lsquo;return ptr_A&rsquo;, indicating that the function returns a pointer to the head of list A.  The dashed arrows between the nodes in each list suggest the traversal of the list during the execution of the algorithm.  The arrangement shows the lists&rsquo; structure and the pointer&rsquo;s role in accessing and manipulating the lists.
+Traversing combined linked lists
+An important observation is that to traverse through &lsquo;list A → list B&rsquo;, we don&rsquo;t actually need to connect these two linked lists together. Instead, we can traverse &lsquo;list A&rsquo; and, upon reaching its end, continue by traversing &lsquo;list B&rsquo;:</p>
+<p>Image represents a diagram illustrating the traversal of two linked lists, A and B.  The top section, labeled &lsquo;1. traverse list A,&rsquo; shows a linked list A depicted as a sequence of four light-blue circles connected by solid black arrows, representing the nodes and their connections.  The first node is labeled &lsquo;head_A&rsquo;.  Dashed grey arrows curve above the solid arrows, indicating the traversal process. The bottom section, labeled &lsquo;2. traverse list B,&rsquo; similarly shows a linked list B with three light-purple circles followed by three peach-colored circles, connected by solid black arrows. The first node is labeled &lsquo;head_B,&rsquo; and dashed grey arrows above the solid arrows again show the traversal.  The title &lsquo;traverse list A → list B:&rsquo; indicates that the diagram demonstrates a process involving traversing both lists, possibly for comparison or data transfer between them.  The color change in list B suggests a potential modification or interaction during the traversal.
+This technique allows us to traverse the entire sequence of both linked lists as if they were connected.</p>
+<p>Try it yourself
+Write your solution to the problem before checking the reference implementation.
+Implementation
+Python
+JavaScript
+Java
+from ds import ListNode
+   
+def linked_list_intersection(head_A: ListNode, head_B: ListNode) -&gt; ListNode:
+    ptr_A, ptr_B = head_A, head_B
+    # Traverse through list A with &lsquo;ptr_A&rsquo; and list B with &lsquo;ptr_B&rsquo; until they meet.
+    while ptr_A != ptr_B:
+        # Traverse list A -&gt; list B by first traversing &lsquo;ptr_A&rsquo; and then, upon
+        # reaching the end of list A, continue the traversal from the head of list B.
+        ptr_A = ptr_A.next if ptr_A else head_B
+        # Simultaneously, traverse list B -&gt; list A.
+        ptr_B = ptr_B.next if ptr_B else head_A
+    # At this point, &lsquo;ptr_A&rsquo; and &lsquo;ptr_B&rsquo; either point to the intersection node or both
+    # are null if the lists do not intersect. Return either pointer.
+    return ptr_A
+Complexity Analysis
+Time complexity: The time complexity of linked_list_intersection is 
+O
+(
+n
++
+m
+)
+O(n+m), where 
+n
+n and 
+m
+m denote the lengths of list A and B, respectively. This is because pointers linearly traverse both linked lists sequentially.</p>
+<p>Space complexity: The space complexity is 
+O
+(
+1
+)
+O(1).</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="remove-kth-last-node.html"><div class="label">← Anterior</div><div class="title">Remove the Kth Last Node From a Linked List</div></a><a class="next" href="lru-cache.html"><div class="label">Siguiente →</div><div class="title">LRU Cache</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="linked-list-intersection.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

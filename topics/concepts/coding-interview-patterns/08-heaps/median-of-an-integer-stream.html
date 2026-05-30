@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Median of an Integer Stream · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 8 — Heaps</span><span class="sep">/</span><span class="current">Median of an Integer Stream</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Median of an Integer Stream</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">heaps</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Median of an Integer Stream
+Design a data structure that supports adding integers from a data stream and retrieving the median of all elements received at any point.</p>
+<p>add(num: int) -&gt; None: adds an integer to the data structure.
+get_median() -&gt; float: returns the median of all integers so far.
+Example:
+Input: [add(3), add(6), get_median(), add(1), get_median()]
+Output: [4.5, 3.0]
+Explanation:</p>
+<p>add(3)        # data structure contains [3] when sorted
+add(6)        # data structure contains [3, 6] when sorted
+get_median()  # median is (3 + 6) / 2 = 4.5
+add(1)        # data structure contains [1, 3, 6] when sorted
+get_median()  # median is 3.0
+Constraints:
+At least one value will have been added before get_median is called.
+Intuition
+The median is always found in the middle of a sorted list of values. The challenge with this problem is that it’s unclear how to keep all the values sorted as new values arrive, since the values don’t necessarily arrive in sorted order.</p>
+<p>A useful point to recognize is that we don’t necessarily care if all the values are sorted. What really matters is that the median values are in their sorted positions. But is it possible to position these values in the middle without maintaining a fully sorted list of values? If it is, we’d need to find a way to differentiate the median values from the rest.</p>
+<p>Consider the elements below, which contain an even number of values arranged in sorted order. The two values used to calculate the median are highlighted in the middle:</p>
+<p>Image represents a sequence of numbers: 0, 1, 2, 2, 3, 4, 5, 7, 8, 9.  A dashed orange box highlights the numbers 3 and 4. A downward-pointing orange arrow extends from the bottom of the box to the text &lsquo;median values&rsquo; written in orange below the number sequence. This visually indicates that the numbers 3 and 4 within the box are identified as the median values of the entire dataset.
+When a list contains two median values, we can make the following observations:</p>
+<p>The first median is the largest value in the left half of the sorted integers.
+The second median is the smallest value in the right half of the sorted integers.
+Image represents a visual explanation of a coding pattern, likely related to sorting or searching algorithms.  A sequence of numbers (0, 1, 2, 2, 3, 4, 5, 7, 8, 9) is displayed, divided into two halves by a dashed orange line separating &lsquo;3&rsquo; and &lsquo;4&rsquo;. The left half (0, 1, 2, 2, 3) is highlighted in light purple, and the right half (4, 5, 7, 8, 9) is in light blue. A purple arrow points from the left half to the number &lsquo;3&rsquo;, labeled &lsquo;largest of left half,&rsquo; indicating that &lsquo;3&rsquo; is the largest element in the left subsequence.  Similarly, a light blue arrow points from the right half to the number &lsquo;4&rsquo;, labeled &lsquo;smallest of right half,&rsquo; showing &lsquo;4&rsquo; as the smallest element in the right subsequence.  The arrangement visually demonstrates the concept of finding the largest and smallest elements within partitioned sections of a dataset.
+If we had a way to split the data into two halves, with one half containing the smaller values and the other half containing the larger values, we would just need an efficient method to identify the largest value in the smaller half, and the smallest value in the larger half. This is where heaps come in.</p>
+<p>We can use a combination of a min-heap and a max-heap:</p>
+<p>A max-heap manages the left half, where the top value represents the first median value.
+A min-heap manages the right half, where the top value represents the second median value.
+If the total number of elements is odd, there’s only one median. In this case, we just need to use one of the heaps to store it. Let&rsquo;s designate the max-heap to store this median:</p>
+<p>The image represents a visual depiction of finding the median of a dataset.  Two rectangular boxes are shown, horizontally adjacent. The left box, colored light purple, contains the numbers 0, 1, 2, 2, and 3. The number 3 is enclosed within a dashed orange box, indicating it&rsquo;s the focus. The right box, colored light blue, contains the numbers 4, 5, 7, and 8. A downward-pointing orange arrow extends from the dashed box around the number 3 in the left box to the word &lsquo;median&rsquo; written in orange below the boxes. This illustrates that the number 3 is identified as the median of the complete dataset (0, 1, 2, 2, 3, 4, 5, 7, 8) because it&rsquo;s the middle value when the dataset is sorted in ascending order.
+Populating the heaps
+Before identifying how we populate each heap, it’s useful to understand the behavior they must follow. Here are a couple of observations we can make:</p>
+<p>All values in the left half must be less than or equal to any value in the right half.</p>
+<p>The two halves should contain an equal number of values, except when the total number of values is odd, in which case the left half has one more value, as specified earlier.</p>
+<p>These observations help us define two rules for managing the heaps:</p>
+<p>The maximum value of the max-heap (left half) must be less than or equal to the minimum value of the min-heap (right half), ensuring all values in the left half are less than or equal to those in the right half.</p>
+<p>The heaps should be of equal size, but the max-heap can have one more element than the min-heap.</p>
+<p>Let&rsquo;s figure out how to maintain these rules in an example in which we try to add number 3 to the heaps. Note, the heaps before adding this number meet the above rules.</p>
+<p>Image represents a visual depiction of two data structures, labeled &lsquo;left_half&rsquo; and &lsquo;right_half,&rsquo; likely illustrating a sorting or merging algorithm.  The &lsquo;left_half&rsquo; structure is a trapezoidal shape outlined in cyan, containing the numbers 0, 1, 2, 2, and 4 arranged in a roughly triangular fashion.  Above this trapezoid, a cyan rectangle displays &lsquo;max: 4,&rsquo; indicating the maximum value within the structure.  Below the trapezoid, &lsquo;size = 5&rsquo; specifies the number of elements.  The &lsquo;right_half&rsquo; structure mirrors this, but is outlined in purple and contains the numbers 5, 7, 8, and 9, arranged similarly.  A purple rectangle above this trapezoid shows &lsquo;min: 5,&rsquo; indicating the minimum value.  Below the trapezoid, &lsquo;size = 4&rsquo; indicates the number of elements.  The two structures are positioned side-by-side, suggesting they are separate parts of a larger data set, possibly before or after a merging operation in a merge sort algorithm.
+Since 3 is less than the maximum value of left_half (4), it belongs in the left_half heap. So, let’s add 3 to this heap:</p>
+<p>Image represents a visual depiction of data splitting into two halves, labeled &lsquo;left_half&rsquo; and &lsquo;right_half&rsquo;.  The &lsquo;left_half&rsquo; is enclosed in a light-blue trapezoidal shape containing the numbers 0, 2, 2, 1, and a highlighted 3, suggesting a possible median or pivot point. Above this trapezoid, a light-blue rectangle displays &lsquo;max: 4&rsquo;, indicating the maximum value within the left half.  Below the trapezoid, &lsquo;size = 6&rsquo; specifies the number of elements. The &lsquo;right_half&rsquo; is similarly structured, using a purple trapezoid containing the numbers 7, 8, and 9. A purple rectangle above it shows &lsquo;min: 5&rsquo;, representing the minimum value in this half.  Below the trapezoid, &lsquo;size = 4&rsquo; indicates the number of elements. The two halves are presented side-by-side, illustrating a potential data partitioning step in an algorithm, possibly related to sorting or searching, where the data is divided based on a pivot value.
+After adding 3, we notice rule 2 has been violated, since the size of the left_half heap is more than one element larger than the right_half heap. We can fix this by moving the max value of left_half to right_half:</p>
+<p>Image represents a visual depiction of a data transformation process, likely within a sorting or merging algorithm.  The image shows two stages. The initial stage displays two trapezoidal data structures labeled &lsquo;left_half&rsquo; and &lsquo;right_half,&rsquo; outlined in cyan and violet respectively.  The &lsquo;left_half&rsquo; structure contains the numbers 0, 1, 2, 2, 3, with a &lsquo;size = 6&rsquo; label indicating its element count, and a separate box labeled &lsquo;max: 4&rsquo; showing the maximum value (though 4 is not present in the structure itself, suggesting a prior step).  Similarly, &lsquo;right_half&rsquo; contains 7, 8, 9, with a &lsquo;size = 4&rsquo; label and a &lsquo;min: 5&rsquo; box indicating its minimum value. A dashed arrow connects the &lsquo;max&rsquo; box of &lsquo;left_half&rsquo; to the &lsquo;min&rsquo; box of &lsquo;right_half,&rsquo; suggesting a comparison or data transfer between these maximum and minimum values. The second stage, shown after a thick black arrow, depicts the transformed data structures.  The &lsquo;left_half&rsquo; now contains 0, 1, 2, 2, 3, with &lsquo;size = 5&rsquo; and &lsquo;max: 3,&rsquo; while &lsquo;right_half&rsquo; contains 5, 7, 8, 9, with &lsquo;size = 5&rsquo; and &lsquo;min: 4.&rsquo;  The transformation suggests a redistribution of elements based on the initial maximum and minimum comparisons, potentially indicating a step in a merge sort or similar algorithm.
+So, to ensure the sizes of the heaps don’t violate rule 2, we need to rebalance the heaps after adding a value:</p>
+<p>If the left_half heap&rsquo;s size exceeds the right_half heap’s size by more than one, rebalance the heaps by transferring left_half‘s top value to right_half:
+Image represents a visual explanation of balancing a data structure, likely a binary tree or similar.  The left side shows an &lsquo;imbalanced&rsquo; state depicted by a tall, light-blue rectangle divided into four equal sub-rectangles, labeled &lsquo;size(left_half)&rsquo; at the bottom, representing a larger left subtree. A small, dark-filled square is present at the top of this rectangle. A curved arrow originates from this square and points to a smaller, light-purple rectangle divided into two equal sub-rectangles, labeled &lsquo;size(right_half)&rsquo; at the bottom, representing a smaller right subtree. This illustrates an uneven distribution of data. A large black arrow points to the right, indicating a transformation. The right side shows a &lsquo;balanced&rsquo; state with two rectangles of approximately equal height; one light-blue rectangle, labeled &lsquo;size(left_half)&rsquo;, and one light-purple rectangle, labeled &lsquo;size(right_half)&rsquo;.  The dashed lines around the purple rectangle on the left suggest that this portion is being moved or redistributed to achieve balance. The overall image demonstrates the process of rebalancing a data structure to improve efficiency or performance.
+If the right_half heap’s size exceeds the left_half heap’s size, rebalance the heaps by transferring its top value to the left_half:
+Image represents a visual depiction of balancing a data structure, likely a binary tree or similar.  The left side, labeled &lsquo;imbalanced:&rsquo;, shows two vertically stacked rectangles representing data partitions. The left rectangle, light blue with a cyan border, is labeled &lsquo;size(left_half)&rsquo; and is smaller than the right rectangle, light purple with a violet border, labeled &lsquo;size(right_half)&rsquo;. A black arrow points from the left rectangle&rsquo;s top to a point near the top of the right rectangle, indicating a transfer or redistribution of data. A large black arrow points from the &lsquo;imbalanced:&rsquo; section to the &lsquo;balanced:&rsquo; section. The right side, labeled &lsquo;balanced:&rsquo;, shows the result of the data redistribution.  Both rectangles are now roughly equal in size; the left rectangle (light blue with a cyan border and labeled &lsquo;size(left_half)&rsquo;) and the right rectangle (light purple with a violet border and labeled &lsquo;size(right_half)&rsquo;) are visually similar in height, suggesting a more balanced distribution of data.  The overall diagram illustrates a before-and-after scenario of a balancing operation, highlighting the improvement in data structure distribution.
+Returning the median
+With the median values at the top of the heaps, returning the median boils down to two cases:</p>
+<p>If the total number of elements is even, both median values can be found at the top of each heap. So, we return their sum divided by 2.</p>
+<p>If the total number of elements is odd, the median will be at the top of the left_half heap.</p>
+<p>Try it yourself
+Write your solution to the problem before checking the reference implementation.
+Implementation
+Note that in Python, heaps are min-heaps by default. To mimic the functionality of a max-heap, we can insert numbers as negatives in the left_half heap. This way, the largest original value becomes the smallest when negated, positioning it at the top of the heap. When we retrieve a value from this heap, we multiply it by -1 to get its original value.</p>
+<p>Python
+JavaScript
+Java
+import heapq
+    
+class MedianOfAnIntegerStream:
+    def <strong>init</strong>(self):
+        # Max-heap for the values belonging to the left half.
+        self.left_half = []
+        # Min-heap for the values belonging to the right half.
+        self.right_half = []
+        
+    def add(self, num: int) -&gt; None:
+        # If &lsquo;num&rsquo; is less than or equal to the max of &lsquo;left_half&rsquo;, it belongs to the
+        # left half.
+        if not self.left_half or num &lt;= -self.left_half[0]:
+            heapq.heappush(self.left_half, -num)
+            # Rebalance the heaps if the size of the &lsquo;left_half&rsquo; exceeds the size of
+            # the &lsquo;right_half&rsquo; by more than one.
+            if len(self.left_half) &gt; len(self.right_half) + 1:
+                heapq.heappush(self.right_half, -heapq.heappop(self.left_half))
+        # Otherwise, it belongs to the right half.
+        else:
+            heapq.heappush(self.right_half, num)
+            # Rebalance the heaps If &lsquo;right_half&rsquo; is larger than &lsquo;left_half&rsquo;.
+            if len(self.left_half) &lt; len(self.right_half):
+                heapq.heappush(self.left_half, -heapq.heappop(self.right_half))
+        
+    def get_median(self) -&gt; float:
+        if len(self.left_half) == len(self.right_half):
+            return (-self.left_half[0] + self.right_half[0]) / 2.0
+        return -self.left_half[0]
+Complexity Analysis
+Time complexity:</p>
+<p>The time complexity of add is 
+O
+(
+log
+⁡
+(
+n
+)
+)
+O(log(n)), where 
+n
+n denotes the number of values added to the data structure. This is because we first push a number to one of the heaps, which takes 
+O
+(
+log
+⁡
+(
+n
+)
+)
+O(log(n)) time. Then, if rebalancing is required, we also pop from one heap and push to the other, where both operations also take 
+O
+(
+log
+⁡
+(
+n
+)
+)
+O(log(n)) time.
+The time complexity of get_median is 
+O
+(
+1
+)
+O(1) because accessing the top element of a heap takes 
+O
+(
+1
+)
+O(1) time.
+Space complexity: The space complexity is 
+O
+(
+n
+)
+O(n) because the two heaps together store 
+n
+n elements.</p>
+<p>Note: this explanation refers to the two middle values as &ldquo;median values&rdquo; to keep things simple. However, it’s important to understand that these two values aren’t technically “medians,” as there&rsquo;s only ever one median. These are just the two values used to calculate the median.</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="combine-sorted-linked-lists.html"><div class="label">← Anterior</div><div class="title">Combine Sorted Linked Lists</div></a><a class="next" href="sort-a-k-sorted-array.html"><div class="label">Siguiente →</div><div class="title">Sort a K-Sorted Array</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="median-of-an-integer-stream.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

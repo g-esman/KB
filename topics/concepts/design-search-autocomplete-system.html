@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design a Search Autocomplete System · Personal KB</title>
+<link rel="stylesheet" href="../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book I — System Design</span><span class="sep">/</span><span class="current">Design a Search Autocomplete System</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Design a Search Autocomplete System</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-04</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">system-design</span><span class="meta-tag">autocomplete</span><span class="meta-tag">trie</span><span class="meta-tag">search</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Design A Search Autocomplete System
+When searching on Google or shopping at Amazon, as you type in the search box, one or more matches for the search term are presented to you. This feature is referred to as autocomplete, typeahead, search-as-you-type, or incremental search. Figure 1 presents an example of a Google search showing a list of autocompleted results when “dinner” is typed into the search box. Search autocomplete is an important feature of many products. This leads us to the interview question: design a search autocomplete system, also called “design top k” or “design top k most searched queries”.</p>
+<p>Image represents a Google search results page.  At the top, the Google logo is prominently displayed. Below it, a search bar contains the partial search query &lsquo;[dinner|&rsquo;.  Beneath the search bar, a list of auto-suggested search queries appears, each prefixed with a magnifying glass icon: &lsquo;dinner ideas,&rsquo; &lsquo;dinner recipes,&rsquo; &lsquo;dinner near me,&rsquo; &lsquo;dinner,&rsquo; &lsquo;dinnerly,&rsquo; &lsquo;dinner in spanish,&rsquo; &lsquo;dinner nearby,&rsquo; &lsquo;dinner tonight,&rsquo; &lsquo;dinner rolls,&rsquo; and &lsquo;dinnerware sets.&rsquo;  At the bottom of the search results box are two buttons: &lsquo;Google Search&rsquo; and &lsquo;I&rsquo;m Feeling Lucky.&rsquo; A small microphone icon is present in the top right corner of the search bar, suggesting voice search functionality. Finally, a small text link at the very bottom reads &lsquo;Report inappropriate predictions,&rsquo; providing a mechanism for user feedback.  No information flows visibly between components; the image depicts a static snapshot of the search interface before a search is initiated.
+Figure 1
+Step 1 - Understand the problem and establish design scope
+The first step to tackle any system design interview question is to ask enough questions to clarify requirements. Here is an example of candidate-interviewer interaction:</p>
+<p>Candidate: Is the matching only supported at the beginning of a search query or in the middle as well?
+Interviewer: Only at the beginning of a search query.</p>
+<p>Candidate: How many autocomplete suggestions should the system return?
+Interviewer: 5</p>
+<p>Candidate: How does the system know which 5 suggestions to return?
+Interviewer: This is determined by popularity, decided by the historical query frequency.</p>
+<p>Candidate: Does the system support spell check?
+Interviewer: No, spell check or autocorrect is not supported.</p>
+<p>Candidate: Are search queries in English?
+Interviewer: Yes. If time allows at the end, we can discuss multi-language support.</p>
+<p>Candidate: Do we allow capitalization and special characters?
+Interviewer: No, we assume all search queries have lowercase alphabetic characters.</p>
+<p>Candidate: How many users use the product?
+Interviewer: 10 million DAU.</p>
+<p>Requirements</p>
+<p>Here is a summary of the requirements:</p>
+<p>Fast response time: As a user types a search query, autocomplete suggestions must show up fast enough. An article about Facebook’s autocomplete system [1] reveals that the system needs to return results within 100 milliseconds. Otherwise it will cause stuttering.</p>
+<p>Relevant: Autocomplete suggestions should be relevant to the search term.</p>
+<p>Sorted: Results returned by the system must be sorted by popularity or other ranking models.</p>
+<p>Scalable: The system can handle high traffic volume.</p>
+<p>Highly available: The system should remain available and accessible when part of the system is offline, slows down, or experiences unexpected network errors.</p>
+<p>Back of the envelope estimation
+Assume 10 million daily active users (DAU).</p>
+<p>An average person performs 10 searches per day.</p>
+<p>20 bytes of data per query string:</p>
+<p>Assume we use ASCII character encoding. 1 character = 1 byte</p>
+<p>Assume a query contains 4 words, and each word contains 5 characters on average.</p>
+<p>That is 4 x 5 = 20 bytes per query.</p>
+<p>For every character entered into the search box, a client sends a request to the backend for autocomplete suggestions. On average, 20 requests are sent for each search query. For example, the following 6 requests are sent to the backend by the time you finish typing “dinner”.</p>
+<p>search?q=d</p>
+<p>search?q=di</p>
+<p>search?q=din</p>
+<p>search?q=dinn</p>
+<p>search?q=dinne</p>
+<p>search?q=dinner</p>
+<p>~24,000 query per second (QPS) = 10,000,000 users * 10 queries / day * 20 characters / 24 hours / 3600 seconds.</p>
+<p>Peak QPS = QPS * 2 = ~48,000</p>
+<p>Assume 20% of the daily queries are new. 10 million * 10 queries / day * 20 byte per query * 20% = 0.4 GB. This means 0.4GB of new data is added to storage daily.</p>
+<p>Step 2 - Propose high-level design and get buy-in
+At the high-level, the system is broken down into two:</p>
+<p>Data gathering service: It gathers user input queries and aggregates them in real-time. Real-time processing is not practical for large data sets; however, it is a good starting point. We will explore a more realistic solution in deep dive.</p>
+<p>Query service: Given a search query or prefix, return 5 most frequently searched terms.</p>
+<p>Data gathering service
+Let us use a simplified example to see how data gathering service works. Assume we have a frequency table that stores the query string and its frequency as shown in Figure 2. In the beginning, the frequency table is empty. Later, users enter queries “twitch”, “twitter”, “twitter,” and “twillo” sequentially. Figure 2 shows how the frequency table is updated.</p>
+<p>Image represents a high-level system design diagram illustrating data partitioning or sharding based on query parameters.  The diagram shows five vertical sections separated by dashed lines. The leftmost section is labeled &lsquo;QueryFrequency,&rsquo; representing a source or input of queries. The remaining four sections represent different partitions or shards, each labeled with &lsquo;query: [platform]&rsquo; where the platform is either &lsquo;twitch,&rsquo; &lsquo;twitter&rsquo; (appearing twice), or &lsquo;twillo.&rsquo;  Each of these platform-specific sections contains a label &lsquo;QueryFrequency[platform]1&hellip;&rsquo; suggesting that each shard stores query frequency data related to a specific platform.  There are no explicit connections drawn between the sections, implying that the data is independently managed within each shard based on the query parameter (platform).  The &lsquo;QueryFrequency&rsquo; section on the left likely represents the initial query input, which is then routed or distributed to the appropriate shard based on the platform specified in the query.  The ellipsis (&lsquo;&hellip;&rsquo;) in the shard labels suggests that there might be more partitions than those shown.
+Figure 2
+Query service
+Assume we have a frequency table as shown in Table 1. It has two fields.</p>
+<p>Query: it stores the query string.</p>
+<p>Frequency: it represents the number of times a query has been searched.</p>
+<p>Query   Frequency
+twitter 35
+twitch  29
+twilight    25
+twin peak   21
+twitch prime    18
+twitter search  14
+twillo  10
+twin peak sf    8
+Table 1</p>
+<p>When a user types “tw” in the search box, the following top 5 searched queries are displayed (Figure 3), assuming the frequency table is based on Table 1.</p>
+<p>The image represents a simple autocomplete suggestion box.  At the top, a light gray rectangular text box displays &lsquo;tw|&rsquo; as the user&rsquo;s partial input. Below this input box is a table with five rows, each containing a potential autocomplete suggestion.  These suggestions are: &lsquo;twitter&rsquo;, &lsquo;twitch&rsquo;, &lsquo;twilight&rsquo;, &lsquo;twin peak&rsquo;, and &lsquo;twitch prime&rsquo;.  There are no visible connections or information flow besides the implied relationship that the suggestions in the table are related to the partial input &lsquo;tw|&rsquo; in the text box above.  The suggestions are presented as a list, implying a ranking or order of relevance, though no explicit ranking mechanism is shown.
+Figure 3
+To get top 5 frequently searched queries, execute the following SQL query:</p>
+<p>Image represents a SQL query.  The query selects all columns (<code>SELECT *</code>) from a table named <code>frequency_table</code>.  A <code>WHERE</code> clause filters the results to include only rows where the <code>query</code> column starts with the string &lsquo;prefix&rsquo; (using the <code>LIKE 'prefix%'</code> operator). The results are then <code>ORDER</code>ed in descending order (<code>DESC</code>) based on the <code>frequency</code> column. Finally, the <code>LIMIT</code> clause restricts the output to the top 5 rows, effectively returning the 5 most frequent queries starting with &lsquo;prefix&rsquo;.  The keywords <code>SELECT</code>, <code>FROM</code>, <code>WHERE</code>, <code>LIKE</code>, <code>ORDER BY</code>, <code>DESC</code>, and <code>LIMIT</code> are highlighted in blue, indicating their significance as SQL commands.
+Figure 4
+This is an acceptable solution when the data set is small. When it is large, accessing the database becomes a bottleneck. We will explore optimizations in deep dive.</p>
+<p>Step 3 - Design deep dive
+In the high-level design, we discussed data gathering service and query service. The high-level design is not optimal, but it serves as a good starting point. In this section, we will dive deep into a few components and explore optimizations as follows:</p>
+<p>Trie data structure</p>
+<p>Data gathering service</p>
+<p>Query service</p>
+<p>Scale the storage</p>
+<p>Trie operations</p>
+<p>Trie data structure
+Relational databases are used for storage in the high-level design. However, fetching the top 5 search queries from a relational database is inefficient. The data structure trie (prefix tree) is used to overcome the problem. As trie data structure is crucial for the system, we will dedicate significant time to design a customized trie. Please note that some of the ideas are from articles [2] and [3].</p>
+<p>Understanding the basic trie data structure is essential for this interview question. However, this is more of a data structure question than a system design question. Besides, many online materials explain this concept. In this chapter, we will only discuss an overview of the trie data structure and focus on how to optimize the basic trie to improve response time.</p>
+<p>Trie (pronounced “try”) is a tree-like data structure that can compactly store strings. The name comes from the word retrieval, which indicates it is designed for string retrieval operations. The main idea of trie consists of the following:</p>
+<p>A trie is a tree-like data structure.</p>
+<p>The root represents an empty string.</p>
+<p>Each node stores a character and has 26 children, one for each possible character. To save space, we do not draw empty links.</p>
+<p>Each tree node represents a single word or a prefix string.</p>
+<p>Figure 5 shows a trie with search queries “tree”, “try”, “true”, “toy”, “wish”, “win”. Search queries are highlighted with a thicker border.</p>
+<p>Image represents a directed acyclic graph (DAG) structured as a tree.  A root node, labeled &lsquo;root,&rsquo; points to two child nodes, &lsquo;t&rsquo; and &lsquo;w.&rsquo; Node &lsquo;t&rsquo; further branches into &lsquo;tr&rsquo; and &lsquo;to,&rsquo; while &lsquo;w&rsquo; leads to &lsquo;wi.&rsquo;  Node &lsquo;tr&rsquo; has three children: &lsquo;tre,&rsquo; &lsquo;tru,&rsquo; and &lsquo;try.&rsquo;  &lsquo;tre&rsquo; points to a leaf node &lsquo;tree,&rsquo; and &lsquo;tru&rsquo; points to a leaf node &lsquo;true.&rsquo;  Both &lsquo;tree&rsquo; and &lsquo;true&rsquo; are highlighted with a teal border. Similarly, &lsquo;to&rsquo; has two children: &lsquo;toy&rsquo; (teal bordered) and an unlabeled node. Node &lsquo;wi&rsquo; branches into &lsquo;wis&rsquo; and &lsquo;win,&rsquo; with &lsquo;win&rsquo; having a teal border.  &lsquo;wis&rsquo; points to a leaf node &lsquo;wish&rsquo; (teal bordered).  All arrows indicate the direction of flow from parent to child node.  The teal-bordered leaf nodes suggest a possible categorization or highlighting of specific terminal nodes within the overall tree structure.
+Figure 5
+Basic trie data structure stores characters in nodes. To support sorting by frequency, frequency info needs to be included in nodes. Assume we have the following frequency table.</p>
+<p>Query   Frequency
+tree    10
+try 29
+true    35
+toy 14
+wish    25
+win 50
+Table 2</p>
+<p>After adding frequency info to nodes, updated trie data structure is shown in Figure 6.</p>
+<p>Image represents a directed acyclic graph (DAG) or tree structure, labeled &lsquo;root&rsquo; at its apex.  The root node points to two child nodes, &lsquo;t&rsquo; and &lsquo;w&rsquo;. Node &lsquo;t&rsquo; further branches into &lsquo;tr&rsquo;, &lsquo;to&rsquo;. Node &lsquo;tr&rsquo; has three children: &lsquo;tre&rsquo;, &lsquo;tru&rsquo;, and &lsquo;try:29&rsquo;.  &lsquo;tre&rsquo; points to &lsquo;tree:10&rsquo;, &lsquo;tru&rsquo; points to &lsquo;true:35&rsquo;, and &lsquo;try:29&rsquo; is a leaf node. Node &lsquo;to&rsquo; has one child, &lsquo;toy:14&rsquo;, which is also a leaf node. Node &lsquo;w&rsquo; points to &lsquo;wi&rsquo;, which branches into &lsquo;wis&rsquo; and &lsquo;win:50&rsquo;. &lsquo;wis&rsquo; points to &lsquo;wish:25&rsquo;, while &lsquo;win:50&rsquo; is a leaf node.  The leaf nodes (&lsquo;tree:10&rsquo;, &lsquo;true:35&rsquo;, &lsquo;try:29&rsquo;, &lsquo;toy:14&rsquo;, &lsquo;wish:25&rsquo;, &lsquo;win:50&rsquo;) contain alphanumeric data, suggesting a hierarchical data structure where values are associated with the leaf nodes.  All connections are represented by arrows indicating the direction of flow from parent to child nodes.  The nodes are rectangular boxes, with leaf nodes having a sea-green border to distinguish them from internal nodes.
+Figure 6
+How does autocomplete work with trie? Before diving into the algorithm, let us define some terms.</p>
+<p>p: length of a prefix</p>
+<p>n: total number of nodes in a trie</p>
+<p>c: number of children of a given node</p>
+<p>Steps to get top k most searched queries are listed below:</p>
+<ol>
+<li>
+<p>Find the prefix. Time complexity: O(p).</p>
+</li>
+<li>
+<p>Traverse the subtree from the prefix node to get all valid children. A child is valid if it can form a valid query string. Time complexity: O(c)</p>
+</li>
+<li>
+<p>Sort the children and get top k. Time complexity: O(clogc)</p>
+</li>
+</ol>
+<p>Let us use an example as shown in Figure 7 to explain the algorithm. Assume k equals to 2 and a user types “tr” in the search box. The algorithm works as follows:</p>
+<p>Step 1: Find the prefix node “tr”.</p>
+<p>Step 2: Traverse the subtree to get all valid children. In this case, nodes [tree: 10], [true: 35], [try: 29] are valid.</p>
+<p>Step 3: Sort the children and get top 2. [true: 35] and [try: 29] are the top 2 queries with prefix “tr”.</p>
+<p>Image represents a tree-like data structure, possibly a Trie or a similar hierarchical data organization.  The topmost node is labeled &lsquo;root&rsquo; and points to two child nodes, &lsquo;t&rsquo; and &lsquo;w&rsquo;.  Node &lsquo;t&rsquo; further branches into &lsquo;tr&rsquo; and &lsquo;to&rsquo;.  &lsquo;tr&rsquo; has three children: &lsquo;tre&rsquo;, &lsquo;tru&rsquo;, and &lsquo;try: 29&rsquo; (the &lsquo;: 29&rsquo; suggests a value associated with the node).  &lsquo;tre&rsquo; has a child &lsquo;tree: 10&rsquo;, and &lsquo;tru&rsquo; has a child &lsquo;true: 35&rsquo;.  Nodes &lsquo;try: 29&rsquo;, &lsquo;tree: 10&rsquo;, and &lsquo;true: 35&rsquo; are enclosed within a dashed, teal-colored boundary, labeled with &lsquo;2&rsquo;.  Below this boundary, &lsquo;Top 2: [true: 35, try: 29]&rsquo; indicates these two nodes are selected as top 2.  Node &lsquo;to&rsquo; has a child &lsquo;toy: 14&rsquo;.  Node &lsquo;w&rsquo; branches into &lsquo;wi&rsquo;, which further branches into &lsquo;wis&rsquo; and &lsquo;win: 50&rsquo;.  &lsquo;wis&rsquo; has a child &lsquo;wish: 25&rsquo;.  Thick blue arrows highlight a path from &lsquo;root&rsquo; to &lsquo;t&rsquo; and then to &lsquo;tr&rsquo;, numbered &lsquo;1&rsquo;.  A purple arrow points from &lsquo;true: 35&rsquo; to the &lsquo;Top 2&rsquo; label, numbered &lsquo;3&rsquo;.  The overall structure depicts a hierarchical relationship between nodes, with leaf nodes containing numerical values.
+Figure 7
+The time complexity of this algorithm is the sum of time spent on each step mentioned above: O(p) + O(c) + O(clogc)</p>
+<p>The above algorithm is straightforward. However, it is too slow because we need to traverse the entire trie to get top k results in the worst-case scenario. Below are two optimizations:</p>
+<ol>
+<li>
+<p>Limit the max length of a prefix</p>
+</li>
+<li>
+<p>Cache top search queries at each node</p>
+</li>
+</ol>
+<p>Let us look at these optimizations one by one.</p>
+<p>Limit the max length of a prefix
+Users rarely type a long search query into the search box. Thus, it is safe to say p is a small integer number, say 50. If we limit the length of a prefix, the time complexity for “Find the prefix” can be reduced from O(p) to O(small constant), aka O(1).</p>
+<p>Cache top search queries at each node
+To avoid traversing the whole trie, we store top k most frequently used queries at each node. Since 5 to 10 autocomplete suggestions are enough for users, k is a relatively small number. In our specific case, only the top 5 search queries are cached.</p>
+<p>By caching top search queries at every node, we significantly reduce the time complexity to retrieve the top 5 queries. However, this design requires a lot of space to store top queries at every node. Trading space for time is well worth it as fast response time is very important.</p>
+<p>Figure 8 shows the updated trie data structure. Top 5 queries are stored on each node. For example, the node with prefix “be” stores the following: [best: 35, bet: 29, bee: 20, be: 15, beer: 10].</p>
+<p>Image represents a tree-like data structure, possibly a decision tree or a representation of hierarchical data.  A root node, labeled &lsquo;root,&rsquo; sits at the top, branching down into two main nodes: &lsquo;b&rsquo; and &lsquo;w&rsquo;. Node &lsquo;b&rsquo; contains the text &lsquo;[best: 35, bet: 29, bee: 20, be&hellip;]&rsquo; and branches further into &lsquo;be: 15&rsquo;, and &lsquo;[buy: 14]&rsquo;. Node &lsquo;w&rsquo; contains the text &lsquo;[win: 11]&rsquo; and branches into &lsquo;wi&rsquo; which also contains &lsquo;[win: 11]&rsquo;.  Node &lsquo;be: 15&rsquo; further branches into &lsquo;[bee: 20, beer: 10]&rsquo;, &lsquo;bee: 20&rsquo;, &lsquo;[best: 35]&rsquo;, and &lsquo;bet: 29&rsquo;.  &lsquo;bee: 20&rsquo; has a child node &lsquo;beer: 10&rsquo;. &lsquo;bes&rsquo; has a child node &lsquo;best: 35&rsquo;.  &lsquo;bu&rsquo; has a child node &lsquo;buy: 14&rsquo;. &lsquo;wi&rsquo; has a child node &lsquo;win: 11&rsquo;. Dashed teal boxes enclose groups of related nodes, suggesting logical groupings within the data.  The text within the nodes and boxes appears to represent key-value pairs or data attributes, possibly related to betting or a similar context.  The bottom-most node, &lsquo;best: 35&rsquo;, includes a message indicating the viewer&rsquo;s inability to fully render the SVG format.
+Figure 8
+Let us revisit the time complexity of the algorithm after applying those two optimizations:</p>
+<ol>
+<li>
+<p>Find the prefix node. Time complexity: O(1)</p>
+</li>
+<li>
+<p>Return top k. Since top k queries are cached, the time complexity for this step is O(1).</p>
+</li>
+</ol>
+<p>As the time complexity for each of the steps is reduced to O(1), our algorithm takes only O(1) to fetch top k queries.</p>
+<p>Data gathering service
+In our previous design, whenever a user types a search query, data is updated in real-time. This approach is not practical for the following two reasons:</p>
+<p>Users may enter billions of queries per day. Updating the trie on every query significantly slows down the query service.</p>
+<p>Top suggestions may not change much once the trie is built. Thus, it is unnecessary to update the trie frequently.</p>
+<p>To design a scalable data gathering service, we examine where data comes from and how data is used. Real-time applications like Twitter require up to date autocomplete suggestions. However, autocomplete suggestions for many Google keywords might not change much on a daily basis.</p>
+<p>Despite the differences in use cases, the underlying foundation for data gathering service remains the same because data used to build the trie is usually from analytics or logging services.</p>
+<p>Figure 9 shows the redesigned data gathering service. Each component is examined one by one.</p>
+<p>Image represents a data processing pipeline.  It begins with &lsquo;Analytics Logs,&rsquo; depicted as a file icon labeled &lsquo;LOG,&rsquo; which feeds into &lsquo;Aggregators,&rsquo; represented by three vertically stacked green boxes symbolizing multiple aggregator units.  The aggregated data from the aggregators is then stored in &lsquo;Aggregated Data,&rsquo; shown as three blue database icons.  This aggregated data is subsequently processed by &lsquo;Workers,&rsquo; also represented by three green boxes, which update a &lsquo;Trie DB&rsquo; (three blue database icons) weekly.  Finally, a &lsquo;Trie Cache&rsquo; (three stacked blue boxes labeled &lsquo;CACHE&rsquo;) receives a weekly snapshot of the data from the &lsquo;Trie DB.&rsquo;  The arrows indicate the direction of data flow, showing how raw logs are processed, aggregated, stored, further processed by workers, and finally cached for faster access.  The text &lsquo;Update weekly&rsquo; explicitly labels the weekly update process from the workers to the Trie DB.
+Figure 9
+Analytics Logs. It stores raw data about search queries. Logs are append-only and are not indexed. Table 3 shows an example of the log file.</p>
+<p>query   time
+tree    2019-10-01 22:01:01
+try 2019-10-01 22:01:05
+tree    2019-10-01 22:01:30
+toy 2019-10-01 22:02:22
+tree    2019-10-02 22:02:42
+try 2019-10-03 22:03:03
+Table 3</p>
+<p>Aggregators. The size of analytics logs is usually very large, and data is not in the right format. We need to aggregate data so it can be easily processed by our system.</p>
+<p>Depending on the use case, we may aggregate data differently. For real-time applications such as Twitter, we aggregate data in a shorter time interval as real-time results are important. On the other hand, aggregating data less frequently, say once per week, might be good enough for many use cases. During an interview session, verify whether real-time results are important. We assume trie is rebuilt weekly.</p>
+<p>Aggregated Data.
+Table 4 shows an example of aggregated weekly data. “time” field represents the start time of a week. “frequency” field is the sum of the occurrences for the corresponding query in that week.</p>
+<p>query   time    frequency
+tree    2019-10-01  12000
+tree    2019-10-08  15000
+tree    2019-10-15  9000
+toy 2019-10-01  8500
+toy 2019-10-08  6256
+toy 2019-10-15  8866
+Table 4</p>
+<p>Workers. Workers are a set of servers that perform asynchronous jobs at regular intervals. They build the trie data structure and store it in Trie DB.</p>
+<p>Trie Cache. Trie Cache is a distributed cache system that keeps trie in memory for fast read. It takes a weekly snapshot of the DB.</p>
+<p>Trie DB. Trie DB is the persistent storage. Two options are available to store the data:</p>
+<ol>
+<li>
+<p>Document store: Since a new trie is built weekly, we can periodically take a snapshot of it, serialize it, and store the serialized data in the database. Document stores like MongoDB [4] are good fits for serialized data.</p>
+</li>
+<li>
+<p>Key-value store: A trie can be represented in a hash table form [4] by applying the following logic:</p>
+</li>
+</ol>
+<p>Every prefix in the trie is mapped to a key in a hash table.</p>
+<p>Data on each trie node is mapped to a value in a hash table.</p>
+<p>Figure 10 shows the mapping between the trie and hash table.</p>
+<p>Image represents a hierarchical tree-like structure, possibly depicting a data structure or algorithm.  A root node (an empty rectangle labeled &lsquo;root&rsquo;) points downwards to a node labeled &lsquo;b&rsquo;, enclosed in a dashed teal rectangle containing the text &lsquo;[be: 15, bee: 20,&hellip;]&rsquo;.  Node &lsquo;b&rsquo; points to a node &lsquo;be: 15&rsquo;, also within a dashed teal rectangle with similar content &lsquo;[be: 15, bee: 20,&hellip;]&rsquo;.  &lsquo;be: 15&rsquo; connects to two lower nodes: &lsquo;bee: 20&rsquo; (within a dashed teal rectangle &lsquo;[bee: 20, beer: 10]&rsquo;) and &lsquo;bes&rsquo; (within a dashed teal rectangle &lsquo;[best: 35]&rsquo;).  &lsquo;bee: 20&rsquo; points to a leaf node &lsquo;beer: 10&rsquo;, and &lsquo;bes&rsquo; points to a leaf node &lsquo;best: 35&rsquo;.  Dashed arrows extend from each leaf node and from &lsquo;be: 15&rsquo; and &lsquo;b&rsquo; to the right, suggesting data output or further processing.  The top right corner displays &lsquo;KeyValueb[be: 15, bee: 20, beer: 10, bes&hellip;]&rsquo;, possibly indicating the overall data set.  The bottom right corner shows a browser compatibility message: &lsquo;Viewer does not support full SVG 1.1&rsquo;.  The structure suggests a key-value store or a similar data organization where keys (&lsquo;be&rsquo;, &lsquo;bee&rsquo;, &lsquo;bes&rsquo;) map to values (numerical data).
+Figure 10
+In Figure 10, each trie node on the left is mapped to the <key, value> pair on the right. If you are unclear how key-value stores work, refer to the &ldquo;Design a key-value store&rdquo; chapter.</p>
+<p>Query service
+In the high-level design, query service calls the database directly to fetch the top 5 results. Figure 11 shows the improved design as previous design is inefficient.</p>
+<p>Image represents a system architecture diagram illustrating the flow of requests from a user to a database.  The diagram begins with a &lsquo;User&rsquo; block containing icons for a &lsquo;Web browser&rsquo; and a &lsquo;Mobile app,&rsquo; both of which send requests (labeled &lsquo;1&rsquo;) to a &lsquo;Load balancer.&rsquo; The load balancer distributes these requests (labeled &lsquo;2&rsquo;) to a cluster of &lsquo;API servers.&rsquo;  These API servers then access a &lsquo;Trie Cache&rsquo; (labeled &lsquo;3&rsquo;), which consists of three individual cache units. If the requested data is not found in the Trie Cache, the API servers access a &lsquo;Trie DB&rsquo; (labeled &lsquo;4&rsquo;) to retrieve it.  The numbered arrows indicate the sequential flow of requests and data retrieval, showing how the system manages user requests through load balancing, caching, and database access.
+Figure 11</p>
+<ol>
+<li>
+<p>A search query is sent to the load balancer.</p>
+</li>
+<li>
+<p>The load balancer routes the request to API servers.</p>
+</li>
+<li>
+<p>API servers get trie data from Trie Cache and construct autocomplete suggestions for the client.</p>
+</li>
+<li>
+<p>In case the data is not in Trie Cache, we replenish data back to the cache. This way, all subsequent requests for the same prefix are returned from the cache. A cache miss can happen when a cache server is out of memory or offline.</p>
+</li>
+</ol>
+<p>Query service requires lightning-fast speed. We propose the following optimizations:</p>
+<p>AJAX request. For web applications, browsers usually send AJAX requests to fetch autocomplete results. The main benefit of AJAX is that sending/receiving a request/response does not refresh the whole web page.</p>
+<p>Browser caching. For many applications, autocomplete search suggestions may not change much within a short time. Thus, autocomplete suggestions can be saved in browser cache to allow subsequent requests to get results from the cache directly. Google search engine uses the same cache mechanism. Figure 12 shows the response header when you type “system design interview” on the Google search engine. As you can see, Google caches the results in the browser for 1 hour. Please note: “private” in cache-control means results are intended for a single user and must not be cached by a shared cache. “max-age=3600” means the cache is valid for 3600 seconds, aka, an hour.</p>
+<p>Image represents a screenshot of a network request and response within a developer tool, likely from a browser.  The top section displays the request details: the URL <code>https://www.google.com/complete/search?q&amp;cp=0&amp;client=psy-ab&amp;xssi-t&amp;gs_ri-gws-wiz&amp;hl=en&amp;authuser=0&amp;pq-system design interview</code> indicates a GET request to Google&rsquo;s autocomplete search API, with various parameters specifying the client, language, and potentially a query related to &lsquo;system design interview&rsquo;. The request method is GET, the remote address is <code>[2607:f8b0:4005:807::2004]:443</code> (an IPv6 address and port), and the status code is 200 (OK), indicating a successful request.  The HTTP version is 2.0. Below, the &lsquo;Response headers&rsquo; section shows metadata about the response, including <code>cache-control</code> (private, max-age 3600 seconds), <code>content-disposition</code> (attachment, filename &lsquo;f.txt&rsquo;), <code>content-encoding</code> (br - Brotli compression), <code>content-type</code> (application/json; charset=UTF-8), date and expiry timestamps, the server (&lsquo;gws&rsquo;), security headers (<code>strict-transport-security</code>), and other headers like <code>X-Firefox-Spdy</code>, <code>x-frame-options</code>, and <code>x-xss-protection</code>.  The size of the response is indicated as 615 bytes.  The <code>alt-svc</code> header suggests alternative service options, specifically QUIC.
+Figure 12
+Data sampling: For a large-scale system, logging every search query requires a lot of processing power and storage. Data sampling is important. For instance, only 1 out of every N requests is logged by the system.
+Trie operations
+Trie is a core component of the autocomplete system. Let us look at how trie operations (create, update, and delete) work.</p>
+<p>Create
+Trie is created by workers using aggregated data. The source of data is from Analytics Log/DB.</p>
+<p>Update
+There are two ways to update the trie.</p>
+<p>Option 1: Update the trie weekly. Once a new trie is created, the new trie replaces the old one.</p>
+<p>Option 2: Update individual trie node directly. We try to avoid this operation because it is slow. However, if the size of the trie is small, it is an acceptable solution. When we update a trie node, its ancestors all the way up to the root must be updated because ancestors store top queries of children. Figure 13 shows an example of how the update operation works. On the left side, the search query “beer” has the original value 10. On the right side, it is updated to 30. As you can see, the node and its ancestors have the “beer” value updated to 30.</p>
+<p>Image represents two identical tree-like structures, each depicting a hierarchical data structure.  Both structures originate from a root node labeled &lsquo;root&rsquo; and branch down. The first level below the root contains a node labeled &lsquo;b&rsquo; enclosed within a dashed teal rectangle annotated with &lsquo;[best: 35, beer: 20,&hellip;]&rsquo;.  This node points to a second-level node labeled &lsquo;be: 15&rsquo;, also within a similar dashed teal rectangle with the same annotation.  From &lsquo;be: 15&rsquo;, three branches extend to third-level nodes. One node is labeled &lsquo;bee: 20&rsquo; and is enclosed in a dashed teal rectangle annotated with &lsquo;[bee: 20, beer, 10]&rsquo;. This node further points to a leaf node &lsquo;beer: 10&rsquo;. Another branch from &lsquo;be: 15&rsquo; leads to a node labeled &lsquo;bes&rsquo; within a dashed teal rectangle annotated with &lsquo;[best: 35]&rsquo;, which points to a leaf node &lsquo;best: 35&rsquo;. The final branch from &lsquo;be: 15&rsquo; connects to a node labeled &lsquo;bee: 20&rsquo; within a dashed teal rectangle annotated with &lsquo;[best: 35]&rsquo;. The second tree structure mirrors the first, with identical labels, annotations, and connections.  The annotations within the dashed rectangles appear to represent data associated with each node, possibly key-value pairs.
+Figure 13
+Delete
+We have to remove hateful, violent, sexually explicit, or dangerous autocomplete suggestions. We add a filter layer (Figure 14) in front of the Trie Cache to filter out unwanted suggestions. Having a filter layer gives us the flexibility of removing results based on different filter rules. Unwanted suggestions are removed physically from the database asynchronically so the correct data set will be used to build trie in the next update cycle.</p>
+<p>Image represents a system architecture diagram illustrating data flow from API servers through a filter layer to a Trie cache.  On the left, a dashed-line box labeled &lsquo;API servers&rsquo; contains three vertically stacked, light-green rectangular icons representing multiple API servers. A solid blue arrow points right from this box to a central, black, funnel-shaped icon labeled &lsquo;Filter Layer,&rsquo; indicating data is passed from the API servers to this filtering stage.  Another solid blue arrow extends right from the filter layer to a blue, rounded-rectangle box labeled &lsquo;Trie Cache.&rsquo; Inside the Trie Cache box, three stacked, smaller blue rectangles, each labeled &lsquo;CACHE,&rsquo; represent multiple cache instances. The overall flow depicts data originating from the API servers, undergoing filtering, and finally being stored in the distributed Trie cache for efficient retrieval.
+Figure 14
+Scale the storage
+Now that we have developed a system to bring autocomplete queries to users, it is time to solve the scalability issue when the trie grows too large to fit in one server.</p>
+<p>Since English is the only supported language, a naive way to shard is based on the first character. Here are some examples.</p>
+<p>If we need two servers for storage, we can store queries starting with ‘a’ to ‘m’ on the first server, and ‘n’ to ‘z’ on the second server.</p>
+<p>If we need three servers, we can split queries into ‘a’ to ‘i’, ‘j’ to ‘r’ and ‘s’ to ‘z’.</p>
+<p>Following this logic, we can split queries up to 26 servers because there are 26 alphabetic characters in English. Let us define sharding based on the first character as first level sharding. To store data beyond 26 servers, we can shard on the second or even at the third level. For example, data queries that start with ‘a’ can be split into 4 servers: ‘aa-ag’, ‘ah-an’, ‘ao-au’, and ‘av-az’.</p>
+<p>At the first glance this approach seems reasonable, until you realize that there are a lot more words that start with the letter ‘c’ than ‘x’. This creates uneven distribution.</p>
+<p>To mitigate the data imbalance problem, we analyze historical data distribution pattern and apply smarter sharding logic as shown in Figure 15. The shard map manager maintains a lookup database for identifying where rows should be stored. For example, if there are a similar number of historical queries for ‘s’ and for ‘u’, ‘v’, ‘w’, ‘x’, ‘y’ and ‘z’ combined, we can maintain two shards: one for ‘s’ and one for ‘u’ to ‘z’.</p>
+<p>Image represents a simplified database sharding architecture.  The diagram shows three main components: a group of &lsquo;Web servers&rsquo; (represented by three green vertical rectangles within a dashed box), a &lsquo;Shard map manager&rsquo; (a single blue cylinder in a rounded rectangle), and a set of &lsquo;Databases&rsquo; (three blue cylinders labeled &lsquo;Shard 1&rsquo;, &lsquo;Shard 2&rsquo;, and &lsquo;Shard &hellip;&rsquo;, also within a rounded rectangle).  The web servers initiate the process by sending a request (&lsquo;What shard is it?&rsquo;) labeled &lsquo;1&rsquo; to the Shard map manager. This manager determines which database shard contains the requested data.  Then, the web servers receive a response from the Shard map manager and send a second request (&lsquo;Retrieve data from shard&rsquo;) labeled &lsquo;2&rsquo; to the appropriate database shard to retrieve the data.  The arrows indicate the direction of information flow between these components.
+Figure 15
+Step 4 - Wrap up
+After you finish the deep dive, your interviewer might ask you some follow up questions.</p>
+<p>Interviewer: How do you extend your design to support multiple languages?</p>
+<p>To support other non-English queries, we store Unicode characters in trie nodes. If you are not familiar with Unicode, here is the definition: “an encoding standard covers all the characters for all the writing systems of the world, modern and ancient” [5].</p>
+<p>Interviewer: What if top search queries in one country are different from others?</p>
+<p>In this case, we might build different tries for different countries. To improve the response time, we can store tries in CDNs.</p>
+<p>Interviewer: How can we support the trending (real-time) search queries?</p>
+<p>Assuming a news event breaks out, a search query suddenly becomes popular. Our original design will not work because:</p>
+<p>Offline workers are not scheduled to update the trie yet because this is scheduled to run on weekly basis.</p>
+<p>Even if it is scheduled, it takes too long to build the trie.</p>
+<p>Building a real-time search autocomplete is complicated and is beyond the scope of this course so we will only give a few ideas:</p>
+<p>Reduce the working data set by sharding.</p>
+<p>Change the ranking model and assign more weight to recent search queries.</p>
+<p>Data may come as streams, so we do not have access to all the data at once. Streaming data means data is generated continuously. Stream processing requires a different set of systems: Apache Hadoop MapReduce [6], Apache Spark Streaming [7], Apache Storm [8], Apache Kafka [9], etc. Because all those topics require specific domain knowledge, we are not going into detail here.</p>
+<p>Congratulations on getting this far! Now give yourself a pat on the back. Good job!</p>
+<p><a href="../../index.html">⬅ Back to KB index</a></p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+      <nav class="prev-next"><a class="prev" href="design-chat-system.html"><div class="label">← Anterior</div><div class="title">Design a Chat System</div></a><a class="next" href="design-youtube.html"><div class="label">Siguiente →</div><div class="title">Design YouTube</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="design-search-autocomplete-system.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Advanced Types · Personal KB</title>
+<link rel="stylesheet" href="../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book IV — Programming TypeScript</span><span class="sep">/</span><span class="current">Advanced Types</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <ul class="toc">
+<li class="toc-h2"><a href="#in-this-chapter">📑 In this chapter</a></li>
+<li class="toc-h2"><a href="#for-dummies-empeza-por-aca">🎓 For Dummies — empezá por acá</a></li>
+<li class="toc-h3"><a href="#las-6-ideas-grandes-con-analogia-cotidiana">🔑 Las 6 ideas grandes (con analogía cotidiana)</a></li>
+<li class="toc-h3"><a href="#el-recorrido-del-capitulo-en-una-frase">El recorrido del capítulo, en una frase</a></li>
+<li class="toc-h3"><a href="#por-que-esto-te-sirve-si-venis-de-c-o-java">¿Por qué esto te sirve si venís de C# o Java?</a></li>
+<li class="toc-h2"><a href="#relationships-between-types">Relationships Between Types</a></li>
+<li class="toc-h3"><a href="#subtypes-supertypes">Subtypes &amp; Supertypes</a></li>
+<li class="toc-h3"><a href="#ejemplos-canonicos-en-ts">Ejemplos canónicos en TS</a></li>
+<li class="toc-h3"><a href="#sintaxis-pseudo-formal-del-libro">Sintaxis pseudo-formal del libro</a></li>
+<li class="toc-h3"><a href="#variance-la-parte-que-parece-magia-pero-no-es">Variance — la parte que parece magia pero no es</a></li>
+<li class="toc-h4"><a href="#covariance-en-shapes-objetos">Covariance en shapes (objetos)</a></li>
+<li class="toc-h4"><a href="#contravariance-en-parametros-de-funciones-el-famoso-por-que-se-da-vuelta">Contravariance en parámetros de funciones — el famoso “¿por qué se da vuelta?”</a></li>
+<li class="toc-h4"><a href="#tsc-flag-strictfunctiontypes">TSC Flag: strictFunctionTypes</a></li>
+<li class="toc-h3"><a href="#assignability">Assignability</a></li>
+<li class="toc-h3"><a href="#type-widening">Type Widening</a></li>
+<li class="toc-h4"><a href="#el-tipo-const-as-const">El tipo const (as const)</a></li>
+<li class="toc-h4"><a href="#excess-property-checking">Excess Property Checking</a></li>
+<li class="toc-h3"><a href="#refinement-control-flow-based-type-narrowing">Refinement (control-flow-based type narrowing)</a></li>
+<li class="toc-h4"><a href="#ejemplo-parsear-un-width-css">Ejemplo: parsear un width CSS</a></li>
+<li class="toc-h4"><a href="#discriminated-unions-tagged-unions">Discriminated Unions (tagged unions)</a></li>
+<li class="toc-h3"><a href="#totality-exhaustiveness-checking">Totality (exhaustiveness checking)</a></li>
+<li class="toc-h4"><a href="#tsc-flag-noimplicitreturns">TSC Flag: noImplicitReturns</a></li>
+<li class="toc-h4"><a href="#pattern-el-never-exhaustivo">Pattern: el never exhaustivo</a></li>
+<li class="toc-h2"><a href="#advanced-object-types">Advanced Object Types</a></li>
+<li class="toc-h3"><a href="#keying-in-ok-busqueda-de-tipo-por-clave">Keying-in (O[K]) — busqueda de tipo por clave</a></li>
+<li class="toc-h3"><a href="#el-operador-keyof">El operador keyof</a></li>
+<li class="toc-h4"><a href="#combinando-keyof-keying-in-un-get-tipado">Combinando keyof + keying-in: un get() tipado</a></li>
+<li class="toc-h4"><a href="#version-con-paths-anidados-overloaded">Versión con paths anidados (overloaded)</a></li>
+<li class="toc-h4"><a href="#tsc-flag-keyofstringsonly">TSC Flag: keyofStringsOnly</a></li>
+<li class="toc-h3"><a href="#recordk-v-built-in-mapped-type">Record&lt;K, V&gt; — built-in mapped type</a></li>
+<li class="toc-h3"><a href="#mapped-types">Mapped Types</a></li>
+<li class="toc-h4"><a href="#sintaxis">Sintaxis</a></li>
+<li class="toc-h4"><a href="#ejemplo-dia-siguiente-exhaustivo">Ejemplo: día siguiente, exhaustivo</a></li>
+<li class="toc-h4"><a href="#el-poder-real-transformar-tipos-existentes">El poder real: transformar tipos existentes</a></li>
+<li class="toc-h4"><a href="#built-in-mapped-types-en-libes5dts">Built-in mapped types (en lib.es5.d.ts)</a></li>
+<li class="toc-h3"><a href="#companion-object-pattern">Companion Object Pattern</a></li>
+<li class="toc-h2"><a href="#advanced-function-types">Advanced Function Types</a></li>
+<li class="toc-h3"><a href="#improving-type-inference-for-tuples">Improving Type Inference for Tuples</a></li>
+<li class="toc-h3"><a href="#user-defined-type-guards-x-is-t">User-Defined Type Guards (x is T)</a></li>
+<li class="toc-h4"><a href="#el-problema">El problema</a></li>
+<li class="toc-h4"><a href="#la-solucion-type-predicate-x-is-t">La solución: type predicate (x is T)</a></li>
+<li class="toc-h3"><a href="#conditional-types-la-feature-mas-distintiva-de-ts">Conditional Types — la feature más distintiva de TS</a></li>
+<li class="toc-h4"><a href="#ejemplo-simple">Ejemplo simple</a></li>
+<li class="toc-h4"><a href="#distributividad">Distributividad</a></li>
+<li class="toc-h4"><a href="#caso-real-withoutt-u">Caso real: Without&lt;T, U&gt;</a></li>
+<li class="toc-h4"><a href="#el-keyword-infer">El keyword infer</a></li>
+<li class="toc-h4"><a href="#built-in-conditional-types">Built-in conditional types</a></li>
+<li class="toc-h2"><a href="#escape-hatches">Escape Hatches</a></li>
+<li class="toc-h3"><a href="#type-assertions-as-t">Type Assertions (as T)</a></li>
+<li class="toc-h3"><a href="#non-null-assertions">Non-null Assertions (!)</a></li>
+<li class="toc-h3"><a href="#definite-assignment-assertions-let-x-t">Definite Assignment Assertions (let x!: T)</a></li>
+<li class="toc-h2"><a href="#simulating-nominal-types">Simulating Nominal Types</a></li>
+<li class="toc-h3"><a href="#el-problema_1">El problema</a></li>
+<li class="toc-h3"><a href="#la-solucion-type-branding">La solución: type branding</a></li>
+<li class="toc-h2"><a href="#safely-extending-the-prototype">Safely Extending the Prototype</a></li>
+<li class="toc-h4"><a href="#si-el-archivo-esta-en-module-mode">Si el archivo está en module mode</a></li>
+<li class="toc-h4"><a href="#forzar-import-explicito">Forzar import explícito</a></li>
+<li class="toc-h2"><a href="#amplification">⭐ Amplification</a></li>
+<li class="toc-h3"><a href="#patron-redux-reducer-con-discriminated-union-exhaustive-never">Patrón: Redux reducer con discriminated union + exhaustive never</a></li>
+<li class="toc-h3"><a href="#patron-api-response-typesafe-con-keying-in">Patrón: API response typesafe con keying-in</a></li>
+<li class="toc-h3"><a href="#mapped-conditional-deeppartialt">Mapped + Conditional: DeepPartial&lt;T&gt;</a></li>
+<li class="toc-h3"><a href="#type-branding-para-validacion-de-strings">Type branding para validación de strings</a></li>
+<li class="toc-h2"><a href="#pitfalls">⚠️ Pitfalls</a></li>
+<li class="toc-h2"><a href="#interview-tips">Interview Tips</a></li>
+<li class="toc-h2"><a href="#ejercicios-del-libro">📝 Ejercicios del libro</a></li>
+<li class="toc-h3"><a href="#ej-1-asignabilidad">Ej 1 — Asignabilidad</a></li>
+<li class="toc-h3"><a href="#ej-2-keyof-y-keying-in">Ej 2 — keyof y keying-in</a></li>
+<li class="toc-h3"><a href="#ej-3-exclusivet-u">Ej 3 — Exclusive&lt;T, U&gt;</a></li>
+<li class="toc-h3"><a href="#ej-4-reescribir-el-ejemplo-de-definite-assignment-sin">Ej 4 — Reescribir el ejemplo de definite assignment sin !</a></li>
+<li class="toc-h2"><a href="#references">📚 References</a></li>
+</ul>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Advanced Types</h1>
+  <div class="meta-row">
+    <span class="status-badge active">✓ active</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-30</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">typescript</span><span class="meta-tag">advanced-types</span><span class="meta-tag">variance</span><span class="meta-tag">refinement</span><span class="meta-tag">mapped-types</span><span class="meta-tag">conditional-types</span><span class="meta-tag">type-guards</span><span class="meta-tag">nominal-types</span><span class="meta-tag">generics</span></div>
+</header>
+      
+      <blockquote>
+<p>📍 <strong>Programming TypeScript · Cap. 6</strong> · <a href="./05-classes-and-interfaces.html">⬅ Cap. 5: Classes &amp; Interfaces</a> · <a href="./07-handling-errors.html">Cap. 7: Handling Errors ➡</a> · <a href="../../../index.html">📚 KB Index</a></p>
+<p><strong>TL;DR</strong> — El sistema de tipos de TypeScript es expresivo de manera no trivial: maneja <strong>subtyping con variancia</strong> (covariante en objetos/arrays/return-types, contravariante en parámetros de función), <strong>refina tipos</strong> según el control flow (<code>typeof</code>, <code>instanceof</code>, <code>in</code>, discriminated unions), garantiza <strong>totalidad</strong> (todos los casos cubiertos), te deja <strong>operar sobre tipos</strong> como si fueran datos (<code>keyof</code>, keying-in, <code>Record</code>, <strong>mapped types</strong>, <strong>conditional types con <code>infer</code></strong>), te da <strong>escape hatches</strong> (<code>as</code>, <code>!</code>, definite assignment) cuando necesitás romper las reglas, y permite <strong>simular tipos nominales</strong> con type branding cuando la equivalencia estructural no alcanza.</p>
+</blockquote>
+<hr />
+<h2 id="in-this-chapter">📑 In this chapter<a class="headerlink" href="#in-this-chapter" title="anchor">&para;</a></h2>
+<ol>
+<li><a href="#for-dummies-empeza-por-aca">🎓 For Dummies — empezá por acá</a></li>
+<li><a href="#relationships-between-types">Relationships Between Types</a></li>
+<li>Subtypes &amp; Supertypes</li>
+<li>Variance (la pieza clave)</li>
+<li>Assignability</li>
+<li>Type Widening</li>
+<li>Refinement (control-flow type narrowing)</li>
+<li>Totality (exhaustiveness)</li>
+<li><a href="#advanced-object-types">Advanced Object Types</a></li>
+<li>Keying-in (<code>O[K]</code>) y <code>keyof</code></li>
+<li><code>Record&lt;K, V&gt;</code></li>
+<li>Mapped Types</li>
+<li>Companion Object Pattern</li>
+<li><a href="#advanced-function-types">Advanced Function Types</a></li>
+<li>Mejor inferencia para tuples</li>
+<li>User-Defined Type Guards (<code>x is T</code>)</li>
+<li>Conditional Types (<code>T extends U ? A : B</code>)</li>
+<li>Distributividad y <code>infer</code></li>
+<li>Built-in conditional types</li>
+<li><a href="#escape-hatches">Escape Hatches</a></li>
+<li>Type Assertions (<code>as</code>)</li>
+<li>Non-null Assertions (<code>!</code>)</li>
+<li>Definite Assignment Assertions</li>
+<li><a href="#simulating-nominal-types">Simulating Nominal Types con type branding</a></li>
+<li><a href="#safely-extending-the-prototype">Safely Extending the Prototype</a></li>
+<li><a href="#amplification">⭐ Amplification: patrones y casos reales</a></li>
+<li><a href="#pitfalls">⚠️ Pitfalls</a></li>
+<li><a href="#interview-tips">Interview Tips</a></li>
+<li><a href="#ejercicios">Ejercicios del libro (con resoluciones)</a></li>
+</ol>
+<hr />
+<h2 id="for-dummies-empeza-por-aca">🎓 For Dummies — empezá por acá<a class="headerlink" href="#for-dummies-empeza-por-aca" title="anchor">&para;</a></h2>
+<p>Imagina que el sistema de tipos de TypeScript es como un <strong>portero muy paranoico</strong> en la entrada de un edificio. Cada función, cada variable, cada propiedad es una puerta con un cartel: &ldquo;solo paso si traes un <code>Bird</code>&rdquo;, &ldquo;solo paso si traes un <code>string</code>&rdquo;, etc.</p>
+<p>Hasta ahora aprendiste <strong>lo básico</strong>: si la puerta dice <code>string</code>, traés un string. Si dice <code>Bird</code>, traés un Bird. <strong>Easy</strong>.</p>
+<p><strong>El capítulo 6 es lo que pasa cuando las puertas se complican.</strong></p>
+<h3 id="las-6-ideas-grandes-con-analogia-cotidiana">🔑 Las 6 ideas grandes (con analogía cotidiana)<a class="headerlink" href="#las-6-ideas-grandes-con-analogia-cotidiana" title="anchor">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Concepto</th>
+<th>Analogía cotidiana</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Variance</strong></td>
+<td>Si el delivery te pide &ldquo;un perro&rdquo;, podés mandar un caniche (subtipo). Pero si pide una función <em>que reciba perros</em>, no podés mandar una <em>que reciba solo caniches</em> — porque le podrías mandar un labrador y rompería.</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Refinement</strong></td>
+<td>El portero se acuerda. Si en la entrada ya te chequeó &ldquo;este es un string&rdquo;, adentro no te lo vuelve a pedir. Pero si la conversación cambia de tema, se olvida.</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Totality</strong></td>
+<td>Si decís que tu función devuelve &ldquo;un día de la semana&rdquo; y solo manejás &ldquo;Lunes&rdquo;, el compilador te grita: &ldquo;¿y los otros 6?&rdquo;.</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>Mapped types</strong></td>
+<td>Una fotocopiadora con filtros. &ldquo;Hacéme una copia de este objeto, pero con todos los campos marcados como opcionales&rdquo;.</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>Conditional types</strong></td>
+<td>Tipos con <code>if/else</code>. &ldquo;Si T es un array, devolvéme el tipo de sus elementos. Si no, devolvéme T tal cual.&rdquo;</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>Type branding</strong></td>
+<td>Pintar dos billetes idénticos de colores distintos. Físicamente son lo mismo (ambos son <code>string</code>), pero el sistema te impide pagar en pesos con un billete que pintaste como &ldquo;dólares&rdquo;.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="el-recorrido-del-capitulo-en-una-frase">El recorrido del capítulo, en una frase<a class="headerlink" href="#el-recorrido-del-capitulo-en-una-frase" title="anchor">&para;</a></h3>
+<blockquote>
+<p>Empezás entendiendo <strong>cómo se comparan</strong> los tipos (variance), después aprendés a <strong>operar sobre ellos</strong> como si fueran datos (keyof, mapped, conditional), después aprendés cuándo <strong>romper las reglas</strong> sin morir en el intento (escape hatches), y terminás aprendiendo dos patrones avanzados (<strong>nominal types</strong> y <strong>prototype extension</strong>).</p>
+</blockquote>
+<h3 id="por-que-esto-te-sirve-si-venis-de-c-o-java">¿Por qué esto te sirve si venís de C# o Java?<a class="headerlink" href="#por-que-esto-te-sirve-si-venis-de-c-o-java" title="anchor">&para;</a></h3>
+<p>C# tiene variance explícita (<code>out</code>/<code>in</code> en interfaces genéricas). TypeScript la hace <strong>implícita</strong> y aplica reglas distintas según el tipo (covariante en propiedades, contravariante en parámetros). Saber esto te ahorra <strong>horas</strong> de &ldquo;¿por qué no compila esta función que parece estar bien?&rdquo;.</p>
+<p>Mapped types y conditional types son cosas que <strong>no existen</strong> en C# / Java tradicional. Son una forma de hacer &ldquo;programación a nivel de tipos&rdquo; — escribir tipos que dependen de otros tipos. Esto es lo que hace que TypeScript pueda tipear cosas como Redux/Apollo/React props sin que vos tengas que escribir cada variante a mano.</p>
+<p>¿Listo? ⬇️</p>
+<hr />
+<h2 id="relationships-between-types">Relationships Between Types<a class="headerlink" href="#relationships-between-types" title="anchor">&para;</a></h2>
+<h3 id="subtypes-supertypes">Subtypes &amp; Supertypes<a class="headerlink" href="#subtypes-supertypes" title="anchor">&para;</a></h3>
+<p><strong>Definición operativa:</strong></p>
+<ul>
+<li><strong>B es subtipo de A</strong> (<code>B &lt;: A</code>) si podés usar un B en <strong>cualquier lugar</strong> donde se espera un A.</li>
+<li><strong>B es supertipo de A</strong> (<code>B &gt;: A</code>) si podés usar un A en <strong>cualquier lugar</strong> donde se espera un B. (Es el reverso.)</li>
+</ul>
+<h3 id="ejemplos-canonicos-en-ts">Ejemplos canónicos en TS<a class="headerlink" href="#ejemplos-canonicos-en-ts" title="anchor">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1">// Array es subtipo de Object</span>
+<span class="kd">let</span><span class="w"> </span><span class="nx">arr</span><span class="o">:</span><span class="w"> </span><span class="kt">object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="mf">2</span><span class="p">,</span><span class="w"> </span><span class="mf">3</span><span class="p">];</span><span class="w">  </span><span class="c1">// OK</span>
+
+<span class="c1">// Tuple es subtipo de Array</span>
+<span class="kd">let</span><span class="w"> </span><span class="nx">tup</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="mf">2</span><span class="p">]</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="p">[</span><span class="kt">number</span><span class="p">,</span><span class="w"> </span><span class="kt">number</span><span class="p">];</span><span class="w">  </span><span class="c1">// OK</span>
+
+<span class="c1">// Todo es subtipo de any → any es supertipo de todo</span>
+<span class="kd">let</span><span class="w"> </span><span class="nx">x</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;hola&quot;</span><span class="p">;</span><span class="w">   </span><span class="c1">// OK</span>
+<span class="kd">let</span><span class="w"> </span><span class="nx">y</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">42</span><span class="p">;</span><span class="w">       </span><span class="c1">// OK</span>
+
+<span class="c1">// never es subtipo de todo → todo es supertipo de never</span>
+<span class="kd">function</span><span class="w"> </span><span class="nx">fail</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="nx">never</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">();</span><span class="w"> </span><span class="p">}</span>
+<span class="kd">let</span><span class="w"> </span><span class="nx">z</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">fail</span><span class="p">();</span><span class="w">  </span><span class="c1">// OK (nunca pasa, pero el tipo encaja)</span>
+
+<span class="c1">// Bird extends Animal → Bird &lt;: Animal</span>
+<span class="kd">class</span><span class="w"> </span><span class="nx">Animal</span><span class="w"> </span><span class="p">{}</span>
+<span class="kd">class</span><span class="w"> </span><span class="nx">Bird</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">Animal</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">chirp</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span><span class="w"> </span><span class="p">}</span>
+<span class="kd">let</span><span class="w"> </span><span class="nx">a</span><span class="o">:</span><span class="w"> </span><span class="kt">Animal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Bird</span><span class="p">();</span><span class="w">  </span><span class="c1">// OK</span>
+</code></pre></div>
+<h3 id="sintaxis-pseudo-formal-del-libro">Sintaxis pseudo-formal del libro<a class="headerlink" href="#sintaxis-pseudo-formal-del-libro" title="anchor">&para;</a></h3>
+<p>Para hablar más rápido, Cherny usa:</p>
+<ul>
+<li><code>A &lt;: B</code> = &ldquo;A es subtipo (o igual) a B&rdquo;</li>
+<li><code>A &gt;: B</code> = &ldquo;A es supertipo (o igual) a B&rdquo;</li>
+</ul>
+<p>(No es sintaxis válida de TS, es <strong>notación didáctica</strong>.)</p>
+<h3 id="variance-la-parte-que-parece-magia-pero-no-es">Variance — la parte que parece magia pero no es<a class="headerlink" href="#variance-la-parte-que-parece-magia-pero-no-es" title="anchor">&para;</a></h3>
+<p>La pregunta clave: si <code>Bird &lt;: Animal</code>, <strong>¿qué pasa con <code>Array&lt;Bird&gt;</code> vs <code>Array&lt;Animal&gt;</code>?</strong> ¿Y con funciones que reciben/devuelven <code>Bird</code> vs <code>Animal</code>?</p>
+<p>Las 4 variancias posibles:</p>
+<table>
+<thead>
+<tr>
+<th>Variance</th>
+<th>Querés un T y te dejan pasar…</th>
+<th>En TS aplica a…</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Invariance</strong></td>
+<td>exactamente un T</td>
+<td>en algunos lenguajes para mutables — TS no usa</td>
+</tr>
+<tr>
+<td><strong>Covariance</strong></td>
+<td>un T o cualquier subtipo (<code>&lt;: T</code>)</td>
+<td>objects, classes, arrays, <strong>return types de funciones</strong></td>
+</tr>
+<tr>
+<td><strong>Contravariance</strong></td>
+<td>un T o cualquier supertipo (<code>&gt;: T</code>)</td>
+<td><strong>parámetros de funciones</strong>, <strong><code>this</code> de funciones</strong></td>
+</tr>
+<tr>
+<td><strong>Bivariance</strong></td>
+<td>cualquiera de los dos</td>
+<td>legacy default de TS (sin <code>strictFunctionTypes</code>)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="covariance-en-shapes-objetos">Covariance en shapes (objetos)<a class="headerlink" href="#covariance-en-shapes-objetos" title="anchor">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="kr">type</span><span class="w"> </span><span class="nx">ExistingUser</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">,</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">};</span>
+<span class="kr">type</span><span class="w"> </span><span class="nx">NewUser</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">};</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">deleteUser</span><span class="p">(</span><span class="nx">user</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id?</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">,</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="ow">delete</span><span class="w"> </span><span class="nx">user</span><span class="p">.</span><span class="nx">id</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">let</span><span class="w"> </span><span class="nx">existingUser</span><span class="o">:</span><span class="w"> </span><span class="kt">ExistingUser</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">123</span><span class="p">,</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Ima&quot;</span><span class="w"> </span><span class="p">};</span>
+<span class="nx">deleteUser</span><span class="p">(</span><span class="nx">existingUser</span><span class="p">);</span><span class="w">  </span><span class="c1">// OK: ExistingUser &lt;: {id?, name}</span>
+<span class="w">                           </span><span class="c1">//    porque {id: number} &lt;: {id?: number}</span>
+</code></pre></div>
+<p><strong>¿Por qué OK?</strong> Cada propiedad del shape que pasás es subtipo de la propiedad que se espera. Los <strong>shapes son covariantes en sus propiedades</strong>.</p>
+<blockquote>
+<p>⚠️ Esto <strong>no es del todo seguro</strong> (¡el <code>delete</code> modifica el objeto y al volver, TS sigue creyendo que <code>id</code> existe!), pero TS prefiere ergonomía sobre paranoia.</p>
+</blockquote>
+<h4 id="contravariance-en-parametros-de-funciones-el-famoso-por-que-se-da-vuelta">Contravariance en parámetros de funciones — el famoso &ldquo;¿por qué se da vuelta?&rdquo;<a class="headerlink" href="#contravariance-en-parametros-de-funciones-el-famoso-por-que-se-da-vuelta" title="anchor">&para;</a></h4>
+<p>Setup:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nx">Animal</span><span class="w"> </span><span class="p">{}</span>
+<span class="kd">class</span><span class="w"> </span><span class="nx">Bird</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">Animal</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">chirp</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span><span class="w"> </span><span class="p">}</span>
+<span class="kd">class</span><span class="w"> </span><span class="nx">Crow</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">Bird</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">caw</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span><span class="w"> </span><span class="p">}</span>
+<span class="c1">// Crow &lt;: Bird &lt;: Animal</span>
+</code></pre></div>
+<p>Función que recibe una función:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">clone</span><span class="p">(</span><span class="nx">f</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">b</span><span class="o">:</span><span class="w"> </span><span class="kt">Bird</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">Bird</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="ow">void</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">let</span><span class="w"> </span><span class="nx">parent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Bird</span><span class="p">();</span>
+<span class="w">  </span><span class="kd">let</span><span class="w"> </span><span class="nx">babyBird</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">f</span><span class="p">(</span><span class="nx">parent</span><span class="p">);</span><span class="w">     </span><span class="c1">// (1) llama f con un Bird</span>
+<span class="w">  </span><span class="nx">babyBird</span><span class="p">.</span><span class="nx">chirp</span><span class="p">();</span><span class="w">             </span><span class="c1">// (2) espera que el resultado sea al menos un Bird</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>¿Qué funciones podés pasarle a <code>clone</code>?</p>
+<div class="highlight"><pre><span></span><code><span class="nx">clone</span><span class="p">((</span><span class="nx">b</span><span class="o">:</span><span class="w"> </span><span class="kt">Bird</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Bird</span><span class="p">());</span><span class="w">     </span><span class="c1">// ✓ exacto</span>
+<span class="nx">clone</span><span class="p">((</span><span class="nx">b</span><span class="o">:</span><span class="w"> </span><span class="kt">Bird</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Crow</span><span class="p">());</span><span class="w">     </span><span class="c1">// ✓ Crow &lt;: Bird (return covariante)</span>
+<span class="nx">clone</span><span class="p">((</span><span class="nx">b</span><span class="o">:</span><span class="w"> </span><span class="kt">Bird</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Animal</span><span class="p">());</span><span class="w">   </span><span class="c1">// ✗ Animal no es Bird (no podrías hacer .chirp())</span>
+
+<span class="nx">clone</span><span class="p">((</span><span class="nx">a</span><span class="o">:</span><span class="w"> </span><span class="kt">Animal</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Bird</span><span class="p">());</span><span class="w">   </span><span class="c1">// ✓ Animal es supertipo de Bird (param contravariante)</span>
+<span class="nx">clone</span><span class="p">((</span><span class="nx">c</span><span class="o">:</span><span class="w"> </span><span class="kt">Crow</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Bird</span><span class="p">());</span><span class="w">     </span><span class="c1">// ✗ y si clone le pasa un Bird que no es Crow? .caw() rompería</span>
+</code></pre></div>
+<p><strong>La regla, formalizada:</strong></p>
+<p>Una función A es subtipo de una función B (<code>A &lt;: B</code>) si:</p>
+<ol>
+<li><code>A</code>&rsquo;s <code>this</code> type es <strong><code>&gt;: B</code>&rsquo;s this type</strong> (contravariante)</li>
+<li>Cada parámetro de A es <strong><code>&gt;:</code> su parámetro correspondiente en B</strong> (contravariante)</li>
+<li>El return type de A es <strong><code>&lt;:</code> el return type de B</strong> (covariante)</li>
+</ol>
+<blockquote>
+<p>💡 <strong>Regla mnemotécnica</strong>: parámetros se &ldquo;abren&rdquo; (aceptan más), returns se &ldquo;cierran&rdquo; (devuelven menos pero más específico).</p>
+</blockquote>
+<h4 id="tsc-flag-strictfunctiontypes">TSC Flag: <code>strictFunctionTypes</code><a class="headerlink" href="#tsc-flag-strictfunctiontypes" title="anchor">&para;</a></h4>
+<p>Por motivos legacy, TS por default trata parámetros como <strong>bivariantes</strong>. Para activar el comportamiento seguro (contravariante):</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"> </span><span class="nt">&quot;compilerOptions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;strictFunctionTypes&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<p>Está incluido en <code>"strict": true</code>.</p>
+<h3 id="assignability">Assignability<a class="headerlink" href="#assignability" title="anchor">&para;</a></h3>
+<blockquote>
+<p>Reglas que TS sigue para decidir &ldquo;¿es A asignable a B?&rdquo;.</p>
+</blockquote>
+<p><strong>Para tipos no-enum</strong> (arrays, booleans, numbers, objects, functions, classes, instances, strings, literales):</p>
+<p>A es asignable a B si:</p>
+<ol>
+<li><code>A &lt;: B</code>, <strong>o</strong></li>
+<li>A es <code>any</code>.</li>
+</ol>
+<p><strong>Para enums:</strong></p>
+<p>A es asignable a un enum B si:</p>
+<ol>
+<li>A es miembro de B, <strong>o</strong></li>
+<li>B tiene al menos un miembro <code>number</code> y A es <code>number</code>.</li>
+</ol>
+<blockquote>
+<p>⚠️ La regla 2 para enums es una fuente de bugs común. Cherny <strong>recomienda evitar enums</strong> y usar string literals + unions.</p>
+</blockquote>
+<h3 id="type-widening">Type Widening<a class="headerlink" href="#type-widening" title="anchor">&para;</a></h3>
+<blockquote>
+<p>TS <strong>infiere tipos lo más generales posibles</strong> cuando declarás con <code>let</code>/<code>var</code>, y los más específicos con <code>const</code>. Esto se llama widening.</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;x&#39;</span><span class="p">;</span><span class="w">          </span><span class="c1">// string (widened)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;x&#39;</span><span class="p">;</span><span class="w">        </span><span class="c1">// &#39;x&#39; (literal, no widened)</span>
+
+<span class="kd">let</span><span class="w"> </span><span class="nx">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3</span><span class="p">;</span><span class="w">            </span><span class="c1">// number</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3</span><span class="p">;</span><span class="w">          </span><span class="c1">// 3</span>
+
+<span class="kd">let</span><span class="w"> </span><span class="nx">e</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">x</span><span class="o">:</span><span class="w"> </span><span class="kt">3</span><span class="w"> </span><span class="p">};</span><span class="w">     </span><span class="c1">// { x: number }</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">f</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">x</span><span class="o">:</span><span class="w"> </span><span class="kt">3</span><span class="w"> </span><span class="p">};</span><span class="w">   </span><span class="c1">// { x: number } — ojo, miembros sí se ensanchan</span>
+</code></pre></div>
+<p><strong>Para evitar widening con <code>let</code>:</strong> anotación explícita.</p>
+<div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="nx">g</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;x&#39;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;x&#39;</span><span class="p">;</span><span class="w">     </span><span class="c1">// &#39;x&#39;</span>
+<span class="kd">let</span><span class="w"> </span><span class="nx">h</span><span class="o">:</span><span class="w"> </span><span class="kt">3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3</span><span class="p">;</span><span class="w">         </span><span class="c1">// 3</span>
+</code></pre></div>
+<p><strong>Reasignar un tipo narrow a un <code>let</code>:</strong> widening pasa.</p>
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;x&#39;</span><span class="p">;</span><span class="w">        </span><span class="c1">// &#39;x&#39;</span>
+<span class="kd">let</span><span class="w"> </span><span class="nx">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">a</span><span class="p">;</span><span class="w">            </span><span class="c1">// string — ¡se ensanchó!</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">c</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;x&#39;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;x&#39;</span><span class="p">;</span><span class="w">   </span><span class="c1">// &#39;x&#39;</span>
+<span class="kd">let</span><span class="w"> </span><span class="nx">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">c</span><span class="p">;</span><span class="w">            </span><span class="c1">// &#39;x&#39; — porque la fuente ya tenía anotación</span>
+</code></pre></div>
+<p><strong><code>null</code> / <code>undefined</code> se widen a <code>any</code></strong> (salvo cuando dejan el scope con valor concreto):</p>
+<div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span><span class="w">         </span><span class="c1">// any</span>
+<span class="nx">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3</span><span class="p">;</span><span class="w">                </span><span class="c1">// any</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">x</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">let</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span><span class="w">       </span><span class="c1">// any</span>
+<span class="w">  </span><span class="nx">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3</span><span class="p">;</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">a</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="nx">x</span><span class="p">();</span><span class="w">                  </span><span class="c1">// number — al salir del scope, TS le asigna tipo definitivo</span>
+</code></pre></div>
+<h4 id="el-tipo-const-as-const">El tipo <code>const</code> (<code>as const</code>)<a class="headerlink" href="#el-tipo-const-as-const" title="anchor">&para;</a></h4>
+<p>Opt out de widening <strong>e</strong> marca todo como <code>readonly</code>, recursivamente.</p>
+<div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">x</span><span class="o">:</span><span class="w"> </span><span class="kt">3</span><span class="w"> </span><span class="p">};</span><span class="w">                 </span><span class="c1">// { x: number }</span>
+<span class="kd">let</span><span class="w"> </span><span class="nx">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">x</span><span class="o">:</span><span class="w"> </span><span class="kt">3</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="kd">const</span><span class="p">;</span><span class="w">        </span><span class="c1">// { readonly x: 3 }</span>
+
+<span class="kd">let</span><span class="w"> </span><span class="nx">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">x</span><span class="o">:</span><span class="w"> </span><span class="kt">2</span><span class="w"> </span><span class="p">}];</span><span class="w">            </span><span class="c1">// (number | { x: number })[]</span>
+<span class="kd">let</span><span class="w"> </span><span class="nx">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">x</span><span class="o">:</span><span class="w"> </span><span class="kt">2</span><span class="w"> </span><span class="p">}]</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="kd">const</span><span class="p">;</span><span class="w">   </span><span class="c1">// readonly [1, { readonly x: 2 }]</span>
+</code></pre></div>
+<blockquote>
+<p>💡 <strong>Útil para</strong>: configs de Redux actions, action types, opciones inmutables.</p>
+</blockquote>
+<h4 id="excess-property-checking">Excess Property Checking<a class="headerlink" href="#excess-property-checking" title="anchor">&para;</a></h4>
+<p>Cuando pasás un <strong>fresh object literal</strong> a algo que espera un tipo concreto, TS te tira error si tenés propiedades que el destino no espera (atajo para detectar typos).</p>
+<div class="highlight"><pre><span></span><code><span class="kr">type</span><span class="w"> </span><span class="nx">Options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">baseURL</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">tier</span><span class="o">?:</span><span class="w"> </span><span class="s1">&#39;prod&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;dev&#39;</span><span class="w"> </span><span class="p">};</span>
+
+<span class="ow">new</span><span class="w"> </span><span class="nx">API</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">baseURL</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;https://api.x.com&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">tierr</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;prod&#39;</span><span class="w">    </span><span class="c1">// ✗ Error: &#39;tierr&#39; does not exist in type &#39;Options&#39;. Did you mean &#39;tier&#39;?</span>
+<span class="p">});</span>
+</code></pre></div>
+<p><strong>Casos donde TS no chequea exceso</strong> (el objeto deja de ser &ldquo;fresh&rdquo;):</p>
+<div class="highlight"><pre><span></span><code><span class="ow">new</span><span class="w"> </span><span class="nx">API</span><span class="p">({</span><span class="w"> </span><span class="nx">baseURL</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">badTier</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;y&#39;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">Options</span><span class="p">);</span><span class="w">  </span><span class="c1">// ✓ — type assertion saca freshness</span>
+
+<span class="kd">let</span><span class="w"> </span><span class="nx">bad</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">baseURL</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">badTier</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;y&#39;</span><span class="w"> </span><span class="p">};</span>
+<span class="ow">new</span><span class="w"> </span><span class="nx">API</span><span class="p">(</span><span class="nx">bad</span><span class="p">);</span><span class="w">  </span><span class="c1">// ✓ — asignar a variable saca freshness</span>
+
+<span class="kd">let</span><span class="w"> </span><span class="nx">opts</span><span class="o">:</span><span class="w"> </span><span class="kt">Options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">baseURL</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">badTier</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;y&#39;</span><span class="w"> </span><span class="p">};</span><span class="w">  </span><span class="c1">// ✗ aquí sí chequea, en el assign</span>
+<span class="ow">new</span><span class="w"> </span><span class="nx">API</span><span class="p">(</span><span class="nx">opts</span><span class="p">);</span>
+</code></pre></div>
+<h3 id="refinement-control-flow-based-type-narrowing">Refinement (control-flow-based type narrowing)<a class="headerlink" href="#refinement-control-flow-based-type-narrowing" title="anchor">&para;</a></h3>
+<blockquote>
+<p>TS lee tu código como un programador y <strong>angosta</strong> los tipos según los chequeos que hagas. A esto se le llama <strong>flow-based type inference</strong>.</p>
+</blockquote>
+<p>Disparadores de refinamiento:</p>
+<ul>
+<li><code>typeof</code>, <code>instanceof</code>, <code>in</code></li>
+<li>comparaciones de igualdad / desigualdad</li>
+<li>truthy / falsy checks (<code>if (x)</code>, <code>x &amp;&amp; ...</code>, <code>x || ...</code>)</li>
+<li>discriminated unions (ver abajo)</li>
+</ul>
+<h4 id="ejemplo-parsear-un-width-css">Ejemplo: parsear un width CSS<a class="headerlink" href="#ejemplo-parsear-un-width-css" title="anchor">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="kr">type</span><span class="w"> </span><span class="nx">Unit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;cm&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;px&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;%&#39;</span><span class="p">;</span>
+<span class="kd">let</span><span class="w"> </span><span class="nx">units</span><span class="o">:</span><span class="w"> </span><span class="kt">Unit</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;cm&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;px&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;%&#39;</span><span class="p">];</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">parseUnit</span><span class="p">(</span><span class="nx">value</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nx">Unit</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">let</span><span class="w"> </span><span class="nx">u</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nx">units</span><span class="p">)</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">value</span><span class="p">.</span><span class="nx">endsWith</span><span class="p">(</span><span class="nx">u</span><span class="p">))</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nx">u</span><span class="p">;</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kr">type</span><span class="w"> </span><span class="nx">Width</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">unit</span><span class="o">:</span><span class="w"> </span><span class="kt">Unit</span><span class="p">,</span><span class="w"> </span><span class="nx">value</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="w"> </span><span class="p">};</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">parseWidth</span><span class="p">(</span><span class="nx">width</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kc">undefined</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nx">Width</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">width</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span><span class="w">                       </span><span class="c1">// [1] descarta null y undefined</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="ow">typeof</span><span class="w"> </span><span class="nx">width</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;number&#39;</span><span class="p">)</span><span class="w">                         </span><span class="c1">// [2] separa number</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">unit</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;px&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">value</span><span class="o">:</span><span class="w"> </span><span class="kt">width</span><span class="w"> </span><span class="p">};</span>
+<span class="w">  </span><span class="c1">// [3] acá width: string (lo que queda)</span>
+<span class="w">  </span><span class="kd">let</span><span class="w"> </span><span class="nx">unit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">parseUnit</span><span class="p">(</span><span class="nx">width</span><span class="p">);</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">unit</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">unit</span><span class="p">,</span><span class="w"> </span><span class="nx">value</span><span class="o">:</span><span class="w"> </span><span class="kt">parseFloat</span><span class="p">(</span><span class="nx">width</span><span class="p">)</span><span class="w"> </span><span class="p">};</span><span class="w">   </span><span class="c1">// [4] unit: Unit</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Pasos del refinamiento:</p>
+<table>
+<thead>
+<tr>
+<th>Paso</th>
+<th>Tipo de <code>width</code> después de la guard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Entrada</td>
+<td><code>number \| string \| null \| undefined</code></td>
+</tr>
+<tr>
+<td>Después de <code>if (width == null) return</code></td>
+<td><code>number \| string</code></td>
+</tr>
+<tr>
+<td>Dentro de <code>if (typeof width === 'number')</code></td>
+<td><code>number</code></td>
+</tr>
+<tr>
+<td>Después del <code>if (typeof === 'number')</code> (con return adentro)</td>
+<td><code>string</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="discriminated-unions-tagged-unions">Discriminated Unions (tagged unions)<a class="headerlink" href="#discriminated-unions-tagged-unions" title="anchor">&para;</a></h4>
+<p>Cuando tu union son shapes con propiedades <strong>que se solapan</strong>, TS pierde el track. La solución: agregar un campo <strong>discriminador</strong> con tipo literal.</p>
+<p>❌ Sin discriminator:</p>
+<div class="highlight"><pre><span></span><code><span class="kr">type</span><span class="w"> </span><span class="nx">UserTextEvent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">value</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">target</span><span class="o">:</span><span class="w"> </span><span class="kt">HTMLInputElement</span><span class="w"> </span><span class="p">};</span>
+<span class="kr">type</span><span class="w"> </span><span class="nx">UserMouseEvent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">value</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="kt">number</span><span class="p">,</span><span class="w"> </span><span class="kt">number</span><span class="p">],</span><span class="w"> </span><span class="nx">target</span><span class="o">:</span><span class="w"> </span><span class="kt">HTMLElement</span><span class="w"> </span><span class="p">};</span>
+<span class="kr">type</span><span class="w"> </span><span class="nx">UserEvent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">UserTextEvent</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">UserMouseEvent</span><span class="p">;</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">handle</span><span class="p">(</span><span class="nx">event</span><span class="o">:</span><span class="w"> </span><span class="kt">UserEvent</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="ow">typeof</span><span class="w"> </span><span class="nx">event</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;string&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">event</span><span class="p">.</span><span class="nx">target</span><span class="p">;</span><span class="w">  </span><span class="c1">// HTMLInputElement | HTMLElement (!!! no refinó)</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>✓ Con discriminator (<code>type</code> tag):</p>
+<div class="highlight"><pre><span></span><code><span class="kr">type</span><span class="w"> </span><span class="nx">UserTextEvent</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;TextEvent&#39;</span><span class="p">,</span><span class="w">  </span><span class="nx">value</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">target</span><span class="o">:</span><span class="w"> </span><span class="kt">HTMLInputElement</span><span class="w"> </span><span class="p">};</span>
+<span class="kr">type</span><span class="w"> </span><span class="nx">UserMouseEvent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;MouseEvent&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">value</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="kt">number</span><span class="p">,</span><span class="w"> </span><span class="kt">number</span><span class="p">],</span><span class="w"> </span><span class="nx">target</span><span class="o">:</span><span class="w"> </span><span class="kt">HTMLElement</span><span class="w"> </span><span class="p">};</span>
+<span class="kr">type</span><span class="w"> </span><span class="nx">UserEvent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">UserTextEvent</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">UserMouseEvent</span><span class="p">;</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">handle</span><span class="p">(</span><span class="nx">event</span><span class="o">:</span><span class="w"> </span><span class="kt">UserEvent</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="kr">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;TextEvent&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">event</span><span class="p">.</span><span class="nx">value</span><span class="p">;</span><span class="w">   </span><span class="c1">// string</span>
+<span class="w">    </span><span class="nx">event</span><span class="p">.</span><span class="nx">target</span><span class="p">;</span><span class="w">  </span><span class="c1">// HTMLInputElement</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">event</span><span class="p">.</span><span class="nx">value</span><span class="p">;</span><span class="w">   </span><span class="c1">// [number, number]</span>
+<span class="w">    </span><span class="nx">event</span><span class="p">.</span><span class="nx">target</span><span class="p">;</span><span class="w">  </span><span class="c1">// HTMLElement</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><strong>Buen discriminador</strong> = literal type, único, en la misma &ldquo;key&rdquo; en cada miembro, no genérico, mutuamente exclusivo.</p>
+<blockquote>
+<p>💡 <strong>Aplicación directa</strong>: Redux/Flux actions, React <code>useReducer</code>, eventos de un EventEmitter, GraphQL union types.</p>
+</blockquote>
+<h3 id="totality-exhaustiveness-checking">Totality (exhaustiveness checking)<a class="headerlink" href="#totality-exhaustiveness-checking" title="anchor">&para;</a></h3>
+<blockquote>
+<p>Pattern matching style: TS te avisa si te olvidaste de cubrir un caso.</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code><span class="kr">type</span><span class="w"> </span><span class="nx">Weekday</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;Mon&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;Tue&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;Wed&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;Thu&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;Fri&#39;</span><span class="p">;</span>
+<span class="kr">type</span><span class="w"> </span><span class="nx">Day</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">Weekday</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;Sat&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;Sun&#39;</span><span class="p">;</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">getNextDay</span><span class="p">(</span><span class="nx">w</span><span class="o">:</span><span class="w"> </span><span class="kt">Weekday</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nx">Day</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="nx">w</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="s1">&#39;Mon&#39;</span><span class="o">:</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s1">&#39;Tue&#39;</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// ✗ Error TS2366: Function lacks ending return statement</span>
+<span class="w">    </span><span class="c1">//                and return type does not include &#39;undefined&#39;.</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h4 id="tsc-flag-noimplicitreturns">TSC Flag: <code>noImplicitReturns</code><a class="headerlink" href="#tsc-flag-noimplicitreturns" title="anchor">&para;</a></h4>
+<p>Activar <code>noImplicitReturns: true</code> en tsconfig fuerza que <strong>todos los paths</strong> de tus funciones devuelvan algo si declaran un return type.</p>
+<h4 id="pattern-el-never-exhaustivo">Pattern: el <code>never</code> exhaustivo<a class="headerlink" href="#pattern-el-never-exhaustivo" title="anchor">&para;</a></h4>
+<p>Para forzar exhaustividad en un <code>switch</code>, agregás un default con <code>never</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">getNextDay</span><span class="p">(</span><span class="nx">w</span><span class="o">:</span><span class="w"> </span><span class="kt">Weekday</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nx">Day</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="nx">w</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="s1">&#39;Mon&#39;</span><span class="o">:</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s1">&#39;Tue&#39;</span><span class="p">;</span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="s1">&#39;Tue&#39;</span><span class="o">:</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s1">&#39;Wed&#39;</span><span class="p">;</span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="s1">&#39;Wed&#39;</span><span class="o">:</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s1">&#39;Thu&#39;</span><span class="p">;</span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="s1">&#39;Thu&#39;</span><span class="o">:</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s1">&#39;Fri&#39;</span><span class="p">;</span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="s1">&#39;Fri&#39;</span><span class="o">:</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s1">&#39;Sat&#39;</span><span class="p">;</span>
+<span class="w">    </span><span class="nx">default</span><span class="o">:</span>
+<span class="w">      </span><span class="kt">const</span><span class="w"> </span><span class="nx">_exhaustive</span><span class="o">:</span><span class="w"> </span><span class="kt">never</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">w</span><span class="p">;</span><span class="w">  </span><span class="c1">// si agregás un día al type, esto rompe</span>
+<span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="sb">`Unhandled day: </span><span class="si">${</span><span class="nx">w</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<blockquote>
+<p>💡 <strong>Patrón canónico</strong> en Redux reducers para forzar manejo de todas las actions.</p>
+</blockquote>
+<hr />
+<h2 id="advanced-object-types">Advanced Object Types<a class="headerlink" href="#advanced-object-types" title="anchor">&para;</a></h2>
+<h3 id="keying-in-ok-busqueda-de-tipo-por-clave">Keying-in (<code>O[K]</code>) — busqueda de tipo por clave<a class="headerlink" href="#keying-in-ok-busqueda-de-tipo-por-clave" title="anchor">&para;</a></h3>
+<blockquote>
+<p>Como <code>obj[key]</code> en JS, pero a nivel de tipos.</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code><span class="kr">type</span><span class="w"> </span><span class="nx">APIResponse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">user</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">userId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">friendList</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">count</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">friends</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">firstName</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">lastName</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">}[]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">};</span>
+
+<span class="kr">type</span><span class="w"> </span><span class="nx">FriendList</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">APIResponse</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">][</span><span class="s1">&#39;friendList&#39;</span><span class="p">];</span>
+<span class="c1">// = { count: number, friends: {...}[] }</span>
+
+<span class="kr">type</span><span class="w"> </span><span class="nx">Friend</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">FriendList</span><span class="p">[</span><span class="s1">&#39;friends&#39;</span><span class="p">][</span><span class="kt">number</span><span class="p">];</span>
+<span class="c1">// = { firstName: string, lastName: string }</span>
+<span class="c1">//   ↑ usar &#39;number&#39; para indexar arrays; para tuples usar 0, 1, etc.</span>
+</code></pre></div>
+<blockquote>
+<p>⚠️ <strong>Siempre con bracket notation (<code>['key']</code>), nunca con dot notation.</strong></p>
+</blockquote>
+<h3 id="el-operador-keyof">El operador <code>keyof</code><a class="headerlink" href="#el-operador-keyof" title="anchor">&para;</a></h3>
+<blockquote>
+<p>Devuelve la unión de literales tipo string que representan <strong>todas las claves</strong> de un objeto.</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code><span class="kr">type</span><span class="w"> </span><span class="nx">Response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">APIResponse</span><span class="p">;</span>
+<span class="kr">type</span><span class="w"> </span><span class="nx">ResponseKeys</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">keyof</span><span class="w"> </span><span class="nx">Response</span><span class="p">;</span><span class="w">                  </span><span class="c1">// &#39;user&#39;</span>
+<span class="kr">type</span><span class="w"> </span><span class="nx">UserKeys</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">keyof</span><span class="w"> </span><span class="nx">Response</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">];</span><span class="w">              </span><span class="c1">// &#39;userId&#39; | &#39;friendList&#39;</span>
+</code></pre></div>
+<h4 id="combinando-keyof-keying-in-un-get-tipado">Combinando <code>keyof</code> + keying-in: un <code>get()</code> tipado<a class="headerlink" href="#combinando-keyof-keying-in-un-get-tipado" title="anchor">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">get</span><span class="o">&lt;</span><span class="nx">O</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">object</span><span class="p">,</span><span class="w"> </span><span class="nx">K</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">keyof</span><span class="w"> </span><span class="nx">O</span><span class="o">&gt;</span><span class="p">(</span><span class="nx">o</span><span class="o">:</span><span class="w"> </span><span class="kt">O</span><span class="p">,</span><span class="w"> </span><span class="nx">k</span><span class="o">:</span><span class="w"> </span><span class="kt">K</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nx">O</span><span class="p">[</span><span class="nx">K</span><span class="p">]</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">o</span><span class="p">[</span><span class="nx">k</span><span class="p">];</span>
+<span class="p">}</span>
+
+<span class="kd">let</span><span class="w"> </span><span class="nx">logged</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">get</span><span class="p">({</span><span class="w"> </span><span class="nx">a</span><span class="o">:</span><span class="w"> </span><span class="kt">1</span><span class="p">,</span><span class="w"> </span><span class="nx">b</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;x&#39;</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="s1">&#39;a&#39;</span><span class="p">);</span><span class="w">  </span><span class="c1">// number</span>
+<span class="kd">let</span><span class="w"> </span><span class="nx">bad</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="nx">get</span><span class="p">({</span><span class="w"> </span><span class="nx">a</span><span class="o">:</span><span class="w"> </span><span class="kt">1</span><span class="p">,</span><span class="w"> </span><span class="nx">b</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;x&#39;</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="s1">&#39;c&#39;</span><span class="p">);</span><span class="w">   </span><span class="c1">// ✗ Error: &#39;c&#39; no asignable a &#39;a&#39; | &#39;b&#39;</span>
+</code></pre></div>
+<h4 id="version-con-paths-anidados-overloaded">Versión con paths anidados (overloaded)<a class="headerlink" href="#version-con-paths-anidados-overloaded" title="anchor">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="kr">type</span><span class="w"> </span><span class="nx">Get</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="o">&lt;</span><span class="nx">O</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">object</span><span class="p">,</span><span class="w"> </span><span class="nx">K1</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">keyof</span><span class="w"> </span><span class="nx">O</span><span class="o">&gt;</span><span class="p">(</span><span class="nx">o</span><span class="o">:</span><span class="w"> </span><span class="kt">O</span><span class="p">,</span><span class="w"> </span><span class="nx">k1</span><span class="o">:</span><span class="w"> </span><span class="kt">K1</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nx">O</span><span class="p">[</span><span class="nx">K1</span><span class="p">];</span>
+<span class="w">  </span><span class="o">&lt;</span><span class="nx">O</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">object</span><span class="p">,</span><span class="w"> </span><span class="nx">K1</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">keyof</span><span class="w"> </span><span class="nx">O</span><span class="p">,</span><span class="w"> </span><span class="nx">K2</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">keyof</span><span class="w"> </span><span class="nx">O</span><span class="p">[</span><span class="nx">K1</span><span class="p">]</span><span class="o">&gt;</span><span class="p">(</span><span class="nx">o</span><span class="o">:</span><span class="w"> </span><span class="kt">O</span><span class="p">,</span><span class="w"> </span><span class="nx">k1</span><span class="o">:</span><span class="w"> </span><span class="kt">K1</span><span class="p">,</span><span class="w"> </span><span class="nx">k2</span><span class="o">:</span><span class="w"> </span><span class="kt">K2</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nx">O</span><span class="p">[</span><span class="nx">K1</span><span class="p">][</span><span class="nx">K2</span><span class="p">];</span>
+<span class="w">  </span><span class="o">&lt;</span><span class="nx">O</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">object</span><span class="p">,</span><span class="w"> </span><span class="nx">K1</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">keyof</span><span class="w"> </span><span class="nx">O</span><span class="p">,</span><span class="w"> </span><span class="nx">K2</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">keyof</span><span class="w"> </span><span class="nx">O</span><span class="p">[</span><span class="nx">K1</span><span class="p">],</span><span class="w"> </span><span class="nx">K3</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">keyof</span><span class="w"> </span><span class="nx">O</span><span class="p">[</span><span class="nx">K1</span><span class="p">][</span><span class="nx">K2</span><span class="p">]</span><span class="o">&gt;</span>
+<span class="w">    </span><span class="p">(</span><span class="nx">o</span><span class="o">:</span><span class="w"> </span><span class="kt">O</span><span class="p">,</span><span class="w"> </span><span class="nx">k1</span><span class="o">:</span><span class="w"> </span><span class="kt">K1</span><span class="p">,</span><span class="w"> </span><span class="nx">k2</span><span class="o">:</span><span class="w"> </span><span class="kt">K2</span><span class="p">,</span><span class="w"> </span><span class="nx">k3</span><span class="o">:</span><span class="w"> </span><span class="kt">K3</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nx">O</span><span class="p">[</span><span class="nx">K1</span><span class="p">][</span><span class="nx">K2</span><span class="p">][</span><span class="nx">K3</span><span class="p">];</span>
+<span class="p">};</span>
+
+<span class="kd">let</span><span class="w"> </span><span class="nx">get</span><span class="o">:</span><span class="w"> </span><span class="kt">Get</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">obj</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">,</span><span class="w"> </span><span class="nx">...keys</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">[])</span><span class="w"> </span><span class="p">=&gt;</span>
+<span class="w">  </span><span class="nx">keys</span><span class="p">.</span><span class="nx">reduce</span><span class="p">((</span><span class="nx">acc</span><span class="p">,</span><span class="w"> </span><span class="nx">k</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">acc</span><span class="p">[</span><span class="nx">k</span><span class="p">],</span><span class="w"> </span><span class="nx">obj</span><span class="p">);</span>
+
+<span class="kd">let</span><span class="w"> </span><span class="nx">activityLog</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">lastEvent</span><span class="o">:</span><span class="w"> </span><span class="kt">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">(),</span>
+<span class="w">  </span><span class="nx">events</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">timestamp</span><span class="o">:</span><span class="w"> </span><span class="kt">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">(),</span><span class="w"> </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Read&#39;</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="s1">&#39;Read&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;Write&#39;</span><span class="w"> </span><span class="p">}]</span>
+<span class="p">};</span>
+<span class="nx">get</span><span class="p">(</span><span class="nx">activityLog</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;events&#39;</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;type&#39;</span><span class="p">);</span><span class="w">  </span><span class="c1">// &#39;Read&#39; | &#39;Write&#39;</span>
+<span class="nx">get</span><span class="p">(</span><span class="nx">activityLog</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;bad&#39;</span><span class="p">);</span><span class="w">                 </span><span class="c1">// ✗ Error</span>
+</code></pre></div>
+<h4 id="tsc-flag-keyofstringsonly">TSC Flag: <code>keyofStringsOnly</code><a class="headerlink" href="#tsc-flag-keyofstringsonly" title="anchor">&para;</a></h4>
+<p>Por default <code>keyof</code> en TS devuelve <code>string | number | symbol</code> (porque JS soporta keys symbol). Si querés el comportamiento legacy &ldquo;solo strings&rdquo;, activá <code>keyofStringsOnly: true</code>.</p>
+<h3 id="recordk-v-built-in-mapped-type"><code>Record&lt;K, V&gt;</code> — built-in mapped type<a class="headerlink" href="#recordk-v-built-in-mapped-type" title="anchor">&para;</a></h3>
+<blockquote>
+<p>Atajo para &ldquo;objeto con claves de tipo K y valores de tipo V&rdquo;.</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code><span class="kr">type</span><span class="w"> </span><span class="nx">Weekday</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;Mon&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;Tue&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;Wed&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;Thu&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;Fri&#39;</span><span class="p">;</span>
+<span class="kr">type</span><span class="w"> </span><span class="nx">Day</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">Weekday</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;Sat&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;Sun&#39;</span><span class="p">;</span>
+
+<span class="kd">let</span><span class="w"> </span><span class="nx">nextDay</span><span class="o">:</span><span class="w"> </span><span class="kt">Record</span><span class="o">&lt;</span><span class="nx">Weekday</span><span class="p">,</span><span class="w"> </span><span class="nx">Day</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">Mon</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Tue&#39;</span>
+<span class="w">  </span><span class="c1">// ✗ Error: faltan Tue, Wed, Thu, Fri</span>
+<span class="p">};</span>
+</code></pre></div>
+<p>A diferencia de un index signature (<code>{ [k: string]: V }</code>), <strong><code>Record</code> exige TODAS las claves</strong>.</p>
+<h3 id="mapped-types">Mapped Types<a class="headerlink" href="#mapped-types" title="anchor">&para;</a></h3>
+<blockquote>
+<p>&ldquo;Para cada clave K en este conjunto, defíneme una propiedad de tipo V&rdquo;. Una <strong>transformación sobre un tipo objeto</strong>, hecha al nivel de tipos.</p>
+</blockquote>
+<h4 id="sintaxis">Sintaxis<a class="headerlink" href="#sintaxis" title="anchor">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="kr">type</span><span class="w"> </span><span class="nx">MyMappedType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="p">[</span><span class="nx">Key</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">UnionType</span><span class="p">]</span><span class="o">:</span><span class="w"> </span><span class="nx">ValueType</span>
+<span class="p">};</span>
+</code></pre></div>
+<h4 id="ejemplo-dia-siguiente-exhaustivo">Ejemplo: día siguiente, exhaustivo<a class="headerlink" href="#ejemplo-dia-siguiente-exhaustivo" title="anchor">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="nx">nextDay</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">[</span><span class="nx">K</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">Weekday</span><span class="p">]</span><span class="o">:</span><span class="w"> </span><span class="nx">Day</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">Mon</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Tue&#39;</span>
+<span class="w">  </span><span class="c1">// ✗ Error: faltan Tue, Wed, Thu, Fri</span>
+<span class="p">};</span>
+</code></pre></div>
+<h4 id="el-poder-real-transformar-tipos-existentes">El poder real: transformar tipos existentes<a class="headerlink" href="#el-poder-real-transformar-tipos-existentes" title="anchor">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="kr">type</span><span class="w"> </span><span class="nx">Account</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">isEmployee</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">notes</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">[]</span>
+<span class="p">};</span>
+
+<span class="c1">// Hacer todo opcional</span>
+<span class="kr">type</span><span class="w"> </span><span class="nx">OptionalAccount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">[</span><span class="nx">K</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">keyof</span><span class="w"> </span><span class="nx">Account</span><span class="p">]</span><span class="nx">?</span><span class="o">:</span><span class="w"> </span><span class="kt">Account</span><span class="p">[</span><span class="nx">K</span><span class="p">]</span><span class="w"> </span><span class="p">};</span>
+
+<span class="c1">// Hacer todo nullable</span>
+<span class="kr">type</span><span class="w"> </span><span class="nx">NullableAccount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">[</span><span class="nx">K</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">keyof</span><span class="w"> </span><span class="nx">Account</span><span class="p">]</span><span class="o">:</span><span class="w"> </span><span class="nx">Account</span><span class="p">[</span><span class="nx">K</span><span class="p">]</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="p">};</span>
+
+<span class="c1">// Hacer todo readonly</span>
+<span class="kr">type</span><span class="w"> </span><span class="nx">ReadonlyAccount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="p">[</span><span class="nx">K</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">keyof</span><span class="w"> </span><span class="nx">Account</span><span class="p">]</span><span class="o">:</span><span class="w"> </span><span class="nx">Account</span><span class="p">[</span><span class="nx">K</span><span class="p">]</span><span class="w"> </span><span class="p">};</span>
+
+<span class="c1">// REVERTIR readonly (con el &quot;minus&quot; operator)</span>
+<span class="kr">type</span><span class="w"> </span><span class="nx">Writable</span><span class="o">&lt;</span><span class="nx">T</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">-</span><span class="k">readonly</span><span class="w"> </span><span class="p">[</span><span class="nx">K</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">keyof</span><span class="w"> </span><span class="nx">T</span><span class="p">]</span><span class="o">:</span><span class="w"> </span><span class="nx">T</span><span class="p">[</span><span class="nx">K</span><span class="p">]</span><span class="w"> </span><span class="p">};</span>
+
+<span class="c1">// REVERTIR optional</span>
+<span class="kr">type</span><span class="w"> </span><span class="nx">Required</span><span class="o">&lt;</span><span class="nx">T</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">[</span><span class="nx">K</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">keyof</span><span class="w"> </span><span class="nx">T</span><span class="p">]</span><span class="o">-</span><span class="nx">?</span><span class="o">:</span><span class="w"> </span><span class="kt">T</span><span class="p">[</span><span class="nx">K</span><span class="p">]</span><span class="w"> </span><span class="p">};</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Operador</th>
+<th>Significado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>?</code></td>
+<td>hacer opcional</td>
+</tr>
+<tr>
+<td><code>-?</code></td>
+<td>quitar optional</td>
+</tr>
+<tr>
+<td><code>readonly</code> (= <code>+readonly</code>)</td>
+<td>hacer readonly</td>
+</tr>
+<tr>
+<td><code>-readonly</code></td>
+<td>quitar readonly</td>
+</tr>
+</tbody>
+</table>
+<h4 id="built-in-mapped-types-en-libes5dts">Built-in mapped types (en <code>lib.es5.d.ts</code>)<a class="headerlink" href="#built-in-mapped-types-en-libes5dts" title="anchor">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Hace</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Record&lt;K, V&gt;</code></td>
+<td>objeto con claves K y valores V</td>
+</tr>
+<tr>
+<td><code>Partial&lt;T&gt;</code></td>
+<td>todas las propiedades opcionales</td>
+</tr>
+<tr>
+<td><code>Required&lt;T&gt;</code></td>
+<td>todas las propiedades requeridas</td>
+</tr>
+<tr>
+<td><code>Readonly&lt;T&gt;</code></td>
+<td>todas las propiedades readonly</td>
+</tr>
+<tr>
+<td><code>Pick&lt;T, K&gt;</code></td>
+<td>subtipo de T con solo las claves K</td>
+</tr>
+<tr>
+<td><code>Omit&lt;T, K&gt;</code></td>
+<td>subtipo de T sin las claves K (TS ≥ 3.5)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="companion-object-pattern">Companion Object Pattern<a class="headerlink" href="#companion-object-pattern" title="anchor">&para;</a></h3>
+<blockquote>
+<p>Misma idea que en Scala: un <strong>tipo</strong> y un <strong>valor</strong> con el mismo nombre, conviviendo. En TS, <strong>tipos y valores viven en namespaces separados</strong>, entonces el mismo identificador puede ser ambos.</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code><span class="c1">// El tipo</span>
+<span class="kr">type</span><span class="w"> </span><span class="nx">Currency</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">unit</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;EUR&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;GBP&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;JPY&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;USD&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">value</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span>
+<span class="p">};</span>
+
+<span class="c1">// El valor (objeto con utilidades sobre el tipo)</span>
+<span class="kd">let</span><span class="w"> </span><span class="nx">Currency</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">DEFAULT</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;USD&#39;</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="kd">const</span><span class="p">,</span>
+<span class="w">  </span><span class="kr">from</span><span class="p">(</span><span class="nx">value</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">,</span><span class="w"> </span><span class="nx">unit</span><span class="o">:</span><span class="w"> </span><span class="kt">Currency</span><span class="p">[</span><span class="s1">&#39;unit&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;USD&#39;</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nx">Currency</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">unit</span><span class="p">,</span><span class="w"> </span><span class="nx">value</span><span class="w"> </span><span class="p">};</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">};</span>
+
+<span class="c1">// Consumo</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Currency</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./Currency&#39;</span><span class="p">;</span>
+
+<span class="kd">let</span><span class="w"> </span><span class="nx">amountDue</span><span class="o">:</span><span class="w"> </span><span class="kt">Currency</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">unit</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;JPY&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">value</span><span class="o">:</span><span class="w"> </span><span class="kt">83733.10</span><span class="w"> </span><span class="p">};</span><span class="w">  </span><span class="c1">// Currency como tipo</span>
+<span class="kd">let</span><span class="w"> </span><span class="nx">other</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">Currency</span><span class="p">.</span><span class="kr">from</span><span class="p">(</span><span class="mf">330</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;EUR&#39;</span><span class="p">);</span><span class="w">                        </span><span class="c1">// Currency como valor</span>
+</code></pre></div>
+<blockquote>
+<p>💡 <strong>Usalo cuando</strong> un tipo y un objeto helper son semánticamente uno. Ejemplos: <code>Currency</code>, <code>DateRange</code>, <code>UserID</code>.</p>
+</blockquote>
+<hr />
+<h2 id="advanced-function-types">Advanced Function Types<a class="headerlink" href="#advanced-function-types" title="anchor">&para;</a></h2>
+<h3 id="improving-type-inference-for-tuples">Improving Type Inference for Tuples<a class="headerlink" href="#improving-type-inference-for-tuples" title="anchor">&para;</a></h3>
+<p>TS por default infiere tipos amplios para arrays literales:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">];</span><span class="w">  </span><span class="c1">// (number | boolean)[]</span>
+</code></pre></div>
+<p>Para forzar tuple inference (sin usar <code>as const</code>):</p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">tuple</span><span class="o">&lt;</span><span class="nx">T</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">unknown</span><span class="p">[]</span><span class="o">&gt;</span><span class="p">(</span><span class="nx">...ts</span><span class="o">:</span><span class="w"> </span><span class="kt">T</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nx">T</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">ts</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">let</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">tuple</span><span class="p">(</span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">);</span><span class="w">  </span><span class="c1">// [number, boolean]</span>
+</code></pre></div>
+<blockquote>
+<p>Por qué funciona: cuando un parámetro genérico es <strong>rest</strong>, TS lo infiere como tuple en lugar de array.</p>
+</blockquote>
+<h3 id="user-defined-type-guards-x-is-t">User-Defined Type Guards (<code>x is T</code>)<a class="headerlink" href="#user-defined-type-guards-x-is-t" title="anchor">&para;</a></h3>
+<h4 id="el-problema">El problema<a class="headerlink" href="#el-problema" title="anchor">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">isString</span><span class="p">(</span><span class="nx">a</span><span class="o">:</span><span class="w"> </span><span class="kt">unknown</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="ow">typeof</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;string&#39;</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">parseInput</span><span class="p">(</span><span class="nx">input</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kt">number</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">isString</span><span class="p">(</span><span class="nx">input</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">input</span><span class="p">.</span><span class="nx">toUpperCase</span><span class="p">();</span><span class="w">  </span><span class="c1">// ✗ Error TS2339: Property &#39;toUpperCase&#39; does not exist on type &#39;number&#39;.</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>El refinamiento que <code>isString</code> hace internamente <strong>se pierde al salir del scope</strong>. Todo lo que TS sabe es &ldquo;devolvió un boolean&rdquo;.</p>
+<h4 id="la-solucion-type-predicate-x-is-t">La solución: type predicate (<code>x is T</code>)<a class="headerlink" href="#la-solucion-type-predicate-x-is-t" title="anchor">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">isString</span><span class="p">(</span><span class="nx">a</span><span class="o">:</span><span class="w"> </span><span class="kt">unknown</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="nx">is</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="ow">typeof</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;string&#39;</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">parseInput</span><span class="p">(</span><span class="nx">input</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kt">number</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">isString</span><span class="p">(</span><span class="nx">input</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">input</span><span class="p">.</span><span class="nx">toUpperCase</span><span class="p">();</span><span class="w">  </span><span class="c1">// ✓ — TS sabe que aquí input es string</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">input</span><span class="p">.</span><span class="nx">toFixed</span><span class="p">(</span><span class="mf">2</span><span class="p">);</span><span class="w">     </span><span class="c1">// ✓ — TS sabe que aquí input es number</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Limitaciones: aplica a <strong>un solo parámetro</strong>. Pero puede ser sobre tipos complejos:</p>
+<div class="highlight"><pre><span></span><code><span class="kr">type</span><span class="w"> </span><span class="nx">Dialog</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">LegacyDialog</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">ModernDialog</span><span class="p">;</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">isLegacyDialog</span><span class="p">(</span><span class="nx">d</span><span class="o">:</span><span class="w"> </span><span class="kt">Dialog</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nx">d</span><span class="w"> </span><span class="nx">is</span><span class="w"> </span><span class="nx">LegacyDialog</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="s1">&#39;oldStyle&#39;</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">d</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="conditional-types-la-feature-mas-distintiva-de-ts">Conditional Types — la feature más distintiva de TS<a class="headerlink" href="#conditional-types-la-feature-mas-distintiva-de-ts" title="anchor">&para;</a></h3>
+<blockquote>
+<p>Tipos con <code>if/else</code>: <code>T extends U ? A : B</code>.</p>
+</blockquote>
+<h4 id="ejemplo-simple">Ejemplo simple<a class="headerlink" href="#ejemplo-simple" title="anchor">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="kr">type</span><span class="w"> </span><span class="nx">IsString</span><span class="o">&lt;</span><span class="nx">T</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">T</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="nx">true</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kt">false</span><span class="p">;</span>
+
+<span class="kr">type</span><span class="w"> </span><span class="nx">A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">IsString</span><span class="o">&lt;</span><span class="kt">string</span><span class="o">&gt;</span><span class="p">;</span><span class="w">   </span><span class="c1">// true</span>
+<span class="kr">type</span><span class="w"> </span><span class="nx">B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">IsString</span><span class="o">&lt;</span><span class="kt">number</span><span class="o">&gt;</span><span class="p">;</span><span class="w">   </span><span class="c1">// false</span>
+</code></pre></div>
+<p>Se pueden anidar como ternarios:</p>
+<div class="highlight"><pre><span></span><code><span class="kr">type</span><span class="w"> </span><span class="nx">TypeName</span><span class="o">&lt;</span><span class="nx">T</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span>
+<span class="w">  </span><span class="nx">T</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="kt">string</span><span class="w">  </span><span class="o">?</span><span class="w"> </span><span class="s1">&#39;string&#39;</span><span class="w">  </span><span class="o">:</span>
+<span class="w">  </span><span class="nx">T</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="kt">number</span><span class="w">  </span><span class="o">?</span><span class="w"> </span><span class="s1">&#39;number&#39;</span><span class="w">  </span><span class="o">:</span>
+<span class="w">  </span><span class="nx">T</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">&#39;boolean&#39;</span><span class="w"> </span><span class="o">:</span>
+<span class="w">  </span><span class="nx">T</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nb">Function</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">&#39;function&#39;</span><span class="w"> </span><span class="o">:</span>
+<span class="w">  </span><span class="s1">&#39;object&#39;</span><span class="p">;</span>
+</code></pre></div>
+<h4 id="distributividad">Distributividad<a class="headerlink" href="#distributividad" title="anchor">&para;</a></h4>
+<blockquote>
+<p>Cuando aplicás un conditional type a una <strong>union</strong>, TS la <strong>distribuye</strong>.</p>
+</blockquote>
+<p>Regla: <code>(A | B | C) extends T ? X : Y</code> ≡ <code>(A extends T ? X : Y) | (B extends T ? X : Y) | (C extends T ? X : Y)</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="kr">type</span><span class="w"> </span><span class="nx">ToArray</span><span class="o">&lt;</span><span class="nx">T</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">T</span><span class="p">[];</span>
+<span class="kr">type</span><span class="w"> </span><span class="nx">A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ToArray</span><span class="o">&lt;</span><span class="kt">number</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kt">string</span><span class="o">&gt;</span><span class="p">;</span><span class="w">       </span><span class="c1">// (number | string)[]</span>
+
+<span class="kr">type</span><span class="w"> </span><span class="nx">ToArray2</span><span class="o">&lt;</span><span class="nx">T</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">T</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">unknown</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="nx">T</span><span class="p">[]</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="nx">T</span><span class="p">[];</span><span class="w">   </span><span class="c1">// ¡el condicional fuerza distribución!</span>
+<span class="kr">type</span><span class="w"> </span><span class="nx">B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ToArray2</span><span class="o">&lt;</span><span class="kt">number</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kt">string</span><span class="o">&gt;</span><span class="p">;</span><span class="w">      </span><span class="c1">// number[] | string[]</span>
+</code></pre></div>
+<h4 id="caso-real-withoutt-u">Caso real: <code>Without&lt;T, U&gt;</code><a class="headerlink" href="#caso-real-withoutt-u" title="anchor">&para;</a></h4>
+<blockquote>
+<p>&ldquo;Los tipos que están en T pero no en U&rdquo;.</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code><span class="kr">type</span><span class="w"> </span><span class="nx">Without</span><span class="o">&lt;</span><span class="nx">T</span><span class="p">,</span><span class="w"> </span><span class="nx">U</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">T</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">U</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="nx">never</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kt">T</span><span class="p">;</span>
+
+<span class="kr">type</span><span class="w"> </span><span class="nx">A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">Without</span><span class="o">&lt;</span><span class="kt">boolean</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kt">number</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">boolean</span><span class="o">&gt;</span><span class="p">;</span><span class="w">  </span><span class="c1">// number | string</span>
+</code></pre></div>
+<p>Paso a paso:</p>
+<ol>
+<li><code>Without&lt;boolean | number | string, boolean&gt;</code></li>
+<li>Distribuye: <code>Without&lt;boolean, boolean&gt; | Without&lt;number, boolean&gt; | Without&lt;string, boolean&gt;</code></li>
+<li>Sustituye definición: <code>(boolean extends boolean ? never : boolean) | (number extends boolean ? never : number) | (string extends boolean ? never : string)</code></li>
+<li>Evalúa: <code>never | number | string</code></li>
+<li>Simplifica: <code>number | string</code> (porque <code>never</code> es identidad de la union)</li>
+</ol>
+<blockquote>
+<p>💡 Sin distributividad terminarías con <code>never</code>. <strong>La distributividad es lo que hace <code>Without</code> útil.</strong></p>
+</blockquote>
+<h4 id="el-keyword-infer">El keyword <code>infer</code><a class="headerlink" href="#el-keyword-infer" title="anchor">&para;</a></h4>
+<blockquote>
+<p>Declara un type variable <strong>inline dentro del condicional</strong>. TS lo deduce del contexto.</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code><span class="kr">type</span><span class="w"> </span><span class="nx">ElementType</span><span class="o">&lt;</span><span class="nx">T</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">T</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="p">(</span><span class="nx">infer</span><span class="w"> </span><span class="nx">U</span><span class="p">)[]</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="nx">U</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kt">T</span><span class="p">;</span>
+
+<span class="kr">type</span><span class="w"> </span><span class="nx">A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ElementType</span><span class="o">&lt;</span><span class="kt">number</span><span class="p">[]</span><span class="o">&gt;</span><span class="p">;</span><span class="w">        </span><span class="c1">// number</span>
+<span class="kr">type</span><span class="w"> </span><span class="nx">B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ElementType</span><span class="o">&lt;</span><span class="kt">string</span><span class="o">&gt;</span><span class="p">;</span><span class="w">          </span><span class="c1">// string (no era array)</span>
+</code></pre></div>
+<p>Caso real: extraer el tipo del segundo argumento de una función.</p>
+<div class="highlight"><pre><span></span><code><span class="kr">type</span><span class="w"> </span><span class="nx">SecondArg</span><span class="o">&lt;</span><span class="nx">F</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">F</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="p">(</span><span class="nx">a</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">,</span><span class="w"> </span><span class="nx">b</span><span class="o">:</span><span class="w"> </span><span class="kt">infer</span><span class="w"> </span><span class="nx">B</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">any</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="nx">B</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kt">never</span><span class="p">;</span>
+
+<span class="kr">type</span><span class="w"> </span><span class="nx">SliceSecond</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">SecondArg</span><span class="o">&lt;</span><span class="ow">typeof</span><span class="w"> </span><span class="nb">Array</span><span class="p">[</span><span class="s1">&#39;prototype&#39;</span><span class="p">][</span><span class="s1">&#39;slice&#39;</span><span class="p">]</span><span class="o">&gt;</span><span class="p">;</span><span class="w">  </span><span class="c1">// number | undefined</span>
+</code></pre></div>
+<blockquote>
+<p>💡 Sin <code>infer</code>, tendrías que declarar U como parámetro genérico de <code>ElementType</code>, lo que obliga al caller a pasarlo — perdiendo el sentido del wrapper.</p>
+</blockquote>
+<h4 id="built-in-conditional-types">Built-in conditional types<a class="headerlink" href="#built-in-conditional-types" title="anchor">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Hace</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Exclude&lt;T, U&gt;</code></td>
+<td><code>Without&lt;T, U&gt;</code> — tipos de T no asignables a U</td>
+</tr>
+<tr>
+<td><code>Extract&lt;T, U&gt;</code></td>
+<td>inversa de Exclude: tipos de T sí asignables a U</td>
+</tr>
+<tr>
+<td><code>NonNullable&lt;T&gt;</code></td>
+<td>quita <code>null</code> y <code>undefined</code></td>
+</tr>
+<tr>
+<td><code>ReturnType&lt;F&gt;</code></td>
+<td>tipo del return de F (no funciona bien con generics ni overloads)</td>
+</tr>
+<tr>
+<td><code>Parameters&lt;F&gt;</code></td>
+<td>tipo de los parameters de F (tuple)</td>
+</tr>
+<tr>
+<td><code>InstanceType&lt;C&gt;</code></td>
+<td>tipo de instancia de un constructor C</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><span class="kr">type</span><span class="w"> </span><span class="nx">Strs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">Exclude</span><span class="o">&lt;</span><span class="kt">number</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">number</span><span class="o">&gt;</span><span class="p">;</span><span class="w">            </span><span class="c1">// string</span>
+<span class="kr">type</span><span class="w"> </span><span class="nx">Nums</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">Extract</span><span class="o">&lt;</span><span class="kt">number</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">number</span><span class="o">&gt;</span><span class="p">;</span><span class="w">            </span><span class="c1">// number</span>
+<span class="kr">type</span><span class="w"> </span><span class="nx">X</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">NonNullable</span><span class="o">&lt;</span><span class="p">{</span><span class="w"> </span><span class="nx">a?</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="p">}[</span><span class="s1">&#39;a&#39;</span><span class="p">]</span><span class="o">&gt;</span><span class="p">;</span><span class="w">        </span><span class="c1">// number</span>
+<span class="kr">type</span><span class="w"> </span><span class="nx">R</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ReturnType</span><span class="o">&lt;</span><span class="p">(</span><span class="nx">a</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="kt">string</span><span class="o">&gt;</span><span class="p">;</span><span class="w">              </span><span class="c1">// string</span>
+<span class="kr">type</span><span class="w"> </span><span class="nx">I</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">InstanceType</span><span class="o">&lt;</span><span class="p">{</span><span class="w"> </span><span class="ow">new</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">b</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span><span class="o">&gt;</span><span class="p">;</span><span class="w">         </span><span class="c1">// { b: number }</span>
+</code></pre></div>
+<hr />
+<h2 id="escape-hatches">Escape Hatches<a class="headerlink" href="#escape-hatches" title="anchor">&para;</a></h2>
+<blockquote>
+<p>Cuando necesitás <em>romper</em> las reglas. Cherny es claro: <strong>usalas lo menos posible</strong>. Si te encontrás usándolas seguido, probablemente estás haciendo algo mal.</p>
+</blockquote>
+<h3 id="type-assertions-as-t">Type Assertions (<code>as T</code>)<a class="headerlink" href="#type-assertions-as-t" title="anchor">&para;</a></h3>
+<p>Le decís al compilador &ldquo;confía en mí, esto es T&rdquo;.</p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">formatInput</span><span class="p">(</span><span class="nx">input</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">}</span>
+<span class="kd">function</span><span class="w"> </span><span class="nx">getUserInput</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kt">number</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+
+<span class="kd">let</span><span class="w"> </span><span class="nx">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">getUserInput</span><span class="p">();</span>
+<span class="nx">formatInput</span><span class="p">(</span><span class="nx">input</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="kt">string</span><span class="p">);</span><span class="w">    </span><span class="c1">// sintaxis preferida</span>
+<span class="nx">formatInput</span><span class="p">(</span><span class="o">&lt;</span><span class="kt">string</span><span class="o">&gt;</span><span class="nx">input</span><span class="p">);</span><span class="w">      </span><span class="c1">// sintaxis legacy — choca con TSX, evitar</span>
+</code></pre></div>
+<p><strong>Solo podés assertir</strong> un tipo a su <strong>supertipo o subtipo</strong>. Si dos tipos no se relacionan:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="nx">n</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">5</span><span class="p">;</span>
+<span class="kd">let</span><span class="w"> </span><span class="nx">s</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">n</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w">        </span><span class="c1">// ✗ Error</span>
+<span class="kd">let</span><span class="w"> </span><span class="nx">s</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">n</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">any</span><span class="p">)</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w">  </span><span class="c1">// ✓ (¡pero estás haciendo algo mal!)</span>
+</code></pre></div>
+<h3 id="non-null-assertions">Non-null Assertions (<code>!</code>)<a class="headerlink" href="#non-null-assertions" title="anchor">&para;</a></h3>
+<p>Para <code>T | null</code> o <code>T | null | undefined</code>, le decís &ldquo;confía en mí, no es null/undefined&rdquo;.</p>
+<div class="highlight"><pre><span></span><code><span class="kr">type</span><span class="w"> </span><span class="nx">Dialog</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">};</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">closeDialog</span><span class="p">(</span><span class="nx">dialog</span><span class="o">:</span><span class="w"> </span><span class="kt">Dialog</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">dialog</span><span class="p">.</span><span class="nx">id</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="p">;</span>
+
+<span class="w">  </span><span class="nx">setTimeout</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span>
+<span class="w">    </span><span class="nx">removeFromDOM</span><span class="p">(</span>
+<span class="w">      </span><span class="nx">dialog</span><span class="p">,</span>
+<span class="w">      </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="nx">dialog</span><span class="p">.</span><span class="nx">id</span><span class="o">!</span><span class="p">)</span><span class="o">!</span><span class="w">   </span><span class="c1">// dos asserts: dialog.id es string, getElementById no es null</span>
+<span class="w">    </span><span class="p">)</span>
+<span class="w">  </span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">removeFromDOM</span><span class="p">(</span><span class="nx">dialog</span><span class="o">:</span><span class="w"> </span><span class="kt">Dialog</span><span class="p">,</span><span class="w"> </span><span class="nx">element</span><span class="o">:</span><span class="w"> </span><span class="kt">Element</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">element</span><span class="p">.</span><span class="nx">parentNode</span><span class="o">!</span><span class="p">.</span><span class="nx">removeChild</span><span class="p">(</span><span class="nx">element</span><span class="p">);</span><span class="w">  </span><span class="c1">// parentNode no es null</span>
+<span class="w">  </span><span class="ow">delete</span><span class="w"> </span><span class="nx">dialog</span><span class="p">.</span><span class="nx">id</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<blockquote>
+<p>💡 <strong>Si te encontrás usando muchos <code>!</code></strong>, refactorizá: en este caso, podrías partir <code>Dialog</code> en un union <code>VisibleDialog | DestroyedDialog</code>.</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code><span class="kr">type</span><span class="w"> </span><span class="nx">VisibleDialog</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">};</span>
+<span class="kr">type</span><span class="w"> </span><span class="nx">DestroyedDialog</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{};</span>
+<span class="kr">type</span><span class="w"> </span><span class="nx">Dialog</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">VisibleDialog</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">DestroyedDialog</span><span class="p">;</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">closeDialog</span><span class="p">(</span><span class="nx">dialog</span><span class="o">:</span><span class="w"> </span><span class="kt">Dialog</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">dialog</span><span class="p">))</span><span class="w"> </span><span class="k">return</span><span class="p">;</span><span class="w">     </span><span class="c1">// refinamiento → dialog: VisibleDialog</span>
+<span class="w">  </span><span class="nx">setTimeout</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span>
+<span class="w">    </span><span class="nx">removeFromDOM</span><span class="p">(</span><span class="nx">dialog</span><span class="p">,</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="nx">dialog</span><span class="p">.</span><span class="nx">id</span><span class="p">)</span><span class="o">!</span><span class="p">)</span>
+<span class="w">  </span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="definite-assignment-assertions-let-x-t">Definite Assignment Assertions (<code>let x!: T</code>)<a class="headerlink" href="#definite-assignment-assertions-let-x-t" title="anchor">&para;</a></h3>
+<p>Decís &ldquo;voy a asignar esto antes de usarlo, te juro&rdquo;.</p>
+<div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="nx">userId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="nx">fetchUser</span><span class="p">();</span>
+<span class="nx">userId</span><span class="p">.</span><span class="nx">toUpperCase</span><span class="p">();</span><span class="w">  </span><span class="c1">// ✗ Error TS2454: Variable &#39;userId&#39; is used before being assigned.</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">fetchUser</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">userId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">globalCache</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;userId&#39;</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Con definite assignment:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="nx">userId</span><span class="o">!:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w">   </span><span class="c1">// ← el bang</span>
+<span class="nx">fetchUser</span><span class="p">();</span>
+<span class="nx">userId</span><span class="p">.</span><span class="nx">toUpperCase</span><span class="p">();</span><span class="w">  </span><span class="c1">// ✓</span>
+</code></pre></div>
+<blockquote>
+<p>Igual que con non-null asserts: si lo usás seguido, hay olor a refactor.</p>
+</blockquote>
+<hr />
+<h2 id="simulating-nominal-types">Simulating Nominal Types<a class="headerlink" href="#simulating-nominal-types" title="anchor">&para;</a></h2>
+<blockquote>
+<p>TS es <strong>structural</strong>: dos tipos con la misma forma son intercambiables. A veces querés <strong>nominal</strong>: distinguir por nombre aunque la forma sea igual.</p>
+</blockquote>
+<h3 id="el-problema_1">El problema<a class="headerlink" href="#el-problema_1" title="anchor">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kr">type</span><span class="w"> </span><span class="nx">CompanyID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="kr">type</span><span class="w"> </span><span class="nx">OrderID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="kr">type</span><span class="w"> </span><span class="nx">UserID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="kr">type</span><span class="w"> </span><span class="nx">ID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">CompanyID</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">OrderID</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">UserID</span><span class="p">;</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">queryForUser</span><span class="p">(</span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">UserID</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">}</span>
+
+<span class="kd">let</span><span class="w"> </span><span class="nx">companyId</span><span class="o">:</span><span class="w"> </span><span class="kt">CompanyID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;b4843361&#39;</span><span class="p">;</span>
+<span class="nx">queryForUser</span><span class="p">(</span><span class="nx">companyId</span><span class="p">);</span><span class="w">   </span><span class="c1">// ✓ — TS lo permite porque ambos son string</span>
+<span class="w">                            </span><span class="c1">//     (¡pero semánticamente es un bug!)</span>
+</code></pre></div>
+<h3 id="la-solucion-type-branding">La solución: <strong>type branding</strong><a class="headerlink" href="#la-solucion-type-branding" title="anchor">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kr">type</span><span class="w"> </span><span class="nx">CompanyID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">brand</span><span class="o">:</span><span class="w"> </span><span class="kt">unique</span><span class="w"> </span><span class="nx">symbol</span><span class="w"> </span><span class="p">};</span>
+<span class="kr">type</span><span class="w"> </span><span class="nx">OrderID</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">brand</span><span class="o">:</span><span class="w"> </span><span class="kt">unique</span><span class="w"> </span><span class="nx">symbol</span><span class="w"> </span><span class="p">};</span>
+<span class="kr">type</span><span class="w"> </span><span class="nx">UserID</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">brand</span><span class="o">:</span><span class="w"> </span><span class="kt">unique</span><span class="w"> </span><span class="nx">symbol</span><span class="w"> </span><span class="p">};</span>
+<span class="kr">type</span><span class="w"> </span><span class="nx">ID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">CompanyID</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">OrderID</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">UserID</span><span class="p">;</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">CompanyID</span><span class="p">(</span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nx">id</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">CompanyID</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="kd">function</span><span class="w"> </span><span class="nx">OrderID</span><span class="p">(</span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w">   </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nx">id</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">OrderID</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="kd">function</span><span class="w"> </span><span class="nx">UserID</span><span class="p">(</span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nx">id</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">UserID</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">queryForUser</span><span class="p">(</span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">UserID</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">}</span>
+
+<span class="kd">let</span><span class="w"> </span><span class="nx">companyId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">CompanyID</span><span class="p">(</span><span class="s1">&#39;8a6076cf&#39;</span><span class="p">);</span>
+<span class="kd">let</span><span class="w"> </span><span class="nx">userId</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="nx">UserID</span><span class="p">(</span><span class="s1">&#39;d21b1dbf&#39;</span><span class="p">);</span>
+
+<span class="nx">queryForUser</span><span class="p">(</span><span class="nx">userId</span><span class="p">);</span><span class="w">     </span><span class="c1">// ✓</span>
+<span class="nx">queryForUser</span><span class="p">(</span><span class="nx">companyId</span><span class="p">);</span><span class="w">  </span><span class="c1">// ✗ Error TS2345: Argument of type &#39;CompanyID&#39;</span>
+<span class="w">                          </span><span class="c1">//   is not assignable to parameter of type &#39;UserID&#39;.</span>
+</code></pre></div>
+<p><strong>¿Cómo funciona?</strong> El intersection con <code>{ brand: unique symbol }</code> produce un tipo &ldquo;imposible de construir naturalmente&rdquo;. <code>unique symbol</code> es uno de los pocos tipos nominales reales de TS (el otro es <code>enum</code>). La única manera de obtener un valor del tipo branded es <strong>vía la function constructor</strong> que hace la <code>as</code> assertion.</p>
+<p><strong>Costo en runtime:</strong> ninguno. El brand es puramente compile-time. Cada ID sigue siendo un <code>string</code> al ejecutar.</p>
+<blockquote>
+<p>💡 <strong>Aplicalo en</strong>: IDs de dominio diferentes (UserID, OrderID), unidades de medida (Meters, Feet), strings con formato (Email, URL, SHA256), money con currency (USD, EUR).</p>
+</blockquote>
+<hr />
+<h2 id="safely-extending-the-prototype">Safely Extending the Prototype<a class="headerlink" href="#safely-extending-the-prototype" title="anchor">&para;</a></h2>
+<blockquote>
+<p>Antes era pecado. Con TS, podés agregar métodos a prototipos built-in <strong>de manera segura</strong>.</p>
+</blockquote>
+<p>Setup: queremos <code>[1,2,3].zip(['a','b','c'])</code> que devuelva <code>[[1,'a'],[2,'b'],[3,'c']]</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// zip.ts</span>
+
+<span class="kd">interface</span><span class="w"> </span><span class="nb">Array</span><span class="o">&lt;</span><span class="nx">T</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w">                    </span><span class="c1">// [1] augmenta la interface global Array</span>
+<span class="w">  </span><span class="nx">zip</span><span class="o">&lt;</span><span class="nx">U</span><span class="o">&gt;</span><span class="p">(</span><span class="nx">list</span><span class="o">:</span><span class="w"> </span><span class="kt">U</span><span class="p">[])</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">T</span><span class="p">,</span><span class="w"> </span><span class="nx">U</span><span class="p">][];</span>
+<span class="p">}</span>
+
+<span class="nb">Array</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">zip</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">function</span><span class="o">&lt;</span><span class="nx">T</span><span class="p">,</span><span class="w"> </span><span class="nx">U</span><span class="o">&gt;</span><span class="p">(</span><span class="w">    </span><span class="c1">// [2] implementa el método</span>
+<span class="w">  </span><span class="nx">this</span><span class="o">:</span><span class="w"> </span><span class="kt">T</span><span class="p">[],</span>
+<span class="w">  </span><span class="nx">list</span><span class="o">:</span><span class="w"> </span><span class="kt">U</span><span class="p">[]</span>
+<span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">T</span><span class="p">,</span><span class="w"> </span><span class="nx">U</span><span class="p">][]</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">map</span><span class="p">((</span><span class="nx">v</span><span class="p">,</span><span class="w"> </span><span class="nx">k</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">tuple</span><span class="p">(</span><span class="nx">v</span><span class="p">,</span><span class="w"> </span><span class="nx">list</span><span class="p">[</span><span class="nx">k</span><span class="p">]));</span>
+<span class="p">};</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Paso</th>
+<th>Qué hace</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[1]</td>
+<td>Declaration merging con la interface global <code>Array&lt;T&gt;</code></td>
+</tr>
+<tr>
+<td>[2]</td>
+<td>Implementación; usa <code>this: T[]</code> para inferir T</td>
+</tr>
+<tr>
+<td><code>tuple()</code></td>
+<td>Helper para inferir tupla en lugar de <code>(T \| U)[]</code> (ver sección anterior)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="si-el-archivo-esta-en-module-mode">Si el archivo está en module mode<a class="headerlink" href="#si-el-archivo-esta-en-module-mode" title="anchor">&para;</a></h4>
+<p>Si tu <code>zip.ts</code> tiene imports/exports, no está en script mode. Necesitás <code>declare global</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">something</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;somewhere&#39;</span><span class="p">;</span>
+
+<span class="kr">declare</span><span class="w"> </span><span class="nb">global</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">interface</span><span class="w"> </span><span class="nb">Array</span><span class="o">&lt;</span><span class="nx">T</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">zip</span><span class="o">&lt;</span><span class="nx">U</span><span class="o">&gt;</span><span class="p">(</span><span class="nx">list</span><span class="o">:</span><span class="w"> </span><span class="kt">U</span><span class="p">[])</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">T</span><span class="p">,</span><span class="w"> </span><span class="nx">U</span><span class="p">][];</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h4 id="forzar-import-explicito">Forzar import explícito<a class="headerlink" href="#forzar-import-explicito" title="anchor">&para;</a></h4>
+<p>En <code>tsconfig.json</code>, excluí el archivo del compile:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"> </span><span class="nt">&quot;exclude&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;./zip.ts&quot;</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<p>Así, cualquier archivo que use <code>.zip</code> está obligado a hacer <code>import './zip'</code> primero — garantizando que el monkey-patch corra antes.</p>
+<div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="s1">&#39;./zip&#39;</span><span class="p">;</span>
+<span class="p">[</span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="mf">2</span><span class="p">,</span><span class="w"> </span><span class="mf">3</span><span class="p">].</span><span class="nx">map</span><span class="p">(</span><span class="nx">n</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">n</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">2</span><span class="p">).</span><span class="nx">zip</span><span class="p">([</span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;b&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;c&#39;</span><span class="p">]);</span><span class="w">  </span><span class="c1">// [number, string][]</span>
+</code></pre></div>
+<hr />
+<h2 id="amplification">⭐ Amplification<a class="headerlink" href="#amplification" title="anchor">&para;</a></h2>
+<h3 id="patron-redux-reducer-con-discriminated-union-exhaustive-never">Patrón: Redux reducer con discriminated union + exhaustive <code>never</code><a class="headerlink" href="#patron-redux-reducer-con-discriminated-union-exhaustive-never" title="anchor">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kr">type</span><span class="w"> </span><span class="nx">Action</span><span class="w"> </span><span class="o">=</span>
+<span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;ADD_TODO&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">text</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;REMOVE_TODO&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;TOGGLE_TODO&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="w"> </span><span class="p">};</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">reducer</span><span class="p">(</span><span class="nx">state</span><span class="o">:</span><span class="w"> </span><span class="kt">Todo</span><span class="p">[],</span><span class="w"> </span><span class="nx">action</span><span class="o">:</span><span class="w"> </span><span class="kt">Action</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nx">Todo</span><span class="p">[]</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="nx">action</span><span class="p">.</span><span class="kr">type</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="s1">&#39;ADD_TODO&#39;</span><span class="o">:</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="p">[...</span><span class="nx">state</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">Date.now</span><span class="p">(),</span><span class="w"> </span><span class="nx">text</span><span class="o">:</span><span class="w"> </span><span class="kt">action.text</span><span class="p">,</span><span class="w"> </span><span class="nx">done</span><span class="o">:</span><span class="w"> </span><span class="kt">false</span><span class="w"> </span><span class="p">}];</span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="s1">&#39;REMOVE_TODO&#39;</span><span class="o">:</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="nx">state</span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">t</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">t</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="nx">action</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="s1">&#39;TOGGLE_TODO&#39;</span><span class="o">:</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="nx">state</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">t</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">t</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">action</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="nx">t</span><span class="p">,</span><span class="w"> </span><span class="nx">done</span><span class="o">:</span><span class="w"> </span><span class="o">!</span><span class="nx">t</span><span class="p">.</span><span class="nx">done</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="nx">t</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">default</span><span class="o">:</span>
+<span class="w">      </span><span class="kt">const</span><span class="w"> </span><span class="nx">_exhaustive</span><span class="o">:</span><span class="w"> </span><span class="kt">never</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">action</span><span class="p">;</span><span class="w">   </span><span class="c1">// si agregás una Action, esto rompe</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="nx">state</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="patron-api-response-typesafe-con-keying-in">Patrón: API response typesafe con keying-in<a class="headerlink" href="#patron-api-response-typesafe-con-keying-in" title="anchor">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kr">type</span><span class="w"> </span><span class="nx">Schema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">users</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">};</span>
+<span class="w">  </span><span class="nx">posts</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">body</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">};</span>
+<span class="w">  </span><span class="nx">comments</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">postId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">text</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">};</span>
+<span class="p">};</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">fetch</span><span class="o">&lt;</span><span class="nx">K</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">keyof</span><span class="w"> </span><span class="nx">Schema</span><span class="o">&gt;</span><span class="p">(</span><span class="nx">resource</span><span class="o">:</span><span class="w"> </span><span class="kt">K</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">Schema</span><span class="p">[</span><span class="nx">K</span><span class="p">]</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">fetch</span><span class="p">(</span><span class="sb">`/api/</span><span class="si">${</span><span class="nx">resource</span><span class="si">}</span><span class="sb">`</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">r</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">json</span><span class="p">());</span>
+<span class="p">}</span>
+
+<span class="nx">fetch</span><span class="p">(</span><span class="s1">&#39;users&#39;</span><span class="p">);</span><span class="w">     </span><span class="c1">// Promise&lt;{ id: string, name: string }&gt;</span>
+<span class="nx">fetch</span><span class="p">(</span><span class="s1">&#39;posts&#39;</span><span class="p">);</span><span class="w">     </span><span class="c1">// Promise&lt;{ id: string, title: string, body: string }&gt;</span>
+<span class="nx">fetch</span><span class="p">(</span><span class="s1">&#39;reactions&#39;</span><span class="p">);</span><span class="w"> </span><span class="c1">// ✗ — no existe en Schema</span>
+</code></pre></div>
+<h3 id="mapped-conditional-deeppartialt">Mapped + Conditional: <code>DeepPartial&lt;T&gt;</code><a class="headerlink" href="#mapped-conditional-deeppartialt" title="anchor">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kr">type</span><span class="w"> </span><span class="nx">DeepPartial</span><span class="o">&lt;</span><span class="nx">T</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="p">[</span><span class="nx">K</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">keyof</span><span class="w"> </span><span class="nx">T</span><span class="p">]</span><span class="nx">?</span><span class="o">:</span><span class="w"> </span><span class="kt">T</span><span class="p">[</span><span class="nx">K</span><span class="p">]</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">object</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="nx">DeepPartial</span><span class="o">&lt;</span><span class="nx">T</span><span class="p">[</span><span class="nx">K</span><span class="p">]</span><span class="o">&gt;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="nx">T</span><span class="p">[</span><span class="nx">K</span><span class="p">];</span>
+<span class="p">};</span>
+
+<span class="kr">type</span><span class="w"> </span><span class="nx">Config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">server</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">host</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">port</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">,</span><span class="w"> </span><span class="nx">ssl</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">cert</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">key</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">};</span>
+<span class="w">  </span><span class="nx">client</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">timeout</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="w"> </span><span class="p">};</span>
+<span class="p">};</span>
+
+<span class="kd">let</span><span class="w"> </span><span class="kd">override</span><span class="o">:</span><span class="w"> </span><span class="nx">DeepPartial</span><span class="o">&lt;</span><span class="nx">Config</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">server</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ssl</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">cert</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;new&#39;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span><span class="w">   </span><span class="c1">// ✓ — todo opcional, hasta el fondo</span>
+<span class="p">};</span>
+</code></pre></div>
+<h3 id="type-branding-para-validacion-de-strings">Type branding para validación de strings<a class="headerlink" href="#type-branding-para-validacion-de-strings" title="anchor">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kr">type</span><span class="w"> </span><span class="nx">Email</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">brand</span><span class="o">:</span><span class="w"> </span><span class="kt">unique</span><span class="w"> </span><span class="nx">symbol</span><span class="w"> </span><span class="p">};</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">parseEmail</span><span class="p">(</span><span class="nx">s</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nx">Email</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="sr">/^[^\s@]+@[^\s@]+$/</span><span class="p">.</span><span class="nx">test</span><span class="p">(</span><span class="nx">s</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="p">(</span><span class="nx">s</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">Email</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">sendEmail</span><span class="p">(</span><span class="nx">to</span><span class="o">:</span><span class="w"> </span><span class="kt">Email</span><span class="p">,</span><span class="w"> </span><span class="nx">body</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">}</span>
+
+<span class="kd">let</span><span class="w"> </span><span class="nx">raw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;user@example.com&quot;</span><span class="p">;</span>
+<span class="kd">let</span><span class="w"> </span><span class="nx">email</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">parseEmail</span><span class="p">(</span><span class="nx">raw</span><span class="p">);</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">email</span><span class="p">)</span><span class="w"> </span><span class="nx">sendEmail</span><span class="p">(</span><span class="nx">email</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;hi&quot;</span><span class="p">);</span>
+<span class="c1">// sendEmail(raw, &quot;hi&quot;); ✗ — raw es string, no Email</span>
+</code></pre></div>
+<hr />
+<h2 id="pitfalls">⚠️ Pitfalls<a class="headerlink" href="#pitfalls" title="anchor">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Pitfall</th>
+<th>Cómo evitar</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Olvidar <code>strictFunctionTypes</code> y usar parámetros bivariantes (default legacy)</td>
+<td>Usar <code>"strict": true</code> en tsconfig</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Excess property checking se pierde al asignar a variable</td>
+<td>Si necesitás el chequeo, pasá object literal directo</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Refinamiento se pierde al cruzar function scope (arrow callbacks, async, setTimeout)</td>
+<td>Asignar a <code>const</code> local antes del cruce</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Tipo <code>any</code> se contagia silenciosamente</td>
+<td>Activar <code>noImplicitAny</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td>Usar <code>as</code> para &ldquo;callar al compilador&rdquo; sin entender la causa</td>
+<td>Buscar el shape real; usar <code>as unknown as T</code> como último recurso (señal de problema)</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Definir conditional types sin distribución cuando la necesitás</td>
+<td>Envolver con <code>[T] extends [U]</code> para <strong>desactivar</strong> distribución; usar <code>T extends U</code> para activarla</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Usar <code>enum</code> esperando comportamiento de tipos seguros</td>
+<td>Preferir <code>'a' \| 'b' \| 'c'</code> (string literal unions)</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Modificar el prototipo sin garantizar que se importe primero</td>
+<td>Excluir del compile y <code>import './zip'</code> explícito en cada uso</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Type guards con bugs (&ldquo;a is string&rdquo; pero la implementación devuelve true para otros tipos)</td>
+<td>Tests unitarios sobre los guards</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Confiar en <code>ReturnType&lt;F&gt;</code> con funciones genéricas o overloaded</td>
+<td>TS resuelve a la última signature; no siempre lo que querés</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="interview-tips">Interview Tips<a class="headerlink" href="#interview-tips" title="anchor">&para;</a></h2>
+<ul>
+<li><strong>Si te preguntan &ldquo;¿qué hace TS distinto a Flow / a tipos de Java?&rdquo;</strong>, mencioná: structural typing, conditional types con <code>infer</code>, mapped types, control-flow narrowing. Estos cuatro juntos son únicos.</li>
+<li><strong>Si te muestran un error críptico de variancia</strong>, dibujá el árbol <code>Crow &lt;: Bird &lt;: Animal</code> y razoná: parámetros se &ldquo;abren&rdquo; (contravariante), returns se &ldquo;cierran&rdquo; (covariante).</li>
+<li><strong>Si te piden tipear algo complejo (Redux store, ORM, API client)</strong> y te trabás: separá en pasos — primero el shape básico, después mapped/conditional para derivar variantes.</li>
+<li><strong>El truco <code>const _: never = x</code> para exhaustividad</strong> es una pregunta clásica de TS senior. Saber por qué funciona ya te diferencia.</li>
+</ul>
+<hr />
+<h2 id="ejercicios-del-libro">📝 Ejercicios del libro<a class="headerlink" href="#ejercicios-del-libro" title="anchor">&para;</a></h2>
+<h3 id="ej-1-asignabilidad">Ej 1 — Asignabilidad<a class="headerlink" href="#ej-1-asignabilidad" title="anchor">&para;</a></h3>
+<p>Decidir si el primer tipo es asignable al segundo:</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>A</th>
+<th>B</th>
+<th>¿A asignable a B?</th>
+<th>Por qué</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>a</td>
+<td><code>1</code></td>
+<td><code>number</code></td>
+<td>✓</td>
+<td><code>1</code> es subtipo de <code>number</code> (widened)</td>
+</tr>
+<tr>
+<td>b</td>
+<td><code>number</code></td>
+<td><code>1</code></td>
+<td>✗</td>
+<td>un <code>number</code> cualquiera no es exactamente <code>1</code></td>
+</tr>
+<tr>
+<td>c</td>
+<td><code>string</code></td>
+<td><code>number \| string</code></td>
+<td>✓</td>
+<td>string ∈ union</td>
+</tr>
+<tr>
+<td>d</td>
+<td><code>boolean</code></td>
+<td><code>number</code></td>
+<td>✗</td>
+<td>sin relación</td>
+</tr>
+<tr>
+<td>e</td>
+<td><code>number[]</code></td>
+<td><code>(number \| string)[]</code></td>
+<td>✓</td>
+<td>arrays son covariantes en members</td>
+</tr>
+<tr>
+<td>f</td>
+<td><code>(number\|string)[]</code></td>
+<td><code>number[]</code></td>
+<td>✗</td>
+<td><code>string</code> no es number</td>
+</tr>
+<tr>
+<td>g</td>
+<td><code>{ a: true }</code></td>
+<td><code>{ a: boolean }</code></td>
+<td>✓</td>
+<td>covariance: <code>true &lt;: boolean</code></td>
+</tr>
+<tr>
+<td>h</td>
+<td><code>{ a: { b: [string] } }</code></td>
+<td><code>{ a: { b: [number\|string] } }</code></td>
+<td>✓</td>
+<td>covariance recursiva</td>
+</tr>
+<tr>
+<td>i</td>
+<td><code>(a: number) =&gt; string</code></td>
+<td><code>(b: number) =&gt; string</code></td>
+<td>✓</td>
+<td>nombres de parámetros no importan</td>
+</tr>
+<tr>
+<td>j</td>
+<td><code>(a: number) =&gt; string</code></td>
+<td><code>(a: string) =&gt; string</code></td>
+<td>✗</td>
+<td>param types: number no es supertipo de string</td>
+</tr>
+<tr>
+<td>k</td>
+<td><code>(a: number\|string) =&gt; string</code></td>
+<td><code>(a: string) =&gt; string</code></td>
+<td>✓</td>
+<td>param: <code>number\|string &gt;: string</code> (contravariante OK)</td>
+</tr>
+<tr>
+<td>l</td>
+<td><code>E.X</code> (<code>enum E {X='X'}</code>)</td>
+<td><code>F.X</code> (<code>enum F {X='X'}</code>)</td>
+<td>✗</td>
+<td>enums son nominales</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ej-2-keyof-y-keying-in">Ej 2 — keyof y keying-in<a class="headerlink" href="#ej-2-keyof-y-keying-in" title="anchor">&para;</a></h3>
+<p><code>type O = { a: { b: { c: string } } }</code></p>
+<ul>
+<li><code>keyof O</code> = <code>'a'</code></li>
+<li><code>O['a']['b']</code> = <code>{ c: string }</code></li>
+</ul>
+<h3 id="ej-3-exclusivet-u">Ej 3 — <code>Exclusive&lt;T, U&gt;</code><a class="headerlink" href="#ej-3-exclusivet-u" title="anchor">&para;</a></h3>
+<blockquote>
+<p>&ldquo;Tipos que están en T o U pero <strong>no en ambos</strong>&rdquo; (XOR).</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code><span class="kr">type</span><span class="w"> </span><span class="nx">Exclusive</span><span class="o">&lt;</span><span class="nx">T</span><span class="p">,</span><span class="w"> </span><span class="nx">U</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span>
+<span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="p">(</span><span class="nx">T</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">U</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="nx">never</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kt">T</span><span class="p">)</span>
+<span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="p">(</span><span class="nx">U</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">T</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="nx">never</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kt">U</span><span class="p">);</span>
+
+<span class="kr">type</span><span class="w"> </span><span class="nx">R</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">Exclusive</span><span class="o">&lt;</span><span class="mf">1</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="mf">2</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="mf">3</span><span class="p">,</span><span class="w"> </span><span class="mf">2</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="mf">3</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="mf">4</span><span class="o">&gt;</span><span class="p">;</span><span class="w">  </span><span class="c1">// 1 | 4</span>
+</code></pre></div>
+<p>Evaluación paso a paso de <code>Exclusive&lt;1 | 2, 2 | 4&gt;</code>:</p>
+<ol>
+<li>Lado izq: <code>(1 | 2) extends (2 | 4) ? never : (1 | 2)</code> — distribuye:</li>
+<li><code>1 extends (2|4) ? never : 1</code> = <code>1</code></li>
+<li><code>2 extends (2|4) ? never : 2</code> = <code>never</code></li>
+<li>= <code>1 | never</code> = <code>1</code></li>
+<li>Lado der: <code>(2 | 4) extends (1 | 2) ? never : (2 | 4)</code> — distribuye:</li>
+<li><code>2 extends (1|2) ? never : 2</code> = <code>never</code></li>
+<li><code>4 extends (1|2) ? never : 4</code> = <code>4</code></li>
+<li>= <code>4</code></li>
+<li>Unión: <code>1 | 4</code>. ✓</li>
+</ol>
+<h3 id="ej-4-reescribir-el-ejemplo-de-definite-assignment-sin">Ej 4 — Reescribir el ejemplo de definite assignment sin <code>!</code><a class="headerlink" href="#ej-4-reescribir-el-ejemplo-de-definite-assignment-sin" title="anchor">&para;</a></h3>
+<p>En lugar de <code>let userId!: string</code>, fuerza el assign en una sola expresión:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">fetchUser</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">globalCache</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;userId&#39;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">userId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">fetchUser</span><span class="p">();</span>
+<span class="nx">userId</span><span class="p">.</span><span class="nx">toUpperCase</span><span class="p">();</span><span class="w">  </span><span class="c1">// ✓ — siempre asignado, sin bang</span>
+</code></pre></div>
+<hr />
+<h2 id="references">📚 References<a class="headerlink" href="#references" title="anchor">&para;</a></h2>
+<ul>
+<li><em>Programming TypeScript</em> — Boris Cherny, O&rsquo;Reilly 2019. Capítulo 6, &ldquo;Advanced Types&rdquo; (pp. 113–157).</li>
+<li>TypeScript Handbook — <a href="https://www.typescriptlang.org/docs/handbook/2/types-from-types.html">Type Manipulation</a>.</li>
+<li>Anders Hejlsberg, <a href="https://www.youtube.com/watch?v=hDACN-BGvI8">Advanced Types</a> (TSConf).</li>
+</ul>
+<hr />
+<blockquote>
+<p>📍 <a href="./05-classes-and-interfaces.html">⬅ Cap. 5: Classes &amp; Interfaces</a> · <a href="./07-handling-errors.html">Cap. 7: Handling Errors ➡</a> · <a href="../../../index.html">📚 KB Index</a></p>
+</blockquote>
+      <nav class="prev-next"><a class="prev" href="05-classes-and-interfaces.html"><div class="label">← Anterior</div><div class="title">Classes and Interfaces</div></a><a class="next" href="07-handling-errors.html"><div class="label">Siguiente →</div><div class="title">Handling Errors</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="06-advanced-types.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

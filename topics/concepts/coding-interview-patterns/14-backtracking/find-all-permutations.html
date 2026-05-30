@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Find All Permutations · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 14 — Backtracking</span><span class="sep">/</span><span class="current">Find All Permutations</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Find All Permutations</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">backtracking</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Find All Permutations
+Return all possible permutations of a given array of unique integers. They can be returned in any order.</p>
+<p>Example:
+Input: nums = [4, 5, 6]
+Output: [[4, 5, 6], [4, 6, 5], [5, 4, 6], [5, 6, 4], [6, 4, 5], [6, 5, 4]]
+Intuition
+Our task in this problem is quite straightforward: find all permutations of a given array. The key word here is &ldquo;all&rdquo;. To achieve this, we need an algorithm that generates each possible permutation one at a time. The technique that naturally fits this requirement is backtracking. As with any backtracking solution, it&rsquo;s useful to first visualize the state space tree.</p>
+<p>State space tree
+Let&rsquo;s figure out how to build just one permutation. Consider the array [4, 5, 6]. We can start by picking one number from this array for the first position of this permutation. For the second position, let&rsquo;s pick a different number. We can keep adding numbers like this until all the numbers from the array are used. To avoid reusing numbers, let&rsquo;s also keep track of the used numbers using a hash set.</p>
+<p>Image represents a tree-like diagram illustrating a recursive algorithm, likely for generating permutations.  The top row shows three initial states, each represented as &lsquo;[], used = {}&rsquo;, indicating an empty permutation list and an empty set of used numbers.  The input <code>nums = [4 5 6]</code> is defined at the top.  From each initial state, a number is chosen (indicated by &lsquo;choose 4&rsquo;, &lsquo;choose 5&rsquo;, &lsquo;choose 6&rsquo; in peach-colored boxes), represented by a downward-pointing arrow.  This chosen number is appended to the permutation list, and added to the <code>used</code> set.  The next level shows the updated state, for example &lsquo;[4], used = {4}&rsquo;. This process repeats recursively; each node represents a state with a partially built permutation and a set of used numbers.  The arrows depict the flow of the algorithm, branching out as each number is chosen.  The final state, &lsquo;[4,5,6], used = {4,5,6}&rsquo;, is reached in the bottom-right branch, resulting in the message &lsquo;one permutation found!&rsquo; in green, indicating a successful permutation generation.  The diagram visually demonstrates the backtracking nature of the algorithm, as each branch explores a different permutation possibility.
+Now that we&rsquo;ve found one permutation, let&rsquo;s backtrack to find others. Start by removing the most recently added number, 6, bringing us back to [4, 5]:</p>
+<p>Image represents a directed acyclic graph illustrating a backtracking algorithm, likely for a problem involving selecting elements from a set.  The graph shows a sequence of states, each represented by a node labeled with a list <code>[]</code> indicating the selected elements and a set <code>{ }</code> labeled <code>used</code> showing the elements already considered.  The top node <code>[], used = {}</code> represents the initial state with no elements selected.  An arrow points downwards to <code>[4], used = {4}</code>, indicating that element 4 has been selected.  Another downward arrow connects this to <code>[4,5], used = {4,5}</code>, showing that element 5 has subsequently been selected.  A final downward arrow leads to <code>[4,5,6]</code>, suggesting element 6 was added.  A light-blue box labeled &lsquo;backtrack: remove 6&rsquo; and an upward arrow connects <code>[4,5,6]</code> to <code>[4,5]</code>, demonstrating a backtracking step where element 6 is removed to explore alternative solutions.  The graph visually depicts the exploration of different combinations by adding and removing elements, a common characteristic of backtracking algorithms.
+Are there any other numbers we can append to [4, 5]? Well, 6 is the only option at this point, which we already explored. So, let&rsquo;s backtrack again by removing 5, bringing us back to [4]:</p>
+<p>Image represents a state diagram illustrating a backtracking algorithm, likely for a problem involving selecting elements from a set.  The diagram shows a directed acyclic graph with nodes representing states and edges representing transitions. Each node is labeled with a list (representing a subset of elements selected so far) and a set named &lsquo;used&rsquo; indicating which elements are already included in the subset.  The top node, &lsquo;[ ], used = {}&rsquo;, represents the initial state with no elements selected.  A downward arrow connects this to &lsquo;[4], used = {4}&rsquo;, indicating the selection of element 4.  Another downward arrow leads to &lsquo;[4, 5]&rsquo;, showing the subsequent selection of element 5. A further downward arrow connects to &lsquo;[4, 5, 6]&rsquo;, suggesting the addition of element 6.  Crucially, a light-blue box labeled &lsquo;backtrack: remove 5&rsquo; and an upward arrow connects &lsquo;[4, 5]&rsquo; to &lsquo;[4], used = {4}&rsquo;, demonstrating a backtracking step where element 5 is removed to explore alternative selections.  The arrows indicate the flow of the algorithm, showing how it explores different combinations by adding and removing elements.
+Are there any numbers other than 5 we can add to [4] at this point? Yes, we can use 6, so let&rsquo;s add it and continue searching:</p>
+<p>Image represents a state-transition diagram illustrating a backtracking algorithm, likely for finding combinations or permutations.  The diagram shows a tree-like structure where each node represents a state defined by a list (in square brackets) representing a partially built combination and a set (within curly braces) labeled &lsquo;used&rsquo; tracking the elements already included. The root node is <code>[], used = {}</code>, indicating an empty initial combination and no used elements.  A downward arrow signifies the addition of an element to the combination.  From the root, a black arrow points to <code>[4], used = {4}</code>, showing the selection of element 4.  From this node, two downward arrows branch to <code>[4,5]</code> and <code>[4,6], used = {4,6}</code>, representing the addition of 5 and 6 respectively, updating the &lsquo;used&rsquo; set. A light-blue upward arrow connects <code>[4,5]</code> to <code>[4,5,6]</code>, suggesting a further addition of 6 (though this branch isn&rsquo;t fully explored).  A rectangular box labeled &lsquo;choose 6&rsquo; highlights the decision point where 6 is considered for addition to the combination. The overall structure demonstrates the exploration of different combinations by adding elements and backtracking when necessary, as indicated by the upward arrows.
+The only number we can use at this point is 5, so let’s add it to [4, 6], giving us another permutation:</p>
+<p>Image represents a tree-like diagram illustrating a backtracking algorithm for generating permutations.  The root node is <code>[], used = {}</code>, indicating an empty initial set and an empty set of used numbers.  A downward-pointing arrow connects this to the node <code>[4], used = {4}</code>, showing the selection of 4 as the first element.  From this node, two branches extend downwards, representing the choices for the second element: <code>[4,5]</code> and <code>[4,6]</code>, with <code>used = {4,6}</code> indicating that 4 and 6 have been used.  A light-blue upward-pointing arrow connects <code>[4,5]</code> to <code>[4,5,6]</code>, showing the addition of 6 as the third element.  Similarly, a downward-pointing arrow from <code>[4,6]</code> leads to <code>[4,6,5]</code>.  The text &lsquo;choose 5&rsquo; highlights the selection of 5 in the lower branch.  Finally, <code>[4,5,6]</code> and <code>[4,6,5]</code> represent complete permutations, with <code>used = {4,6,5}</code> indicating all used numbers, and the text &lsquo;found another permutation!&rsquo; confirms the successful generation of a permutation.  The diagram visually demonstrates the recursive exploration of possibilities and the backtracking process when a choice leads to a dead end.
+Following this backtracking process until we’ve explored all branches allows us to generate all permutations:</p>
+<p>Image represents a tree-like structure illustrating the permutations of the set {4, 5, 6}. The root node, at the top, is an empty set represented by <code>[]</code>.  From this root, three branches descend, each representing a single element from the set: [4], [5], and [6]. Each of these nodes then branches further, adding one more element from the remaining set. For example, [4] branches into [4, 5] and [4, 6], representing the two possible ways to add one element from {5, 6} to the set {4}. This pattern continues until the bottom level, where each leaf node represents a complete permutation of the original set {4, 5, 6}, shown as ordered lists within square brackets: [4, 5, 6], [4, 6, 5], [5, 4, 6], [5, 6, 4], [6, 4, 5], and [6, 5, 4].  Arrows indicate the flow of information, showing how each permutation is built up sequentially from the root node.
+Every time we reach a permutation (i.e., when the permutation we’re building reaches a size of n, where n denotes the length of the input array), add it to our output.</p>
+<p>Traversing the state space tree
+Generating all permutations can be achieved by traversing the state space tree.</p>
+<p>Each node in this tree, except leaf nodes, represents a permutation candidate: a partially completed permutation that we’re building. The root node represents an empty permutation, and an element is added to each permutation candidate as we progress deeper into the tree. The leaf nodes represent completed permutations.</p>
+<p>Starting from the root node, we can traverse this tree using backtracking:</p>
+<p>Pick an unused number and add it to the current permutation candidate. Mark this number as used by adding it to the used hash set.</p>
+<p>Make a recursive call with this updated permutation candidate to explore its branches.</p>
+<p>Backtrack: remove the last number we added to the current candidate array, and the used hash set.</p>
+<p>Whenever a permutation candidate reaches the length of n, add it to our output.</p>
+<p>Try it yourself
+Write your solution to the problem before checking the reference implementation.
+Implementation
+Python
+JavaScript
+Java
+from typing import List, Set
+    
+def find_all_permutations(nums: List[int]) -&gt; List[List[int]]:
+    res = []
+    backtrack(nums, [], set(), res)
+    return res
+    
+def backtrack(nums: List[int], candidate: List[int], used: Set[int], res: List[List[int]]) -&gt; None:
+    # If the current candidate is a complete permutation, add it to the result.
+    if len(candidate) == len(nums):
+        res.append(candidate[:])
+        return
+    for num in nums:
+        if num not in used:
+            # Add &lsquo;num&rsquo; to the current permutation and mark it as used.
+            candidate.append(num)
+            used.add(num)
+            # Recursively explore all branches using the updated permutation
+            # candidate.
+            backtrack(nums, candidate, used, res)
+            # Backtrack by reversing the changes made.
+            candidate.pop()
+            used.remove(num)
+Complexity Analysis
+Time complexity: The time complexity of find_all_permutations is 
+O
+(
+n
+⋅
+n
+!
+)
+O(n⋅n!). Here’s why:</p>
+<p>Starting from the root, we recursively explore 
+n
+n candidates.
+For each of these 
+n
+n candidates, we explore 
+n
+−
+1
+n−1 more candidates, then 
+n
+−
+2
+n−2 more candidates, etc, until we have explored all permutations. This results in a total of 
+n
+⋅
+(
+n
+−
+1
+)
+⋅
+(
+n
+−
+2
+)
+…
+1
+=
+n
+!
+n⋅(n−1)⋅(n−2)…1=n! permutations.
+For each of the 
+n
+!
+n! permutations, we make a copy of it and add it to the output, which takes 
+O
+(
+n
+)
+O(n) time.
+This results in a total time complexity of 
+O
+(
+n
+!
+)
+⋅
+O
+(
+n
+)
+=
+O
+(
+n
+⋅
+n
+!
+)
+O(n!)⋅O(n)=O(n⋅n!).</p>
+<p>Space complexity: The space complexity is 
+O
+(
+n
+)
+O(n) because the maximum depth of the recursion tree is 
+n
+n. The algorithm also maintains the candidate and used data structures, both of which also contribute 
+O
+(
+n
+)
+O(n) space. Note, the res array does not contribute to space complexity.</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="introduction.html"><div class="label">← Anterior</div><div class="title">Introduction to Backtracking</div></a><a class="next" href="find-all-subsets.html"><div class="label">Siguiente →</div><div class="title">Find All Subsets</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="find-all-permutations.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

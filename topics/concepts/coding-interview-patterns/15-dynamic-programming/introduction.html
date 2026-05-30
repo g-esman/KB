@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Introduction to Dynamic Programming · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 15 — Dynamic Programming</span><span class="sep">/</span><span class="current">Introduction to Dynamic Programming</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Introduction to Dynamic Programming</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">dynamic-programming</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Introduction to Dynamic Programming
+Dynamic programming (DP) may seem daunting at first, but we’ll break it down into manageable concepts and techniques. First, let’s get an idea of what DP aims to do by considering the bigger picture.</p>
+<p>Some problems can be broken down into subproblems, where each subproblem is a smaller version of the main problem. These subproblems may themselves be broken down into more subproblems as well. This isn’t a foreign concept to us. Recursion is often used to solve problems like these, where we make recursive calls to solve each subproblem.</p>
+<p>However, in the recursive process, it’s possible to generate and solve the same subproblem multiple times, which can be unnecessarily expensive.</p>
+<p>Image represents a tree-like diagram illustrating a recursive problem-solving approach.  The top node is labeled <code>f(main_problem)</code>, representing the main problem to be solved. This node branches into two subproblems: <code>f(subproblem_a)</code> and <code>f(subproblem_b)</code>.  <code>f(subproblem_a)</code> further breaks down into <code>f(subproblem_b)</code> and <code>f(subproblem_c)</code>.  Each <code>f(subproblem_x)</code> represents a function call to solve a subproblem.  The <code>f(subproblem_b)</code> on the right branch is highlighted with a peach-colored background and a curved orange arrow points to it from the text &lsquo;solved before,&rsquo; indicating that this specific subproblem has been solved previously.  Solid lines represent direct function calls, while dashed lines indicate further, unspecified sub-problems stemming from the leaf nodes <code>f(subproblem_b)</code> and <code>f(subproblem_c)</code>. The diagram visually demonstrates how a complex problem is broken down into smaller, potentially reusable subproblems, highlighting the concept of memoization or dynamic programming where previously solved subproblems are reused to improve efficiency.
+DP is the antidote to this. It’s a technique that stores solutions to each subproblem, so they can be reused when they’re needed again. In other words, it’s an efficient tool that ensures each subproblem is solved at most one time. This can greatly increase the performance of an algorithm.</p>
+<p>The DP process
+DP is often perceived as challenging, but it follows a pretty consistent problem-solving process, best demonstrated with an example. First, we&rsquo;ll briefly explain some key DP terms, and then dive into the Climbing Stairs problem to learn how to identify a DP problem and develop a DP solution.</p>
+<p>Optimal substructure: the optimal solution to a problem can be constructed from the optimal solutions to its subproblems.</p>
+<p>Overlapping subproblems: if the same subproblems are solved repeatedly during the problem-solving process.</p>
+<p>Recurrence relation: a formula that expresses the solution to the problem in terms of the solutions to its subproblems.</p>
+<p>Base cases: the simplest instances of the problem where the solution is already known, without needing to be decomposed into more subproblems.</p>
+<p>The first two terms are essential attributes that a problem must have to be solvable using DP. The last two terms are essential components in every DP solution. These definitions may seem abstract now, but keep them in mind as they will become clearer in the context of a problem.</p>
+<p>Real-world Example
+Word segmentation: Search engines use DP in a process called “word segmentation.” When users enter a search query without spaces, DP is employed to determine if white spaces can be added to form valid words. For example, given a query without spaces (like “bestrestaurants”), DP checks all possible ways to insert spaces (“best restaurants,” “best rest aunts”) by solving each segment (subproblem) separately, and storing their solutions to avoid recalculation.</p>
+<p>Chapter Outline
+Image represents a hierarchical diagram illustrating the application of Dynamic Programming.  At the top, a rounded rectangle labeled &lsquo;Dynamic Programming&rsquo; serves as the root node.  A downward-pointing arrow connects it to two rectangular boxes with dashed borders, representing subcategories. The left box is labeled &lsquo;1D-DP&rsquo; and lists four problems solved using one-dimensional dynamic programming: &lsquo;Climbing Stairs,&rsquo; &lsquo;Minimum Coin Combination,&rsquo; &lsquo;Neighborhood Burglary,&rsquo; and &lsquo;Maximum Subarray Sum.&rsquo; The right box is labeled &lsquo;2D-DP&rsquo; and lists five problems solved using two-dimensional dynamic programming: &lsquo;Matrix Pathways,&rsquo; &lsquo;Longest Palindrome in a String,&rsquo; &lsquo;Longest Common Subsequence,&rsquo; &lsquo;0/1 Knapsack,&rsquo; and &lsquo;Largest Square in an Array.&rsquo;  Dashed lines connect the root node to each subcategory box, indicating a parent-child relationship, showing how these specific problems fall under the broader umbrella of Dynamic Programming techniques.
+The nature of each DP problem in this chapter is quite unique, but for simplicity, we’ve grouped them into two categories: one-dimensional DP (1D-DP), and two-dimensional DP (2D-DP).</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="../14-backtracking/phone-keypad-combinations.html"><div class="label">← Anterior</div><div class="title">Phone Keypad Combinations</div></a><a class="next" href="climbing-stairs.html"><div class="label">Siguiente →</div><div class="title">Climbing Stairs</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="introduction.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design an ATM System · Personal KB</title>
+<link rel="stylesheet" href="../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book II — Object-Oriented Design</span><span class="sep">/</span><span class="current">Design an ATM System</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Design an ATM System</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-04</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">ood</span><span class="meta-tag">atm</span><span class="meta-tag">banking</span><span class="meta-tag">state-machine</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Design an ATM System
+In this chapter, we will explore the object-oriented design of an ATM system. The primary purpose of an ATM is to automate banking tasks for users, allowing them to check balances, withdraw cash, and transfer funds. This design aims to make these operations seamless by designing classes that model key components, such as the ATM machine, bank accounts, hardware interfaces, and transaction states.</p>
+<p>Image represents a simplified diagram of an ATM (Automated Teller Machine).  The diagram is a rectangular box, primarily gray, with a lighter gray top section labeled &lsquo;ATM&rsquo; in bold, black, sans-serif font. Below the label is a larger rectangular area representing the main ATM screen, which is dark gray and blank.  Beneath the screen is a numerical keypad depicted as a grid of buttons, and to the right of the keypad is a slot, likely representing the card reader.  There are no explicit connections or data flows shown; the image solely presents a visual representation of the ATM&rsquo;s physical components and their arrangement.
+Automated Teller Machine (ATM)
+Let’s gather the specific requirements through a simulated interview scenario.</p>
+<p>Requirements Gathering
+Here is an example of a typical prompt an interviewer might give:</p>
+<p>“Picture yourself approaching an ATM on a busy afternoon to manage your banking needs. You insert your card, enter your PIN, and then choose from options such as checking your balance, withdrawing cash, or depositing funds. Within seconds, the system verifies your credentials and processes your request. Behind the scenes, the ATM coordinates with the bank, manages account transactions, and interacts with hardware like the card reader and cash dispenser. Now, let’s design an ATM system that handles these operations smoothly and reliably.”</p>
+<p>Requirements clarification
+The first step in designing the ATM system is to understand precisely what the interviewer wants you to design. Here is an example of how a conversation between a candidate and an interviewer might unfold:</p>
+<p>Candidate: For user interactions, I think the ATM should have a card reader to process debit cards, a keypad for entering the PIN and selecting options, a screen to display instructions and menus, a cash dispenser for withdrawals, and a deposit slot for accepting cash. Does this cover the main components, or are there additional ones I should consider?
+Interviewer: That’s a solid list.</p>
+<p>Candidate: I envision the ATM guiding users through a clear flow: the user inserts their card, enters a PIN for authentication, and then sees a menu with options like checking balance, withdrawing cash, or depositing funds. After completing a task, the ATM offers the choice to continue or exit, ejecting the card at the end. Does this flow align with your vision, or should I adjust any steps?
+Interviewer: Your flow is accurate. It starts with card insertion, PIN entry, and a menu for tasks. After each task, the user can continue or exit, with the card ejected at the end.</p>
+<p>Candidate: For authentication, I assume the ATM validates the card and PIN combination. If either is invalid, it displays an error.
+Interviewer: Yes, the ATM validates the card and PIN, showing an error for invalid inputs. Including a limit of three PIN attempts before locking the card is a good security measure. Let’s keep that in scope.</p>
+<p>Candidate: Regarding accounts, I propose that the ATM supports multiple accounts per user, such as Checking and Savings, linked to their card. Users can select an account for transactions. Does this match your requirements?
+Interviewer: That’s correct. The ATM should support Checking and Savings accounts, with users able to select one for transactions. No additional account types are needed for now.</p>
+<p>Candidate: For transactions, I think the ATM should handle Withdraw and Deposit operations. For example, withdrawals check for sufficient funds, and deposits update the balance. Should we include other transactions like transfers, or focus on these two?
+Interviewer: Let’s focus on Withdraw and Deposit for simplicity. Transfers are out of scope for now. Ensure withdrawals validate funds and deposits process cash accurately.</p>
+<p>Candidate: To handle errors, I suggest the ATM displays clear messages for issues like insufficient funds, invalid PINs, or hardware failures.
+Interviewer: I agree that clear error messages are essential.</p>
+<p>Requirements
+Based on the requirements gathering dialogue, the following functional requirements are identified for the ATM system:</p>
+<p>Authenticate users via a debit card and PIN.
+Support multiple accounts per user, including Checking and Savings account types, with the ability to select an account for transactions.
+The machine should include a Card Reader, Keypad, Screen, Cash Dispenser, Deposit Slot, and an optional Printer for receipts.
+Support Withdraw and Deposit transactions, ensuring withdrawals validate sufficient funds and deposits update the account balance.
+Handle exceptions, such as insufficient funds or incorrect inputs, by displaying clear error messages and retaining the card after repeated invalid attempts.
+Below are the non-functional requirements:</p>
+<p>The ATM must protect user data with strong security measures and retain cards after repeated invalid PIN attempts to ensure user trust.
+The ATM must operate reliably, minimizing disruptions and safely ejecting cards during failures to maintain user confidence.
+Use Case Diagram
+In the ATM system, a use case diagram illustrates how customers interact with the system to perform banking tasks, clarifying essential actions such as card insertion, PIN entry with up to three attempts, account selection, transaction processing, and error handling.</p>
+<p>Below is the use case diagram of the ATM system.</p>
+<p>Image represents a state diagram illustrating the interaction between a customer and an ATM system.  The diagram shows two stick figures representing the &lsquo;Customer&rsquo; and the &lsquo;System&rsquo;. A larger rectangle encloses the &lsquo;ATM&rsquo; which contains several rounded rectangles representing states: &lsquo;Insert Card,&rsquo; &lsquo;Enter PIN,&rsquo; &lsquo;Validate Card and PIN,&rsquo; &lsquo;Select Transaction,&rsquo; &lsquo;Select Account,&rsquo; &lsquo;Deposit Funds,&rsquo; &lsquo;Withdraw Cash,&rsquo; and &lsquo;Eject Card.&rsquo;  Arrows indicate the flow of the interaction. The customer initiates the process by inserting their card, then entering their PIN. The ATM then validates the card and PIN.  Following validation, the customer selects a transaction (deposit or withdrawal). If the customer selects &lsquo;Deposit Funds,&rsquo; they deposit funds, and the process proceeds to &lsquo;Eject Card.&rsquo; If they select &lsquo;Withdraw Cash,&rsquo; they select an account, withdraw cash, and the process proceeds to &lsquo;Eject Card.&rsquo;  The &lsquo;System&rsquo; actor is connected to the ATM, suggesting system-level control or monitoring of the ATM&rsquo;s operations.  All states, except for the initial &lsquo;Insert Card,&rsquo; have connections back to the customer, indicating that the customer interacts with the ATM at each step. Finally, all paths converge to the &lsquo;Eject Card&rsquo; state, concluding the transaction.
+Use Case Diagram of ATM
+The Customer actor has the following main use cases:</p>
+<p>Insert Card: The customer initiates a session by inserting their card into the ATM.
+Enter PIN: After inserting the card, the customer then enters their PIN for authentication.
+Select Transaction: The customer chooses a transaction type, such as withdrawing cash or depositing funds, from the menu.
+Select Account: The customer selects an account (e.g., Checking or Savings) for the transaction.
+Withdraw Cash: The customer requests a cash withdrawal and specifies the desired amount.
+Deposit Funds: The customer deposits cash into the ATM.
+Eject Card: The customer requests card ejection (e.g., by canceling or ending the session), the ATM ejects the card, and the session terminates.
+The System actor&rsquo;s use cases are listed below. Note that actors may not always be human.</p>
+<p>Validate Card and PIN: The system verifies the customer’s card and PIN to grant access to banking options.
+Withdraw Cash: The system processes the withdrawal request, confirms sufficient funds, and dispenses cash.
+Deposit Funds: The system accepts the deposited cash and updates the customer’s account balance accordingly.
+Eject Card: The ATM ejects the card, and the session ends.
+Identify Core Objects
+To design a modular and maintainable ATM system, we identify core objects that encapsulate distinct responsibilities, aligning with the functional requirements and user flow. These objects model the system’s key entities and interactions, ensuring clear separation of concerns and extensibility.</p>
+<p>Bank: Stores and manages accounts.</p>
+<p>Account: Represents a customer’s bank account. Manages a customer’s account details, including balance, account number, card number, PIN (hashed for security), and account type (Checking or Savings).</p>
+<p>ATMMachine: Acts as the main coordinator, managing user interaction and connecting with hardware elements like the card reader, keypad, screen, cash dispenser, and deposit slot.</p>
+<p>Design Choice
+Design choice: We consolidate hardware access and management within the ATMMachine object to ensure consistent behavior across components, enabling a seamless user flow from card insertion to transaction completion.</p>
+<p>Transaction: Manages financial transactions like cash withdrawals and deposits, including validation checks (e.g., sufficient balance for withdrawals) and transaction execution.</p>
+<p>Design Class Diagram
+With the core objects and their roles defined, we now design their classes, attributes, and methods to construct a modular and extensible ATM system that meets the specified requirements.</p>
+<p>Account
+This class represents a customer’s bank account as a distinct entity within the ATM system, encapsulating the essential data and operations needed to support user authentication and financial transactions.</p>
+<p>The Account class manages critical information, including the account balance, account number, associated card number, and PIN, while using an AccountType enum to distinguish between account types like Checking and Savings. It enables authentication by validating the PIN and supports transactions by updating the balance for withdrawals and deposits, ensuring the account’s state reflects the user’s financial activities accurately and efficiently.</p>
+<p>Below are representations of those classes.</p>
+<p>Image represents a class diagram showing the <code>Account</code> class and its relationship with the <code>AccountType</code> enumeration.  The <code>Account</code> class is depicted as a rectangle with a &lsquo;C&rsquo; in the upper left corner, indicating it&rsquo;s a class.  Inside, it lists private member variables: <code>BigDecimal balance</code>, <code>String accountNumber</code>, <code>String cardNumber</code>, <code>byte[] cardPinHash</code>, and <code>AccountType accountType</code>.  It also shows public methods: a constructor <code>Account(String accountNumber, AccountType type, String cardNumber, String pin)</code>, a <code>boolean validatePin(String pinNumber)</code> method, and a <code>void updateBalanceWithTransaction(BigDecimal balanceChange)</code> method.  A solid diamond-shaped arrow connects the <code>Account</code> class to the <code>AccountType</code> enumeration, represented by a rectangle with an &lsquo;E&rsquo; in the upper left corner, signifying it&rsquo;s an enumeration.  The <code>AccountType</code> enumeration lists two possible values: <code>CHECKING</code> and <code>SAVING</code>.  The diamond indicates a composition relationship, meaning an <code>Account</code> object <em>has-a</em> <code>AccountType</code>.
+Account class and AccountType enum
+Important Discussion
+Important discussion: Rather than maintaining a transaction ledger for auditability and deriving the balance from it, as is typical in real-world banking, we simplify the system by directly updating the account balance during each transaction. This approach prioritizes the ATM’s core functionality and effective scope management.</p>
+<p>Bank
+In object-oriented design questions, systems are usually self-contained and don&rsquo;t use real databases or web service API calls. The Bank class is designed to be a separate component that handles the main data and operations needed for the ATM to work.</p>
+<p>The Bank class stores Account objects and links them to cards for fast retrieval, enabling efficient card and PIN validation for authentication, account access for transactions, and funds availability checks for withdrawals.</p>
+<p>To ensure flexibility and scalability, we define a BankInterface to decouple the Bank implementation from the ATM. This allows the local Bank object to be easily replaced with a networked implementation, such as an API client adapter, if the system were to be extended for production use, without modifying the ATM’s core logic.</p>
+<p>The UML diagram below illustrates this structure.</p>
+<p>Image represents a UML class diagram illustrating the relationship between a <code>BankInterface</code> and a <code>Bank</code> class.  The top rectangle denotes <code>BankInterface</code>, an interface defining six public methods: <code>addAccount</code> (taking account number, account type, card number, and pin as String parameters), <code>validateCard</code> (returning a boolean and taking a card number String), <code>checkPin</code> (returning a boolean and taking card number and pin number Strings), <code>getAccountByAccountNumber</code> (returning an <code>Account</code> object and taking an account number String), <code>getAccountByCard</code> (returning an <code>Account</code> object and taking a card number String), and <code>withdrawFunds</code> (returning a boolean and taking an <code>Account</code> object and a <code>BigDecimal</code> amount).  A dashed arrow points from <code>BankInterface</code> to a <code>Bank</code> class rectangle below, indicating that the <code>Bank</code> class implements the <code>BankInterface</code>. The <code>Bank</code> class contains two private member variables: <code>accounts</code>, a <code>Map</code> with String keys and <code>Account</code> objects as values, and <code>accountByCard</code>, another <code>Map</code> with the same structure.  The diagram shows that the <code>Bank</code> class uses these maps to manage accounts, implementing the functionality specified in the <code>BankInterface</code>.
+BankInterface interface and concrete class
+Alternative Approach
+Alternative approach: We could integrate the Bank’s functionality directly into the ATMMachine. However, this would tightly couple account management with the ATM’s operations, reducing modularity and making it harder to adapt the system for networked banking or other extensions in the future.</p>
+<p>Transaction
+The purpose of designing the Transaction class is to provide a unified framework for handling financial operations in the ATM system, enabling the system to process withdrawals and deposits consistently and reliably.</p>
+<p>The Transaction class, as an interface, defines a contract for all transaction types, supported by a TransactionType enum that specifies Withdraw and Deposit operations. It validates transactions, such as checking funds for withdrawals, and updates the account balance, using concrete classes like WithdrawTransaction and DepositTransaction for reliable processing.</p>
+<p>Design Choice
+Design choice: By abstracting Transaction as a separate object, we can represent different transaction types (e.g., Withdraw, Deposit) with shared behavior, making it easier to introduce new types in the future without modifying the core logic.</p>
+<p>The UML diagram below illustrates this structure.</p>
+<p>Image represents a UML class diagram illustrating an object-oriented design for handling financial transactions.  At the top, an enumeration <code>TransactionType</code> is defined with two values: <code>WITHDRAW</code> and <code>DEPOSIT</code>.  An arrow points downwards from <code>TransactionType</code> to an interface <code>Transaction</code>, indicating that <code>TransactionType</code> is used by <code>Transaction</code>. The <code>Transaction</code> interface declares three methods: <code>getType()</code>, which returns a <code>TransactionType</code>; <code>validateTransaction()</code>, which returns a boolean indicating transaction validity; and <code>executeTransaction()</code>, a void method for executing the transaction.  Two classes, <code>DepositTransaction</code> and <code>WithdrawTransaction</code>, implement the <code>Transaction</code> interface (shown by dashed arrows). Both classes have private member variables <code>account</code> (of type <code>Account</code>) and <code>amount</code> (of type <code>BigDecimal</code>), and a constructor taking an <code>Account</code> and a <code>BigDecimal</code> as parameters.  The diagram shows a clear inheritance hierarchy where the concrete transaction types (<code>DepositTransaction</code> and <code>WithdrawTransaction</code>) implement the common interface <code>Transaction</code>, which in turn uses the <code>TransactionType</code> enumeration to define the type of transaction.
+Transaction interface and concrete classes
+ATMState
+The purpose of designing the ATMState interface is to provide a framework for handling the distinct stages of the ATM’s interaction process, ensuring the ATMMachine can manage each user step systematically.</p>
+<p>​​​​The ATMState interface defines the operations for each stage of the ATM’s flow, such as card insertion, PIN entry, transaction selection, and cash handling. Concrete state classes like IdleState, PinEntryState, TransactionSelectionState, WithdrawAmountEntryState, and DepositCollectionState implement the specific behavior for each stage.</p>
+<p>The following diagram shows the class hierarchy of ATMState and its concrete states:</p>
+<p>Image represents a state diagram illustrating the different states of an ATM machine using an object-oriented design.  The central component is an interface named <code>ATMState</code>, defining methods for handling various ATM operations: <code>processCardInsertion</code>, <code>processPinEntry</code>, <code>processWithdrawalRequest</code>, <code>processAmountEntry</code>, <code>processDepositRequest</code>, <code>processDepositCollection</code>, and <code>processCardEjection</code>.  Each method takes an <code>ATMMachine</code> object and optionally a <code>String</code> or <code>BigDecimal</code> as parameters.  Four concrete classes, <code>IdleState</code>, <code>PinEntryState</code>, <code>TransactionSelectionState</code>, and <code>WithdrawAmountEntryState</code>, and <code>DepositCollectionState</code> implement the <code>ATMState</code> interface.  Dashed lines with arrowheads indicate that these classes extend the <code>ATMState</code> interface.  Each concrete class implements a subset of the methods defined in the interface, representing the actions possible in that specific ATM state. For example, <code>IdleState</code> only implements <code>processCardInsertion</code>, while <code>PinEntryState</code> implements <code>processPinEntry</code> and <code>processCardEjection</code>.  The diagram shows the flow of control between states, implying a state machine where the ATM transitions between these states based on user interactions and the results of those interactions.
+ATMState interface and concrete classes
+The following state transition diagram visualizes this design.</p>
+<p>Image represents a state diagram depicting the workflow of an ATM.  The diagram starts with a filled black circle labeled &lsquo;Start,&rsquo; which points to a rounded rectangle labeled &lsquo;IdleState.&rsquo;  From &lsquo;IdleState,&rsquo; an arrow labeled &lsquo;insertCard&rsquo; leads to &lsquo;PinEntryState,&rsquo; while a self-loop labeled &lsquo;invalidCard/ejectCard&rsquo; indicates handling invalid card insertion.  &lsquo;PinEntryState&rsquo; has a self-loop labeled &lsquo;incorrect&rsquo; and an arrow labeled &lsquo;correct&rsquo; leading to &lsquo;TransactionSelectionState.&rsquo;  From &lsquo;TransactionSelectionState,&rsquo; arrows labeled &lsquo;withdrawRequest&rsquo; and &lsquo;depositRequest&rsquo; lead to &lsquo;WithdrawAmountEntryState&rsquo; and &lsquo;DepositCollectionState,&rsquo; respectively.  &lsquo;WithdrawAmountEntryState&rsquo; has an arrow labeled &lsquo;withdrawComplete/ejectCard&rsquo; returning to &lsquo;IdleState,&rsquo; and another labeled &lsquo;insufficientFunds/ejectCard&rsquo; also returning to &lsquo;IdleState.&rsquo; Similarly, &lsquo;DepositCollectionState&rsquo; has arrows labeled &lsquo;depositComplete/ejectCard&rsquo; and &lsquo;invalidDeposit/ejectCard&rsquo; returning to &lsquo;IdleState.&rsquo;  Finally, arrows labeled &lsquo;ejectCard&rsquo; connect &lsquo;PinEntryState,&rsquo; &lsquo;TransactionSelectionState,&rsquo; &lsquo;WithdrawAmountEntryState,&rsquo; and &lsquo;DepositCollectionState&rsquo; back to &lsquo;IdleState,&rsquo; representing card ejection in various scenarios.  All states are represented as rounded rectangles, and transitions are represented by arrows with descriptive labels indicating the event and any resulting actions.
+State transition diagram
+IdleState: Awaits card insertion, transitions to PinEntryState on valid card.
+PinEntryState: Processes PIN entry, transitions to TransactionSelectionState on valid PIN.
+TransactionSelectionState: Processes transaction selection, transitions to WithdrawAmountEntryState or DepositCollectionState.
+WithdrawAmountEntryState: Handles withdrawal amount entry, executes transaction, returns to TransactionSelectionState or IdleState.
+DepositCollectionState: Processes deposit amount, executes transaction, returns to TransactionSelectionState or IdleState.
+Note: To learn more about the State pattern and its everyday use cases, refer to the Vending Machine chapter of the book.</p>
+<p>Hardware component interfaces
+The purpose of designing the hardware component interfaces is to provide a set of interfaces that handle user interactions and physical operations within the ATM system, ensuring the ATMMachine can operate independently of specific hardware implementations.</p>
+<p>The hardware components, including CardProcessor, Keypad, Display, CashDispenser, and DepositBox, define the operations needed for interacting with the user and managing physical tasks, such as reading cards, accepting PIN entries, displaying messages, dispensing cash, and collecting deposits. They enable the ATMMachine to perform these tasks through well-defined interfaces, ensuring flexibility and ease of testing with simulated implementations.</p>
+<p>CardProcessor
+The CardProcessor interface enables the ATMMachine to read a card during insertion and release it after the user’s session, managing card-related operations for starting and ending transactions.</p>
+<p>Keypad
+The Keypad interface captures user inputs such as PINs, transaction choices, and amounts.</p>
+<p>DepositBox
+The DepositBox interface collects the deposited amount during a deposit transaction, enabling the ATMMachine to handle cash deposits from users.</p>
+<p>CashDispenser
+The CashDispenser interface delivers the requested cash to the user during a withdrawal transaction.</p>
+<p>Display
+The Display interface shows messages and prompts to guide the user.</p>
+<p>​​The following diagram shows the hardware component interfaces and their relationship with the ATMMachine:</p>
+<p>Image represents a class diagram illustrating the object-oriented design of an ATM machine.  The central component is a class labeled &lsquo;ATM Machine&rsquo; represented by a rectangle with a &lsquo;C&rsquo; in a circle at the top-left corner, indicating it&rsquo;s a class.  From this central class, five solid lines with filled diamond heads extend to five interfaces, represented by rectangles with an &lsquo;I&rsquo; in a circle at the top-left corner. These interfaces are: &lsquo;CardProcessor&rsquo;, &lsquo;Keypad&rsquo;, &lsquo;DepositBox&rsquo;, &lsquo;CashDispenser&rsquo;, and &lsquo;Display&rsquo;. The filled diamond heads on the lines indicate a composition relationship, meaning the ATM Machine <em>contains</em> instances of these interfaces.  No data flow is explicitly shown; the diagram only depicts the structural relationship between the ATM Machine class and its constituent interfaces, suggesting that the ATM Machine class utilizes the functionality provided by each of these interfaces.
+Hardware component interfaces
+ATMMachine
+The ATMMachine class acts as a facade for the ATM system, orchestrating user interactions, coordinating hardware components while relying on a Bank instance to access Account data and process Transactions. It uses the ATMState class to manage the sequence of steps in a user’s session, ensuring a clear and reliable experience from card insertion to session end.</p>
+<p>Below is the representation of this class.</p>
+<p>Image represents a UML class diagram for an <code>ATMMachine</code> class.  The diagram shows the <code>ATMMachine</code> class, denoted by a &lsquo;C&rsquo; in a circle, containing both attributes and methods.  The attributes, preceded by a minus sign (□), are: <code>ATMState state</code>, <code>CardProcessor cardProcessor</code>, <code>DepositBox depositBox</code>, <code>CashDispenser cashDispenser</code>, <code>Keypad keypad</code>, <code>Display display</code>, and <code>Bank bank</code>. These represent the internal components and connections of the ATM. The methods, preceded by a solid circle (•), define the ATM&rsquo;s functionality: <code>ATMMachine</code> (constructor, taking instances of <code>Bank</code>, <code>CardProcessor</code>, <code>DepositBox</code>, <code>CashDispenser</code>, <code>Keypad</code>, and <code>Display</code> as arguments), <code>insertCard</code> (takes a <code>String</code> card number), <code>enterPin</code> (takes a <code>String</code> pin), <code>withdrawRequest</code>, <code>enterAmount</code> (takes a <code>BigDecimal</code> amount), <code>depositRequest</code>, <code>collectDeposit</code> (takes a <code>BigDecimal</code> amount), <code>ejectCard</code>, and <code>transitionToState</code> (takes an <code>ATMState</code> object).  The arrangement shows the <code>ATMMachine</code> class encapsulating these attributes and methods, illustrating the object-oriented design principle of data hiding and method exposure.  No explicit connections between the attributes are shown, implying loose coupling between them, managed internally by the <code>ATMMachine</code> class methods.
+Design Choice
+Design choice: We employ the State pattern with ATMState classes to manage the ATM’s sequential workflow, such as transitioning from card insertion to PIN entry, ensuring each stage is encapsulated and clearly defined. Additionally, we use interface-based hardware components (e.g., CardProcessor, Keypad) to abstract physical interactions. This separation of concerns enhances modularity, simplifies maintenance, and enables testing with mock hardware implementations.</p>
+<p>With all classes defined, let’s review how they fit together in the complete class diagram.</p>
+<p>Complete Class Diagram
+Take a moment to review the complete class structure and the relationships between them. The detailed methods and attributes are skipped to make the diagram more readable.</p>
+<p>Image represents a class diagram illustrating the interaction between different components of an ATM system.  The topmost element is a class named <code>ATMmachine</code>, which is connected via a solid arrow to an interface named <code>BankInterface</code>.  A note attached to <code>ATMmachine</code> specifies its internal components: <code>Display</code>, <code>CashDispenser</code>, <code>DepositBox</code>, <code>CardProcessor</code>, <code>Keypad</code>, and <code>ATMState</code>. The <code>BankInterface</code> is implemented by a class called <code>Bank</code>, indicated by a dashed arrow with a hollow triangle. The <code>Bank</code> class has two solid arrows pointing to a class <code>Account</code> and an interface <code>Transaction</code>, representing a composition relationship where <code>Bank</code> contains or manages both <code>Account</code> and <code>Transaction</code> objects.  Finally, a solid arrow connects <code>Transaction</code> to <code>Account</code>, suggesting that transactions operate on accounts.  The overall diagram depicts the flow of information from the <code>ATMmachine</code> through the <code>BankInterface</code> to the <code>Bank</code>, which then interacts with <code>Account</code> objects via <code>Transaction</code> objects.
+Summarized Class Diagram of ATM System
+Code - ATM System
+In this section, we will implement the core functionalities of the ATM System, focusing on key areas such as defining different account types and transactions, managing accounts and banking operations, handling user interactions through hardware components, and implementing the ATM’s interaction flow using a state machine.</p>
+<p>Account
+The Account class represents a bank account in our ATM system, encapsulating core banking attributes like balance, account number, card details, and account type. It maintains security through PIN hashing and is designed with a mix of immutable (accountNumber, cardNumber, accountType, and cardPinHash) and mutable (balance) fields. This ensures account identity remains constant while allowing balance updates for deposits and withdrawals.</p>
+<p>Tied to this, the AccountType enum defines the type of account a customer can hold, currently supporting CHECKING and SAVING types. This simple enum design enables type-safe account categorization while allowing for future expansion of account types.</p>
+<p>Below is the code implementation of the Account class and AccountType enum:</p>
+<p>// Represents a bank account with balance, card details, and PIN security
+public class Account {</p>
+<div class="codehilite"><pre><span></span><code>private BigDecimal balance;
+private final String accountNumber;
+private final String cardNumber;
+private final byte[] cardPinHash;
+private final AccountType accountType;
+
+// Creates a new account with initial zero balance and hashed PIN
+public Account(
+        final String accountNumber,
+        final AccountType type,
+        final String cardNumber,
+        final String pin) {
+    this.accountNumber = accountNumber;
+    this.accountType = type;
+    this.cardNumber = cardNumber;
+    this.cardPinHash = calculateMd5(pin); // PIN is hashed for security
+    this.balance = BigDecimal.ZERO;
+}
+
+// Validates the entered PIN against stored hash
+public boolean validatePin(String pinNumber) {
+    byte[] entryPinHash = calculateMd5(pinNumber);
+    return Arrays.equals(cardPinHash, entryPinHash);
+}
+
+// Updates account balance by adding the specified amount
+public void updateBalanceWithTransaction(final BigDecimal balanceChange) {
+    this.balance = this.balance.add(balanceChange);
+}
+
+// getter methods omitted for brevity
+</code></pre></div>
+
+<p>}</p>
+<p>// Defines the type of bank account
+public enum AccountType {
+    // Regular checking account for daily transactions
+    CHECKING,
+    // Interest-bearing savings account
+    SAVING
+}
+The validatePin method ensures secure authentication by comparing the hashed input PIN with the stored hash.
+The updateBalanceWithTransaction handles both deposits and withdrawals through a single method that adds the transaction amount (positive for deposits, negative for withdrawals) to the current balance.
+Implementation choice: We have used BigDecimal for balance to ensure precise financial calculations, while the immutable fields for account identity (accountNumber, cardNumber) maintain data consistency throughout the account&rsquo;s lifecycle.</p>
+<p>Bank
+The BankInterface defines the contract for banking operations in the ATM system. Its concrete implementation, the Bank class, provides a local implementation to manage accounts and handle operations like card validation and fund withdrawals. This separation allows the system to remain flexible, supporting potential future extensions such as replacing the Bank with a networked implementation.</p>
+<p>Here’s how it’s structured:</p>
+<p>public interface BankInterface {
+    void addAccount(String accountNumber, AccountType type, String cardNumber, String pin);</p>
+<div class="codehilite"><pre><span></span><code>boolean validateCard(String cardNumber);
+
+boolean checkPin(String cardNumber, String pinNumber);
+
+Account getAccountByAccountNumber(String accountNumber);
+
+Account getAccountByCard(String cardNumber);
+
+boolean withdrawFunds(Account account, BigDecimal amount);
+</code></pre></div>
+
+<p>}</p>
+<p>// Manages bank accounts and provides banking operations like validation and transactions
+public class Bank implements BankInterface {
+    private final Map<String, Account> accounts = new HashMap&lt;&gt;();
+    private final Map<String, Account> accountByCard = new HashMap&lt;&gt;();</p>
+<div class="codehilite"><pre><span></span><code>// Creates a new account and stores it in both account and card maps
+@Override
+public void addAccount(
+        final String accountNumber,
+        final AccountType type,
+        final String cardNumber,
+        final String pin) {
+    final Account newAccount = new Account(accountNumber, type, cardNumber, pin);
+    accounts.put(newAccount.getAccountNumber(), newAccount);
+    accountByCard.put(newAccount.getCardNumber(), newAccount);
+}
+
+// Checks if a card number exists in the bank&#39;s records
+@Override
+public boolean validateCard(final String cardNumber) {
+    return getAccountByCard(cardNumber) != null;
+}
+
+// Verifies if the provided PIN matches the card&#39;s stored PIN
+@Override
+public boolean checkPin(String cardNumber, String pinNumber) {
+    Account account = getAccountByCard(cardNumber);
+    if (account != null) {
+        return account.validatePin(pinNumber);
+    }
+    return false;
+}
+
+// Retrieves account by account number
+@Override
+public Account getAccountByAccountNumber(String accountNumber) {
+    return accounts.get(accountNumber);
+}
+
+// Retrieves account by card number
+@Override
+public Account getAccountByCard(String cardNumber) {
+    return accountByCard.get(cardNumber);
+}
+
+// Attempts to withdraw specified amount from account if sufficient funds exist
+@Override
+public boolean withdrawFunds(Account account, BigDecimal amount) {
+    if (account.getBalance().compareTo(amount) &gt;= 0) {
+        account.updateBalanceWithTransaction(amount.negate());
+        return true;
+    }
+    return false;
+}
+</code></pre></div>
+
+<p>}
+The Bank class implements efficient account management through:</p>
+<p>Two HashMaps for O(1) lookup time:</p>
+<p>accounts: Maps account numbers to Account objects
+accountByCard: Maps card numbers to Account objects for quick access by card number during authentication and transactions.
+Account operations:</p>
+<p>addAccount: Creates new accounts.
+validateCard: Checks if the card number is associated with an account, used during card insertion.
+checkPin: Verifies the PIN for the given card, enabling user authentication.
+withdrawFunds: Processes withdrawals with balance checks.
+Implementation choice: We chose HashMap for both accounts (mapping account numbers to Account objects) and accountByCard (mapping card numbers to Account objects) because it provides average-case O(1) time complexity for lookups, ensuring fast performance for real-time operations like card validation and account retrieval during a user session.</p>
+<p>Transaction
+The Transaction interface establishes a consistent framework for handling all financial transactions within the ATM system. It ensures that different transaction types, such as withdrawals and deposits, adhere to a uniform process for validation and execution. The WithdrawTransaction and DepositTransaction classes implement this interface to manage their respective operations. This abstraction promotes extensibility, making it easy to introduce new transaction types, like transfers, without altering existing code.</p>
+<p>Here is the implementation of the interface and its concrete classes.</p>
+<p>public interface Transaction {
+    TransactionType getType();</p>
+<div class="codehilite"><pre><span></span><code>boolean validateTransaction();
+
+void executeTransaction();
+</code></pre></div>
+
+<p>}</p>
+<p>// Handles the withdrawal transaction process for removing funds from an account
+public class WithdrawTransaction implements Transaction {
+    Account account;
+    BigDecimal amount;</p>
+<div class="codehilite"><pre><span></span><code>// Returns the transaction type as WITHDRAW
+@Override
+public TransactionType getType() {
+    return TransactionType.WITHDRAW;
+}
+
+// Validates if the account has sufficient funds for withdrawal
+@Override
+public boolean validateTransaction() {
+    assert account != null;
+    return account.getBalance().compareTo(amount) &gt; 0;
+}
+
+// Creates a new withdrawal transaction, throws exception if validation fails
+public WithdrawTransaction(Account account, BigDecimal amount) {
+    if (!validateTransaction()) {
+        throw new IllegalStateException(
+                &quot;Cannot complete withdrawal: Insufficient funds in account&quot;);
+    }
+    this.account = account;
+    this.amount = amount;
+}
+
+// Executes the withdrawal by subtracting the amount from account balance
+@Override
+public void executeTransaction() {
+    account.updateBalanceWithTransaction(amount.negate());
+}
+</code></pre></div>
+
+<p>}</p>
+<p>// Handles the deposit transaction process for adding funds to an account
+public class DepositTransaction implements Transaction {
+    final Account account;
+    final BigDecimal amount;</p>
+<div class="codehilite"><pre><span></span><code>// Returns the transaction type as DEPOSIT
+@Override
+public TransactionType getType() {
+    return TransactionType.DEPOSIT;
+}
+
+// Deposit transactions are always valid
+@Override
+public boolean validateTransaction() {
+    return true;
+}
+
+public DepositTransaction(Account account, BigDecimal amount) {
+    this.account = account;
+    this.amount = amount;
+}
+
+// Executes the deposit by adding the amount to the account balance
+@Override
+public void executeTransaction() {
+    account.updateBalanceWithTransaction(amount);
+}
+</code></pre></div>
+
+<p>}
+The Transaction interface includes essential methods to manage transactions:</p>
+<p>getType(): Returns the transaction type (e.g., WITHDRAW or DEPOSIT).
+validateTransaction(): Validates the transaction’s feasibility, such as checking funds availability for withdrawals.
+executeTransaction(): Executes transaction by updating the account balance.
+ATMState
+The ATMState abstract class forms the foundation of our ATM&rsquo;s state machine, ensuring that each stage of the user flow, from card insertion to transaction completion, follows a consistent process. Its seven concrete implementations manage distinct stages, enabling the ATMMachine to execute the user flow by transitioning between states as the user progresses through their session.</p>
+<p>The ATMState interface includes essential methods to manage each stage:</p>
+<p>processCardInsertion(String cardNumber): Handles card insertion, used at the start of a session.
+processCardEjection(): Handles card ejection, which is used to end a session.
+processPinEntry(String pinNumber): Processes PIN entry for authentication.
+processWithdrawalRequest(): Initiates a withdrawal transaction.
+processDepositRequest(): Initiates a deposit transaction.
+processAmountEntry(BigDecimal amount): Processes the amount for withdrawals.
+processDepositCollection(BigDecimal amount): Processes the amount for deposits.
+Below is the implementation for the ATMState interface, showing its default behavior, followed by implementations of IdleState and WithdrawAmountEntryState:</p>
+<p>public class ATMState {
+    // Displays an invalid action message on the ATM screen
+    private static void renderDefaultAction(ATMMachine atmMachine) {
+        atmMachine.getDisplay().showMessage(&ldquo;Invalid action, please try again.&rdquo;);
+    }</p>
+<div class="codehilite"><pre><span></span><code>// Default implementation for card insertion
+public void processCardInsertion(ATMMachine atmMachine, String cardNumber) {
+    renderDefaultAction(atmMachine);
+}
+
+// Default implementation for card ejection
+public void processCardEjection(ATMMachine atmMachine) {
+    renderDefaultAction(atmMachine);
+}
+
+// Default implementation for PIN entry
+public void processPinEntry(ATMMachine atmMachine, String pin) {
+    renderDefaultAction(atmMachine);
+}
+
+// Default implementation for withdrawal request
+public void processWithdrawalRequest(ATMMachine atmMachine) {
+    renderDefaultAction(atmMachine);
+}
+
+// Default implementation for deposit request
+public void processDepositRequest(ATMMachine atmMachine) {
+    renderDefaultAction(atmMachine);
+}
+
+// Default implementation for amount entry
+public void processAmountEntry(ATMMachine atmMachine, BigDecimal amount) {
+    renderDefaultAction(atmMachine);
+}
+
+// Default implementation for deposit collection
+public void processDepositCollection(ATMMachine atmMachine, BigDecimal amount) {
+    renderDefaultAction(atmMachine);
+}
+</code></pre></div>
+
+<p>}</p>
+<p>The IdleState waits for the user to insert a card and start the session, supporting only card insertion. If the card is valid, it transitions to PinEntryState. Otherwise, it displays an error.</p>
+<p>public class IdleState extends ATMState {
+    /**</p>
+<div class="codehilite"><pre><span></span><code> * This method is called when a card is inserted into the ATM. This transitions the ATM to the
+ * PinEntryState if the card is valid.
+ */
+@Override
+public void processCardInsertion(ATMMachine atmMachine, String cardNumber) {
+    if (atmMachine.getBankInterface().validateCard(cardNumber)) {
+        atmMachine.getDisplay().showMessage(&quot;Please enter your PIN&quot;);
+        atmMachine.transitionToState(new PinEntryState());
+    } else {
+        atmMachine.getDisplay().showMessage(&quot;Invalid card. Please try again.&quot;);
+    }
+}
+</code></pre></div>
+
+<p>}</p>
+<p>The EnterWithdrawalAmountState manages the step where the user enters a withdrawal amount, coordinating with the ATMMachine to execute the withdrawal via the Bank, using a WithdrawTransaction to validate funds and update the account balance.</p>
+<p>public class WithdrawAmountEntryState extends ATMState {
+    // Handles card ejection by canceling transaction and returning to idle state
+    @Override
+    public void processCardEjection(ATMMachine atmMachine) {
+        atmMachine.getDisplay().showMessage(&ldquo;Transaction cancelled, card ejected&rdquo;);
+        atmMachine.transitionToState(new IdleState());
+    }</p>
+<div class="codehilite"><pre><span></span><code>// Processes withdrawal request by checking balance and dispensing cash if sufficient funds
+@Override
+public void processAmountEntry(ATMMachine atmMachine, BigDecimal amount) {
+    String cardNumber = atmMachine.getCardProcessor().getCardNumber();
+    Account account = atmMachine.getBankInterface().getAccountByCard(cardNumber);
+    boolean isSuccess = atmMachine.getBankInterface().withdrawFunds(account, amount);
+
+    if (isSuccess) {
+        atmMachine.getCashDispenser().dispenseCash(amount);
+        atmMachine.getDisplay().showMessage(&quot;Please take your cash.&quot;);
+    } else {
+        atmMachine.getDisplay().showMessage(&quot;Insufficient funds, please try again.&quot;);
+    }
+    atmMachine.transitionToState(new TransactionSelectionState());
+}
+</code></pre></div>
+
+<p>}</p>
+<p>For brevity, we have omitted the code for the PinEntryState, TransactionSelectionState, and DepositCollectionState classes. The complete code for all state classes is available in the accompanying materials of this book.</p>
+<p>ATMMachine
+The ATMMachine class acts as the central controller of the ATM system, applying the Facade pattern to offer a simplified interface to the underlying complexities. It manages the ATM’s hardware components, delegates state-specific behavior to corresponding ATMState classes such as IdleState and DepositCollectionState, and utilizes the BankInterface to perform banking operations.</p>
+<p>Here is the implementation of this class.</p>
+<p>// Main ATM machine class that manages the state and hardware components of the ATM
+public class ATMMachine {
+    private ATMState state;</p>
+<div class="codehilite"><pre><span></span><code>private final CardProcessor cardProcessor;
+private final DepositBox depositBox;
+private final CashDispenser cashDispenser;
+private final Keypad keypad;
+private final Display display;
+
+private final Bank bank;
+
+// Initializes ATM with all required hardware components and bank interface
+public ATMMachine(
+        Bank bank,
+        CardProcessor cardProcessor,
+        DepositBox depositBox,
+        CashDispenser cashDispenser,
+        Keypad keypad,
+        Display display) {
+    this.bank = bank;
+    this.cardProcessor = cardProcessor;
+    this.depositBox = depositBox;
+    this.cashDispenser = cashDispenser;
+    this.keypad = keypad;
+    this.display = display;
+    this.state = new IdleState();
+}
+
+// Forwards card insertion to current state for processing
+public void insertCard(String cardNumber) {
+    state.processCardInsertion(this, cardNumber);
+}
+
+// Forwards card ejection to current state for processing
+public void ejectCard() {
+    state.processCardEjection(this);
+}
+
+// Forwards PIN entry to current state for validation
+public void enterPin(String pin) {
+    state.processPinEntry(this, pin);
+}
+
+// Forwards withdrawal request to current state for processing
+public void withdrawRequest() {
+    state.processWithdrawalRequest(this);
+}
+
+// Forwards deposit request to current state for processing
+public void depositRequest() {
+    state.processDepositRequest(this);
+}
+
+// Forwards amount entry to current state for processing
+public void enterAmount(BigDecimal amount) {
+    state.processAmountEntry(this, amount);
+}
+
+// Forwards deposit collection to current state for processing
+public void collectDeposit(BigDecimal amount) {
+    state.processDepositCollection(this, amount);
+}
+
+// Returns the display component for showing messages
+public Display getDisplay() {
+    return display;
+}
+
+// Returns the cash dispenser component for handling withdrawals
+public CashDispenser getCashDispenser() {
+    return cashDispenser;
+}
+
+// Returns the bank interface for account operations
+public BankInterface getBankInterface() {
+    return bank;
+}
+
+// Returns the card processor component for handling card operations
+public CardProcessor getCardProcessor() {
+    return cardProcessor;
+}
+
+// Returns the keypad component for user input
+public Keypad getKeypad() {
+    return keypad;
+}
+
+// Updates the current state of the ATM
+public void transitionToState(ATMState nextState) {
+    this.state = nextState;
+}
+
+// Returns the current state of the ATM
+public ATMState getCurrentState() {
+    return state;
+}
+
+// Returns the deposit box component for handling deposits
+public DepositBox getDepositBox() {
+    return depositBox;
+}
+</code></pre></div>
+
+<p>}
+Hardware Management:</p>
+<p>The ATMMachine class manages all hardware components, including the card processor, cash dispenser, deposit box, keypad, and display, to enable user interactions.
+It provides access to these hardware components through getter methods like getCardProcessor and getDisplay for use by state classes.
+State Management:</p>
+<p>The ATMMachine class maintains the current state of the ATM using a state field to track the active stage of the user flow.
+It provides state transition functionality through the setState method, allowing the ATM to move between stages like IdleState and PinEntryState.
+Wrap Up
+With the ATM system fully implemented, it’s time to step back and consider what we’ve achieved. This chapter began by gathering requirements through a structured dialogue, then progressed to defining core objects like accounts and transactions, designing their class structure, and coding the essential components, including the state machine and hardware interactions.</p>
+<p>The system&rsquo;s maintainability and extensibility are ensured by the clear division of responsibilities among the classes: Account and Bank manage account data and banking operations, Transaction handles financial operations, ATMState and its state classes (IdleState, PinEntryState, etc.) manage the user flow stages, hardware interfaces (Keypad, CardProcessor, etc.) handle user interactions, and ATMMachine orchestrates the entire flow as a facade. Our choices, such as using the state pattern with ATMState and separating hardware interactions into interfaces, improve modularity and allow future extensions, like adding new transaction types or hardware components.</p>
+<p>Congratulations on getting this far! Now give yourself a pat on the back. Good job!</p>
+<p><a href="../../../index.html">⬅ Back to KB index</a></p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+      <nav class="prev-next"><a class="prev" href="design-shipping-locker.html"><div class="label">← Anterior</div><div class="title">Design a Shipping Locker System</div></a><a class="next" href="design-restaurant-management.html"><div class="label">Siguiente →</div><div class="title">Design a Restaurant Management System</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="design-atm.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

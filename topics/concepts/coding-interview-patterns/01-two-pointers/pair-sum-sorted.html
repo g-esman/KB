@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pair Sum - Sorted · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 1 — Two Pointers</span><span class="sep">/</span><span class="current">Pair Sum - Sorted</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <ul class="toc">
+<li class="toc-h2"><a href="#in-this-entry">📑 In this entry</a></li>
+<li class="toc-h2"><a href="#for-dummies-empeza-por-aca">🎓 For Dummies — empezá por acá</a></li>
+<li class="toc-h3"><a href="#trampas-comunes">Trampas comunes</a></li>
+<li class="toc-h2"><a href="#problema">Problema</a></li>
+<li class="toc-h3"><a href="#ejemplo-1">Ejemplo 1</a></li>
+<li class="toc-h3"><a href="#ejemplo-2">Ejemplo 2</a></li>
+<li class="toc-h2"><a href="#brute-force-y-por-que-no-alcanza">Brute force (y por qué no alcanza)</a></li>
+<li class="toc-h2"><a href="#la-intuicion-de-two-pointers">La intuición de two pointers</a></li>
+<li class="toc-h2"><a href="#trace-paso-a-paso">Trace paso a paso</a></li>
+<li class="toc-h2"><a href="#decision-flowchart">Decision flowchart</a></li>
+<li class="toc-h2"><a href="#implementacion">Implementación</a></li>
+<li class="toc-h3"><a href="#javascript">JavaScript</a></li>
+<li class="toc-h3"><a href="#c">C</a></li>
+<li class="toc-h2"><a href="#complexity-analysis">Complexity Analysis</a></li>
+<li class="toc-h3"><a href="#comparacion-con-alternativas">Comparación con alternativas</a></li>
+<li class="toc-h2"><a href="#test-cases">Test Cases</a></li>
+<li class="toc-h2"><a href="#amplification-variantes-y-follow-ups">⭐ Amplification: variantes y follow-ups</a></li>
+<li class="toc-h3"><a href="#variante-1-array-unsorted">Variante 1: array unsorted</a></li>
+<li class="toc-h3"><a href="#variante-2-encontrar-todos-los-pares-no-solo-uno">Variante 2: encontrar TODOS los pares (no solo uno)</a></li>
+<li class="toc-h3"><a href="#variante-3-pair-sum-closest-to-target">Variante 3: pair sum closest to target</a></li>
+<li class="toc-h3"><a href="#follow-ups-tipicos-en-entrevista">Follow-ups típicos en entrevista</a></li>
+<li class="toc-h2"><a href="#pitfalls">⚠️ Pitfalls</a></li>
+<li class="toc-h2"><a href="#interview-tips">Interview Tips</a></li>
+<li class="toc-h2"><a href="#references">References</a></li>
+</ul>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Pair Sum - Sorted</h1>
+  <div class="meta-row">
+    <span class="status-badge active">✓ active</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-08</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">two-pointers</span><span class="meta-tag">interview-prep</span><span class="meta-tag">inward-traversal</span></div>
+</header>
+      
+      <blockquote>
+<p>📍 <strong>Two Pointers · Problema 1/6</strong> · <a href="./introduction.html">⬅ Introduction</a> · <a href="./introduction.html">🏠 Chapter</a> · <a href="./triplet-sum.html">Triplet Sum ➡</a> · <a href="../../../../index.html">📚 KB Index</a></p>
+<p><strong>TL;DR</strong> — Dado un array <strong>ordenado ascendente</strong> y un target, encontrar dos índices cuyos valores sumen el target. Two pointers desde los extremos: si la suma es chica, mover <code>left++</code>; si es grande, mover <code>right--</code>; si es igual, listo. <strong>O(n) tiempo, O(1) espacio.</strong></p>
+</blockquote>
+<hr />
+<h2 id="in-this-entry">📑 In this entry<a class="headerlink" href="#in-this-entry" title="anchor">&para;</a></h2>
+<ol>
+<li><a href="#-for-dummies--empezá-por-acá">🎓 For Dummies — empezá por acá</a></li>
+<li><a href="#problema">Problema</a></li>
+<li><a href="#brute-force-y-por-qué-no-alcanza">Brute force (y por qué no alcanza)</a></li>
+<li><a href="#la-intuición-de-two-pointers">La intuición de two pointers</a></li>
+<li><a href="#trace-paso-a-paso">Trace paso a paso</a></li>
+<li><a href="#decision-flowchart">Decision flowchart</a></li>
+<li><a href="#implementación">Implementación</a></li>
+<li><a href="#complexity-analysis">Complexity Analysis</a></li>
+<li><a href="#test-cases">Test Cases</a></li>
+<li><a href="#-amplification-variantes-y-follow-ups">⭐ Amplification: variantes y follow-ups</a></li>
+<li><a href="#️-pitfalls">⚠️ Pitfalls</a></li>
+<li><a href="#interview-tips">Interview Tips</a></li>
+</ol>
+<hr />
+<h2 id="for-dummies-empeza-por-aca">🎓 For Dummies — empezá por acá<a class="headerlink" href="#for-dummies-empeza-por-aca" title="anchor">&para;</a></h2>
+<p><strong>Analogía:</strong> estás en una góndola del super con productos <strong>ordenados de más barato a más caro</strong> (de izquierda a derecha). Te dicen: &ldquo;comprá dos productos que sumen exactamente $7&rdquo;.</p>
+<p><strong>Forma boluda (brute force):</strong> agarrás el primero, lo combinás con cada uno de los otros. Si no, agarrás el segundo, lo combinás con cada uno de los siguientes. Etc. Eso son <strong>n × n</strong> combinaciones.</p>
+<p><strong>Forma piola (two pointers):</strong></p>
+<ul>
+<li>Una mano en el más barato (izquierda).</li>
+<li>La otra mano en el más caro (derecha).</li>
+<li>Sumás los precios:</li>
+<li>Si <strong>suma menos que $7</strong> → la mano izquierda <strong>se corre a la derecha</strong> (a algo más caro). La mano derecha <strong>no se mueve</strong>, porque si la moviera a la izquierda, la suma sería <strong>aún más chica</strong>.</li>
+<li>Si <strong>suma más que $7</strong> → la mano derecha <strong>se corre a la izquierda</strong> (a algo más barato).</li>
+<li>Si <strong>suma exacto</strong> → bingo.</li>
+</ul>
+<p>La pregunta clave: <strong>¿por qué solo movés una mano por vez?</strong> Porque la otra ya tiene la mejor opción posible en su dirección. Por ejemplo, si la suma es chica y movés <code>right</code> a la izquierda, la suma se hace <strong>aún más chica</strong> — eso nunca te va a acercar al target. La única jugada que sirve es subir la izquierda.</p>
+<h3 id="trampas-comunes">Trampas comunes<a class="headerlink" href="#trampas-comunes" title="anchor">&para;</a></h3>
+<ul>
+<li>⚠️ <strong>No te olvides que el array tiene que estar sorted.</strong> Si está unsorted, two pointers <strong>no funciona</strong> acá. Tendrías que ordenarlo primero (O(n log n)) o usar un hash map (O(n) tiempo + O(n) espacio).</li>
+<li>⚠️ <strong><code>while left &lt; right</code>, no <code>&lt;=</code>.</strong> Si usás <code>&lt;=</code>, comparás un elemento contra sí mismo, y el problema dice &ldquo;pair&rdquo;, o sea <strong>dos índices distintos</strong>.</li>
+<li>⚠️ <strong>Devolvé <code>[left, right]</code>, no <code>[nums[left], nums[right]]</code>.</strong> El problema pide <strong>índices</strong>, no valores. Es un error clásico de leer rápido.</li>
+</ul>
+<p>¿Listo para la versión completa? ⬇️</p>
+<hr />
+<h2 id="problema">Problema<a class="headerlink" href="#problema" title="anchor">&para;</a></h2>
+<p>Dado un array de enteros <strong>ordenado ascendente</strong> y un target, devolvé los <strong>índices</strong> de cualquier par de números que sumen el target. El orden de los índices en el resultado no importa. Si no hay par válido, devolvé un array vacío.</p>
+<h3 id="ejemplo-1">Ejemplo 1<a class="headerlink" href="#ejemplo-1" title="anchor">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>Input:  nums = [-5, -2, 3, 4, 6], target = 7
+Output: [2, 3]
+Explicación: nums[2] + nums[3] = 3 + 4 = 7
+</code></pre></div>
+<h3 id="ejemplo-2">Ejemplo 2<a class="headerlink" href="#ejemplo-2" title="anchor">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>Input:  nums = [1, 1, 1], target = 2
+Output: [0, 1]
+Explicación: cualquier par de índices distintos cuyos valores sumen 2 es válido.
+             [1, 0], [0, 2], [2, 0], [1, 2], [2, 1] también serían correctos.
+</code></pre></div>
+<hr />
+<h2 id="brute-force-y-por-que-no-alcanza">Brute force (y por qué no alcanza)<a class="headerlink" href="#brute-force-y-por-que-no-alcanza" title="anchor">&para;</a></h2>
+<p>La solución obvia es probar todas las combinaciones con dos for-loops anidados:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">pairSumSortedBruteForce</span><span class="p">(</span><span class="nx">nums</span><span class="p">,</span><span class="w"> </span><span class="nx">target</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">nums</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">let</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">n</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">let</span><span class="w"> </span><span class="nx">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span><span class="p">;</span><span class="w"> </span><span class="nx">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">n</span><span class="p">;</span><span class="w"> </span><span class="nx">j</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">j</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">target</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="p">[</span><span class="nx">i</span><span class="p">,</span><span class="w"> </span><span class="nx">j</span><span class="p">];</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">[];</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><strong>Tiempo:</strong> O(n²). <strong>Espacio:</strong> O(1).</p>
+<p>Funciona, pero <strong>no usa la información de que el array está sorted</strong>. Cuando te dan datos con estructura, no aprovecharla en una entrevista es señal mala. ¿Cómo explotamos el orden?</p>
+<hr />
+<h2 id="la-intuicion-de-two-pointers">La intuición de two pointers<a class="headerlink" href="#la-intuicion-de-two-pointers" title="anchor">&para;</a></h2>
+<p>Empecemos con el <strong>par más extremo posible</strong>: el primer y el último elemento.</p>
+<div class="highlight"><pre><span></span><code>nums =  [ -5    -2    3     4    6  ]
+índice:    0     1    2     3    4
+           ▲                       ▲
+          left                   right
+
+         sum = nums[0] + nums[4] = -5 + 6 = 1
+</code></pre></div>
+<p>La suma es <strong>1</strong>, que es <strong>menor</strong> que el target <strong>7</strong>. ¿Cómo aumentamos la suma?</p>
+<p>Tenemos dos opciones lógicas:</p>
+<ol>
+<li><strong>Mover <code>left</code> a la derecha</strong> → como el array está ordenado ascendente, el nuevo <code>nums[left]</code> es <strong>≥</strong> al anterior. La suma <strong>aumenta o se queda igual</strong>. ✓</li>
+<li><strong>Mover <code>right</code> a la izquierda</strong> → el nuevo <code>nums[right]</code> es <strong>≤</strong> al anterior. La suma <strong>disminuye o se queda igual</strong>. ✗ (eso nos aleja del target)</li>
+</ol>
+<p>Conclusión: <strong>si la suma es muy chica, movemos <code>left</code></strong>. Por simetría:</p>
+<ul>
+<li>Si la suma es <strong>muy chica</strong> → <code>left++</code> (subir el menor para subir la suma).</li>
+<li>Si la suma es <strong>muy grande</strong> → <code>right--</code> (bajar el mayor para bajar la suma).</li>
+<li>Si la suma es <strong>igual al target</strong> → encontramos el par, devolvemos <code>[left, right]</code>.</li>
+</ul>
+<p>Cuando los punteros se cruzan (<code>left &gt;= right</code>), recorrimos todo el espacio de pares posibles sin encontrar el target. Devolvemos <code>[]</code>.</p>
+<blockquote>
+<p><strong>Insight clave:</strong> cada movimiento del puntero <strong>descarta</strong> un montón de pares de un saque. Cuando movés <code>left</code> a la derecha porque la suma era chica, estás diciendo &ldquo;ningún par formado con <code>nums[left]</code> y un valor ≤ <code>nums[right]</code> puede sumar el target&rdquo;. Eso elimina toda una columna del espacio de búsqueda.</p>
+</blockquote>
+<hr />
+<h2 id="trace-paso-a-paso">Trace paso a paso<a class="headerlink" href="#trace-paso-a-paso" title="anchor">&para;</a></h2>
+<p>Ejemplo: <code>nums = [-5, -2, 3, 4, 6]</code>, <code>target = 7</code>.</p>
+<p><img alt="Pair Sum trace" src="../../img/tp-fig-pair-01-trace.png" /></p>
+<p><strong>4 iteraciones para un array de 5 elementos.</strong> Comparado con las <strong>10 comparaciones</strong> del brute force (5×4/2), el ahorro ya se nota. En arrays grandes la diferencia es brutal: 1.000.000 elementos serían 1.000.000 iteraciones vs 500.000.000.000.</p>
+<hr />
+<h2 id="decision-flowchart">Decision flowchart<a class="headerlink" href="#decision-flowchart" title="anchor">&para;</a></h2>
+<p><img alt="Pair Sum decision flowchart" src="../../img/tp-fig-pair-02-flow.png" /></p>
+<hr />
+<h2 id="implementacion">Implementación<a class="headerlink" href="#implementacion" title="anchor">&para;</a></h2>
+<h3 id="javascript">JavaScript<a class="headerlink" href="#javascript" title="anchor">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">pairSumSorted</span><span class="p">(</span><span class="nx">nums</span><span class="p">,</span><span class="w"> </span><span class="nx">target</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">right</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">nums</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nx">left</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">right</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">left</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">right</span><span class="p">];</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">sum</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">target</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// Suma muy chica: subir el menor para que la suma crezca.</span>
+<span class="w">            </span><span class="nx">left</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">sum</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="nx">target</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// Suma muy grande: bajar el mayor para que la suma decrezca.</span>
+<span class="w">            </span><span class="nx">right</span><span class="o">--</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// Encontramos el par: devolver índices.</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="p">[</span><span class="nx">left</span><span class="p">,</span><span class="w"> </span><span class="nx">right</span><span class="p">];</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">[];</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="c">C<a class="headerlink" href="#c" title="anchor">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="p">[]</span><span class="w"> </span><span class="nf">PairSumSorted</span><span class="p">(</span><span class="kt">int</span><span class="p">[]</span><span class="w"> </span><span class="n">nums</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">target</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">right</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nums</span><span class="p">.</span><span class="n">Length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">left</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">right</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nums</span><span class="p">[</span><span class="n">left</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">nums</span><span class="p">[</span><span class="n">right</span><span class="p">];</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sum</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">target</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// Suma muy chica: subir el menor para que la suma crezca.</span>
+<span class="w">            </span><span class="n">left</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sum</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">target</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// Suma muy grande: bajar el mayor para que la suma decrezca.</span>
+<span class="w">            </span><span class="n">right</span><span class="o">--</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// Encontramos el par: devolver índices.</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="kt">int</span><span class="p">[]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">left</span><span class="p">,</span><span class="w"> </span><span class="n">right</span><span class="w"> </span><span class="p">};</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">Array</span><span class="p">.</span><span class="n">Empty</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="complexity-analysis">Complexity Analysis<a class="headerlink" href="#complexity-analysis" title="anchor">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Métrica</th>
+<th>Valor</th>
+<th>Por qué</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Tiempo</strong></td>
+<td>O(n)</td>
+<td>En cada iteración movemos <code>left</code> o <code>right</code> (o ambos al encontrar el par y salir). Como <code>left</code> solo crece y <code>right</code> solo decrece, hacemos <strong>a lo sumo n iteraciones</strong> antes de que se crucen.</td>
+</tr>
+<tr>
+<td><strong>Espacio</strong></td>
+<td>O(1)</td>
+<td>Solo guardamos las variables <code>left</code>, <code>right</code>, <code>sum</code>. No depende del tamaño del input.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="comparacion-con-alternativas">Comparación con alternativas<a class="headerlink" href="#comparacion-con-alternativas" title="anchor">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Tiempo</th>
+<th>Espacio</th>
+<th>Requiere sorted?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Brute force (doble for)</td>
+<td>O(n²)</td>
+<td>O(1)</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Hash map (<code>target - nums[i]</code>)</td>
+<td>O(n)</td>
+<td>O(n)</td>
+<td>No</td>
+</tr>
+<tr>
+<td><strong>Two pointers</strong></td>
+<td><strong>O(n)</strong></td>
+<td><strong>O(1)</strong></td>
+<td><strong>Sí</strong></td>
+</tr>
+<tr>
+<td>Sort + two pointers (si input unsorted)</td>
+<td>O(n log n)</td>
+<td>O(1) o O(n) según sort</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Two pointers gana cuando el array ya viene sorted</strong> (no pagás el sort) y querés O(1) espacio.</p>
+<hr />
+<h2 id="test-cases">Test Cases<a class="headerlink" href="#test-cases" title="anchor">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Input</th>
+<th>Expected output</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>nums = []</code>, <code>target = 0</code></td>
+<td><code>[]</code></td>
+<td>Array vacío.</td>
+</tr>
+<tr>
+<td><code>nums = [1]</code>, <code>target = 1</code></td>
+<td><code>[]</code></td>
+<td>Un solo elemento — no hay par posible.</td>
+</tr>
+<tr>
+<td><code>nums = [2, 3]</code>, <code>target = 5</code></td>
+<td><code>[0, 1]</code></td>
+<td>Dos elementos que suman al target.</td>
+</tr>
+<tr>
+<td><code>nums = [2, 4]</code>, <code>target = 5</code></td>
+<td><code>[]</code></td>
+<td>Dos elementos que no suman al target.</td>
+</tr>
+<tr>
+<td><code>nums = [2, 2, 3]</code>, <code>target = 5</code></td>
+<td><code>[0, 2]</code> o <code>[1, 2]</code></td>
+<td>Duplicados — cualquier par válido sirve.</td>
+</tr>
+<tr>
+<td><code>nums = [-1, 2, 3]</code>, <code>target = 2</code></td>
+<td><code>[0, 2]</code></td>
+<td>Un valor negativo en el par.</td>
+</tr>
+<tr>
+<td><code>nums = [-3, -2, -1]</code>, <code>target = -5</code></td>
+<td><code>[0, 1]</code></td>
+<td>Ambos valores negativos.</td>
+</tr>
+<tr>
+<td><code>nums = [1, 2, 3, 4, 5]</code>, <code>target = 100</code></td>
+<td><code>[]</code></td>
+<td>Target imposible.</td>
+</tr>
+<tr>
+<td><code>nums = [0, 0]</code>, <code>target = 0</code></td>
+<td><code>[0, 1]</code></td>
+<td>Caso borde con ceros.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="amplification-variantes-y-follow-ups">⭐ Amplification: variantes y follow-ups<a class="headerlink" href="#amplification-variantes-y-follow-ups" title="anchor">&para;</a></h2>
+<h3 id="variante-1-array-unsorted">Variante 1: array unsorted<a class="headerlink" href="#variante-1-array-unsorted" title="anchor">&para;</a></h3>
+<p>Si el input <strong>no está sorted</strong>, tenés dos caminos:</p>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Cuándo elegirlo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Sort + two pointers</strong></td>
+<td>Si <strong>podés modificar el input</strong> y el espacio es crítico. Costo: O(n log n) tiempo, O(1) o O(log n) espacio extra (depende del sort). Pero <strong>perdés los índices originales</strong> — si te piden los índices del array original, no sirve.</td>
+</tr>
+<tr>
+<td><strong>Hash map</strong></td>
+<td>Si te piden <strong>índices originales</strong> o el array no se puede modificar. Costo: O(n) tiempo y O(n) espacio.</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><span class="c1">// Hash map para array unsorted (Two Sum clásico de LeetCode)</span>
+<span class="kd">function</span><span class="w"> </span><span class="nx">twoSum</span><span class="p">(</span><span class="nx">nums</span><span class="p">,</span><span class="w"> </span><span class="nx">target</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">seen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Map</span><span class="p">();</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">let</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">nums</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">complement</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">target</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">];</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">seen</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="nx">complement</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="p">[</span><span class="nx">seen</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">complement</span><span class="p">),</span><span class="w"> </span><span class="nx">i</span><span class="p">];</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="nx">seen</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">],</span><span class="w"> </span><span class="nx">i</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">[];</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="variante-2-encontrar-todos-los-pares-no-solo-uno">Variante 2: encontrar TODOS los pares (no solo uno)<a class="headerlink" href="#variante-2-encontrar-todos-los-pares-no-solo-uno" title="anchor">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">allPairsSumSorted</span><span class="p">(</span><span class="nx">nums</span><span class="p">,</span><span class="w"> </span><span class="nx">target</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">pairs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[];</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">right</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">nums</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nx">left</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">right</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">left</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">right</span><span class="p">];</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">s</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">target</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">left</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">s</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="nx">target</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">right</span><span class="o">--</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">pairs</span><span class="p">.</span><span class="nx">push</span><span class="p">([</span><span class="nx">left</span><span class="p">,</span><span class="w"> </span><span class="nx">right</span><span class="p">]);</span>
+<span class="w">            </span><span class="nx">left</span><span class="o">++</span><span class="p">;</span>
+<span class="w">            </span><span class="nx">right</span><span class="o">--</span><span class="p">;</span>
+<span class="w">            </span><span class="c1">// Saltar duplicados si el problema lo pide:</span>
+<span class="w">            </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nx">left</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">right</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">left</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">left</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span><span class="p">])</span><span class="w"> </span><span class="nx">left</span><span class="o">++</span><span class="p">;</span>
+<span class="w">            </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nx">left</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">right</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">right</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">right</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span><span class="p">])</span><span class="w"> </span><span class="nx">right</span><span class="o">--</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">pairs</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Esta variante es la <strong>base de <a href="./triplet-sum.html">Triplet Sum</a></strong>.</p>
+<h3 id="variante-3-pair-sum-closest-to-target">Variante 3: pair sum closest to target<a class="headerlink" href="#variante-3-pair-sum-closest-to-target" title="anchor">&para;</a></h3>
+<p>¿Y si el target no existe pero querés el par <strong>más cercano</strong>? Mismo loop, pero llevás un <code>min_diff</code> y actualizás cuando encontrás un par mejor:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">pairSumClosest</span><span class="p">(</span><span class="nx">nums</span><span class="p">,</span><span class="w"> </span><span class="nx">target</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">right</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">nums</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">best</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">minDiff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">Infinity</span><span class="p">;</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nx">left</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">right</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">left</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">right</span><span class="p">];</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">diff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Math</span><span class="p">.</span><span class="nx">abs</span><span class="p">(</span><span class="nx">s</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">target</span><span class="p">);</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">diff</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">minDiff</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">minDiff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">diff</span><span class="p">;</span>
+<span class="w">            </span><span class="nx">best</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="nx">left</span><span class="p">,</span><span class="w"> </span><span class="nx">right</span><span class="p">];</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">s</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">target</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">left</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">right</span><span class="o">--</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">best</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="follow-ups-tipicos-en-entrevista">Follow-ups típicos en entrevista<a class="headerlink" href="#follow-ups-tipicos-en-entrevista" title="anchor">&para;</a></h3>
+<ul>
+<li><em>&ldquo;¿Y si el array tiene duplicados?&rdquo;</em> — Sigue funcionando para &ldquo;encontrar UN par&rdquo;, pero para &ldquo;encontrar TODOS los pares únicos&rdquo; hay que skipear duplicados (ver Variante 2).</li>
+<li><em>&ldquo;¿Y si lo querés en un sorted linked list?&rdquo;</em> — No podés indexar barato. Convertir a array (O(n) espacio) o usar el algoritmo lento de dos pasadas.</li>
+<li><em>&ldquo;¿Y si los elementos son flotantes y necesitás tolerancia (target ± epsilon)?&rdquo;</em> — Cambiás los <code>==/&lt;</code> por comparaciones con tolerancia. La lógica de movimiento se mantiene.</li>
+</ul>
+<hr />
+<h2 id="pitfalls">⚠️ Pitfalls<a class="headerlink" href="#pitfalls" title="anchor">&para;</a></h2>
+<ul>
+<li><strong>Asumir sorted sin confirmar.</strong> En la entrevista, <strong>siempre</strong> preguntá: &ldquo;¿el array viene sorted?&rdquo; Si no, two pointers no aplica directamente.</li>
+<li><strong>Off-by-one en bordes.</strong> <code>right = len(nums) - 1</code>, no <code>len(nums)</code>. Y la condición es <code>&lt;</code>, no <code>&lt;=</code>.</li>
+<li><strong>Devolver valores en lugar de índices.</strong> El problema pide <strong>índices</strong>. Confirmar.</li>
+<li><strong>Olvidar <code>[]</code> cuando no hay solución.</strong> Algunos test cases miden esto.</li>
+<li><strong>Mover ambos punteros al encontrar el par cuando se busca solo uno.</strong> No hace falta: ya devolvimos.</li>
+<li><strong>Usar <code>&lt;=</code> en el while.</strong> Eso permite <code>left == right</code>, lo que compararía un elemento contra sí mismo. Si el problema permite usar el mismo índice dos veces, sí; si no (lo normal), <code>&lt;</code>.</li>
+</ul>
+<hr />
+<h2 id="interview-tips">Interview Tips<a class="headerlink" href="#interview-tips" title="anchor">&para;</a></h2>
+<p><strong>Tip 1 — Aclará constraints antes de codear.</strong>
+Preguntas estándar: ¿el array está sorted? ¿hay duplicados? ¿pueden venir negativos? ¿qué devuelvo si no hay solución? ¿índices o valores? ¿múltiples pares o uno solo?</p>
+<p><strong>Tip 2 — Considerá toda la información del enunciado.</strong>
+Cuando ves &ldquo;sorted array&rdquo; en el enunciado, eso es una <strong>pista enorme</strong>. Si tu solución no usa el orden, probablemente no es la óptima. El entrevistador te dejó esa palabra ahí a propósito.</p>
+<p><strong>Tip 3 — Verbalizá la invariante.</strong>
+Decí en voz alta mientras codeás: <em>&ldquo;left siempre apunta al menor candidato sin descartar; right siempre al mayor; cuando se cruzan, no queda nada por probar.&rdquo;</em> Mostrar que entendés <strong>por qué</strong> funciona vale más que el código.</p>
+<p><strong>Tip 4 — Si el follow-up es Two Sum II vs Two Sum I (LeetCode), sabé la diferencia.</strong></p>
+<ul>
+<li><em>Two Sum I</em> (LeetCode #1): array <strong>unsorted</strong>, devolver índices → hash map O(n)/O(n).</li>
+<li><em>Two Sum II</em> (LeetCode #167): array <strong>sorted</strong>, devolver índices (1-indexed) → two pointers O(n)/O(1).</li>
+</ul>
+<hr />
+<h2 id="references">References<a class="headerlink" href="#references" title="anchor">&para;</a></h2>
+<ul>
+<li>LeetCode — <a href="https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/">#167 Two Sum II - Input Array Is Sorted</a></li>
+<li>LeetCode — <a href="https://leetcode.com/problems/two-sum/">#1 Two Sum</a> (versión unsorted, hash map)</li>
+<li>Coding Interview Patterns — capítulo &ldquo;Two Pointers&rdquo; → &ldquo;Pair Sum - Sorted&rdquo;</li>
+<li>Entradas relacionadas:</li>
+<li><a href="./introduction.html">Introduction to Two Pointers</a></li>
+<li><a href="./triplet-sum.html">Triplet Sum</a> (extiende este algoritmo a 3 elementos)</li>
+</ul>
+<hr />
+<blockquote>
+<p>📍 <strong>Two Pointers · Problema 1/6</strong> · <a href="./introduction.html">⬅ Introduction</a> · <a href="./introduction.html">🏠 Chapter</a> · <a href="./triplet-sum.html">Triplet Sum ➡</a> · <a href="../../../../index.html">📚 KB Index</a></p>
+</blockquote>
+      <nav class="prev-next"><a class="prev" href="introduction.html"><div class="label">← Anterior</div><div class="title">Introduction to Two Pointers</div></a><a class="next" href="triplet-sum.html"><div class="label">Siguiente →</div><div class="title">Triplet Sum</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="pair-sum-sorted.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

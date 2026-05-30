@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Introduction to Hash Maps and Sets · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 2 — Hash Maps and Sets</span><span class="sep">/</span><span class="current">Introduction to Hash Maps and Sets</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Introduction to Hash Maps and Sets</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">hash-maps-sets</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Introduction to Hash Maps and Sets
+Intuition
+Picture working in a grocery store. A customer asks for the price of a fruit. If you just have a paper list of all the fruits, you would need to look through it to find the specific fruit, which can be time-consuming. However, by memorizing the list, you can know the prices of all fruits instantly, enabling you to promptly give the correct price to the customer. This is similar to how hash maps work, enabling quick access to information.</p>
+<p>Hash maps
+A hash map – also known as a hash table or dictionary, depending on the language – is a data structure that pairs keys with values. Let&rsquo;s illustrate this using the example of fruits and their prices:</p>
+<p>Image represents a simple data mapping or lookup table illustrating a price list for fruits.  The table is implicitly structured with two columns: &lsquo;Fruit&rsquo; on the left and &lsquo;Price&rsquo; on the right.  Three rows represent individual fruit items.  The &lsquo;Fruit&rsquo; column lists the items: &lsquo;apple&rsquo;, &lsquo;bananas&rsquo;, and &lsquo;carrot&rsquo;, each written in a monospace font.  The &lsquo;Price&rsquo; column displays the corresponding prices: 5.00, 4.50, and 2.75 respectively, also in a monospace font.  A grey horizontal arrow connects each fruit item in the left column to its associated price in the right column, visually representing the mapping between fruit and its price.  The overall arrangement suggests a straightforward key-value relationship, where the fruit name acts as the key and the price as the value.
+Having a mental map of fruit prices is conceptually similar to being able to instantly access fruit prices using a hash map, where the fruit name is the key, and its price is the value. When we look up a price using the fruit&rsquo;s name as the key, the hash map will immediately return its price:</p>
+<p>Image represents a simple hashmap data structure, visually depicted as a table.  The table is labeled &lsquo;hashmap&rsquo; at the top.  It consists of two columns: a &lsquo;key&rsquo; column and a &lsquo;value&rsquo; column. The key column contains string values representing fruit and vegetable names: &lsquo;apple,&rsquo; &lsquo;bananas,&rsquo; and &lsquo;carrot.&rsquo;  The value column contains corresponding floating-point numbers representing numerical values, likely prices: 5.00, 4.50, and 2.75 respectively.  Each key-value pair is implicitly linked; for example, &lsquo;apple&rsquo; is associated with 5.00.  The arrangement shows a direct mapping between keys and values, illustrating the fundamental principle of a hashmap:  efficiently storing and retrieving data based on a unique key.  The labels &lsquo;key&rsquo; and &lsquo;value&rsquo; at the bottom clarify the role of each column.
+Hash maps are incredibly efficient for lookups, insertions, and deletions, as they typically perform these operations in constant time: 
+O
+(
+1
+)
+O(1). They are one of the most versatile, widely-used data structures in computer science, used for tasks such as counting the frequency of elements, caching data, and more.</p>
+<p>Properties of hash maps:</p>
+<p>Data is stored in the form of key-value pairs.</p>
+<p>Hash maps don&rsquo;t store duplicates. Every key in a hash map is unique, ensuring each value can be distinctly identified and accessed.</p>
+<p>Hash maps are unordered data structures, meaning keys are not stored in any specific order.</p>
+<p>Time complexity breakdown
+Below, n denotes the number of entries in the hash map.</p>
+<p>Operation   Average case    Worst case  Description
+Insert<br />
+O
+(
+1
+)
+O(1)  <br />
+O
+(
+n
+)
+O(n)    Add a key-value pair to the hash map.
+Access<br />
+O
+(
+1
+)
+O(1)  <br />
+O
+(
+n
+)
+O(n)    Find or retrieve an element.
+Delete<br />
+O
+(
+1
+)
+O(1)  <br />
+O
+(
+n
+)
+O(n)    Delete a key-value pair.</p>
+<p>In coding interviews, we generally consider hash map operations to have a fast average time complexity of 
+O
+(
+1
+)
+O(1), as opposed to their worst-case complexities. This is based on the assumption that an efficient hash function minimizes collisions [HashCollision]. However, in the worst-case scenario where a poorly optimized hash function results in frequent collisions, the time complexity can deteriorate to 
+O
+(
+n
+)
+O(n), necessitating a linear search through all entries.</p>
+<p>Hash sets
+Hash sets are a simpler form of hash maps. Instead of storing key-value pairs, they store only the keys. Using the grocery store analogy, a hash set is like having a mental checklist of fruits without their prices. It&rsquo;s useful for quickly checking the presence or absence of an item, like checking whether a particular fruit is in stock.</p>
+<p>When to use hash maps or sets
+Common use cases of hash maps include implementing dictionaries, counting frequencies, storing key-value pairs, and handling scenarios requiring quick lookups.</p>
+<p>Common use cases of hash sets include storing unique elements, marking elements as used or visited, and checking for duplicates.</p>
+<p>In the description of a problem, pay attention to keywords like &ldquo;frequency&rdquo;, &ldquo;unique&rdquo;, &ldquo;map&rdquo;, &ldquo;dictionary&rdquo;, or &ldquo;fast lookup&rdquo;, because these often indicate that hash maps or sets could be useful.</p>
+<p>Essential concepts for mastering hash maps and sets
+This chapter discusses the practical uses of hash maps and sets. For a more complete understanding of how they work and why they&rsquo;re so efficient, please explore topics that go beyond the scope of this chapter, such as:</p>
+<p>Hash functions: explore the intricacies of how keys are mapped to specific values in a hash table [1].</p>
+<p>Collision and collision-handling techniques: understand methods like chaining, or open addressing for resolving hash collisions [2].</p>
+<p>Load factors and rehashing: these make it easier to understand how hash tables grow and change size [3].</p>
+<p>Real-world Example
+Web browser cache: Hash maps and sets are used everywhere in real-world systems. A classic example of hash maps in action is in caching systems within web browsers. When you visit a website, your browser stores data such as images, HTML, and CSS files in a cache so it can load much faster on future visits.</p>
+<p>Chapter Outline
+Image represents a hierarchical diagram illustrating the application of Hash Maps and Sets in coding.  A rounded rectangle at the top, labeled &lsquo;Hash Maps and Sets,&rsquo; serves as the root node.  From this root, a dashed line extends downwards, branching into two separate rectangular boxes with dashed borders. The left box is titled &lsquo;Hash maps&rsquo; and lists three example applications: &lsquo;Pair Sum,&rsquo; &lsquo;Unsorted,&rsquo; and &lsquo;Geometric Sequence Triplets.&rsquo; The right box is titled &lsquo;Hash sets&rsquo; and lists three different applications: &lsquo;Verify Sudoku Board,&rsquo; &lsquo;Zero Striping,&rsquo; and &lsquo;Longest Chain of Consecutive Numbers.&rsquo;  The arrangement shows that &lsquo;Hash Maps and Sets&rsquo; is a broader category encompassing the specific use cases detailed under &lsquo;Hash maps&rsquo; and &lsquo;Hash sets,&rsquo; indicating how these data structures are employed in solving various coding problems.
+This chapter includes problems involving the most popular use cases of hash maps and sets, aiming to improve your understanding and effectiveness in utilizing them.</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="../01-two-pointers/next-lexicographical-sequence.html"><div class="label">← Anterior</div><div class="title">Next Lexicographical Sequence</div></a><a class="next" href="pair-sum-unsorted.html"><div class="label">Siguiente →</div><div class="title">Pair Sum - Unsorted</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="introduction.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

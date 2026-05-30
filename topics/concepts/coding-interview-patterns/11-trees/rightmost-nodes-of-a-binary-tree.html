@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rightmost Nodes of a Binary Tree · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 11 — Trees</span><span class="sep">/</span><span class="current">Rightmost Nodes of a Binary Tree</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Rightmost Nodes of a Binary Tree</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">trees</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Rightmost Nodes of a Binary Tree
+Return an array containing the values of the rightmost nodes at each level of a binary tree.</p>
+<p>Example:
+Image represents a binary tree data structure where nodes are represented by circles containing numerical values.  The root node, labeled &lsquo;1&rsquo; and highlighted in orange, connects to two child nodes: &lsquo;2&rsquo; and &lsquo;3&rsquo;, also highlighted in orange. Node &lsquo;2&rsquo; further branches into nodes &lsquo;4&rsquo; and &lsquo;5&rsquo;, while node &lsquo;3&rsquo; connects to node &lsquo;6&rsquo;, also orange. Node &lsquo;4&rsquo; has child nodes &lsquo;8&rsquo; and &lsquo;9&rsquo;. Node &lsquo;5&rsquo; connects to node &lsquo;11&rsquo;, which is also highlighted in orange.  Arrows pointing to nodes &lsquo;1&rsquo;, &lsquo;3&rsquo;, &lsquo;6&rsquo;, and &lsquo;11&rsquo; indicate an external input or operation targeting these specific nodes, suggesting a possible traversal or update process focused on these particular elements within the tree.  The nodes are numbered sequentially, but the orange highlighting suggests a specific subset of nodes are of particular interest or are involved in a separate process from the rest of the tree.
+Output: [1, 3, 6, 11]
+Intuition
+At first glance, the solution to this problem might seem as simple as traversing the rightmost branch of the tree until we reach a leaf node. But this doesn’t work. Why not? Consider the tree below. We see that traversing just the rightmost branch results in missing the rightmost node at the fourth level of the tree:</p>
+<p>Image represents a binary tree with nodes labeled numerically (1, 2, 3, 4, 5, 6, 8, 9, 11).  Nodes 1, 3, and 6 are shaded gray and enclosed within a dashed oval, indicating a subset of the tree.  Arrows indicate a traversal path from node 1 to node 3, and then to node 6.  Node 11 is circled in red and a horizontal arrow points to it from the text &lsquo;missing,&rsquo; highlighting its absence from the &lsquo;output&rsquo; list.  To the right, the &lsquo;output&rsquo; is listed as <code>[1 3 6]</code>, while the &lsquo;expected output&rsquo; is <code>[1 3 6 11]</code>, demonstrating that the algorithm represented by the tree traversal only produced a subset of the expected values, specifically omitting node 11.  The tree structure shows a hierarchical relationship between the nodes, with node 1 as the root, and nodes 2 and 3 as its children. Node 2 has children 4 and 5, and node 4 has children 8 and 9. Node 3 has a child node 6, and node 5 has a child node 11.
+This means we need to consider the entire tree to attain the correct output, and not just a single branch. What would be useful is a way to traverse the tree level by level, allowing us to identify and retrieve the last (i.e., rightmost) node at each level.</p>
+<p>We know BFS traverses nodes level by level. However, standard BFS doesn&rsquo;t provide explicit markers for when one level ends and another begins. In contrast, there is a type of BFS traversal that allows us to process one level at a time. This algorithm is called level-order traversal.</p>
+<p>Level-order traversal
+The core idea of level-order traversal is that at any level of the tree, the children of the nodes at that level comprise the next level. This means the children of level 1’s nodes make up level 2, and likewise, the children of level 2’s nodes make up level 3, and so on. To see how this works, consider the binary tree below, with the BFS queue initialized with the tree’s root node:</p>
+<p>Image represents a tree-like data structure, specifically a binary tree, on the left, and a queue data structure on the right. The binary tree is composed of circular nodes, each containing a single integer from 1 to 11. Node 1 is the root node, branching into nodes 2 and 3. Node 2 further branches into nodes 4 and 5, while node 3 connects to node 6. Node 4 branches into nodes 8 and 9, and node 5 connects to node 11.  The connections between nodes represent parent-child relationships.  On the right, a queue is depicted as <code>queue = [1]</code>, indicating that the queue currently contains only the integer 1, enclosed in square brackets.  There is no visible connection or information flow between the tree and the queue; they are presented as separate structures.
+We know level 1 consists of only the root node. So, the children of the root make up the nodes of the second level. Let’s pop the root node off and then add its children to the queue:</p>
+<p>Image represents a visual explanation of Breadth-First Search (BFS) algorithm applied to a binary tree.  The left side shows a binary tree with a root node labeled &lsquo;1&rsquo; (highlighted in peach), a left child node &lsquo;2&rsquo;, and a right child node &lsquo;3&rsquo;.  The nodes &lsquo;2&rsquo; and &lsquo;3&rsquo; have dashed lines indicating they might have further children, but these are not shown.  A label &lsquo;Level 1:&rsquo; precedes the root node. An arrow points from a rectangular box labeled &lsquo;node&rsquo; to the root node &lsquo;1&rsquo;, suggesting data flow into the algorithm. The right side demonstrates the algorithm&rsquo;s process. A queue, initially containing only node &lsquo;1&rsquo; (in a solid circle), is shown.  A red arrow and the text &lsquo;node = queue.pop&rsquo; indicate that node &lsquo;1&rsquo; is dequeued.  Two blue arrows, labeled &lsquo;push node.left&rsquo; and &lsquo;push node.right&rsquo;, show the left and right children (&lsquo;2&rsquo; and &lsquo;3&rsquo;, respectively, in dashed circles) being enqueued into the queue, expanding the queue to &lsquo;[2, 3]&rsquo;.  This illustrates the step-by-step process of BFS: visiting nodes level by level, adding children to the queue as they are encountered.
+Since we&rsquo;ve removed the only level 1 node from the queue and added its children, the queue now only contains the nodes of level 2. Therefore, the size of the queue currently corresponds to the number of nodes in level 2.</p>
+<p>Image represents a visual explanation of a breadth-first search (BFS) algorithm using a tree structure and a queue.  A tree is shown with a root node labeled &lsquo;1&rsquo;, connected to two child nodes labeled &lsquo;2&rsquo; and &lsquo;3&rsquo; at level 2.  These child nodes are highlighted with a light peach-colored background, and the label &lsquo;Level 2:&rsquo; is placed to their left. Dashed lines extend from nodes &lsquo;2&rsquo; and &lsquo;3&rsquo;, suggesting further child nodes at subsequent levels, not explicitly shown.  To the right, a queue is depicted as <code>queue = [2 3]</code>, indicating that nodes &lsquo;2&rsquo; and &lsquo;3&rsquo; are currently in the queue for processing. A light gray, dashed-line box below states &lsquo;size of queue = size of level 2&rsquo;, illustrating the relationship between the number of nodes in the queue and the number of nodes at the current level being processed in the BFS traversal.
+The current queue size is 2, indicating the second level has 2 nodes. So, let’s pop off the next 2 nodes in the queue and add their children to the queue:</p>
+<p>Image represents a visual explanation of a Breadth-First Search (BFS) algorithm applied to a binary tree.  The left side shows a binary tree with nodes numbered 1 through 6. Node 1 is the root, with nodes 2 and 3 as its children. Nodes 2 and 3 each have two children, resulting in a tree structure with three levels.  A light peach-colored rectangle highlights nodes 2 and 3, indicating the current level being processed.  A label &lsquo;Level 2:&rsquo; is placed to the left of this rectangle.  An arrow points from a box labeled &lsquo;node&rsquo; to node 2, suggesting that node 2 is currently being processed. The middle section depicts a queue data structure, initially containing only node 2. A red arrow points downwards from node 2 within the queue, labeled &lsquo;node = queue.pop,&rsquo; illustrating the removal of node 2 from the queue. The right side shows the queue&rsquo;s evolution.  Initially, the queue contains only node 2 (shown in a solid circle). After processing node 2, its left child (node 4) and right child (node 5) are added to the queue (represented by dashed circles), indicated by blue arrows labeled &lsquo;push node.left&rsquo; and &lsquo;push node.right&rsquo; respectively.  The final queue contains nodes 4 and 5, enclosed in square brackets.  The overall diagram demonstrates the step-by-step process of BFS, showing how nodes are visited level by level and added to the queue.
+Image represents a visual explanation of a Breadth-First Search (BFS) algorithm traversing a binary tree.  The left side shows a binary tree with nodes numbered 1 through 6. Node 1 is the root, with children nodes 2 and 3. Node 2 has children 4 and 5, and node 3 has child 6.  A light peach-colored rectangle highlights node 2 and an arrow pointing to node 3, indicating the traversal order.  The text &lsquo;Level 1 2:&rsquo; labels the second level of the tree.  The middle section depicts a queue data structure, initially containing only node 3 (represented by a circle with a thick border). A red arrow and the text &lsquo;node = queue.pop&rsquo; show node 3 being dequeued.  The right side illustrates the queue&rsquo;s evolution. Initially, it contains only node 3.  After dequeuing 3, nodes 4 and 5 are added (from node 2&rsquo;s children), and then node 6 (from node 3&rsquo;s child) is added, as indicated by a dashed-line circle and the text &lsquo;push node.left&rsquo; with a blue arrow pointing to the addition of node 6 to the queue.  The final queue contains nodes 4, 5, and 6.  The overall diagram demonstrates how BFS uses a queue to systematically explore the tree level by level.
+After the two nodes on the second level have been popped off the queue, the remaining nodes in the queue represent the third level.</p>
+<p>Image represents a tree structure with a root node labeled &lsquo;1&rsquo;, branching into two nodes labeled &lsquo;2&rsquo; and &lsquo;3&rsquo;.  Nodes &lsquo;2&rsquo; and &lsquo;3&rsquo; further branch into nodes &lsquo;4&rsquo;, &lsquo;5&rsquo;, and &lsquo;6&rsquo; at level 3, which are highlighted with a light peach background.  Dashed lines extend downwards from nodes &lsquo;4&rsquo;, &lsquo;5&rsquo;, and &lsquo;6&rsquo;, suggesting further levels in the tree that are not explicitly shown. To the right, a queue is depicted as <code>queue = [4</code>, with nodes &lsquo;5&rsquo; and &lsquo;6&rsquo; shown separately, implying they would be added to the queue next. A light gray, dashed-bordered box states &lsquo;size of queue = size of level 3&rsquo;, indicating a relationship between the number of elements in the queue and the number of nodes at level 3 of the tree.  The text &lsquo;Level 3:&rsquo; is placed to the left of the level 3 nodes to clearly label that level.
+The size of the queue is 3, meaning that to process the third level, we must process the next 3 nodes.</p>
+<p>To summarize this process, we start by placing the root node in the queue, where the root node represents the first level. Then, begin BFS by entering a while-loop that continues until the queue is empty, meaning all nodes in the tree have been visited. For level-order traversal:</p>
+<p>Determine the level size: Collect the current size of the queue (level_size) to find the number of nodes in the current level. Initially, the queue will only contain the root node, indicating the first level is of size 1.</p>
+<p>Process the current level: For each node at this level, pop it from the queue and add its children to the queue.</p>
+<p>After processing all nodes of the current level, the queue contains all the nodes of the next level. Repeat steps 1 and 2 to process the next level. When the queue is empty, all levels have been processed.</p>
+<p>Once we know how to traverse the tree level by level, the rightmost node at each level is obtained by collecting that level’s last node:</p>
+<p>Image represents a tree-like structure illustrating a coding pattern, possibly related to tree traversal or data collection.  The tree has four levels, labeled &lsquo;Level 1,&rsquo; &lsquo;Level 2,&rsquo; &lsquo;Level 3,&rsquo; and &lsquo;Level 4.&rsquo;  Each level contains nodes represented by circles, with numbers inside.  Nodes 1, 3, 6, and 11 are highlighted with an orange border.  Downward-pointing arrows indicate a traversal path, starting from node 1, then proceeding to nodes 3, 6, and finally 11.  The nodes are connected by lines representing parent-child relationships.  To the right, a list <code>res = [1 3 6 11]</code> shows the values collected during this traversal, suggesting that the algorithm collects values from the orange-highlighted nodes.  The unhighlighted nodes (2, 4, 5, 8, 9) are part of the tree structure but are not included in the final result shown in the <code>res</code> list.
+Try it yourself
+Write your solution to the problem before checking the reference implementation.
+Implementation
+Python
+JavaScript
+Java
+from ds import TreeNode
+    
+def rightmost_nodes_of_a_binary_tree(root: TreeNode) -&gt; List[int]:
+    if not root:
+        return []
+    res = []
+    queue = deque([root])
+    while queue:
+        level_size = len(queue)
+        # Add all the non-null child nodes of the current level to the queue.
+        for i in range(level_size):
+            node = queue.popleft()
+            if node.left:
+                queue.append(node.left)
+            if node.right:
+                queue.append(node.right)
+            # Record this level&rsquo;s last node to the result array.
+            if i == level_size - 1:
+                res.append(node.val)
+    return res
+Complexity Analysis
+Time complexity: The time complexity of rightmost_nodes_of_a_binary_tree is 
+O
+(
+n
+)
+O(n), where 
+n
+n denotes the number of nodes in the tree. This is because we process each node of the tree once during the level-order traversal.</p>
+<p>Space complexity: The space complexity is 
+O
+(
+n
+)
+O(n) due to the space taken up by the queue. The queue’s size will grow as large as the level with the most nodes. In the worst case, this occurs at the final level when all the last-level nodes are non-null, totaling approximately 
+n
+/
+2
+n/2 nodes. Note that the res array does not contribute to the space complexity.</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="balanced-binary-tree-validation.html"><div class="label">← Anterior</div><div class="title">Balanced Binary Tree Validation</div></a><a class="next" href="widest-binary-tree-level.html"><div class="label">Siguiente →</div><div class="title">Widest Binary Tree Level</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="rightmost-nodes-of-a-binary-tree.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

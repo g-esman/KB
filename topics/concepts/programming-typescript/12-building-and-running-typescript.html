@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Building and Running TypeScript · Personal KB</title>
+<link rel="stylesheet" href="../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book IV — Programming TypeScript</span><span class="sep">/</span><span class="current">Building and Running TypeScript</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <ul class="toc">
+<li class="toc-h2"><a href="#contenido-del-capitulo-toc-del-libro">📑 Contenido del capítulo (TOC del libro)</a></li>
+<li class="toc-h2"><a href="#por-hacer">🚧 Por hacer</a></li>
+<li class="toc-h2"><a href="#references">📚 References</a></li>
+</ul>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Building and Running TypeScript</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-30</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">typescript</span><span class="meta-tag">build</span><span class="meta-tag">tsc</span><span class="meta-tag">compile-target</span><span class="meta-tag">source-maps</span><span class="meta-tag">npm</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <blockquote>
+<p>📍 <strong>Programming TypeScript · Boris Cherny</strong> · <a href="../../../index.html">📚 KB Index</a></p>
+<p><strong>Stub</strong> — este capítulo todavía no fue tratado. Contiene el outline tomado del TOC del libro.</p>
+</blockquote>
+<h2 id="contenido-del-capitulo-toc-del-libro">📑 Contenido del capítulo (TOC del libro)<a class="headerlink" href="#contenido-del-capitulo-toc-del-libro" title="anchor">&para;</a></h2>
+<p>Project layout, artifacts, compile target, source maps, project references, error monitoring, correr TS en server/browser, publicar a NPM, triple-slash directives.</p>
+<h2 id="por-hacer">🚧 Por hacer<a class="headerlink" href="#por-hacer" title="anchor">&para;</a></h2>
+<ul>
+<li>Leer el capítulo en el PDF.</li>
+<li>Aplicar el tratamiento estándar: For Dummies con analogías, ejemplos en TS, diagramas, amplificación, pitfalls, interview tips.</li>
+<li>Marcar como <code>active</code> cuando esté completo.</li>
+</ul>
+<h2 id="references">📚 References<a class="headerlink" href="#references" title="anchor">&para;</a></h2>
+<ul>
+<li><em>Programming TypeScript</em> — Boris Cherny, O&rsquo;Reilly 2019. Capítulo del libro.</li>
+</ul>
+      <nav class="prev-next"><a class="prev" href="11-interoperating-with-javascript.html"><div class="label">← Anterior</div><div class="title">Interoperating with JavaScript</div></a><a class="next" href="appendix-f-tsc-compiler-flags-for-safety.html"><div class="label">Siguiente →</div><div class="title">Appendix F — TSC Compiler Flags for Safety</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="12-building-and-running-typescript.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

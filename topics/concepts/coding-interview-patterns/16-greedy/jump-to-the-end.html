@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jump to the End · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 16 — Greedy</span><span class="sep">/</span><span class="current">Jump to the End</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Jump to the End</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">greedy</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Jump to the End
+You are given an integer array in which you&rsquo;re originally positioned at index 0. Each number in the array represents the maximum jump distance from the current index. Determine if it&rsquo;s possible to reach the end of the array.</p>
+<p>Example 1:
+Image represents a sequence of numbers, [3, 2, 0, 2, 5], depicted within square brackets.  A green curved arrow originates from the number 3 at the beginning of the sequence and points to the number 2 near the middle.  Another smaller green curved arrow originates from the same initial 2 and points to the number 5 at the end of the sequence. These arrows suggest a connection or flow of information, possibly indicating a relationship or operation between the numbers 3 and 2, and separately between the number 2 and 5. The arrangement implies a linear data structure, possibly an array or list, with the arrows highlighting specific elements and their interactions within the context of a coding pattern, likely illustrating a selection or traversal process.
+Input: nums = [3, 2, 0, 2, 5]
+Output: True
+Example 2:
+Image represents two diagrams illustrating different scenarios of data flow or program execution. Each diagram shows a sequence of numbers, [2, 1, 0, 3], enclosed in square brackets.  In both diagrams, a grey curved arrow points from the &lsquo;0&rsquo; to the text &lsquo;dead end,&rsquo; indicating a termination point or a path that doesn&rsquo;t continue further.  The key difference lies in the red arrows. In the first diagram, a single red curved arrow points from the &lsquo;2&rsquo; to the &lsquo;0&rsquo;, suggesting a direct transition or flow from &lsquo;2&rsquo; to &lsquo;0&rsquo;. In the second diagram, two red curved arrows originate from the &lsquo;2&rsquo;, one pointing to the &lsquo;1&rsquo; and the other to the &lsquo;0&rsquo;, illustrating a branching or conditional flow where &lsquo;2&rsquo; can lead to either &lsquo;1&rsquo; or &lsquo;0&rsquo; before potentially reaching the &lsquo;dead end&rsquo;.  The diagrams likely depict different control flows or execution paths within a program, possibly highlighting the concept of a single path versus multiple paths, or a decision point in the algorithm.
+Input: nums = [2, 1, 0, 3]
+Output: False
+Constraints:
+There is at least one element in nums.
+All integers in nums are non-negative integers.
+Intuition
+From any index i in the array, we can jump up to nums[i] positions to the right. This means the furthest index we can reach from any given index i, is i + nums[i]:</p>
+<p>Image represents a visual explanation of array traversal.  A small square labeled &lsquo;i&rsquo; points downwards with an arrow to an array <code>[3, 2, 0, 2, 5]</code>.  Beneath the array, indices 0 through 4 are displayed.  A curved orange arrow originates from the element at index 1 (value 2) and points to the element at index 3 (value 2). This arrow illustrates a jump in the array. The text below the array explains that this jump represents the &lsquo;furthest index we can jump to from i = i + nums[i]&rsquo;, indicating that the value at index <code>i</code> (in this case, 2) is added to <code>i</code> to determine the next index to visit.  The formula <code>i + nums[i]</code> shows how the jump is calculated.
+If the array consisted entirely of positive numbers, jumping from index 0 to the last index would be straightforward, as there would always be a way to progress forward toward the last index. The challenge arises when we encounter a 0 in the array, as a 0 is effectively a dead end, since landing on it disallows any further movement.</p>
+<p>Consider the example below:</p>
+<p>Image represents a two-row array of numbers. The top row, enclosed in square brackets <code>[ ]</code>, displays the numbers 3, 2, 0, 2, and 5 in bold, black font, representing the main data set.  Below this, a second row shows the indices 0, 1, 2, 3, and 4 in a lighter gray font, indicating the position or index of each corresponding element in the top row.  The arrangement is linear, with each number in the top row directly above its corresponding index in the bottom row. No explicit connections or information flow is depicted beyond the implied positional relationship between the top and bottom rows.
+Let’s think about this problem backward. Our destination is the last index, index 4, but let’s say we’ve already made it there. How did we reach this index? In this example, it’s possible to make it to index 4 from index 3:</p>
+<p>The image represents a visual depiction of an array or list data structure.  The main component is a numerical array <code>[3, 2, 0, 2, 5]</code> displayed horizontally.  Beneath each element of the array, its index is shown in gray: 0, 1, 2, 3, and 4 respectively.  A small, light peach-colored circle containing the number &lsquo;4&rsquo; is positioned below the last element, visually highlighting the array&rsquo;s length or the index of the last element.  A curved orange arrow originates from above the element &lsquo;2&rsquo; at index 3 and points to the element &lsquo;5&rsquo; at index 4, indicating a potential operation or data flow between these two specific elements within the array.  This arrow likely represents an action or modification performed on the array, possibly involving the element at index 3 affecting the element at index 4.
+This means that if we find a way to reach index 3, we know for sure we can make it to index 4. The key observation here is that if we can reach the last index from any earlier index, this earlier index becomes our new destination.</p>
+<p>With this in mind, let’s go through this example in full, starting with the last index as our initial destination:</p>
+<p>Image represents a visual depiction of accessing an element within an array.  A square box containing an &lsquo;i&rsquo; symbol points downwards to an array represented as <code>[3 2 0 2 5]</code>, with indices 0 through 4 displayed below each element.  A small orange circle highlights the element at index 4, labeled &lsquo;destination&rsquo; in orange text below.  A separate, light-grey, dashed-line box to the right displays &lsquo;destination = 4&rsquo;, indicating that the value at the designated index (4) within the array is 5.  The arrow from the &lsquo;i&rsquo; symbol suggests an instruction or pointer to locate the element at the specified index, which is then retrieved and displayed as the value of the &lsquo;destination&rsquo; variable.
+To find earlier indexes that can reach the destination, let’s move backward through the array, starting at index 3. As we do this for each index, we check if we can reach the current destination from this index. If we can, this index becomes the new destination. We do this by checking if it&rsquo;s possible to jump to the destination from this index:</p>
+<p>if i + nums[i] ≥ destination, we can jump to destination from index i.</p>
+<p>Image represents a visual depiction of an algorithm&rsquo;s step, likely within a larger coding pattern example.  A numerical array <code>[3, 2, 0, 2, 5]</code> is shown, with indices 0 through 4 displayed below each element.  A black square labeled &lsquo;i&rsquo; points via a downward arrow to the element &lsquo;2&rsquo; at index 3, indicating a current iteration. A dashed orange line then arcs from this &lsquo;2&rsquo; to the element &lsquo;5&rsquo; at index 4.  A separate orange circle labeled &lsquo;4&rsquo; (presumably representing the index) is connected by a solid orange line to the word &lsquo;destination&rsquo; written in orange text.  A light gray box to the right details the calculation: <code>i + nums[i] = 3 + 2 = 5 ≥ destination</code>, concluding with <code>destination = i = 3</code>. This suggests that the algorithm is comparing the sum of the current index (i=3) and the element at that index (nums[i]=2) to a &lsquo;destination&rsquo; value, and updating the &lsquo;destination&rsquo; variable based on the comparison.  The overall diagram illustrates a step-by-step process of array traversal and conditional logic, possibly part of a search or comparison algorithm.
+Image represents a visual depiction of an array and an index.  The top row shows an array represented by <code>[3 2 0 2 5]</code>, enclosed in square brackets, with each number representing an element.  Below this, a second row displays indices <code>0 1 2 3 4</code> in grey, indicating the position of each element in the array.  A circled &lsquo;3&rsquo; in orange is positioned below the array, connected by a vertical orange line to the word &lsquo;destination&rsquo; written in orange below it. This visually highlights that the index &lsquo;3&rsquo; points to the element at that position within the array, which is the &lsquo;2&rsquo; in the top row.  The greyed-out elements and indices suggest a focus on the element at index 3, making it the &lsquo;destination&rsquo; of the visual representation.
+With the destination at index 3, let’s continue moving backward through the array.</p>
+<p>Now, we’re at index 2. Below, we see we cannot reach the destination from index 2, so the destination is not updated.</p>
+<p>Image represents a visual explanation of a coding scenario, likely involving array traversal.  A square box labeled &lsquo;i&rsquo; points downwards to an array <code>[3, 2, 0, 2, 5]</code> with indices 0 through 4 displayed below each element.  A circled &lsquo;3&rsquo; highlights the element &lsquo;2&rsquo; at index 3, labeled &lsquo;destination&rsquo; in orange text below.  A dashed-line box to the right shows a calculation: <code>i + nums[i] = 2 + 0</code>, indicating that <code>i</code> is 2 (the index of the current element being examined).  The next line shows <code>= 2 &lt; destination</code>, comparing the result of the calculation (2) to the destination value (also 2). The final line, &lsquo;cannot reach current destination,&rsquo; indicates that the condition <code>2 &lt; destination</code> is false, implying the algorithm&rsquo;s inability to reach the target index based on the current logic.  The overall diagram illustrates a step in an algorithm where the current index <code>i</code> and the value at that index in the <code>nums</code> array are used to determine if a destination index can be reached, and in this case, it cannot.
+Continue with this logic for the remaining numbers in the array:</p>
+<p>Image represents a visual depiction of an iterative process, likely within a loop in a program.  A numbered array <code>[3, 2, 0, 2, 5]</code> is shown, with indices 0 through 4 displayed below each element.  A square box labeled &lsquo;i&rsquo; points downwards with a solid arrow to the element &lsquo;2&rsquo; at index 1, indicating the current iteration&rsquo;s index. A dashed orange arrow arcs from this &lsquo;2&rsquo; to the element &lsquo;2&rsquo; at index 3, suggesting a potential search or comparison.  A circled &lsquo;3&rsquo; below the second &lsquo;2&rsquo; is labeled &lsquo;destination&rsquo;, indicating a target value or position. A separate light gray box details the calculation: <code>i + nums[i] = 1 + 2 = 3 ≥ destination</code>, implying a comparison between the calculated sum (3) and the &lsquo;destination&rsquo; value. The final line in the gray box, <code>destination = i = 1</code>, shows the result of the comparison, assigning the value of &lsquo;i&rsquo; (1) to &lsquo;destination&rsquo;.  The overall diagram illustrates a step in an algorithm where an index &lsquo;i&rsquo; is used to access and process elements in an array, potentially searching for a specific value or condition.
+Image represents a visual depiction of a coding pattern, likely illustrating an algorithm&rsquo;s step.  A square box labeled &lsquo;i&rsquo; points downwards with an arrow to a bracketed array <code>[3, 2, 0, 2, 5]</code>, indicating an index &lsquo;i&rsquo; is being used to access elements within the array.  A dashed orange arrow curves from the element &lsquo;3&rsquo; (at index 0) to the element &lsquo;2&rsquo; (at index 1), suggesting a potential iteration or comparison.  Below the array, a circled &lsquo;1&rsquo; labeled &lsquo;destination&rsquo; is connected to the array via a solid orange line, implying a variable &lsquo;destination&rsquo; is being assigned a value from the array.  To the right, a grey box details the algorithm&rsquo;s logic: <code>i + nums[i] = 0 + 3</code>, <code>= 3 ≥ destination</code>, and <code>destination = i = 0</code>. This shows a calculation where the value at index &lsquo;i&rsquo; (initially 0) is added to &lsquo;i&rsquo;, the result is compared to &lsquo;destination&rsquo;, and &lsquo;destination&rsquo; and &lsquo;i&rsquo; are updated based on the comparison.  The overall diagram illustrates a step-by-step process of accessing and manipulating array elements based on a condition involving an index and a destination variable.
+The image represents a visual depiction of a data structure, possibly illustrating a concept within graph theory or routing algorithms.  At the top, a bracketed sequence <code>[3 2 0 2 5]</code> is displayed, potentially representing a list of values or weights. Below this, a second row shows a sequence of numbers <code>1 2 3 4</code>, seemingly representing indices or positions.  A prominent orange circle containing a &lsquo;0&rsquo; is positioned to the left of the second row, labeled &lsquo;destination&rsquo; in orange text below it, suggesting this &lsquo;0&rsquo; represents a target node or destination index. A vertical orange line connects this circled &lsquo;0&rsquo; to the second row, visually indicating a connection or association between the destination and the row of indices. The numbers in the top row appear to be associated with the numbers in the second row, possibly representing data associated with each index, with some values (0 and 2) appearing in both rows, suggesting a relationship or mapping between the two sequences. The greyed-out numbers in the top and second rows might indicate inactive or irrelevant data points within the context of the illustrated concept.
+Finally, we see that once we’ve finished iterating through each index, the destination is set to index 0. This means we&rsquo;ve successfully found a way to jump to the end from index 0.</p>
+<p>Therefore, we return true when destination == 0. Otherwise, we cannot reach the destination from index 0, so we return false.</p>
+<p>An interesting aspect of this approach is that as soon as we find an index i from where we can reach the destination, we update the destination to that index and assume that this is the correct decision:</p>
+<p>Image represents a visual depiction of a coding pattern, likely illustrating a data manipulation or algorithm.  The image shows two arrays of integers:  <code>[9 6 7 0 4 2 0 5]</code> and <code>[9 6 7 0 4 2 0 5]</code>.  Each element in the arrays is labeled with its index (0-7) below it in gray.  A small square labeled &lsquo;i&rsquo; is shown above each array, indicating an iterator or index pointer.  A downward arrow from each &lsquo;i&rsquo; points to the element at index 5 in the respective array (the number 2).  A curved, light-blue arrow connects the number 2 in the first array to the number 5 in the same array, suggesting a movement or operation involving these elements.  Below the number 5 in each array, an orange circle labeled &lsquo;destination&rsquo; is connected to the number 5 with a vertical orange line, highlighting the destination of the operation.  A gray arrow points from the first array to the second, implying a transformation or result of the operation. The overall diagram suggests a process where an element at a specific index is identified and potentially moved or modified, resulting in a change in the array&rsquo;s structure.
+The thing is, there can sometimes be multiple indexes which can reach the destination. So, how do we know that choosing the first valid index we encounter from the right is the best choice?</p>
+<p>Image represents a visual depiction of data flowing into a single destination point.  A horizontal array displays the numbers [9, 6, 7, 0, 4, 2, 0, 5], each number positioned above its index (0 through 7).  Curved, light-blue arrows emanate from each of these numbers, converging at a single point labeled &lsquo;destination&rsquo; in orange text, which is also numerically indicated by a circled &lsquo;7&rsquo; below the array.  The arrows visually represent the flow of data from each element in the array to the final destination, suggesting a process of aggregation or accumulation where multiple data points contribute to a single result.
+The key to understanding why is realizing that all the other indexes which can reach the destination can also reach this first valid index:</p>
+<p>Image represents a visual depiction of data flow or a transformation process.  The image shows a sequence of numbers [9, 6, 7, 0, 4, 2, 0, 5] arranged horizontally, with each number positioned above an index (0-7).  Four bright cyan curved arrows originate from the numbers 9, 6, 7, and 0, respectively, all converging onto the number 2.  A lighter gray curved arrow connects the number 0 to the number 5.  A small orange circle labeled &lsquo;5&rsquo; is positioned below the number 2 and is labeled &lsquo;destination&rsquo; in orange text, suggesting that the number 2 is the target or result of the data flow represented by the cyan arrows. The overall structure suggests a process where multiple data points (9, 6, 7, and 0) contribute to or are processed to produce a final result (2), with an additional, separate process indicated by the gray arrow.
+Therefore, by choosing the first valid index, we effectively simplify our problem without missing any potential solutions.</p>
+<p>This is indicative of a greedy solution; since the greedy choice property is satisfied, we make the best immediate choice at each step as we move backward through the array (local optimums), hoping it leads to the overall solution (global optimum).</p>
+<p>Try it yourself
+Write your solution to the problem before checking the reference implementation.
+Implementation
+Python
+JavaScript
+Java
+from typing import List
+    
+def jump_to_the_end(nums: List[int]) -&gt; bool:
+    # Set the initial destination to the last index in the array.
+    destination = len(nums) - 1
+    # Traverse the array in reverse to see if the destination can be reached by
+    # earlier indexes.
+    for i in range(len(nums) - 1, -1, -1):
+        # If we can reach the destination from the current index, set this index as
+        # the new destination.
+        if i + nums[i] &gt;= destination:
+            destination = i
+    # If the destination is index 0, we can jump to the end from index 0.
+    return destination == 0
+Complexity Analysis
+Time complexity: The time complexity of jump_to_the_end is 
+O
+(
+n
+)
+O(n), where 
+n
+n denotes the length of the array. This is because we iterate through each element of nums in reverse order.</p>
+<p>Space complexity: The space complexity is 
+O
+(
+1
+)
+O(1).</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="introduction.html"><div class="label">← Anterior</div><div class="title">Introduction to Greedy Algorithms</div></a><a class="next" href="gas-stations.html"><div class="label">Siguiente →</div><div class="title">Gas Stations</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="jump-to-the-end.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

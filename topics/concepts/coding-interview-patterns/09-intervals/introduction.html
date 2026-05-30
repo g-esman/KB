@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Introduction to Intervals · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 9 — Intervals</span><span class="sep">/</span><span class="current">Introduction to Intervals</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Introduction to Intervals</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">intervals</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Introduction to Intervals
+Intuition
+An interval consists of two values: a start point and an end point. It represents a continuous segment on the number line that includes all values between these two points. It is often used to represent a line, time period, or a continuous range of values.</p>
+<p>An interval’s start point indicates where the interval begins.
+An interval’s end point indicates where the interval ends.
+Image represents a simple horizontal timeline diagram illustrating a process or sequence.  The diagram consists of a thick, black horizontal line extending from left to right.  At the leftmost end of the line is a thick, vertical black bar labeled &lsquo;start,&rsquo; indicating the beginning of the process.  At the rightmost end of the line is a similar thick, vertical black bar labeled &lsquo;end,&rsquo; signifying the completion of the process. The length of the horizontal line visually represents the duration or extent of the process between the start and end points. No other elements, such as intermediate points or annotations, are present on the line itself.
+Intervals can be closed, open, or half-open, based on whether their start or end points are included in the interval.</p>
+<p>Closed intervals: Both the start and end points are included in the interval.
+Image represents a line segment with thick, black endpoints and a thick, black line connecting them.  The endpoints are labeled with the numbers &lsquo;3&rsquo; and &lsquo;8&rsquo;, vertically aligned below their respective positions on the line.  The line segment visually represents a range or interval from 3 to 8, implying a continuous sequence of values within that range. No other information, such as URLs or parameters, is present in the image. The arrangement is simple and linear, with the numbers clearly indicating the start and end points of the represented range.
+Open intervals: The start and end points are not included in the interval.
+The image represents a simple line graph or diagram illustrating a relationship between two data points.  A thick, horizontal, black line connects two filled circles, which act as markers for the data points.  The leftmost circle is vertically aligned with the number &lsquo;3&rsquo;, positioned below it, indicating a value of 3 for that data point. Similarly, the rightmost circle is vertically aligned with the number &lsquo;8&rsquo;, positioned below it, representing a value of 8 for the second data point. The line connecting the circles visually represents the relationship or connection between these two data points (3 and 8), suggesting a direct link or transition between them.  No other labels, text, URLs, or parameters are present in the image.
+Half-open intervals: Either the start or the end point is included, while the other is not.
+Image represents two identical line segments, each visually depicting a range.  Both segments are thick, black lines horizontally oriented.  Each line starts with a thick, black vertical bar on the left, labeled &lsquo;3&rsquo; vertically below it, and ends with a similar vertical bar on the right, labeled &lsquo;8&rsquo; vertically below it. The numbers &lsquo;3&rsquo; and &lsquo;8&rsquo; likely represent the start and end points of a numerical range, respectively. The two line segments are placed side-by-side with a small gap between them, suggesting a comparison or parallel representation of the same range. No other elements, such as arrows, labels, or text beyond the &lsquo;3&rsquo; and &lsquo;8&rsquo; markers, are present in the image.
+When presented with an interval problem in an interview, It’s important to clarify whether the intervals are open, closed, or half-open, as this can change the nature of how intervals overlap.</p>
+<p>Overlapping intervals
+Two intervals overlap if they share at least one common value.</p>
+<p>Image represents a visual depiction of an overlap between two intervals on a number line.  A light green rectangle labeled &lsquo;overlap&rsquo; is positioned between points 4 and 6 on the horizontal axis.  A thick black line extends from point 2 to the left edge of the rectangle at point 4, representing the first interval.  Another thick black line extends from the right edge of the rectangle at point 6 to point 7, representing the second interval.  The numbers 2, 4, 6, and 7 are marked on the axis, indicating the start and end points of the intervals. The overlap region, visually represented by the green rectangle, shows the shared portion between the two intervals, highlighting the concept of overlapping ranges.
+The central challenge in most interval problems involves managing overlapping intervals effectively. Whether identifying or merging overlapping intervals, it’s important to determine how the overlap between intervals influences the desired outcome of the problem. The problems in this chapter involve handling overlapping intervals in varying situations.</p>
+<p>Sorting intervals
+In most interval problems, sorting the intervals before solving the problem is quite helpful since it allows them to be processed in a certain order.</p>
+<p>We usually sort intervals by their start point so they can be traversed in chronological order. When two or more intervals have the same start point, we might also need to consider each interval’s end points during sorting.</p>
+<p>Separating start and end points
+In certain scenarios, it might be beneficial to process the start and end points of intervals separately. This usually involves creating two sorted arrays: one containing all start points and another containing all end points. For example, this is needed in the sweeping line algorithm, which is explored in the Largest Overlap of Intervals problem.</p>
+<p>Image represents a data structure illustrating the concept of intervals.  The top line defines a list named <code>intervals</code> containing five sub-lists, each representing an interval. These sub-lists are <code>[1, 6]</code>, <code>[2, 4]</code>, <code>[5, 9]</code>, <code>[8, 10]</code>, and <code>[10, 12]</code>. The second line shows a list called <code>start points</code> containing the start values of each interval, extracted from the <code>intervals</code> list: <code>[1, 2, 5, 8, 10]</code>.  These values are highlighted in cyan. The third line displays a list named <code>end points</code>, which contains the corresponding end values of each interval from the <code>intervals</code> list: <code>[4, 6, 9, 10, 12]</code>. These values are highlighted in orange.  The arrangement visually demonstrates how the <code>start points</code> and <code>end points</code> lists are derived from the <code>intervals</code> list, showing a clear relationship between the intervals and their constituent start and end points.
+Interval class definition
+For the problems in this chapter, intervals are represented using the class below.</p>
+<p>Python
+JavaScript
+Java
+class Interval:
+   def <strong>init</strong>(self, start, end):
+       self.start = start
+       self.end = end
+Real-world Example
+Scheduling systems: Intervals are widely used in scheduling systems. For instance, in a conference room booking system, each booking is represented as an interval. The interval representation is used if the system requires functionality, such as determining the maximum number of overlapping bookings to ensure sufficient room availability. By analyzing these intervals, the system can efficiently allocate resources and prevent double bookings.</p>
+<p>Chapter Outline
+Image represents a hierarchical diagram illustrating two common coding patterns related to interval management.  A rounded rectangle at the top, labeled &lsquo;Intervals,&rsquo; acts as the parent node, connected via dashed lines to two child nodes represented as rounded rectangles with dashed borders. The left child node is titled &lsquo;Managing Overlaps&rsquo; and lists two sub-tasks: &lsquo;Merge Overlapping Intervals&rsquo; and &lsquo;Identify All Interval Overlaps.&rsquo; The right child node is titled &lsquo;Finding Values in Sorted Order&rsquo; and contains a single sub-task: &lsquo;Largest Overlap of Intervals.&rsquo;  The arrangement shows that &lsquo;Intervals&rsquo; is a broader category encompassing two distinct approaches: one focused on managing overlapping intervals (merging and identifying them), and the other on finding specific values within sorted intervals (identifying the largest overlap).  The dashed lines indicate a hierarchical relationship, showing that the two lower-level nodes are specific applications or sub-problems within the broader context of &lsquo;Intervals.&rsquo;</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="../08-heaps/sort-a-k-sorted-array.html"><div class="label">← Anterior</div><div class="title">Sort a K-Sorted Array</div></a><a class="next" href="merge-overlapping-intervals.html"><div class="label">Siguiente →</div><div class="title">Merge Overlapping Intervals</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="introduction.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Next Lexicographical Sequence · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 1 — Two Pointers</span><span class="sep">/</span><span class="current">Next Lexicographical Sequence</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <ul class="toc">
+<li class="toc-h2"><a href="#in-this-entry">📑 In this entry</a></li>
+<li class="toc-h2"><a href="#for-dummies-empeza-por-aca">🎓 For Dummies — empezá por acá</a></li>
+<li class="toc-h3"><a href="#por-que-funciona">¿Por qué funciona?</a></li>
+<li class="toc-h3"><a href="#trampas-comunes">Trampas comunes</a></li>
+<li class="toc-h2"><a href="#problema">Problema</a></li>
+<li class="toc-h3"><a href="#ejemplos">Ejemplos</a></li>
+<li class="toc-h3"><a href="#constraints">Constraints</a></li>
+<li class="toc-h2"><a href="#que-significa-siguiente-permutacion-lexicografica">Qué significa “siguiente permutación lexicográfica”</a></li>
+<li class="toc-h2"><a href="#insight-1-el-cambio-se-hace-lo-mas-a-la-derecha-posible">Insight 1: el cambio se hace lo más a la derecha posible</a></li>
+<li class="toc-h2"><a href="#insight-2-la-ultima-permutacion-es-non-increasing">Insight 2: la última permutación es non-increasing</a></li>
+<li class="toc-h3"><a href="#y-si-no-hay-pivot">¿Y si no hay pivot?</a></li>
+<li class="toc-h2"><a href="#el-algoritmo-en-4-pasos">El algoritmo en 4 pasos</a></li>
+<li class="toc-h3"><a href="#paso-1-localizar-el-pivot">Paso 1 — Localizar el pivot</a></li>
+<li class="toc-h3"><a href="#paso-2-encontrar-el-rightmost-successor">Paso 2 — Encontrar el rightmost successor</a></li>
+<li class="toc-h3"><a href="#paso-3-swap">Paso 3 — Swap</a></li>
+<li class="toc-h3"><a href="#paso-4-reverse-la-cola">Paso 4 — Reverse la cola</a></li>
+<li class="toc-h2"><a href="#trace-paso-a-paso">Trace paso a paso</a></li>
+<li class="toc-h2"><a href="#algorithm-flowchart">Algorithm flowchart</a></li>
+<li class="toc-h2"><a href="#implementacion">Implementación</a></li>
+<li class="toc-h3"><a href="#javascript">JavaScript</a></li>
+<li class="toc-h3"><a href="#c">C</a></li>
+<li class="toc-h2"><a href="#por-que-reverse-y-no-sort">Por qué reverse y no sort</a></li>
+<li class="toc-h2"><a href="#complexity-analysis">Complexity Analysis</a></li>
+<li class="toc-h2"><a href="#test-cases">Test Cases</a></li>
+<li class="toc-h2"><a href="#amplification-variantes-y-conexiones">⭐ Amplification: variantes y conexiones</a></li>
+<li class="toc-h3"><a href="#variante-1-next-permutation-sobre-array-de-numeros-leetcode-31">Variante 1: Next Permutation sobre array de números (LeetCode #31)</a></li>
+<li class="toc-h3"><a href="#variante-2-previous-permutation-la-inversa">Variante 2: Previous Permutation (la inversa)</a></li>
+<li class="toc-h3"><a href="#variante-3-k-th-permutation-sequence-leetcode-60">Variante 3: k-th Permutation Sequence (LeetCode #60)</a></li>
+<li class="toc-h3"><a href="#variante-4-permutations-todas-leetcode-46">Variante 4: Permutations (todas) (LeetCode #46)</a></li>
+<li class="toc-h3"><a href="#conexion-con-built-ins-de-otros-lenguajes">Conexión con built-ins de otros lenguajes</a></li>
+<li class="toc-h3"><a href="#por-que-este-algoritmo-es-elegante">Por qué este algoritmo es elegante</a></li>
+<li class="toc-h2"><a href="#pitfalls">⚠️ Pitfalls</a></li>
+<li class="toc-h2"><a href="#interview-tips">Interview Tips</a></li>
+<li class="toc-h2"><a href="#references">References</a></li>
+</ul>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Next Lexicographical Sequence</h1>
+  <div class="meta-row">
+    <span class="status-badge active">✓ active</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-08</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">two-pointers</span><span class="meta-tag">interview-prep</span><span class="meta-tag">staged-traversal</span><span class="meta-tag">permutations</span></div>
+</header>
+      
+      <blockquote>
+<p>📍 <strong>Two Pointers · Problema 6/6</strong> · <a href="./shift-zeros-to-the-end.html">⬅ Shift Zeros</a> · <a href="./introduction.html">🏠 Chapter</a> · <em>Fin del capítulo</em> · <a href="../../../../index.html">📚 KB Index</a></p>
+<p><strong>TL;DR</strong> — Encontrar la <strong>siguiente permutación en orden lexicográfico</strong> de un string (o array). Algoritmo en 4 pasos: (1) buscar el <strong>pivot</strong> desde la derecha — primer carácter que rompe el orden no-creciente; (2) buscar el <strong>rightmost successor</strong> — primer carácter desde la derecha mayor al pivot; (3) <strong>swap</strong> pivot ↔ rightmost successor; (4) <strong>reverse</strong> la cola después del pivot. Si no hay pivot, el string ya es la última permutación → devolver la primera (reversa). <strong>O(n) tiempo, O(n) espacio (por la lista mutable).</strong></p>
+</blockquote>
+<hr />
+<h2 id="in-this-entry">📑 In this entry<a class="headerlink" href="#in-this-entry" title="anchor">&para;</a></h2>
+<ol>
+<li><a href="#-for-dummies--empezá-por-acá">🎓 For Dummies — empezá por acá</a></li>
+<li><a href="#problema">Problema</a></li>
+<li><a href="#qué-significa-siguiente-permutación-lexicográfica">Qué significa &ldquo;siguiente permutación lexicográfica&rdquo;</a></li>
+<li><a href="#insight-1-el-cambio-se-hace-lo-más-a-la-derecha-posible">Insight 1: el cambio se hace lo más a la derecha posible</a></li>
+<li><a href="#insight-2-la-última-permutación-es-non-increasing">Insight 2: la última permutación es non-increasing</a></li>
+<li><a href="#el-algoritmo-en-4-pasos">El algoritmo en 4 pasos</a></li>
+<li><a href="#trace-paso-a-paso">Trace paso a paso</a></li>
+<li><a href="#algorithm-flowchart">Algorithm flowchart</a></li>
+<li><a href="#implementación">Implementación</a></li>
+<li><a href="#por-qué-reverse-y-no-sort">Por qué reverse y no sort</a></li>
+<li><a href="#complexity-analysis">Complexity Analysis</a></li>
+<li><a href="#test-cases">Test Cases</a></li>
+<li><a href="#-amplification-variantes-y-conexiones">⭐ Amplification: variantes y conexiones</a></li>
+<li><a href="#️-pitfalls">⚠️ Pitfalls</a></li>
+<li><a href="#interview-tips">Interview Tips</a></li>
+</ol>
+<hr />
+<h2 id="for-dummies-empeza-por-aca">🎓 For Dummies — empezá por acá<a class="headerlink" href="#for-dummies-empeza-por-aca" title="anchor">&para;</a></h2>
+<p><strong>Analogía:</strong> imaginá las <strong>permutaciones de un string</strong> como las páginas de un diccionario. Si el string es <code>"abc"</code>, las permutaciones ordenadas alfabéticamente son:</p>
+<div class="highlight"><pre><span></span><code>1. abc
+2. acb
+3. bac
+4. bca
+5. cab
+6. cba   ← última
+</code></pre></div>
+<p>Te dan una de esas permutaciones (digamos <code>acb</code>), y te piden que devuelvas <strong>la siguiente</strong> en el diccionario (<code>bac</code>). Si te dan la última (<code>cba</code>), volvés al principio (<code>abc</code>).</p>
+<p><strong>¿Cómo lo hacés sin generar todas las permutaciones?</strong> Hay un truco mecánico de 4 pasos. Pensalo así:</p>
+<p>Tenés un <strong>odómetro de palabras</strong> (como el cuentakilómetros del auto, pero con letras). Para incrementarlo en 1, <strong>siempre</strong> mové la rueda más a la derecha que <strong>se pueda mover</strong>. Una rueda &ldquo;se puede mover&rdquo; si todavía no llegó al máximo de su tramo.</p>
+<div class="highlight"><pre><span></span><code>ej: abcedda  →  ¿cuál es el siguiente?
+
+      &quot;ya están maximizados&quot;
+              ▼ ▼ ▼ ▼
+     a  b  c  e  d  d  a
+              ▲
+              c es la rueda que sí se puede subir
+              (porque hay algo más grande a su derecha)
+</code></pre></div>
+<p><strong>Los 4 pasos:</strong></p>
+<ol>
+<li><strong>Pivot:</strong> desde la derecha, encontrá el <strong>primer carácter</strong> que es <strong>menor</strong> que el siguiente. Ese es el &ldquo;primer dígito que sí se puede subir&rdquo;. En <code>abcedda</code>, es la <code>c</code> en posición 2 (porque <code>c &lt; e</code>).</li>
+<li><strong>Rightmost successor:</strong> desde la derecha, encontrá el <strong>primer carácter</strong> que sea <strong>mayor que el pivot</strong>. Ese es el &ldquo;valor mínimo necesario para subir el pivot&rdquo;. En <code>abcedda</code>, es la primera <code>d</code> (la del medio, posición 5).</li>
+<li><strong>Swap:</strong> intercambiás pivot ↔ rightmost successor. <code>abcedda</code> → <code>abdedca</code>.</li>
+<li><strong>Reverse:</strong> la <strong>cola después del pivot</strong> queda en orden no-creciente (eso es por construcción). Para que la nueva permutación sea <strong>la mínima posible</strong> después del swap, hay que <strong>revertir esa cola</strong> para que quede en orden creciente. <code>abdedca</code> → <code>abdacde</code>.</li>
+</ol>
+<p>Resultado: <code>abcedda</code> → <code>abdacde</code>.</p>
+<h3 id="por-que-funciona">¿Por qué funciona?<a class="headerlink" href="#por-que-funciona" title="anchor">&para;</a></h3>
+<ul>
+<li><strong>El swap aumenta el valor del pivot</strong> lo mínimo posible (porque elegimos el successor más a la derecha que sea mayor).</li>
+<li><strong>El reverse minimiza la cola</strong> después del nuevo pivot (porque la cola estaba non-increasing y revertirla la hace non-decreasing → la permutación más chica).</li>
+</ul>
+<p>Resultado: la permutación inmediatamente siguiente. <strong>No te saltás ninguna</strong>, no devolvés una más grande de lo necesario.</p>
+<h3 id="trampas-comunes">Trampas comunes<a class="headerlink" href="#trampas-comunes" title="anchor">&para;</a></h3>
+<ul>
+<li>⚠️ <strong>Confundir &ldquo;non-increasing&rdquo; con &ldquo;decreasing&rdquo;.</strong> <em>Decreasing</em> significa estrictamente <code>&gt;</code>. <em>Non-increasing</em> significa <code>&gt;=</code>. La cola maximizada permite <strong>iguales adyacentes</strong> (ej: <code>dda</code>). Si usás <code>&gt;</code> en el pivot search, fallás cuando hay duplicados.</li>
+<li>⚠️ <strong>Usar sort en vez de reverse en el paso 4.</strong> Sort funciona pero es O(n log n) extra. Como la cola <strong>ya es non-increasing</strong>, revertirla es O(n) y da el mismo resultado.</li>
+<li>⚠️ <strong>No manejar el caso &ldquo;ya es la última permutación&rdquo;.</strong> Si todo el string es non-increasing, no hay pivot. La consigna dice: devolver la primera permutación (que es la string revertida).</li>
+</ul>
+<p>¿Listo para la versión completa? ⬇️</p>
+<hr />
+<h2 id="problema">Problema<a class="headerlink" href="#problema" title="anchor">&para;</a></h2>
+<p>Dado un string de letras inglesas en minúscula, reordená los caracteres para formar <strong>la siguiente permutación en orden lexicográfico</strong> (alfabético). Si el string ya es la última permutación posible, devolvé la <strong>primera</strong> (la mínima).</p>
+<h3 id="ejemplos">Ejemplos<a class="headerlink" href="#ejemplos" title="anchor">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>Input:  s = &quot;abcd&quot;
+Output: &quot;abdc&quot;
+Explicación: &quot;abdc&quot; es la siguiente permutación después de &quot;abcd&quot;.
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Input:  s = &quot;dcba&quot;
+Output: &quot;abcd&quot;
+Explicación: &quot;dcba&quot; es la última permutación → volvemos a la primera.
+</code></pre></div>
+<h3 id="constraints">Constraints<a class="headerlink" href="#constraints" title="anchor">&para;</a></h3>
+<ul>
+<li>El string tiene al menos un carácter.</li>
+<li>Solo letras inglesas en minúscula.</li>
+</ul>
+<hr />
+<h2 id="que-significa-siguiente-permutacion-lexicografica">Qué significa &ldquo;siguiente permutación lexicográfica&rdquo;<a class="headerlink" href="#que-significa-siguiente-permutacion-lexicografica" title="anchor">&para;</a></h2>
+<p>Considerá todas las permutaciones de <code>"abc"</code> listadas en orden alfabético:</p>
+<p><img alt="Permutations of 'abc' in lex order" src="../../img/tp-fig-nl-01-perms.png" /></p>
+<p>La <strong>siguiente permutación</strong> de <code>"abc"</code> es <code>"acb"</code>. La de <code>"acb"</code> es <code>"bac"</code>. Y así. Cuando llegás a <code>"cba"</code> (la última), la consigna pide volver al principio.</p>
+<p><strong>Puntos clave:</strong></p>
+<ul>
+<li>La siguiente permutación es <strong>lexicográficamente mayor</strong> que la original.</li>
+<li>Es la <strong>menor</strong> entre las que son mayores.</li>
+<li>Usa <strong>exactamente las mismas letras</strong> (es una permutación, no una transformación arbitraria).</li>
+</ul>
+<hr />
+<h2 id="insight-1-el-cambio-se-hace-lo-mas-a-la-derecha-posible">Insight 1: el cambio se hace lo más a la derecha posible<a class="headerlink" href="#insight-1-el-cambio-se-hace-lo-mas-a-la-derecha-posible" title="anchor">&para;</a></h2>
+<p>Para que la siguiente permutación sea <strong>lo más cercana posible</strong> a la original, el cambio debe involucrar <strong>caracteres lo más a la derecha posible</strong>.</p>
+<p>Comparemos dos formas de &ldquo;aumentar&rdquo; <code>abcde</code>:</p>
+<div class="highlight"><pre><span></span><code>Cambio cerca de la derecha (preferible):
+  a b c d e   →   a b c e d        (incremento chico)
+
+Cambio cerca de la izquierda (peor):
+  a b c d e   →   b a c d e        (incremento grande)
+</code></pre></div>
+<p>Ambos son mayores que <code>abcde</code>, pero el primero es <strong>más cercano</strong>. La intuición: cambiar caracteres a la izquierda da saltos enormes (todo lo que viene después puede ser cualquier cosa); cambiar a la derecha da el incremento mínimo.</p>
+<p><strong>Conclusión:</strong> rearrange solo los caracteres <strong>al final del string</strong> (la &ldquo;cola&rdquo; o &ldquo;suffix&rdquo;), si es posible. La pregunta ahora es: <strong>¿cuán larga es esa cola?</strong></p>
+<hr />
+<h2 id="insight-2-la-ultima-permutacion-es-non-increasing">Insight 2: la última permutación es non-increasing<a class="headerlink" href="#insight-2-la-ultima-permutacion-es-non-increasing" title="anchor">&para;</a></h2>
+<p>Una observación clave: <strong>la última permutación de un conjunto de caracteres es siempre non-increasing</strong>.</p>
+<p>Ejemplo: con las letras <code>{a, b, c, c}</code>, la última permutación posible es <code>ccba</code> (la &ldquo;más grande&rdquo; alfabéticamente). Esa cadena es non-increasing: <code>c &gt;= c &gt;= b &gt;= a</code>.</p>
+<div class="highlight"><pre><span></span><code>ej:   abcc   →   …   →   ccba   ← última, non-increasing
+</code></pre></div>
+<p><strong>Por qué importa esto:</strong> si la <strong>cola</strong> del string ya es non-increasing, <strong>no podemos rearrengarla para hacerla más grande</strong>: ya está al máximo. Hay que extender el &ldquo;área de cambio&rdquo; más a la izquierda hasta encontrar un carácter que <strong>sí se pueda subir</strong>. Ese carácter es el <strong>pivot</strong>.</p>
+<div class="highlight"><pre><span></span><code>Ejemplo: s = &quot;abcedda&quot;
+
+posición:     0  1  2  3  4  5  6
+caracteres:   a  b  c  e  d  d  a
+                          └────────┘
+                          cola non-increasing (e d d a)
+                       └─────────────┘
+                       pero &quot;e&quot; rompe el orden? No, &quot;e d d a&quot; es non-increasing.
+                    └────────────────┘
+                    &quot;c e d d a&quot;  ← acá &quot;c &lt; e&quot; rompe el non-increasing.
+                                    &#39;c&#39; es el pivot.
+</code></pre></div>
+<p><strong>El pivot</strong> es el primer carácter (desde la derecha) que <strong>rompe el orden non-increasing</strong>. Es el carácter que vamos a subir.</p>
+<h3 id="y-si-no-hay-pivot">¿Y si no hay pivot?<a class="headerlink" href="#y-si-no-hay-pivot" title="anchor">&para;</a></h3>
+<p>Si recorrés todo el string desde la derecha y nunca encontrás un carácter menor que el siguiente, <strong>todo el string es non-increasing</strong> → es <strong>la última permutación</strong>. La consigna dice: devolver la primera, o sea <strong>revertir</strong> el string (la primera permutación de un conjunto de caracteres es non-decreasing).</p>
+<div class="highlight"><pre><span></span><code>ej:  s = &quot;dcba&quot;   →   no hay pivot   →   reverse  →  &quot;abcd&quot;
+</code></pre></div>
+<hr />
+<h2 id="el-algoritmo-en-4-pasos">El algoritmo en 4 pasos<a class="headerlink" href="#el-algoritmo-en-4-pasos" title="anchor">&para;</a></h2>
+<h3 id="paso-1-localizar-el-pivot">Paso 1 — Localizar el pivot<a class="headerlink" href="#paso-1-localizar-el-pivot" title="anchor">&para;</a></h3>
+<p>Recorré desde la <strong>derecha</strong> (empezando en <code>len-2</code>, no <code>len-1</code>, porque comparás con el siguiente). Detenete en el primer índice donde <code>s[pivot] &lt; s[pivot+1]</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="nx">pivot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">letters</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">2</span><span class="p">;</span>
+<span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nx">pivot</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mf">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">letters</span><span class="p">[</span><span class="nx">pivot</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="nx">letters</span><span class="p">[</span><span class="nx">pivot</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span><span class="p">])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">pivot</span><span class="o">--</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Si <code>pivot == -1</code>, no hubo pivot → string ya es la última permutación → devolver <code>reverse(s)</code>.</p>
+<h3 id="paso-2-encontrar-el-rightmost-successor">Paso 2 — Encontrar el rightmost successor<a class="headerlink" href="#paso-2-encontrar-el-rightmost-successor" title="anchor">&para;</a></h3>
+<p>El <strong>rightmost successor</strong> del pivot es el carácter más a la derecha que sea <strong>estrictamente mayor</strong> al pivot. Como la cola después del pivot es non-increasing, recorré desde la derecha y parate en el primer carácter mayor.</p>
+<div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="nx">rightmostSuccessor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">letters</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span><span class="p">;</span>
+<span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nx">letters</span><span class="p">[</span><span class="nx">rightmostSuccessor</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="nx">letters</span><span class="p">[</span><span class="nx">pivot</span><span class="p">])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">rightmostSuccessor</span><span class="o">--</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<blockquote>
+<p><strong>Por qué &ldquo;rightmost&rdquo;:</strong> elegir el successor más a la derecha (el menor candidato válido) genera el incremento más chico posible para el pivot, que es lo que queremos.</p>
+</blockquote>
+<h3 id="paso-3-swap">Paso 3 — Swap<a class="headerlink" href="#paso-3-swap" title="anchor">&para;</a></h3>
+<p>Intercambiá pivot y rightmost successor:</p>
+<div class="highlight"><pre><span></span><code><span class="p">[</span><span class="nx">letters</span><span class="p">[</span><span class="nx">pivot</span><span class="p">],</span><span class="w"> </span><span class="nx">letters</span><span class="p">[</span><span class="nx">rightmostSuccessor</span><span class="p">]]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="nx">letters</span><span class="p">[</span><span class="nx">rightmostSuccessor</span><span class="p">],</span><span class="w"> </span><span class="nx">letters</span><span class="p">[</span><span class="nx">pivot</span><span class="p">]];</span>
+</code></pre></div>
+<p>Después de esto, el carácter en la posición del pivot es <strong>mayor</strong> que antes, y la <strong>cola sigue siendo non-increasing</strong> (lo demostramos abajo).</p>
+<h3 id="paso-4-reverse-la-cola">Paso 4 — Reverse la cola<a class="headerlink" href="#paso-4-reverse-la-cola" title="anchor">&para;</a></h3>
+<p>La cola después del pivot es non-increasing, lo cual significa que es <strong>la permutación más grande</strong> de esos caracteres. Para que la nueva permutación total sea la <strong>mínima posible</strong> mayor que la original, queremos que esa cola sea la <strong>más chica posible</strong>. La permutación más chica de un conjunto de caracteres es <strong>non-decreasing</strong>, que se obtiene <strong>revirtiendo</strong> la non-increasing actual.</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// Reverse in-place desde pivot+1 hasta el final:</span>
+<span class="kd">let</span><span class="w"> </span><span class="nx">l</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">pivot</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="nx">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">letters</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span><span class="p">;</span>
+<span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nx">l</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">r</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="p">[</span><span class="nx">letters</span><span class="p">[</span><span class="nx">l</span><span class="p">],</span><span class="w"> </span><span class="nx">letters</span><span class="p">[</span><span class="nx">r</span><span class="p">]]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="nx">letters</span><span class="p">[</span><span class="nx">r</span><span class="p">],</span><span class="w"> </span><span class="nx">letters</span><span class="p">[</span><span class="nx">l</span><span class="p">]];</span>
+<span class="w">    </span><span class="nx">l</span><span class="o">++</span><span class="p">;</span><span class="w"> </span><span class="nx">r</span><span class="o">--</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<blockquote>
+<p><strong>Reverse, no sort:</strong> la cola ya está non-increasing, así que <code>reverse</code> la convierte en non-decreasing en O(n). Sort haría lo mismo en O(n log n) — menos eficiente.</p>
+</blockquote>
+<hr />
+<h2 id="trace-paso-a-paso">Trace paso a paso<a class="headerlink" href="#trace-paso-a-paso" title="anchor">&para;</a></h2>
+<p>Ejemplo: <code>s = "abcedda"</code>. Esperamos <code>"abdacde"</code>. Cada paso visualizado:</p>
+<p><img alt="Next lex sequence trace" src="../../img/tp-fig-nl-02-trace.png" /></p>
+<p><strong>Resultado:</strong> <code>"abdacde"</code> ✓</p>
+<p><strong>Verificación:</strong> ¿es <code>"abdacde"</code> la siguiente permutación después de <code>"abcedda"</code>? Comparemos carácter a carácter:</p>
+<ul>
+<li><code>a == a</code></li>
+<li><code>b == b</code></li>
+<li><code>d &gt; c</code> ← acá se dispara el &ldquo;mayor&rdquo;</li>
+</ul>
+<p>Como en la posición 2 ya pasamos a algo mayor, <strong>todas las strings con prefijo <code>"abd..."</code> son mayores que <code>"abcedda"</code></strong>. La menor de esas es la que tiene la cola más chica posible: <code>"acde"</code> (los caracteres restantes en orden ascendente). Eso es exactamente lo que generamos.</p>
+<hr />
+<h2 id="algorithm-flowchart">Algorithm flowchart<a class="headerlink" href="#algorithm-flowchart" title="anchor">&para;</a></h2>
+<p><img alt="Next lex flowchart" src="../../img/tp-fig-nl-03-flow.png" /></p>
+<hr />
+<h2 id="implementacion">Implementación<a class="headerlink" href="#implementacion" title="anchor">&para;</a></h2>
+<h3 id="javascript">JavaScript<a class="headerlink" href="#javascript" title="anchor">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">nextLexicographicalSequence</span><span class="p">(</span><span class="nx">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">letters</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// Paso 1: localizar el pivot (primer char desde la derecha que rompe non-increasing).</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">pivot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">letters</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">2</span><span class="p">;</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nx">pivot</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mf">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">letters</span><span class="p">[</span><span class="nx">pivot</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="nx">letters</span><span class="p">[</span><span class="nx">pivot</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span><span class="p">])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">pivot</span><span class="o">--</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="c1">// Si no hay pivot, el string ya es la última permutación.</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">pivot</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="o">-</span><span class="mf">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">letters</span><span class="p">.</span><span class="nx">reverse</span><span class="p">().</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="c1">// Paso 2: encontrar el rightmost successor del pivot.</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">rs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">letters</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nx">letters</span><span class="p">[</span><span class="nx">rs</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="nx">letters</span><span class="p">[</span><span class="nx">pivot</span><span class="p">])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">rs</span><span class="o">--</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="c1">// Paso 3: swap pivot y rightmost successor.</span>
+<span class="w">    </span><span class="p">[</span><span class="nx">letters</span><span class="p">[</span><span class="nx">pivot</span><span class="p">],</span><span class="w"> </span><span class="nx">letters</span><span class="p">[</span><span class="nx">rs</span><span class="p">]]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="nx">letters</span><span class="p">[</span><span class="nx">rs</span><span class="p">],</span><span class="w"> </span><span class="nx">letters</span><span class="p">[</span><span class="nx">pivot</span><span class="p">]];</span>
+<span class="w">    </span><span class="c1">// Paso 4: reverse la cola para minimizarla.</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">l</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">pivot</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="nx">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">letters</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nx">l</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">r</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="p">[</span><span class="nx">letters</span><span class="p">[</span><span class="nx">l</span><span class="p">],</span><span class="w"> </span><span class="nx">letters</span><span class="p">[</span><span class="nx">r</span><span class="p">]]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="nx">letters</span><span class="p">[</span><span class="nx">r</span><span class="p">],</span><span class="w"> </span><span class="nx">letters</span><span class="p">[</span><span class="nx">l</span><span class="p">]];</span>
+<span class="w">        </span><span class="nx">l</span><span class="o">++</span><span class="p">;</span><span class="w"> </span><span class="nx">r</span><span class="o">--</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">letters</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="c">C<a class="headerlink" href="#c" title="anchor">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="nf">NextLexicographicalSequence</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">char</span><span class="p">[]</span><span class="w"> </span><span class="n">letters</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">ToCharArray</span><span class="p">();</span>
+<span class="w">    </span><span class="c1">// Paso 1: localizar el pivot (primer char desde la derecha que rompe non-increasing).</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">pivot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">letters</span><span class="p">.</span><span class="n">Length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">pivot</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">letters</span><span class="p">[</span><span class="n">pivot</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">letters</span><span class="p">[</span><span class="n">pivot</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">pivot</span><span class="o">--</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="c1">// Si no hay pivot, el string ya es la última permutación.</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pivot</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">Array</span><span class="p">.</span><span class="n">Reverse</span><span class="p">(</span><span class="n">letters</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">string</span><span class="p">(</span><span class="n">letters</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="c1">// Paso 2: encontrar el rightmost successor del pivot.</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">rs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">letters</span><span class="p">.</span><span class="n">Length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">letters</span><span class="p">[</span><span class="n">rs</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">letters</span><span class="p">[</span><span class="n">pivot</span><span class="p">])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">rs</span><span class="o">--</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="c1">// Paso 3: swap pivot y rightmost successor.</span>
+<span class="w">    </span><span class="p">(</span><span class="n">letters</span><span class="p">[</span><span class="n">pivot</span><span class="p">],</span><span class="w"> </span><span class="n">letters</span><span class="p">[</span><span class="n">rs</span><span class="p">])</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">letters</span><span class="p">[</span><span class="n">rs</span><span class="p">],</span><span class="w"> </span><span class="n">letters</span><span class="p">[</span><span class="n">pivot</span><span class="p">]);</span>
+<span class="w">    </span><span class="c1">// Paso 4: reverse la cola para minimizarla.</span>
+<span class="w">    </span><span class="n">Array</span><span class="p">.</span><span class="n">Reverse</span><span class="p">(</span><span class="n">letters</span><span class="p">,</span><span class="w"> </span><span class="n">pivot</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">letters</span><span class="p">.</span><span class="n">Length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">pivot</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="nf">string</span><span class="p">(</span><span class="n">letters</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="por-que-reverse-y-no-sort">Por qué reverse y no sort<a class="headerlink" href="#por-que-reverse-y-no-sort" title="anchor">&para;</a></h2>
+<p>Después del swap del paso 3, la cola sigue siendo <strong>non-increasing</strong>. Vamos a probarlo informalmente:</p>
+<ul>
+<li>Antes del swap, la cola era <code>c_{p+1}, c_{p+2}, ..., c_{n-1}</code> con <code>c_{p+1} &gt;= c_{p+2} &gt;= ... &gt;= c_{n-1}</code>.</li>
+<li>El rightmost successor era <code>c_{rs}</code> con <code>c_{rs} &gt; c_{pivot}</code> y <code>c_{rs+1} &lt;= c_{pivot}</code>.</li>
+<li>Después del swap, en la posición <code>rs</code> quedó <code>c_{pivot}</code> (el original). Como <code>c_{rs-1} &gt;= c_{rs} &gt; c_{pivot}</code>, se mantiene <code>c_{rs-1} &gt;= c_{pivot}</code>. Y <code>c_{pivot} &gt;= c_{rs+1}</code> por lo que vimos.</li>
+<li>O sea, la cola sigue ordenada non-increasing.</li>
+</ul>
+<p>Una secuencia non-increasing <strong>revertida</strong> queda non-decreasing — y la <strong>mínima</strong> permutación de ese set de caracteres es exactamente la non-decreasing.</p>
+<p>Por eso <code>reverse</code> (O(n)) es suficiente. <strong>Usar <code>sort</code> es correcto pero innecesariamente costoso</strong> (O(n log n)).</p>
+<hr />
+<h2 id="complexity-analysis">Complexity Analysis<a class="headerlink" href="#complexity-analysis" title="anchor">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Métrica</th>
+<th>Valor</th>
+<th>Por qué</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Tiempo</strong></td>
+<td>O(n)</td>
+<td>Tres pasadas en el peor caso: (1) buscar pivot, (2) buscar rightmost successor, (3) reverse. Cada una es ≤ n. Total: 3n = O(n).</td>
+</tr>
+<tr>
+<td><strong>Espacio</strong></td>
+<td>O(n)</td>
+<td>En JavaScript y C# los strings son <strong>inmutables</strong>, así que tenemos que crear un array mutable de caracteres (<code>s.split('')</code> en JS, <code>s.ToCharArray()</code> en C#) que ocupa O(n). En lenguajes con buffers mutables (<code>StringBuilder</code> con índices, <code>char[]</code> en C nativo) se reduce a O(1) sobre el buffer original.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="test-cases">Test Cases<a class="headerlink" href="#test-cases" title="anchor">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Input</th>
+<th>Expected</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>"a"</code></td>
+<td><code>"a"</code></td>
+<td>Un solo carácter — trivialmente la última permutación → reverse de <code>"a"</code> = <code>"a"</code>.</td>
+</tr>
+<tr>
+<td><code>"aaaa"</code></td>
+<td><code>"aaaa"</code></td>
+<td>Todos repetidos → no hay pivot → reverse de <code>"aaaa"</code> = <code>"aaaa"</code>.</td>
+</tr>
+<tr>
+<td><code>"ab"</code></td>
+<td><code>"ba"</code></td>
+<td>Dos chars en orden asc → siguiente es desc.</td>
+</tr>
+<tr>
+<td><code>"ba"</code></td>
+<td><code>"ab"</code></td>
+<td>Última permutación → primera.</td>
+</tr>
+<tr>
+<td><code>"abcd"</code></td>
+<td><code>"abdc"</code></td>
+<td>Caso del enunciado.</td>
+</tr>
+<tr>
+<td><code>"dcba"</code></td>
+<td><code>"abcd"</code></td>
+<td>Última permutación → primera.</td>
+</tr>
+<tr>
+<td><code>"abcedda"</code></td>
+<td><code>"abdacde"</code></td>
+<td>Caso del trace de arriba.</td>
+</tr>
+<tr>
+<td><code>"ynitsed"</code></td>
+<td><code>"ynsdeit"</code></td>
+<td>Caso del original.</td>
+</tr>
+<tr>
+<td><code>"aab"</code></td>
+<td><code>"aba"</code></td>
+<td>Con duplicados — el algoritmo respeta.</td>
+</tr>
+<tr>
+<td><code>"abdc"</code></td>
+<td><code>"acbd"</code></td>
+<td>Pivot interno.</td>
+</tr>
+<tr>
+<td><code>"abc"</code></td>
+<td><code>"acb"</code></td>
+<td>Caso simple.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="amplification-variantes-y-conexiones">⭐ Amplification: variantes y conexiones<a class="headerlink" href="#amplification-variantes-y-conexiones" title="anchor">&para;</a></h2>
+<h3 id="variante-1-next-permutation-sobre-array-de-numeros-leetcode-31">Variante 1: Next Permutation sobre array de números (LeetCode #31)<a class="headerlink" href="#variante-1-next-permutation-sobre-array-de-numeros-leetcode-31" title="anchor">&para;</a></h3>
+<p><strong>Mismo algoritmo</strong>, mismo código (cambiando <code>letters</code> por <code>nums</code>). De hecho, esto es lo que pide LeetCode #31:</p>
+<div class="highlight"><pre><span></span><code>Input:  nums = [1, 2, 3]
+Output: [1, 3, 2]
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Input:  nums = [3, 2, 1]
+Output: [1, 2, 3]
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Input:  nums = [1, 1, 5]
+Output: [1, 5, 1]
+</code></pre></div>
+<h3 id="variante-2-previous-permutation-la-inversa">Variante 2: Previous Permutation (la inversa)<a class="headerlink" href="#variante-2-previous-permutation-la-inversa" title="anchor">&para;</a></h3>
+<p><em>&ldquo;Devolvé la permutación </em><em>anterior</em><em>.&rdquo;</em></p>
+<p>Mismo esqueleto pero invertido:</p>
+<ul>
+<li><strong>Pivot:</strong> primer carácter desde la derecha que es <strong>mayor</strong> que el siguiente (rompe non-decreasing).</li>
+<li><strong>Rightmost predecessor:</strong> primer carácter desde la derecha que es <strong>menor</strong> que el pivot.</li>
+<li><strong>Swap.</strong></li>
+<li><strong>Reverse</strong> la cola (que ahora era non-decreasing) para hacerla non-increasing (la máxima posible).</li>
+</ul>
+<h3 id="variante-3-k-th-permutation-sequence-leetcode-60">Variante 3: k-th Permutation Sequence (LeetCode #60)<a class="headerlink" href="#variante-3-k-th-permutation-sequence-leetcode-60" title="anchor">&para;</a></h3>
+<p><em>&ldquo;Dada una colección <code>[1, 2, ..., n]</code>, devolvé la k-ésima permutación.&rdquo;</em></p>
+<p>Acá <strong>no usás next-permutation iterativo</strong> (sería O(k×n), inviable para k grande). Se calcula directamente con factoriales: la primera posición se determina con <code>(k-1) / (n-1)!</code>, la segunda con <code>(k-1) % (n-1)! / (n-2)!</code>, etc.</p>
+<h3 id="variante-4-permutations-todas-leetcode-46">Variante 4: Permutations (todas) (LeetCode #46)<a class="headerlink" href="#variante-4-permutations-todas-leetcode-46" title="anchor">&para;</a></h3>
+<p>Para generar <strong>todas</strong> las permutaciones de un array, hay dos approaches estándar:</p>
+<ol>
+<li><strong>Backtracking</strong> (DFS con swap). O(n × n!).</li>
+<li><strong>Iterativo con next-permutation:</strong> ordená el array, después llamá <code>nextLexicographicalSequence</code> repetidamente hasta volver a la inicial. O(n × n!).</li>
+</ol>
+<h3 id="conexion-con-built-ins-de-otros-lenguajes">Conexión con built-ins de otros lenguajes<a class="headerlink" href="#conexion-con-built-ins-de-otros-lenguajes" title="anchor">&para;</a></h3>
+<ul>
+<li><strong>C++ STL</strong> tiene <strong><code>std::next_permutation</code></strong> built-in que implementa exactamente este algoritmo. Devuelve <code>false</code> si la entrada ya era la última permutación.</li>
+<li><strong>JavaScript y C#</strong> no tienen built-in nativo, pero el algoritmo es <strong>lo suficientemente corto</strong> (≈15 líneas) como para tipearlo de memoria en una entrevista. Confirmar siempre con el entrevistador si está permitido escribir el helper.</li>
+</ul>
+<h3 id="por-que-este-algoritmo-es-elegante">Por qué este algoritmo es elegante<a class="headerlink" href="#por-que-este-algoritmo-es-elegante" title="anchor">&para;</a></h3>
+<p>Es un caso emblemático de <strong>staged traversal</strong>:</p>
+<ol>
+<li><strong>Stage 1:</strong> un puntero busca el pivot (recorre desde la derecha).</li>
+<li><strong>Stage 2:</strong> otro puntero busca el rightmost successor (también desde la derecha).</li>
+<li>Después: swap + reverse, ambos en O(n).</li>
+</ol>
+<p>Tres &ldquo;pasadas&rdquo; simples, cada una con un objetivo claro. La belleza está en <strong>descubrir</strong> la estructura (pivot + cola maximizada), no en ningún truco oscuro.</p>
+<hr />
+<h2 id="pitfalls">⚠️ Pitfalls<a class="headerlink" href="#pitfalls" title="anchor">&para;</a></h2>
+<ul>
+<li><strong>Confundir non-increasing (≥) con decreasing (&gt;).</strong> El pivot search usa <code>&gt;=</code>, no <code>&gt;</code>. Con <code>&gt;</code> fallás en strings con duplicados adyacentes (ej: <code>"abdd"</code> daría pivot = -1 incorrectamente porque <code>'d' &gt; 'd'</code> es false).</li>
+<li><strong>Usar <code>&lt;</code> en vez de <code>&lt;=</code> en el rightmost successor.</strong> El successor debe ser <strong>estrictamente</strong> mayor al pivot. La condición de loop es <code>letters[rs] &lt;= letters[pivot]</code> (skip while less-or-equal), o equivalentemente <code>letters[rs] &gt; letters[pivot]</code> (stop when greater).</li>
+<li><strong>Usar sort en vez de reverse en el paso 4.</strong> Funciona pero desperdicia O(n log n).</li>
+<li><strong>No manejar el caso pivot == -1.</strong> El loop while puede dejar pivot en <code>-1</code> si toda la string es non-increasing. Hay que checkear y devolver el reverse.</li>
+<li><strong>Hacer reverse de toda la string en vez de solo la cola.</strong> En JS <code>letters.reverse()</code> revierte TODO el array — para revertir solo <code>[pivot+1 .. end]</code> usá un loop de two pointers manual o <code>letters.splice(pivot+1).reverse().forEach(...)</code>. En C# usá <code>Array.Reverse(letters, pivot + 1, length - pivot - 1)</code> que toma offset + count.</li>
+<li><strong>Iniciar el pivot search en <code>len-1</code>.</strong> Tiene que ser <code>len-2</code> porque comparás con <code>pivot+1</code>. Si arrancás en <code>len-1</code>, el primer acceso es <code>letters[len]</code> → IndexError.</li>
+<li><strong>Pensar que el string original tiene que estar ordenado.</strong> No: la entrada es <strong>cualquier permutación</strong>. El algoritmo funciona desde cualquier estado del &ldquo;odómetro&rdquo;.</li>
+</ul>
+<hr />
+<h2 id="interview-tips">Interview Tips<a class="headerlink" href="#interview-tips" title="anchor">&para;</a></h2>
+<p><strong>Tip 1 — Sé preciso con el lenguaje técnico.</strong>
+Decí <em>&ldquo;non-increasing&rdquo;</em> o <em>&ldquo;non-decreasing&rdquo;</em>, no <em>&ldquo;decreasing&rdquo;</em> o <em>&ldquo;increasing&rdquo;</em>. Las versiones estrictas no permiten iguales adyacentes; las non-* sí. Con duplicados, esa diferencia define si el algoritmo funciona o no.</p>
+<p><strong>Tip 2 — Dibujá el odómetro.</strong>
+Es un problema visual. Mostrar el patrón &ldquo;la cola está maximizada como un odómetro a 999, hay que subir el dígito anterior&rdquo; hace que la lógica clickee enseguida.</p>
+<p><strong>Tip 3 — Razoná el &ldquo;por qué&rdquo; de cada paso.</strong></p>
+<ul>
+<li><em>Pivot:</em> el primer dígito que se puede subir.</li>
+<li><em>Rightmost successor:</em> el incremento mínimo posible.</li>
+<li><em>Reverse:</em> minimizar la cola para que la nueva permutación sea la mínima.</li>
+</ul>
+<p>Si solo memorizás los pasos sin entender el por qué, en cualquier follow-up te trabás. Si entendés la lógica, <strong>derivás</strong> el algoritmo en lugar de recordarlo.</p>
+<p><strong>Tip 4 — Aclará el formato de input/output.</strong></p>
+<ul>
+<li>¿String o array de chars? (Cambia las primitivas — <code>string</code> es inmutable en JS y C#; necesitás convertir a <code>char[]</code> para mutar.)</li>
+<li>¿Devolver nuevo string o modificar in-place? (LeetCode #31 pide in-place sobre el array.)</li>
+<li>¿Solo letras minúsculas? ¿Hay restricciones en los caracteres?</li>
+</ul>
+<p><strong>Tip 5 — Sabela en frío: O(n).</strong>
+Tres pasadas lineales, cada una a lo sumo <code>n</code>. No hay sort ocultos ni nada que la haga O(n log n).</p>
+<p><strong>Tip 6 — Si te piden generar todas las permutaciones, NO uses next-permutation iterativo.</strong>
+Es O(n!) llamadas × O(n) cada una = O(n × n!), pero la constante es alta. Para &ldquo;todas las permutaciones&rdquo;, backtracking puro es más limpio. Next-permutation brilla cuando querés <strong>la siguiente</strong> (o iterar <strong>una a la vez</strong> con poco espacio extra).</p>
+<hr />
+<h2 id="references">References<a class="headerlink" href="#references" title="anchor">&para;</a></h2>
+<ul>
+<li>LeetCode — <a href="https://leetcode.com/problems/next-permutation/">#31 Next Permutation</a> (versión sobre arrays)</li>
+<li>LeetCode — <a href="https://leetcode.com/problems/permutations/">#46 Permutations</a></li>
+<li>LeetCode — <a href="https://leetcode.com/problems/permutation-sequence/">#60 Permutation Sequence</a></li>
+<li>C++ STL — <a href="https://en.cppreference.com/w/cpp/algorithm/next_permutation"><code>std::next_permutation</code></a></li>
+<li>Coding Interview Patterns — capítulo &ldquo;Two Pointers&rdquo; → &ldquo;Next Lexicographical Sequence&rdquo;</li>
+<li>Entradas relacionadas:</li>
+<li><a href="./introduction.html">Introduction to Two Pointers</a> (la única strategy &ldquo;staged&rdquo; del capítulo)</li>
+</ul>
+<hr />
+<blockquote>
+<p>📍 <strong>Two Pointers · Problema 6/6</strong> — <em>Fin del capítulo</em> · <a href="./shift-zeros-to-the-end.html">⬅ Shift Zeros</a> · <a href="./introduction.html">🏠 Chapter</a> · <a href="../../../../index.html">📚 KB Index</a></p>
+<p>🎯 <strong>Próximos capítulos del libro:</strong> <a href="../02-hash-maps-and-sets/">Hash Maps and Sets</a> · <a href="../03-linked-lists/">Linked Lists</a> · <a href="../04-fast-and-slow-pointers/">Fast and Slow Pointers</a> (variante de two pointers)</p>
+</blockquote>
+      <nav class="prev-next"><a class="prev" href="shift-zeros-to-the-end.html"><div class="label">← Anterior</div><div class="title">Shift Zeros to the End</div></a><a class="next" href="../02-hash-maps-and-sets/introduction.html"><div class="label">Siguiente →</div><div class="title">Introduction to Hash Maps and Sets</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="next-lexicographical-sequence.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

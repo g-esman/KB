@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Triplet Sum · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 1 — Two Pointers</span><span class="sep">/</span><span class="current">Triplet Sum</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <ul class="toc">
+<li class="toc-h2"><a href="#in-this-entry">📑 In this entry</a></li>
+<li class="toc-h2"><a href="#for-dummies-empeza-por-aca">🎓 For Dummies — empezá por acá</a></li>
+<li class="toc-h3"><a href="#trampas-comunes">Trampas comunes</a></li>
+<li class="toc-h2"><a href="#problema">Problema</a></li>
+<li class="toc-h3"><a href="#ejemplo">Ejemplo</a></li>
+<li class="toc-h2"><a href="#brute-force-on3-y-por-que-no-alcanza">Brute force O(n³) y por qué no alcanza</a></li>
+<li class="toc-h2"><a href="#la-idea-reducir-a-pair-sum">La idea: reducir a Pair Sum</a></li>
+<li class="toc-h2"><a href="#manejo-de-duplicados-caso-a-y-caso-b">Manejo de duplicados (caso a y caso b)</a></li>
+<li class="toc-h3"><a href="#caso-1-a-repetido">Caso 1: a repetido</a></li>
+<li class="toc-h3"><a href="#caso-2-b-repetido-dentro-del-two-pointer-inner">Caso 2: b repetido (dentro del two-pointer inner)</a></li>
+<li class="toc-h3"><a href="#y-c-no-hay-que-skipearlo-explicitamente">¿Y c? No hay que skipearlo explícitamente</a></li>
+<li class="toc-h2"><a href="#optimizacion-cortar-cuando-a-0">Optimización: cortar cuando a &gt; 0</a></li>
+<li class="toc-h2"><a href="#trace-paso-a-paso">Trace paso a paso</a></li>
+<li class="toc-h3"><a href="#manejo-de-duplicados-visual">Manejo de duplicados (visual)</a></li>
+<li class="toc-h2"><a href="#algorithm-flowchart">Algorithm flowchart</a></li>
+<li class="toc-h2"><a href="#implementacion">Implementación</a></li>
+<li class="toc-h3"><a href="#javascript">JavaScript</a></li>
+<li class="toc-h3"><a href="#c">C</a></li>
+<li class="toc-h2"><a href="#complexity-analysis">Complexity Analysis</a></li>
+<li class="toc-h3"><a href="#comparacion-con-alternativas">Comparación con alternativas</a></li>
+<li class="toc-h2"><a href="#test-cases">Test Cases</a></li>
+<li class="toc-h2"><a href="#amplification-variantes-y-follow-ups">⭐ Amplification: variantes y follow-ups</a></li>
+<li class="toc-h3"><a href="#variante-1-3sum-closest-leetcode-16">Variante 1: 3Sum Closest (LeetCode #16)</a></li>
+<li class="toc-h3"><a href="#variante-2-4sum-leetcode-18">Variante 2: 4Sum (LeetCode #18)</a></li>
+<li class="toc-h3"><a href="#variante-3-3sum-con-multiplicity-leetcode-923">Variante 3: 3Sum con multiplicity (LeetCode #923)</a></li>
+<li class="toc-h3"><a href="#follow-ups-tipicos-en-entrevista">Follow-ups típicos en entrevista</a></li>
+<li class="toc-h2"><a href="#pitfalls">⚠️ Pitfalls</a></li>
+<li class="toc-h2"><a href="#interview-tips">Interview Tips</a></li>
+<li class="toc-h2"><a href="#references">References</a></li>
+</ul>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Triplet Sum</h1>
+  <div class="meta-row">
+    <span class="status-badge active">✓ active</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-08</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">two-pointers</span><span class="meta-tag">interview-prep</span><span class="meta-tag">inward-traversal</span><span class="meta-tag">dedup</span></div>
+</header>
+      
+      <blockquote>
+<p>📍 <strong>Two Pointers · Problema 2/6</strong> · <a href="./pair-sum-sorted.html">⬅ Pair Sum</a> · <a href="./introduction.html">🏠 Chapter</a> · <a href="./largest-container.html">Largest Container ➡</a> · <a href="../../../../index.html">📚 KB Index</a></p>
+<p><strong>TL;DR</strong> — Encontrar todos los tripletes únicos <code>[a, b, c]</code> que sumen 0. Estrategia: <strong>sort</strong> el array, fijar <code>a</code> con un loop externo, y aplicar <strong>pair-sum</strong> con two pointers en el sub-array para encontrar <code>b + c = -a</code>. Skip de duplicados en <code>a</code> y en <code>b</code> para no generar tripletes repetidos. <strong>O(n²) tiempo, O(1) espacio extra.</strong></p>
+</blockquote>
+<hr />
+<h2 id="in-this-entry">📑 In this entry<a class="headerlink" href="#in-this-entry" title="anchor">&para;</a></h2>
+<ol>
+<li><a href="#-for-dummies--empezá-por-acá">🎓 For Dummies — empezá por acá</a></li>
+<li><a href="#problema">Problema</a></li>
+<li><a href="#brute-force-on-y-por-qué-no-alcanza">Brute force O(n³) y por qué no alcanza</a></li>
+<li><a href="#la-idea-reducir-a-pair-sum">La idea: reducir a Pair Sum</a></li>
+<li><a href="#manejo-de-duplicados-caso-a-y-caso-b">Manejo de duplicados (caso a y caso b)</a></li>
+<li><a href="#optimización-cortar-cuando-a--0">Optimización: cortar cuando a &gt; 0</a></li>
+<li><a href="#trace-paso-a-paso">Trace paso a paso</a></li>
+<li><a href="#algorithm-flowchart">Algorithm flowchart</a></li>
+<li><a href="#implementación">Implementación</a></li>
+<li><a href="#complexity-analysis">Complexity Analysis</a></li>
+<li><a href="#test-cases">Test Cases</a></li>
+<li><a href="#-amplification-variantes-y-follow-ups">⭐ Amplification: variantes y follow-ups</a></li>
+<li><a href="#️-pitfalls">⚠️ Pitfalls</a></li>
+<li><a href="#interview-tips">Interview Tips</a></li>
+</ol>
+<hr />
+<h2 id="for-dummies-empeza-por-aca">🎓 For Dummies — empezá por acá<a class="headerlink" href="#for-dummies-empeza-por-aca" title="anchor">&para;</a></h2>
+<p><strong>Analogía:</strong> imaginá que tenés un montón de <strong>monedas con valores positivos y negativos</strong> (deudas y créditos). Te piden encontrar <strong>todos los grupos de 3 monedas que sumen exactamente 0</strong> (o sea, que se cancelen entre ellas). No querés grupos repetidos.</p>
+<p><strong>Forma boluda:</strong> probás todas las combinaciones de 3. Con 100 monedas son ≈ 100×100×100 = <strong>1.000.000 combinaciones</strong>. Encima tenés que filtrar duplicados a mano. Te morís.</p>
+<p><strong>Forma piola — el truco:</strong> <strong>fijá una moneda</strong> y buscá <strong>un par</strong> entre las demás que cancele esa primera. Si fijás una moneda de valor <code>-3</code>, necesitás que las otras dos sumen <code>+3</code>. Eso es <strong>exactamente Pair Sum</strong>, que ya sabés resolver en O(n) si el array está ordenado.</p>
+<p><strong>Pasos:</strong></p>
+<ol>
+<li><strong>Ordenás</strong> todas las monedas de menor a mayor.</li>
+<li>Para cada moneda <code>a</code> (loop externo), buscás un par <code>[b, c]</code> en lo que queda a la derecha que sume <code>-a</code>. Eso es two-pointer inward.</li>
+<li>Para no generar tripletes duplicados, <strong>salteás</strong> valores repetidos de <code>a</code> y de <code>b</code>.</li>
+</ol>
+<p><strong>¿Por qué se hace <code>O(n²)</code> y no <code>O(n³)</code>?</strong> Porque el loop externo es <code>n</code>, y para cada <code>a</code> la búsqueda de pareja es <code>O(n)</code> (two pointers, no doble for). Total: <code>n × n = n²</code>.</p>
+<h3 id="trampas-comunes">Trampas comunes<a class="headerlink" href="#trampas-comunes" title="anchor">&para;</a></h3>
+<ul>
+<li>⚠️ <strong>No ordenar el array primero.</strong> Sin sort no podés usar two pointers para <code>b + c = -a</code> ni dedupear de forma simple. Ordenar agrega O(n log n), que queda <strong>dominado</strong> por el O(n²) total — no afecta el orden de magnitud.</li>
+<li>⚠️ <strong>Olvidar el skip de duplicados.</strong> Si <code>nums = [-1, -1, 0, 1, 1]</code>, sin skip vas a sacar <code>[-1, 0, 1]</code> dos veces (una con cada <code>-1</code> como <code>a</code>, otra con cada <code>1</code> como <code>c</code>).</li>
+<li>⚠️ <strong>Skipear duplicados antes de buscar par en lugar de después de matchearlo.</strong> El skip de <code>a</code> se hace <strong>antes</strong> del two-pointer inner; el skip de <code>b</code> se hace <strong>después</strong> de matchear, mientras avanzás <code>left</code>.</li>
+</ul>
+<p>¿Listo para la versión completa? ⬇️</p>
+<hr />
+<h2 id="problema">Problema<a class="headerlink" href="#problema" title="anchor">&para;</a></h2>
+<p>Dado un array de enteros, devolvé <strong>todos los tripletes</strong> <code>[a, b, c]</code> tales que <code>a + b + c = 0</code>. La solución <strong>no debe contener tripletes duplicados</strong> (ej: <code>[1, 2, 3]</code> y <code>[2, 3, 1]</code> son duplicados — el orden interno del triplete no importa). Si no hay tripletes válidos, devolvé <code>[]</code>.</p>
+<h3 id="ejemplo">Ejemplo<a class="headerlink" href="#ejemplo" title="anchor">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>Input:  nums = [0, -1, 2, -3, 1]
+Output: [[-3, 1, 2], [-1, 0, 1]]
+</code></pre></div>
+<p>Cada triplete puede salir en cualquier orden, y la lista de tripletes también puede salir en cualquier orden.</p>
+<hr />
+<h2 id="brute-force-on3-y-por-que-no-alcanza">Brute force O(n³) y por qué no alcanza<a class="headerlink" href="#brute-force-on3-y-por-que-no-alcanza" title="anchor">&para;</a></h2>
+<p>La forma directa: tres for-loops anidados y un set para deduplicar.</p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">tripletSumBruteForce</span><span class="p">(</span><span class="nx">nums</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">nums</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">triplets</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Set</span><span class="p">();</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">let</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">n</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">let</span><span class="w"> </span><span class="nx">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span><span class="p">;</span><span class="w"> </span><span class="nx">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">n</span><span class="p">;</span><span class="w"> </span><span class="nx">j</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">let</span><span class="w"> </span><span class="nx">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">j</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span><span class="p">;</span><span class="w"> </span><span class="nx">k</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">n</span><span class="p">;</span><span class="w"> </span><span class="nx">k</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">j</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">k</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="c1">// Sort para deduplicar via Set (stringificado).</span>
+<span class="w">                    </span><span class="kd">const</span><span class="w"> </span><span class="nx">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">],</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">j</span><span class="p">],</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">k</span><span class="p">]].</span><span class="nx">sort</span><span class="p">((</span><span class="nx">a</span><span class="p">,</span><span class="w"> </span><span class="nx">b</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">b</span><span class="p">).</span><span class="nx">join</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">);</span>
+<span class="w">                    </span><span class="nx">triplets</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="nx">key</span><span class="p">);</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">[...</span><span class="nx">triplets</span><span class="p">].</span><span class="nx">map</span><span class="p">(</span><span class="nx">s</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">).</span><span class="nx">map</span><span class="p">(</span><span class="nb">Number</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><strong>Tiempo:</strong> O(n³). <strong>Espacio:</strong> O(número de tripletes únicos) para el set.</p>
+<p>Para <code>n = 1000</code> ya es <strong>1.000.000.000 operaciones</strong> — inviable. Tenemos que bajar a <strong>O(n²)</strong>.</p>
+<hr />
+<h2 id="la-idea-reducir-a-pair-sum">La idea: reducir a Pair Sum<a class="headerlink" href="#la-idea-reducir-a-pair-sum" title="anchor">&para;</a></h2>
+<p><strong>Observación clave:</strong> si fijo un valor <code>a</code> del triplete, el problema se transforma en <em>&ldquo;encontrar un par <code>[b, c]</code> que sume <code>-a</code>&ldquo;</em>. Eso es <strong>Pair Sum - Sorted</strong>, que ya sabemos resolver en <strong>O(n)</strong> si el array está ordenado.</p>
+<div class="highlight"><pre><span></span><code>Triplete:  a + b + c = 0
+
+Fijo a, queda:  b + c = -a   →  pair sum con target -a
+</code></pre></div>
+<p><strong>Plan:</strong></p>
+<ol>
+<li><strong>Ordenar</strong> el array. Costo: O(n log n).</li>
+<li>Loop externo <code>i</code> de 0 a n-1. En cada iteración, <code>a = nums[i]</code>.</li>
+<li>Para cada <code>a</code>, llamar a una versión modificada de pair-sum que encuentre <strong>todos los pares</strong> <code>[b, c]</code> que sumen <code>-a</code> en <code>nums[i+1 .. n-1]</code>. Ojo: <strong>a la derecha de <code>i</code></strong>, no en todo el array, para no contar el mismo elemento dos veces.</li>
+<li>Combinar <code>a</code> con cada par encontrado para formar tripletes.</li>
+</ol>
+<p><strong>Por qué pair-sum acá busca <em>todos los pares</em> (no solo uno):</strong> podemos tener varios <code>[b, c]</code> distintos que sumen <code>-a</code>. Por ejemplo, con <code>a = -2</code> y array <code>[..., -1, -1, 0, 1, 2, 3]</code>, los pares válidos son <code>[-1, 3]</code>, <code>[0, 2]</code>, <code>[-1, 3]</code>&hellip; varios.</p>
+<hr />
+<h2 id="manejo-de-duplicados-caso-a-y-caso-b">Manejo de duplicados (caso a y caso b)<a class="headerlink" href="#manejo-de-duplicados-caso-a-y-caso-b" title="anchor">&para;</a></h2>
+<p>Hay dos lugares donde aparecen tripletes duplicados. Verlos con un ejemplo.</p>
+<p><code>nums = [-4, -4, -2, 0, 0, 1, 2, 3]</code> (ya ordenado).</p>
+<h3 id="caso-1-a-repetido">Caso 1: <code>a</code> repetido<a class="headerlink" href="#caso-1-a-repetido" title="anchor">&para;</a></h3>
+<p>Si <code>nums[0] = -4</code> y <code>nums[1] = -4</code>, fijar <code>a</code> en cualquiera de los dos da <strong>el mismo target</strong> (<code>-a = 4</code>) y por lo tanto <strong>los mismos pares</strong>. Los tripletes serían idénticos.</p>
+<div class="highlight"><pre><span></span><code>[ -4   -4   -2   0   0   1   2   3 ]
+  ▲                                         ▲ a = -4 fijo en i=0
+       ▲                                    ▲ a = -4 fijo en i=1 → duplica
+</code></pre></div>
+<p><strong>Solución:</strong> si <code>nums[i] == nums[i-1]</code>, <strong>skip</strong> ese <code>i</code> y continuá.</p>
+<div class="highlight"><pre><span></span><code><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">i</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span><span class="p">])</span><span class="w"> </span><span class="k">continue</span><span class="p">;</span>
+</code></pre></div>
+<h3 id="caso-2-b-repetido-dentro-del-two-pointer-inner">Caso 2: <code>b</code> repetido (dentro del two-pointer inner)<a class="headerlink" href="#caso-2-b-repetido-dentro-del-two-pointer-inner" title="anchor">&para;</a></h3>
+<p>Cuando dentro del two-pointer inner encontramos un par válido y avanzamos <code>left</code>, podemos caer en otro elemento con el <strong>mismo valor de <code>b</code></strong>. Eso generaría el mismo <code>[b, c]</code> (porque <code>c = -a - b</code> también es el mismo).</p>
+<div class="highlight"><pre><span></span><code>target = -a = 4
+
+[ ..., -2,    0,    0,    1,    2,    2,    3 ]
+                     ▲                       ▲
+                    left                  right
+                    b=0   matchea con c=4 (no existe acá pero ilustra)
+
+después de matchear, left++  →  left cae en otro 0
+                                  esto generaría el mismo [b, c]  →  skip
+</code></pre></div>
+<p><strong>Solución:</strong> después de matchear y hacer <code>left += 1</code>, mientras <code>nums[left] == nums[left - 1]</code>, seguir avanzando.</p>
+<div class="highlight"><pre><span></span><code><span class="nx">left</span><span class="o">++</span><span class="p">;</span>
+<span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nx">left</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">right</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">left</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">left</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span><span class="p">])</span><span class="w"> </span><span class="nx">left</span><span class="o">++</span><span class="p">;</span>
+</code></pre></div>
+<h3 id="y-c-no-hay-que-skipearlo-explicitamente">¿Y <code>c</code>? No hay que skipearlo explícitamente<a class="headerlink" href="#y-c-no-hay-que-skipearlo-explicitamente" title="anchor">&para;</a></h3>
+<p>Una vez fijos <code>a</code> único y <code>b</code> único, <code>c = -(a + b)</code> queda <strong>completamente determinado</strong>. Distintos <code>[a, b]</code> únicos generan distintos tripletes, así que el dedup en <code>c</code> queda <strong>automático</strong>. No necesitás un skip extra.</p>
+<hr />
+<h2 id="optimizacion-cortar-cuando-a-0">Optimización: cortar cuando <code>a &gt; 0</code><a class="headerlink" href="#optimizacion-cortar-cuando-a-0" title="anchor">&para;</a></h2>
+<p>Como el array está ordenado ascendente, en algún momento <code>nums[i]</code> se vuelve <strong>positivo</strong>. A partir de ahí, los otros dos elementos del triplete (que están a su derecha en el sub-array) <strong>también son positivos</strong>. <strong>Tres positivos no pueden sumar 0</strong>, así que podemos cortar el loop:</p>
+<div class="highlight"><pre><span></span><code><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="k">break</span><span class="p">;</span>
+</code></pre></div>
+<p>Esto no cambia la complejidad asintótica pero acelera el caso real bastante.</p>
+<hr />
+<h2 id="trace-paso-a-paso">Trace paso a paso<a class="headerlink" href="#trace-paso-a-paso" title="anchor">&para;</a></h2>
+<p>Ejemplo: <code>nums = [0, -1, 2, -3, 1]</code>. Después de ordenar queda <code>[-3, -1, 0, 1, 2]</code>.</p>
+<p><img alt="Triplet Sum trace" src="../../img/tp-fig-ts-01-trace.png" /></p>
+<p><strong>Resultado final:</strong> <code>[[-3, 1, 2], [-1, 0, 1]]</code> ✓</p>
+<h3 id="manejo-de-duplicados-visual">Manejo de duplicados (visual)<a class="headerlink" href="#manejo-de-duplicados-visual" title="anchor">&para;</a></h3>
+<p>Cuando <code>a</code> se repite, el segundo (y siguientes) hay que saltearlos para no generar tripletes idénticos:</p>
+<p><img alt="Dedup of duplicate 'a' values" src="../../img/tp-fig-ts-02-dedup.png" /></p>
+<hr />
+<h2 id="algorithm-flowchart">Algorithm flowchart<a class="headerlink" href="#algorithm-flowchart" title="anchor">&para;</a></h2>
+<p><img alt="Triplet Sum flowchart" src="../../img/tp-fig-ts-03-flow.png" /></p>
+<hr />
+<h2 id="implementacion">Implementación<a class="headerlink" href="#implementacion" title="anchor">&para;</a></h2>
+<h3 id="javascript">JavaScript<a class="headerlink" href="#javascript" title="anchor">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">tripletSum</span><span class="p">(</span><span class="nx">nums</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">nums</span><span class="p">.</span><span class="nx">sort</span><span class="p">((</span><span class="nx">a</span><span class="p">,</span><span class="w"> </span><span class="nx">b</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">b</span><span class="p">);</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">triplets</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[];</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">let</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">nums</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Optimización: tripletes con solo positivos no suman 0.</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="k">break</span><span class="p">;</span>
+<span class="w">        </span><span class="c1">// Skip &#39;a&#39; duplicado.</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">i</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span><span class="p">])</span><span class="w"> </span><span class="k">continue</span><span class="p">;</span>
+<span class="w">        </span><span class="c1">// Buscar pares [b, c] que sumen -nums[i] en el sub-array nums[i+1 ..].</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">pairs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">pairSumAllPairs</span><span class="p">(</span><span class="nx">nums</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">]);</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">b</span><span class="p">,</span><span class="w"> </span><span class="nx">c</span><span class="p">]</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nx">pairs</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">triplets</span><span class="p">.</span><span class="nx">push</span><span class="p">([</span><span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">],</span><span class="w"> </span><span class="nx">b</span><span class="p">,</span><span class="w"> </span><span class="nx">c</span><span class="p">]);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">triplets</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">pairSumAllPairs</span><span class="p">(</span><span class="nx">nums</span><span class="p">,</span><span class="w"> </span><span class="nx">start</span><span class="p">,</span><span class="w"> </span><span class="nx">target</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">pairs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[];</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">start</span><span class="p">,</span><span class="w"> </span><span class="nx">right</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">nums</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nx">left</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">right</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">left</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">right</span><span class="p">];</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">s</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">target</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">pairs</span><span class="p">.</span><span class="nx">push</span><span class="p">([</span><span class="nx">nums</span><span class="p">[</span><span class="nx">left</span><span class="p">],</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">right</span><span class="p">]]);</span>
+<span class="w">            </span><span class="nx">left</span><span class="o">++</span><span class="p">;</span>
+<span class="w">            </span><span class="c1">// Skip &#39;b&#39; duplicado.</span>
+<span class="w">            </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nx">left</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">right</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">left</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">left</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span><span class="p">])</span><span class="w"> </span><span class="nx">left</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">s</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">target</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">left</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">right</span><span class="o">--</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">pairs</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="c">C<a class="headerlink" href="#c" title="anchor">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="n">IList</span><span class="o">&lt;</span><span class="n">IList</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">TripletSum</span><span class="p">(</span><span class="kt">int</span><span class="p">[]</span><span class="w"> </span><span class="n">nums</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">Array</span><span class="p">.</span><span class="n">Sort</span><span class="p">(</span><span class="n">nums</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">var</span><span class="w"> </span><span class="n">triplets</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">IList</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span><span class="p">();</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">nums</span><span class="p">.</span><span class="n">Length</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Optimización: tripletes con solo positivos no suman 0.</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">nums</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">break</span><span class="p">;</span>
+<span class="w">        </span><span class="c1">// Skip &#39;a&#39; duplicado.</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">nums</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">nums</span><span class="p">[</span><span class="n">i</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">])</span><span class="w"> </span><span class="k">continue</span><span class="p">;</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">right</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nums</span><span class="p">.</span><span class="n">Length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="n">nums</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">        </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">left</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">right</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kt">int</span><span class="w"> </span><span class="n">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nums</span><span class="p">[</span><span class="n">left</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">nums</span><span class="p">[</span><span class="n">right</span><span class="p">];</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sum</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">target</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">triplets</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">nums</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">nums</span><span class="p">[</span><span class="n">left</span><span class="p">],</span><span class="w"> </span><span class="n">nums</span><span class="p">[</span><span class="n">right</span><span class="p">]</span><span class="w"> </span><span class="p">});</span>
+<span class="w">                </span><span class="n">left</span><span class="o">++</span><span class="p">;</span>
+<span class="w">                </span><span class="c1">// Skip &#39;b&#39; duplicado.</span>
+<span class="w">                </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">left</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">right</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">nums</span><span class="p">[</span><span class="n">left</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">nums</span><span class="p">[</span><span class="n">left</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">])</span><span class="w"> </span><span class="n">left</span><span class="o">++</span><span class="p">;</span>
+<span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sum</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">target</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">left</span><span class="o">++</span><span class="p">;</span>
+<span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">right</span><span class="o">--</span><span class="p">;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">triplets</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="complexity-analysis">Complexity Analysis<a class="headerlink" href="#complexity-analysis" title="anchor">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Métrica</th>
+<th>Valor</th>
+<th>Por qué</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Tiempo</strong></td>
+<td>O(n²)</td>
+<td>Sort: O(n log n). Loop externo: n iteraciones. Cada iteración ejecuta two-pointer inner que es O(n). Total: O(n log n) + O(n × n) = <strong>O(n²)</strong>.</td>
+</tr>
+<tr>
+<td><strong>Espacio (sin contar output)</strong></td>
+<td>O(log n) a O(n)</td>
+<td>Depende del sort: V8 (Node.js) usa TimSort O(n); .NET <code>Array.Sort</code> usa introspective quicksort in-place O(log n) por la pila de recursión.</td>
+</tr>
+<tr>
+<td><strong>Espacio (con output)</strong></td>
+<td>O(n²) en peor caso</td>
+<td>Puede haber hasta ≈n²/4 tripletes (ej: <code>[-2, -1, 0, 1, 2]</code> con muchas combinaciones). Pero por convención se reporta el espacio <strong>adicional</strong>, no el output.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="comparacion-con-alternativas">Comparación con alternativas<a class="headerlink" href="#comparacion-con-alternativas" title="anchor">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Tiempo</th>
+<th>Espacio extra</th>
+<th>Notas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Brute force 3 nested loops + set</td>
+<td>O(n³)</td>
+<td>O(n²)</td>
+<td>Inviable para n &gt; ~500.</td>
+</tr>
+<tr>
+<td>Hash set para 3rd elemento</td>
+<td>O(n²)</td>
+<td>O(n)</td>
+<td>Por cada par <code>(i, j)</code>, buscar <code>-nums[i]-nums[j]</code> en hash. Más memoria, mismo tiempo.</td>
+</tr>
+<tr>
+<td><strong>Sort + two pointers</strong></td>
+<td><strong>O(n²)</strong></td>
+<td><strong>O(1)</strong> o O(log n) por sort</td>
+<td><strong>Approach canónico.</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="test-cases">Test Cases<a class="headerlink" href="#test-cases" title="anchor">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Input</th>
+<th>Expected</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>[]</code></td>
+<td><code>[]</code></td>
+<td>Array vacío.</td>
+</tr>
+<tr>
+<td><code>[0]</code></td>
+<td><code>[]</code></td>
+<td>Un solo elemento.</td>
+</tr>
+<tr>
+<td><code>[1, -1]</code></td>
+<td><code>[]</code></td>
+<td>Dos elementos.</td>
+</tr>
+<tr>
+<td><code>[0, 0, 0]</code></td>
+<td><code>[[0, 0, 0]]</code></td>
+<td>Tres ceros = único triplete.</td>
+</tr>
+<tr>
+<td><code>[1, 0, 1]</code></td>
+<td><code>[]</code></td>
+<td>Sin tripletes que sumen 0.</td>
+</tr>
+<tr>
+<td><code>[0, 0, 1, -1, 1, -1]</code></td>
+<td><code>[[-1, 0, 1]]</code></td>
+<td>Con duplicados — el output debe ser único.</td>
+</tr>
+<tr>
+<td><code>[-1, 0, 1, 2, -1, -4]</code></td>
+<td><code>[[-1, -1, 2], [-1, 0, 1]]</code></td>
+<td>Caso clásico de LeetCode #15.</td>
+</tr>
+<tr>
+<td><code>[-2, 0, 1, 1, 2]</code></td>
+<td><code>[[-2, 0, 2], [-2, 1, 1]]</code></td>
+<td>Duplicados que SÍ forman triplete válido.</td>
+</tr>
+<tr>
+<td><code>[3, 0, -2, -1, 1, 2]</code></td>
+<td><code>[[-2, -1, 3], [-2, 0, 2], [-1, 0, 1]]</code></td>
+<td>Caso con varios tripletes.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="amplification-variantes-y-follow-ups">⭐ Amplification: variantes y follow-ups<a class="headerlink" href="#amplification-variantes-y-follow-ups" title="anchor">&para;</a></h2>
+<h3 id="variante-1-3sum-closest-leetcode-16">Variante 1: 3Sum Closest (LeetCode #16)<a class="headerlink" href="#variante-1-3sum-closest-leetcode-16" title="anchor">&para;</a></h3>
+<p><em>&ldquo;Encontrá el triplete cuya suma sea </em><em>lo más cerca posible</em><em> de un target.&rdquo;</em></p>
+<p>Mismo esqueleto, pero llevás un <code>closest_sum</code> que vas actualizando si encontrás algo más cercano:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">threeSumClosest</span><span class="p">(</span><span class="nx">nums</span><span class="p">,</span><span class="w"> </span><span class="nx">target</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">nums</span><span class="p">.</span><span class="nx">sort</span><span class="p">((</span><span class="nx">a</span><span class="p">,</span><span class="w"> </span><span class="nx">b</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">b</span><span class="p">);</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">closest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">Infinity</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">let</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">nums</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="nx">left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="nx">right</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">nums</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span><span class="p">;</span>
+<span class="w">        </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nx">left</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">right</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kd">const</span><span class="w"> </span><span class="nx">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">left</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">right</span><span class="p">];</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nx">abs</span><span class="p">(</span><span class="nx">s</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">target</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nb">Math</span><span class="p">.</span><span class="nx">abs</span><span class="p">(</span><span class="nx">closest</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">target</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nx">closest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">s</span><span class="p">;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">s</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">target</span><span class="p">)</span><span class="w"> </span><span class="nx">left</span><span class="o">++</span><span class="p">;</span>
+<span class="w">            </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">s</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="nx">target</span><span class="p">)</span><span class="w"> </span><span class="nx">right</span><span class="o">--</span><span class="p">;</span>
+<span class="w">            </span><span class="k">else</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nx">s</span><span class="p">;</span><span class="w">  </span><span class="c1">// exacto</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">closest</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="variante-2-4sum-leetcode-18">Variante 2: 4Sum (LeetCode #18)<a class="headerlink" href="#variante-2-4sum-leetcode-18" title="anchor">&para;</a></h3>
+<p><em>&ldquo;Encontrá todos los cuádruples <code>[a, b, c, d]</code> que sumen un target.&rdquo;</em></p>
+<p><strong>Patrón general kSum:</strong> dos for-loops externos (fijar <code>a</code> y <code>b</code>), pair-sum two-pointers en el resto. Tiempo O(n³).</p>
+<p>Recursivamente, kSum se generaliza:
+<div class="highlight"><pre><span></span><code>kSum(nums, target, k):
+    if k == 2: return pair_sum_all(nums, target)
+    for i in range(len(nums)):
+        skip dup
+        sub = kSum(nums[i+1:], target - nums[i], k - 1)
+        prepend nums[i] to each result
+</code></pre></div></p>
+<h3 id="variante-3-3sum-con-multiplicity-leetcode-923">Variante 3: 3Sum con multiplicity (LeetCode #923)<a class="headerlink" href="#variante-3-3sum-con-multiplicity-leetcode-923" title="anchor">&para;</a></h3>
+<p><em>&ldquo;Contá cuántos tripletes (no necesariamente únicos) suman el target.&rdquo;</em></p>
+<p>Acá los duplicados sí cuentan. Dos approaches:</p>
+<ul>
+<li>Hash map de frecuencias + iteración por valores únicos.</li>
+<li>Two pointers con conteo combinatorio cuando <code>b == c</code>.</li>
+</ul>
+<h3 id="follow-ups-tipicos-en-entrevista">Follow-ups típicos en entrevista<a class="headerlink" href="#follow-ups-tipicos-en-entrevista" title="anchor">&para;</a></h3>
+<ul>
+<li><em>&ldquo;¿Y si el array es muy grande y solo te importa </em><em>saber si existe</em><em> un triplete que sume 0 (no listarlos)?&rdquo;</em> — Mismo algoritmo pero retornás <code>True</code> en el primer match. Sigue siendo O(n²) en el peor caso.</li>
+<li><em>&ldquo;¿Y si los números pueden ser muy grandes y temés overflow?&rdquo;</em> — En C# usar <code>long</code> para la suma intermedia. En JavaScript los <code>number</code> son float64 (safe integers hasta 2⁵³−1); si necesitás más, usar <code>BigInt</code>.</li>
+<li><em>&ldquo;¿Y si querés tripletes con índices distintos pero </em><em>valores pueden repetirse</em><em>?&rdquo;</em> — El problema cambia. Si querés &ldquo;todos los pares de índices (i, j, k) con i&lt;j&lt;k que sumen 0&rdquo;, ya no es 3Sum clásico — es 3Sum with multiplicity, ver LeetCode #923.</li>
+</ul>
+<hr />
+<h2 id="pitfalls">⚠️ Pitfalls<a class="headerlink" href="#pitfalls" title="anchor">&para;</a></h2>
+<ul>
+<li><strong>Olvidar ordenar el array.</strong> Sin sort, two pointers no aplica.</li>
+<li><strong>Skip de duplicados mal posicionado:</strong></li>
+<li>Skip de <code>a</code>: <strong>antes</strong> de llamar a pair-sum.</li>
+<li>Skip de <code>b</code>: <strong>después</strong> de matchear y avanzar <code>left</code>.</li>
+<li>Si invertís el orden, perdés tripletes válidos o duplicás.</li>
+<li><strong>Empezar <code>left = 0</code> en el inner loop.</strong> Tiene que ser <code>left = i + 1</code> para no usar <code>nums[i]</code> como <code>b</code>.</li>
+<li><strong>Olvidar el break con <code>nums[i] &gt; 0</code>.</strong> No es bug, pero sin él perdés performance significativa.</li>
+<li><strong>Devolver tuplas vs listas.</strong> El problema pide listas. Si usás <code>tuple(sorted(...))</code> para dedup interno, convertir al final.</li>
+<li><strong>Modificar <code>nums</code> cuando no debías.</strong> <code>nums.sort()</code> es <strong>in-place</strong>. Si el problema dice &ldquo;no modificar el input&rdquo;, usá <code>sorted(nums)</code> (que devuelve una copia).</li>
+</ul>
+<hr />
+<h2 id="interview-tips">Interview Tips<a class="headerlink" href="#interview-tips" title="anchor">&para;</a></h2>
+<p><strong>Tip 1 — Explicá la reducción.</strong>
+Decí: <em>&ldquo;Triplet sum = pair sum + un loop externo. Sort para que pair sum sea O(n).&rdquo;</em> Mostrar que <strong>construiste el algoritmo desde un primitivo conocido</strong> vale más que tipear código.</p>
+<p><strong>Tip 2 — Habla de los duplicados ANTES de tipear.</strong>
+Casi todos olvidan dedup en la primera iteración. Si decís <em>&ldquo;voy a manejar duplicados con skips después de matchear&rdquo;</em> desde el principio, mostrás que viste el problema completo.</p>
+<p><strong>Tip 3 — Si hay tiempo, tirá la generalización a kSum.</strong>
+Mostrar que tenés un patrón abstracto (kSum recursivo) impresiona, aunque no te lo pidan. Pero <strong>no lo pongas si no te lo piden</strong> — primero la solución del problema, después el azúcar.</p>
+<p><strong>Tip 4 — Aclará constraints.</strong></p>
+<ul>
+<li>¿<code>n</code> es chico (≤ 100) o grande (≥ 10⁴)?</li>
+<li>¿Hay duplicados?</li>
+<li>¿Querés índices o valores?</li>
+<li>¿Modificar <code>nums</code> está permitido?</li>
+</ul>
+<p><strong>Tip 5 — La complexity de 3Sum es O(n²) — sabela en frío.</strong>
+Si te preguntan, no dudes. n para el outer + n para el inner = n². El sort es n log n y queda dominado.</p>
+<hr />
+<h2 id="references">References<a class="headerlink" href="#references" title="anchor">&para;</a></h2>
+<ul>
+<li>LeetCode — <a href="https://leetcode.com/problems/3sum/">#15 3Sum</a> (problema canónico)</li>
+<li>LeetCode — <a href="https://leetcode.com/problems/3sum-closest/">#16 3Sum Closest</a></li>
+<li>LeetCode — <a href="https://leetcode.com/problems/4sum/">#18 4Sum</a></li>
+<li>LeetCode — <a href="https://leetcode.com/problems/3sum-with-multiplicity/">#923 3Sum With Multiplicity</a></li>
+<li>Coding Interview Patterns — capítulo &ldquo;Two Pointers&rdquo; → &ldquo;Triplet Sum&rdquo;</li>
+<li>Entradas relacionadas:</li>
+<li><a href="./pair-sum-sorted.html">Pair Sum - Sorted</a> (la base de este algoritmo)</li>
+<li><a href="./introduction.html">Introduction to Two Pointers</a></li>
+</ul>
+<hr />
+<blockquote>
+<p>📍 <strong>Two Pointers · Problema 2/6</strong> · <a href="./pair-sum-sorted.html">⬅ Pair Sum</a> · <a href="./introduction.html">🏠 Chapter</a> · <a href="./largest-container.html">Largest Container ➡</a> · <a href="../../../../index.html">📚 KB Index</a></p>
+</blockquote>
+      <nav class="prev-next"><a class="prev" href="pair-sum-sorted.html"><div class="label">← Anterior</div><div class="title">Pair Sum - Sorted</div></a><a class="next" href="largest-container.html"><div class="label">Siguiente →</div><div class="title">Largest Container</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="triplet-sum.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

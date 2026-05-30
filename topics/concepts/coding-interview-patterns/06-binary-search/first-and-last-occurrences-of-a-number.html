@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>First and Last Occurrences of a Number · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 6 — Binary Search</span><span class="sep">/</span><span class="current">First and Last Occurrences of a Number</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>First and Last Occurrences of a Number</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">binary-search</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>First and Last Occurrences of a Number
+Given an array of integers sorted in non-decreasing order, return the first and last indexes of a target number. If the target is not found, return [-1, -1] .</p>
+<p>Example 1:
+Input: nums = [1, 2, 3, 4, 4, 4, 5, 6, 7, 8, 9, 10, 11],
+       target = 4
+Output: [3, 5]
+Explanation: The first and last occurrences of number 4 are indexes 3 and 5, respectively.</p>
+<p>Intuition
+A brute-force solution to this problem involves a linear search to find the first and last occurrences of the target number. However, since the array is sorted, we can try searching for these two occurrences using binary search.</p>
+<p>The challenge of using binary search here is that we need to find two separate occurrences of the same number. This means that a standard binary search alone isn’t sufficient.</p>
+<p>To help us find a solution, it’s important to understand that the problem is effectively asking us to find the lower and upper bound of a number in the array:</p>
+<p>Image represents a sequence of integers from 1 to 11, displayed in two rows. The top row shows the integers [1, 2, 3, 4, 4, 4, 5, 6, 7, 8, 9, 10, 11], with the three consecutive &lsquo;4&rsquo;s highlighted in a light peach/orange rectangle.  The bottom row displays the corresponding indices, ranging from 0 to 12.  Two orange downward-pointing arrows connect the bottom row to labels below. The arrow originating from index 3 points to the label &lsquo;lower bound,&rsquo; and the arrow originating from index 5 points to the label &lsquo;upper bound,&rsquo; indicating that the highlighted sequence of three &lsquo;4&rsquo;s starts at the lower bound (index 3) and ends at the upper bound (index 5).
+This indicates we can solve this problem in two main steps:</p>
+<p>Perform a binary search to find the lower bound of the target.
+Perform a binary search to find the upper bound of the target.
+Lower-bound binary search
+To find the start position of the target, let’s first define the search space. The target could be anywhere in the array, so the search space should encompass all the array’s indexes.</p>
+<p>Next, let’s figure out how to narrow the search space. At each point in the binary search, there are three conditions to consider based on the midpoint value:</p>
+<p>when it&rsquo;s greater than the target
+when it&rsquo;s less than the target
+when it’s equal to the target
+In each of these cases, think about where the target is in relation to the midpoint. Note that we’re effectively looking for the leftmost occurrence of the target value.</p>
+<p>Midpoint value is greater than the target
+If the midpoint value is greater, it means the target is to the left of this number. So, narrow the search space toward the left.</p>
+<p>When we do this, we can exclude the midpoint from the search space (i.e., right = mid - 1) because its value is not equal to the target:</p>
+<p>Image represents a visual depiction of a step within a binary search algorithm or a similar search/sorting process operating on a numerical array.  The array <code>nums</code> is displayed horizontally, with elements [1, 2, 3, 4, 4, 4, 5, 6, 7, 8, 9, 10, 11].  Index values are shown below each element (0-12).  Three labeled pointers, &lsquo;left&rsquo;, &lsquo;mid&rsquo;, and &lsquo;right&rsquo;, indicate array boundaries or positions.  &lsquo;left&rsquo; points to the beginning of the array (index 0), &lsquo;right&rsquo; points to the end (index 12), and &lsquo;mid&rsquo; points to element 4 at index 3 (highlighted in light green). A dashed box below the array displays a conditional statement: <code>nums[mid] &gt; 4</code>.  An arrow indicates that if this condition is true, then the &lsquo;right&rsquo; pointer is updated to <code>right = mid - 1</code>, effectively narrowing the search space to the left half of the array.  The visual arrangement clearly shows the pointers&rsquo; positions and how the condition affects the &lsquo;right&rsquo; pointer&rsquo;s movement, illustrating a key step in a divide-and-conquer approach to searching or sorting.
+Image represents a visual depiction of a merging or combining operation, possibly within a sorting or merging algorithm.  Two labeled input streams, &lsquo;left&rsquo; and &lsquo;right,&rsquo; each feed into a sequence of numbered elements. The &lsquo;left&rsquo; stream contributes elements 1, 2, and 3, while the &lsquo;right&rsquo; stream contributes elements 4, 4. Element 3 from the left stream is highlighted in light green, suggesting a potential comparison or selection point.  The numbers 5 through 11 are shown in light gray, representing the output sequence. A dashed orange line connects the last element of the &lsquo;left&rsquo; stream (3) to the second element of the &lsquo;right&rsquo; stream (4), and then curves to the last element of the output sequence (11), visually indicating the flow of data and the merging process.  The numbers below the main sequence (0-12) likely represent indices or positions within the arrays.
+Midpoint value is less than the target
+If the midpoint value is smaller, it means the target is to the right of this number. So, narrow the search space toward the right. Again, we can exclude the midpoint from the search space (i.e., left = mid + 1) because its value is not equal to the target:</p>
+<p>Image represents a visual depiction of a binary search algorithm&rsquo;s step.  Three labeled boxes, &lsquo;left,&rsquo; &lsquo;mid,&rsquo; and &lsquo;right,&rsquo; point downwards to respective indices within a numbered array [1, 2, 3, 4, 4, 4, 5, 6, 7, 8, 9, 10, 11].  The array&rsquo;s indices are shown below the numbers, ranging from 0 to 12.  &lsquo;left&rsquo; points to index 0 (value 1), &lsquo;mid&rsquo; points to index 2 (value 3), highlighted in light green, and &lsquo;right&rsquo; points to index 5 (value 4).  A dashed box at the bottom displays the condition <code>nums[mid] &lt; 4</code>, which evaluates to true because 3 &lt; 4.  An arrow indicates this condition leads to the assignment <code>left = mid + 1</code>, updating the &lsquo;left&rsquo; index to 3 (the next index after &lsquo;mid&rsquo;).  The visual emphasizes the iterative process of narrowing down the search space within the array based on the comparison of the middle element with the target value (implicitly 4).
+Image represents a visual depiction of a data structure or algorithm, possibly illustrating array manipulation or pointer movement.  A numbered horizontal line, representing an array or sequence from index 0 to 11, is shown.  Two rectangular boxes labeled &lsquo;left&rsquo; (orange) and &lsquo;right&rsquo; (gray) are positioned above the line.  A light-green circle containing the number &lsquo;4&rsquo; sits on the line at index 3.  A dashed orange arrow originates from the &lsquo;left&rsquo; box and points to the circle at index 3, indicating a potential left-side operation or pointer. A solid gray arrow descends from the &lsquo;right&rsquo; box to the number &lsquo;4&rsquo; at index 4, suggesting a right-side operation or pointer.  The numbers &lsquo;4&rsquo; at indices 3 and 4 are emphasized, possibly highlighting the current focus or manipulation within the array. The remaining numbers on the line (1-3, 5-11) are light gray, suggesting they are not the current focus of the operation.  The bottom row of numbers (0-12) acts as a secondary index for the array, clarifying the position of each element.
+Midpoint value is equal to the target
+Now is when things get interesting. When the midpoint value is equal to the target, there are two possibilities:</p>
+<p>This is the lower bound of the target value.
+This is not the lower bound, so the lower bound is somewhere further to the left.
+We don’t know which possibility is true at the moment, so we should narrow the search space toward the left to continue looking for the lower bound, while also including the midpoint itself in the search space (i.e., right = mid).</p>
+<p>Image represents a visual depiction of a binary search algorithm step.  At the top, three rectangular boxes labeled &lsquo;left,&rsquo; &lsquo;mid&rsquo; (highlighted in light blue), and &lsquo;right&rsquo; indicate index pointers. Arrows descend from each box, pointing to a numbered sequence [1, 2, 3, 4, 4, 4, 5, 6, 7, 8, 9, 10, 11] displayed below.  The numbers are positioned above their corresponding indices (0-12) shown in a lighter gray. The &lsquo;mid&rsquo; pointer points to the value &lsquo;4&rsquo; at index 4.  A light green circle highlights the &lsquo;4&rsquo; at index 3, visually representing the &lsquo;left&rsquo; pointer&rsquo;s position.  The &lsquo;right&rsquo; pointer also points to a &lsquo;4&rsquo; at index 5. At the bottom, a dashed-line box displays the code snippet &lsquo;nums[mid] == 4 → right = mid,&rsquo; illustrating the algorithm&rsquo;s logic: if the value at the middle index (&lsquo;nums[mid]&rsquo;) equals the target value (4), then the &lsquo;right&rsquo; pointer is updated to the &lsquo;mid&rsquo; index. This signifies that the search space has been narrowed down.
+Image represents a visual depiction of a data structure or algorithm, possibly related to array manipulation or pointer movement.  A numbered horizontal line, representing an array or sequence from index 0 to 11, is shown.  Two rectangular boxes labeled &lsquo;left&rsquo; (in gray) and &lsquo;right&rsquo; (in orange) are positioned above the line. A downward arrow from &lsquo;left&rsquo; points to a light green circle containing the number &lsquo;4&rsquo; at index 3 on the horizontal line. A downward arrow from &lsquo;right&rsquo; points to the number &lsquo;4&rsquo; at index 4 on the horizontal line. A dashed orange arrow connects the number &lsquo;4&rsquo; at index 4 to the number &lsquo;4&rsquo; at index 3, suggesting a possible iterative or comparative operation between these two elements.  The numbers below the horizontal line represent the indices of the array, while the numbers above represent the values at those indices. The overall diagram illustrates a concept where two pointers, &lsquo;left&rsquo; and &lsquo;right,&rsquo; are positioned at specific indices within a data structure, potentially for searching, sorting, or other operations.
+Continue this reasoning for the next midpoint as it’s also equal to the target:</p>
+<p>Image represents a visual depiction of a binary search algorithm step.  A numbered array [1, 2, 3, 4, 4, 4, 5, 6, 7, 8, 9, 10, 11] is shown with indices displayed below.  Three labeled boxes, &lsquo;left,&rsquo; &lsquo;mid,&rsquo; and &lsquo;right,&rsquo; represent pointers to array elements.  A light-green circle highlights the element at index 3, which is the value 4, indicating the current &lsquo;mid&rsquo; point.  Arrows point from &lsquo;left&rsquo; and &lsquo;right&rsquo; to the &lsquo;mid&rsquo; element, showing how these pointers converge.  Below the array, a code snippet &lsquo;nums[mid] == 4 → right = mid&rsquo; illustrates the algorithm&rsquo;s logic:  if the value at the midpoint (&lsquo;nums[mid]&rsquo;) equals the target value (4), the &lsquo;right&rsquo; pointer is updated to the current &lsquo;mid&rsquo; index, effectively narrowing the search space to the left half of the array for the next iteration.
+Image represents a number line ranging from 1 to 11, with a light green circle labeled &lsquo;4&rsquo; positioned at the index 3 on the number line.  Above the number line, two rectangular boxes are present; one labeled &lsquo;left&rsquo; in dark gray and the other labeled &lsquo;right&rsquo; in orange. A dark gray arrow points from the &lsquo;left&rsquo; box to the circle &lsquo;4&rsquo;, indicating a leftward movement or association.  Simultaneously, an orange dashed arrow points from the &lsquo;right&rsquo; box to the circle &lsquo;4&rsquo;, suggesting a rightward movement or association. The number line itself is marked with numbers from 0 to 12 below and 1 to 11 above, providing a visual context for the position of the circle &lsquo;4&rsquo;.  The arrows and labels suggest a concept of directional movement or selection relative to a central point (&lsquo;4&rsquo;) within a larger numerical context.
+The final value, once the left and right pointers meet, is the lower bound of the target.</p>
+<p>Upper-bound binary search
+There’s a lot of similarity between this and lower-bound binary search. For starters, the search space is identical. Additionally, the cases when the midpoint value is greater than or less than the target are handled the same. This makes sense because, in both binary searches, we’re seeking the same target value. So, when the midpoint value is not equal to the target, the actions we take will be the same as the actions taken in the lower-bound binary search.</p>
+<p>The difference in logic occurs when the midpoint is equal to the target, as we’re now looking for the rightmost value of the target, instead of the leftmost value. As such, let’s just focus on the logic for when the midpoint value is equal to the target.</p>
+<p>Midpoint value is equal to the target
+Similar to lower-bound binary search, there are two possibilities: either this is the upper bound, or it’s not. Again, we’re not sure which is true. So, let’s narrow the search space toward the right to continue looking for an upper bound while including the midpoint in the search space (i.e., left = mid):</p>
+<p>Image represents a visual depiction of a binary search algorithm step.  At the top, three rectangular boxes labeled &lsquo;left,&rsquo; &lsquo;mid&rsquo; (highlighted in light blue), and &lsquo;right&rsquo; are shown.  Arrows descend from each box, pointing to elements within a numbered array represented horizontally below. The array, indexed from 0 to 12, contains the numbers [1, 2, 3, 4, 4, 4, 5, 6, 7, 8, 9, 10, 11]. The &lsquo;left&rsquo; arrow points to the number 4 at index 3, the &lsquo;mid&rsquo; arrow points to the number 4 at index 4, and the &lsquo;right&rsquo; arrow points to the number 4 at index 5 (highlighted in light green).  At the bottom, a gray dashed box displays the code snippet &lsquo;nums[mid] == 4 -&gt; left = mid,&rsquo; indicating that because the value at the middle index (&lsquo;mid&rsquo;) is equal to 4, the &lsquo;left&rsquo; index is updated to equal the &lsquo;mid&rsquo; index. This illustrates a step in the binary search where the target value (4) has been found at the middle index, resulting in an update of the search space.
+Image represents a numbered line ranging from 1 to 11, with a secondary numbering system below indicating positions 0 through 12.  Two rectangular boxes, one orange labeled &lsquo;left&rsquo; and one gray labeled &lsquo;right,&rsquo; are positioned above the line.  A downward-pointing arrow from the &lsquo;left&rsquo; box points to the number 4 on the main line, while a dashed arrow from the &lsquo;left&rsquo; box also points to the number 4. A downward-pointing arrow from the &lsquo;right&rsquo; box points to a light green circle containing the number 4, positioned at the 5th position on the main line.  The arrangement visually depicts two different approaches or methods (&lsquo;left&rsquo; and &lsquo;right&rsquo;) affecting the placement of the number 4, with the &lsquo;left&rsquo; method potentially indicating a less precise or approximate placement compared to the &lsquo;right&rsquo; method&rsquo;s more precise placement at position 5.
+When we continue this logic for the next midpoint values, we notice something peculiar happen:</p>
+<p>Image represents a visual depiction of a binary search algorithm step.  A numbered array [1, 2, 3, 4, 4, 5, 6, 7, 8, 9, 10, 11] is shown, with indices displayed below.  Above the array, three rectangular boxes labeled &lsquo;left,&rsquo; &lsquo;mid,&rsquo; and &lsquo;right&rsquo; represent pointers or indices within the array.  A light-green circle highlights the element at index 4 (value 4).  Arrows point from &lsquo;left&rsquo; and &lsquo;right&rsquo; to this highlighted element, indicating the current midpoint of the search. Below the array, a code snippet &lsquo;nums[mid] == 4 → left = mid&rsquo; shows that the value at the midpoint (nums[mid]) is 4, and consequently, the &lsquo;left&rsquo; pointer is updated to equal the &lsquo;mid&rsquo; pointer. This suggests the algorithm is searching for a value (likely 4), and this step shows the narrowing of the search space by updating the &lsquo;left&rsquo; pointer.
+Image represents a numbered horizontal line segment ranging from 0 to 12, with markers indicating each integer value.  Two rectangular boxes labeled &lsquo;left&rsquo; and &lsquo;right&rsquo; are positioned above the line.  Arrows descend from these boxes, pointing to the number &lsquo;4&rsquo; on the line.  The &lsquo;left&rsquo; arrow points to a black &lsquo;4&rsquo; at position 4 on the line, while the &lsquo;right&rsquo; arrow points to a light green &lsquo;4&rsquo; at position 5 on the line.  The numbers on the line are displayed in a lighter gray except for the two &lsquo;4&rsquo;s, which are prominently displayed in black and light green, respectively, highlighting their significance in relation to the &lsquo;left&rsquo; and &lsquo;right&rsquo; labels.  The entire diagram visually illustrates a concept related to left and right positioning or indexing within a numerical sequence.
+Image represents a visual depiction of a binary search algorithm step.  At the top, three rectangular boxes labeled &lsquo;left,&rsquo; &lsquo;mid,&rsquo; and &lsquo;right&rsquo; represent index pointers within a sorted numerical array shown below.  The array, depicted as a number line from 0 to 12, contains the numbers 1 through 11.  A light green circle highlights the element at index 4, which holds the value 4.  Light blue arrows point from &lsquo;mid&rsquo; to this highlighted element, indicating that the midpoint of the search is currently at index 4.  Below the array, a dashed box displays the code snippet &lsquo;nums[mid] == 4 -&gt; left = mid,&rsquo; illustrating that because the value at the midpoint (nums[mid]) equals the target value (4), the &lsquo;left&rsquo; pointer is updated to equal the &lsquo;mid&rsquo; pointer. This signifies that the search has successfully found the target value at the midpoint.
+Image represents a visual depiction of a data structure, possibly an array or list, illustrating a coding pattern.  A numbered horizontal line, ranging from 0 to 12, represents the indices of the data structure.  The numbers 1 through 11 are placed above the line, indicating the elements&rsquo; positions.  Two rectangular boxes labeled &lsquo;left&rsquo; and &lsquo;right&rsquo; are positioned above the line, each pointing downwards with an arrow towards the number 4 at index 4.  A light green circle highlights the number 4 at index 5.  A series of three dots below the number 4 at index 4 suggests a continuation or further elements not explicitly shown. The overall arrangement shows the selection or highlighting of a specific element (4 at index 5) potentially based on the &lsquo;left&rsquo; and &lsquo;right&rsquo; pointers, suggesting a concept like a window or range selection within the data structure.
+It looks like we just got stuck in an infinite loop, where the position of the left pointer keeps getting set to mid when they’re both at the same index. Why does this happen?</p>
+<p>Debugging the infinite loop
+When the left and right pointers are directly next to each other, mid ends up being positioned where the left pointer is:</p>
+<p>Image represents a visual depiction of a midpoint calculation.  On the left, two rectangular boxes labeled &lsquo;left&rsquo; and &lsquo;right&rsquo; are shown, each pointing downwards with an arrow to a separate bracket representing an array or list. A thick black arrow points from these brackets to another set of brackets on the right. Above this arrow, the formula <code>mid = (left + right) // 2</code> is displayed in light blue, indicating that the midpoint (<code>mid</code>) is calculated by summing the values of &lsquo;left&rsquo; and &lsquo;right&rsquo;, then performing integer division by 2. On the right side, three boxes are shown: &lsquo;left&rsquo;, a light blue box labeled &lsquo;mid&rsquo;, and &lsquo;right&rsquo;. Arrows from &lsquo;left&rsquo;, &lsquo;mid&rsquo;, and &lsquo;right&rsquo; point downwards to the brackets, illustrating that the midpoint calculation results in the addition of a &lsquo;mid&rsquo; value between the &lsquo;left&rsquo; and &lsquo;right&rsquo; values within the array or list.  The overall diagram illustrates a step in a binary search or similar algorithm where the midpoint is calculated to efficiently search a sorted data structure.
+Since one of our operations is left = mid, we get stuck in an infinite loop where left and mid are continuously set to each other’s positions, which means progress cannot be made. The reason this wasn’t a problem during lower-bound binary search was that we never had left = mid as an operation in the logic. One way to avoid this issue is by biasing the midpoint to the right.</p>
+<p>When the midpoint is biased to the right, we avoid an infinite loop during upper-bound binary search.</p>
+<p>We no longer need to worry about the left pointer since mid is now being positioned at the right pointer when the search space has two elements.</p>
+<p>We won’t encounter any infinite loops with the right pointer because it never gets set to the midpoint’s position, as we use right = mid - 1.</p>
+<p>A right bias of the midpoint can be achieved using mid = (left + right) // 2 + 1:</p>
+<p>Image represents a visual depiction of a midpoint calculation within a coding pattern, likely related to binary search or similar algorithms.  The diagram shows two stages. The initial stage displays two rectangular boxes labeled &lsquo;left&rsquo; and &lsquo;right&rsquo; in grey, each pointing downwards via an arrow to a single dot within square brackets, representing an array or list.  A thick black arrow connects this initial stage to a second stage.  The arrow is labeled with the calculation <code>mid = (left + right) // 2 + 1</code> in cyan, indicating that the midpoint (<code>mid</code>) is computed by adding the values of &lsquo;left&rsquo; and &lsquo;right&rsquo;, performing integer division by 2 (using the <code>//</code> operator), and then adding 1. The second stage shows three boxes: &lsquo;left&rsquo; and &lsquo;right&rsquo; (in grey) and a cyan box labeled &lsquo;mid&rsquo;. Arrows point from &lsquo;left&rsquo;, &lsquo;mid&rsquo;, and &lsquo;right&rsquo; to individual dots within square brackets, suggesting that the midpoint calculation has partitioned the original array or list.  The overall diagram illustrates how the midpoint is calculated and used to divide a data structure into sub-parts.
+Now, performing left = mid allows us to properly narrow the search space.</p>
+<p>As a general rule, in upper-bound binary search, we should bias mid to the right.</p>
+<p>Let’s apply this change to the same example and see what happens:</p>
+<p>Image represents a visual depiction of a step within a binary search algorithm.  At the top, three rectangular boxes labeled &lsquo;left,&rsquo; &lsquo;mid&rsquo; (highlighted in light blue), and &lsquo;right&rsquo; are shown. Arrows descend from each box, pointing to elements within a numbered array visualized horizontally below. The array contains the numbers 1 through 11, with indices displayed below. The &lsquo;left&rsquo; arrow points to the number 4 at index 3, the &lsquo;mid&rsquo; arrow points to the number 4 at index 4, and the &lsquo;right&rsquo; arrow points to the number 4 at index 5 (highlighted in light green).  At the bottom, a dashed-line box displays the code snippet &lsquo;nums[mid] == 4 → left = mid,&rsquo; indicating that because the value at the middle index (&lsquo;mid&rsquo;) of the array is equal to 4, the &lsquo;left&rsquo; index is updated to be equal to the &lsquo;mid&rsquo; index. This illustrates a key step in the binary search where the search space is narrowed based on the comparison of the middle element with the target value.
+Image represents a visual depiction of a step within a binary search algorithm.  A numbered array, indexed from 0 to 12, is shown with values implicitly represented by their index positions.  The array segment from index 0 to 12 is displayed.  Three labeled boxes, &lsquo;left&rsquo; (orange), &lsquo;mid&rsquo; (cyan), and &lsquo;right&rsquo; (gray), represent index pointers.  Arrows indicate that &lsquo;left&rsquo; and &lsquo;right&rsquo; initially point to indices 3 and 5 respectively, while &lsquo;mid&rsquo; points to index 4.  A light green circle highlights the element at index 4, which has a value of 4. A dashed orange arrow shows a tentative movement of the &lsquo;left&rsquo; pointer. A solid cyan arrow shows the movement of the &lsquo;mid&rsquo; pointer. A separate box displays the condition <code>nums[mid] == 4 -&gt; left = mid</code>, indicating that because the element at the midpoint (index 4) equals 4, the &lsquo;left&rsquo; pointer is updated to the value of the &lsquo;mid&rsquo; pointer (index 4).  This illustrates a step where the target value is found at the midpoint, resulting in the update of the &lsquo;left&rsquo; pointer.
+Image represents a number line ranging from 1 to 11, with a lighter gray scale used for the numbers and a darker gray line connecting them.  Below the number line, a fainter gray scale shows the corresponding numerical values from 0 to 12, acting as a reference scale.  A light green circle labeled &lsquo;4&rsquo; is positioned at the 4.5 mark on the number line. Two rectangular boxes, one orange labeled &lsquo;left&rsquo; and one gray labeled &lsquo;right,&rsquo; are positioned above the number line.  A dark orange arrow points from the &lsquo;left&rsquo; box to the circle, and a dark gray arrow points from the &lsquo;right&rsquo; box to the circle. A dashed orange line curves from the number &lsquo;4&rsquo; on the number line to the green circle, suggesting an association or movement towards the circle from the left.  The overall arrangement visually depicts a concept related to directional movement or selection on a numerical scale, possibly illustrating a binary search or similar algorithm.
+As we can see, we’ve avoided an infinite loop, with the left and right pointers meeting at the upper bound of the target.</p>
+<p>If the target doesn’t exist
+The last step in both algorithms is to check that the final values located are equal to the target. If the target does not exist in the array, the final values in both binary search algorithms won’t be equal to the target. In this case, we should return -1.</p>
+<p>Try it yourself
+Write your solution to the problem before checking the reference implementation.
+Implementation
+Python
+JavaScript
+Java
+from typing import List
+    
+def first_and_last_occurrences_of_a_number(nums: List[int], target: int) -&gt; List[int]:
+    lower_bound = lower_bound_binary_search(nums, target)
+    upper_bound = upper_bound_binary_search(nums, target)
+    return [lower_bound, upper_bound]
+    
+def lower_bound_binary_search(nums: List[int], target: int) -&gt; int:
+    left, right = 0, len(nums) - 1
+    while left &lt; right:
+        mid = (left + right) // 2
+        if nums[mid] &gt; target:
+            right = mid - 1
+        elif nums[mid] &lt; target:
+            left = mid + 1
+        else:
+            right = mid
+    return left if nums and nums[left] == target else -1
+    
+def upper_bound_binary_search(nums: List[int], target: int) -&gt; int:
+    left, right = 0, len(nums) - 1
+    while left &lt; right:
+        # In upper-bound binary search, bias the midpoint to the right.
+        mid = (left + right) // 2 + 1
+        if nums[mid] &gt; target:
+            right = mid - 1
+        elif nums[mid] &lt; target:
+            left = mid + 1
+        else:
+            left = mid
+    # If the target doesn’t exist in the array, then it&rsquo;s possible that
+    # &lsquo;left = mid + 1&rsquo; places the left pointer outside the array when <code>mid == n - 1</code>.
+    # So, we use the right pointer in the return statement instead.
+    return right if nums and nums[right] == target else -1
+Complexity Analysis
+Time complexity: The time complexity of both the lower_bound_binary_search and upper_bound_binary_search helper functions is 
+O
+(
+log
+⁡
+(
+n
+)
+)
+O(log(n)), where 
+n
+n is the length of the input array. This is because each function performs a binary search over the entire array. Therefore, first_and_last_occurrences_of_a_number is also 
+O
+(
+log
+⁡
+(
+n
+)
+)
+O(log(n)) because it calls each helper function once.</p>
+<p>Space complexity: The space complexity is 
+O
+(
+1
+)
+O(1).</p>
+<p>Interview Tip
+Tip: Always test your algorithm.
+Binary search can be a tricky algorithm to implement. The best way to uncover unexpected errors is to test your code. The infinite loop encountered during the upper-bound binary search problem is quite easy to miss while designing the algorithm. If you&rsquo;re unable to recognize this issue during implementation, manual testing can help reveal it. In binary search, an infinite loop can be uncovered when testing a search space that contains just two elements, similar to what we did in the explanation.</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="find-the-insertion-index.html"><div class="label">← Anterior</div><div class="title">Find the Insertion Index</div></a><a class="next" href="cutting-wood.html"><div class="label">Siguiente →</div><div class="title">Cutting Wood</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="first-and-last-occurrences-of-a-number.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

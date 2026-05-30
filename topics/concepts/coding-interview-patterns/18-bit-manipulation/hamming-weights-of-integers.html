@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hamming Weights of Integers · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 18 — Bit Manipulation</span><span class="sep">/</span><span class="current">Hamming Weights of Integers</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Hamming Weights of Integers</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">bit-manipulation</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Hamming Weights of Integers
+The Hamming weight of a number is the number of set bits (1-bits) in its binary representation. Given a positive integer n, return an array where the ith element is the Hamming weight of integer i for all integers from 0 to n.</p>
+<p>Example:
+Input: n = 7
+Output: [0, 1, 1, 2, 1, 2, 2, 3]
+Explanation:</p>
+<p>Number  Binary representation   Number of set bits
+0   0   0
+1   1   1
+2   10  1
+3   11  2
+4   100 1
+5   101 2
+6   110 2
+7   111 3
+Intuition - Count Bits For Each Number
+The most straightforward strategy is to individually count the number of bits for each number from 0 to n.</p>
+<p>Consider a number x = 25 and its binary representation:</p>
+<p>Image represents a mathematical equation showing the conversion of a base-10 number to its base-2 (binary) equivalent.  The top line displays &lsquo;x = 25 (base 10)&rsquo;, indicating that the variable &lsquo;x&rsquo; holds the decimal value 25.  Below this, an equals sign connects the base-10 representation to its binary equivalent. The binary representation &lsquo;1 1 0 0 1 (base 2)&rsquo; is shown as a sequence of five digits (1, 1, 0, 0, and 1), each representing a bit, explicitly labeled as being in base 2.  The arrangement clearly shows the direct equivalence between the decimal number 25 and its binary counterpart, 11001.  The parentheses around &lsquo;base 10&rsquo; and &lsquo;base 2&rsquo; clarify the number systems used.
+To count the number of set bits (1s) in a number, we can check each bit and increase a count whenever we find a set bit. Let’s see how this works.</p>
+<p>For starters, we can determine the least significant bit (LSB) of x by performing x &amp; 1, which masks all bits of x except the LSB: if x &amp; 1 == 1, the LSB is 1. Otherwise, it’s 0. We can see this below for x = 25:</p>
+<p>Image represents a binary bitwise AND operation.  Two five-bit binary numbers are shown, one labeled (x) with the values 11001 and the other labeled (1) with the values 00001.  These numbers are arranged vertically, with the (x) number above the (1) number. An ampersand (&amp;) symbol precedes the second binary number, indicating the AND operation. A horizontal line separates the input numbers from the result. The result of the bitwise AND operation is displayed below the line, showing the resulting binary number 00001, also labeled (1), which is obtained by performing a logical AND operation between corresponding bits of the two input numbers.  Each bit in the result is 1 only if both corresponding bits in the input numbers are 1; otherwise, it&rsquo;s 0.  The grayed-out (1) in the result emphasizes that it&rsquo;s identical to the second input number in this specific example.
+Now, how do we check the next bit? If we perform a bitwise right-shift operation on x, we shift all bits of x one position to the right. This effectively makes this next bit the new LSB:</p>
+<p>Image represents a visual depiction of a binary operation, possibly a bitwise shift or a similar operation on binary data.  The top row shows a sequence of binary digits: 1, 1, 0, a peach-colored box containing &lsquo;0&rsquo;, and another &lsquo;1&rsquo;.  These digits are connected via grey arrows to the bottom row, which shows the result of the operation: 0, 1, 1, 0, and another peach-colored box containing &lsquo;0&rsquo;.  Each digit in the top row is individually connected to a digit in the bottom row; the first &lsquo;1&rsquo; connects to &lsquo;0&rsquo;, the second &lsquo;1&rsquo; connects to &lsquo;1&rsquo;, the &lsquo;0&rsquo; connects to &lsquo;1&rsquo;, and the peach-colored &lsquo;0&rsquo; connects to &lsquo;0&rsquo;. The final &lsquo;1&rsquo; in the top row is not connected to the bottom row.  The peach-colored boxes in both rows are labeled &lsquo;new LSB&rsquo; in orange text, indicating that these &lsquo;0&rsquo;s represent a new least significant bit (LSB) in the operation.  The double right arrow (&lsquo;&gt;&gt;&rsquo;) suggests a right bit shift, where the digits are shifted to the right, and the LSB is added.  The &lsquo;=&rsquo; symbol indicates that the bottom row is the result of the operation performed on the top row.
+We now have a process we can repeat to count the number of set bits in a number:</p>
+<p>If x &amp; 1 == 1, increment our count. Otherwise, don’t.
+Right shift x.
+Continue with the two steps above until x equals 0, indicating there are no more set bits to count. Doing this for every number from 0 to n provides the answer.</p>
+<p>Try it yourself
+Write your solution to the problem before checking the reference implementation.
+Implementation - Count Bits For Each Number
+Python
+JavaScript
+Java
+from typing import List
+    
+def hamming_weights_of_integers(n: int) -&gt; List[int]:
+    return [count_set_bits(x) for x in range(n + 1)]
+    
+def count_set_bits(x: int) -&gt; int:
+    count = 0
+    # Count each set bit of &lsquo;x&rsquo; until &lsquo;x&rsquo; equals 0.
+    while x &gt; 0:
+        # Increment the count if the LSB is 1.
+        count += x &amp; 1
+        # Right shift &lsquo;x&rsquo; to shift the next bit to the LSB position.
+        x &gt;&gt;= 1
+    return count
+Complexity Analysis
+Time complexity: The time complexity of hamming_weights_of_integers is 
+O
+(
+n
+log
+⁡
+(
+n
+)
+)
+O(nlog(n)) because for each integer 
+x
+x from 0 to 
+n
+n, counting the number of set bits takes logarithmic time, as there are approximately 
+log
+⁡
+2
+(
+x
+)
+log 
+2
+​
+ (x) bits in that number. If we assume all integers have 32 bits, the time complexity simplifies to just 
+O
+(
+n
+)
+O(n), since counting the set bits for a number will take at most 32 steps, which we do for 
+n
++
+1
+n+1 numbers.</p>
+<p>Space complexity: The space complexity is 
+O
+(
+1
+)
+O(1) because no extra space is used except the space occupied by the output.</p>
+<p>Intuition - Dynamic Programming
+In the previous approach, it&rsquo;s important to note that by the time we reach integer x, we have already computed the result for all integers from 0 to x - 1. If we find a way to leverage these previous results, we can improve the efficiency of constructing the output array.</p>
+<p>It would be wise to find a way to take advantage of some optimal substructure by treating the results from integers 0 to x - 1 as potential subproblems of x. This is the beginning of a DP solution. Let dp[x] represent the number of set bits in integer x.</p>
+<p>A predictable way to access a subproblem of dp[x] is to right-shift x by 1, effectively removing its LSB. This is the subproblem dp[x &gt;&gt; 1], and the only difference between this and dp[x] is the LSB which was just removed.</p>
+<p>As mentioned earlier, the LSB of x can be found using x &amp; 1. Therefore:</p>
+<p>If the LSB of x is 0, there is no difference in the number of bits between x and x &gt;&gt; 1:</p>
+<p>Image represents a diagram illustrating a bitwise right shift operation.  The top row shows an initial value <code>x</code> represented by two encircled &lsquo;1&rsquo;s, followed by three &lsquo;0&rsquo;s.  A blue arrow labeled &lsquo;LSB&rsquo; points downwards, indicating the least significant bit is being processed.  Grey arrows connect each bit in the top row to the corresponding bit in the bottom row.  The top row represents the initial value of <code>x</code>, and the bottom row shows the result of the right shift operation (<code>x &gt;&gt; 1</code>).  The encircled &lsquo;1&rsquo;s in the top row shift one position to the right, resulting in the encircled &lsquo;1&rsquo;s in the bottom row. The remaining bits are filled with &lsquo;0&rsquo;s.  To the right, <code>dp[x] = 2</code> indicates the initial count of &lsquo;1&rsquo;s in <code>x</code>, and <code>dp[x &gt;&gt; 1] = 2</code> shows the count of &lsquo;1&rsquo;s after the right shift.  The diagram visually demonstrates how the right shift operation moves bits to the right, filling empty positions with zeros, and how this affects the count of &lsquo;1&rsquo;s.
+If the LSB of x is 1, the difference in the number of bits between x and x &gt;&gt; 1 is 1:</p>
+<p>Image represents a diagram illustrating a bit manipulation operation, likely within the context of a coding pattern related to bitwise operations or data structures.  The diagram shows a binary number, <code>x</code>, represented by three bits: <code>110</code> (where the rightmost bit is the least significant bit, or LSB, as indicated by a blue arrow pointing to the rightmost &lsquo;1&rsquo;).  These bits are enclosed in orange circles.  A blue circle contains the LSB &lsquo;1&rsquo;.  Grey arrows show the right bit-shift operation (<code>&gt;&gt; 1</code>), resulting in a new binary number <code>011</code>. These shifted bits are also enclosed in orange circles.  The text <code>x = 1 1 0</code> labels the original binary number, while <code>x &gt;&gt; 1 = 0 1 1</code> labels the result of the right bit shift.  The expressions <code>dp[x] = 3</code> and <code>dp[x &gt;&gt; 1] = 2</code> suggest that <code>dp</code> is an array or function that counts the number of &lsquo;1&rsquo;s in the binary representation of <code>x</code> and <code>x &gt;&gt; 1</code>, respectively.  The values 3 and 2 reflect the number of &lsquo;1&rsquo;s in the original and shifted binary numbers.  The zeros in the diagram represent bits with a value of zero.
+Therefore, we can obtain dp[x] by using the result of dp[x &gt;&gt; 1] and adding the LSB to it:</p>
+<p>dp[x] = dp[x &gt;&gt; 1] + (x &amp; 1)</p>
+<p>Now, we just need to know what our base case is.</p>
+<p>Base case
+The simplest version of this problem is when n is 0. In this case, there are no set bits, so the number of set bits is 0. We can apply this base case by setting dp[0] to 0.</p>
+<p>After the base case is set, we populate the rest of the DP array by applying our formula from dp[1] to dp[n]. The answer to the problem is then just the values in the DP array, containing the number of set bits for each number from 0 to n.</p>
+<p>Try it yourself
+Write your solution to the problem before checking the reference implementation.
+Implementation - Dynamic Programming
+Python
+JavaScript
+Java
+from typing import List
+    
+def hamming_weights_of_integers_dp(n: int) -&gt; List[int]:
+    # Base case: the number of set bits in 0 is just 0. We set dp[0] to 0 by
+    # initializing the entire DP array to 0.
+    dp = [0] * (n + 1)
+    for x in range(1, n + 1):
+        # &lsquo;dp[x]&rsquo; is obtained using the result of &lsquo;dp[x &gt;&gt; 1]&rsquo;, plus the LSB of &lsquo;x&rsquo;.
+        dp[x] = dp[x &gt;&gt; 1] + (x &amp; 1)
+    return dp
+Complexity Analysis
+Time complexity: The time complexity of hamming_weights_of_integers_dp is 
+O
+(
+n
+)
+O(n) since we populate each element of the DP array once.</p>
+<p>Space complexity: The space complexity is 
+O
+(
+1
+)
+O(1) because no extra space is used, aside from the space taken up by the output, which is the DP array in this case.</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="introduction.html"><div class="label">← Anterior</div><div class="title">Introduction to Bit Manipulation</div></a><a class="next" href="lonely-integer.html"><div class="label">Siguiente →</div><div class="title">Lonely Integer</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="hamming-weights-of-integers.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

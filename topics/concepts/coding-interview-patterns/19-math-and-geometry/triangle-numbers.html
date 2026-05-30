@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Triangle Numbers · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 19 — Math and Geometry</span><span class="sep">/</span><span class="current">Triangle Numbers</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Triangle Numbers</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">math-geometry</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Triangle Numbers
+Consider a triangle composed of numbers where the top of the triangle is 1. Each subsequent number in the triangle is equal to the sum of three numbers above it: its top-left number, its top number, and its top-right number. If any of these three numbers don&rsquo;t exist, assume they are equal to 0.</p>
+<p>Given a value representing a row of this triangle, return the position of the first even number in this row. Assume that the first number in each row is at position 1.</p>
+<p>Example:
+Image represents a triangular arrangement of numbers, resembling Pascal&rsquo;s triangle.  The triangle is outlined in orange and filled with a light beige color.  Four rows are shown, with each row representing a level in the triangle.  The first row contains only the number &lsquo;1&rsquo;. The second row contains &lsquo;1 1 1&rsquo;. The third row contains &lsquo;1 2 3 2 1&rsquo;, and the fourth row contains &lsquo;1 3 6 7 6 3 1&rsquo;.  To the left, four horizontal grey arrows point towards the triangle, labeled &lsquo;row 1&rsquo;, &lsquo;row 2&rsquo;, &lsquo;row 3&rsquo;, and &lsquo;row 4&rsquo; respectively, indicating the input or source of each row.  Within the triangle, small grey arrows and &lsquo;+&rsquo; symbols show how the numbers in row 3 are added to generate the numbers in row 4. The number &lsquo;6&rsquo; in row 4 is highlighted in a peach-colored circle. A curved arrow points from this circled &lsquo;6&rsquo; to a caption below the triangle that reads: <code>1&lt;sup&gt;st&lt;/sup&gt; even number in row 4 is at position 3.</code>, indicating the position of the first even number in the fourth row.
+Input: n = 4
+Output: 3
+Constraints:
+n will be at least 3.
+Intuition
+A naive solution to this problem is to generate the entire triangle and all of its values up to the nth row. Then, we can iterate through the nth row until we encounter the first even number. However, this approach is inefficient because it results in an excessive use of time and memory to build the entire triangle. To find a more optimal solution, let’s consider how we can simplify the representation of our triangle.</p>
+<p>Simplifying the triangle
+The first key observation is that the triangle is symmetric. This means we can exclude the right half of the triangle because if an even number exists in the right half, it definitely exists in the left half:</p>
+<p>Image represents a numerical triangle, resembling Pascal&rsquo;s triangle but with a modified pattern.  The triangle is arranged with a single &lsquo;1&rsquo; at the apex, followed by rows expanding symmetrically. Each number in a row is the sum of the two numbers directly above it (except for the edge &lsquo;1&rsquo;s).  The numbers increase towards the center of each row and then decrease symmetrically.  Vertically oriented red lines are drawn through the triangle, seemingly highlighting a specific path or subset of numbers within the structure.  These lines do not appear to follow a consistent pattern based on the visible portion of the triangle, suggesting a selection rather than a mathematical relationship.  No URLs or parameters are present.
+To more easily visualize the positions of the numbers in each row, let’s draw it such that numbers belonging to the same position are aligned:</p>
+<p>Image represents a 5x5 matrix, or a two-dimensional array, visually depicting a pattern.  The top row is labeled &lsquo;position&rsquo; with numbers 1 through 5 representing column indices. The leftmost column is labeled &lsquo;row&rsquo; with numbers 1 through 5 representing row indices.  The matrix itself contains numerical values; the first row contains a single &lsquo;1&rsquo;, the second row contains &lsquo;1&rsquo; and &lsquo;1&rsquo;, the third row contains &lsquo;1&rsquo;, &lsquo;2&rsquo;, and &lsquo;3&rsquo;, the fourth row contains &lsquo;1&rsquo;, &lsquo;3&rsquo;, &lsquo;6&rsquo;, and &lsquo;7&rsquo;, and the fifth row contains &lsquo;1&rsquo;, &lsquo;4&rsquo;, &lsquo;10&rsquo;, &lsquo;16&rsquo;, and &lsquo;19&rsquo;.  The arrangement shows a pattern where each number is the sum of the number directly above it and the number to its left (except for the first element in each row and column, which are all &lsquo;1&rsquo;).  There are no URLs or parameters present.
+The next key observation is that we don’t necessarily care about the values themselves: we only care about the parity of each number (i.e., if they’re even or odd). Given this, we can simplify the triangle further by representing it as a binary triangle where 0 represents an even number and 1 represents an odd number:</p>
+<p>Image represents a 5x5 matrix, labeled &lsquo;position&rsquo; at the top, showing the arrangement of data points.  The rows are numbered 1 through 5 on the left-hand side, labeled &lsquo;row,&rsquo; and the columns are numbered 1 through 5 at the top, labeled &lsquo;position.&rsquo; Each cell within the matrix contains either a &lsquo;1&rsquo; or a &lsquo;0.&rsquo; The arrangement of &lsquo;1&rsquo;s and &lsquo;0&rsquo;s is not random; it appears to represent a pattern, possibly related to a specific coding pattern or algorithm.  The &lsquo;1&rsquo;s are concentrated along the main diagonal and adjacent cells, while the &lsquo;0&rsquo;s fill the remaining cells.  No other information, such as URLs or parameters, is present in the image. The matrix visually displays the positional relationship between the data points represented by the &lsquo;1&rsquo;s and &lsquo;0&rsquo;s.
+Now that we’ve simplified the triangle, it’ll be easier to identify patterns in the positions of the first even number in each row. Let’s explore this further.</p>
+<p>Identifying patterns
+Let&rsquo;s ignore rows 1 and 2 since even numbers only begin appearing from row 3 onward. A good place to start looking for a pattern is to highlight the first even number at each row and observe their positions:</p>
+<p>Image represents a 5x5 matrix illustrating a coding pattern.  The top row is labeled &lsquo;position&rsquo; with numbers 1 through 5 representing column indices. The leftmost column is labeled &lsquo;row,&rsquo; with rows 1 and 2 showing only light gray &lsquo;1&rsquo;s. Rows 3 and 5 are labeled &lsquo;(odd)&rsquo; and row 4 is labeled &lsquo;(even),&rsquo; indicating a pattern based on row parity.  Each cell within the matrix contains either a &lsquo;1&rsquo; or a peach-colored &lsquo;0&rsquo;.  The &lsquo;0&rsquo;s are strategically placed at positions (3,2), (4,3), and (5,2), suggesting a pattern related to the interaction between row parity and column position.  The &lsquo;1&rsquo;s fill the remaining cells, forming a pattern that could be described algorithmically based on the row number and column position.  No URLs or parameters are present.
+From rows 3 to 5, one possible pattern to observe is that odd-numbered rows have the first even number at position 2. We could also hypothesize that even-numbered rows have the first even at position 3.</p>
+<p>To confirm if this observation is consistent, let’s look at some more rows:</p>
+<p>Image represents a 7x7 matrix visually depicting a pattern.  The matrix is labeled &lsquo;position&rsquo; along the top row, with numbers 1 through 7 representing column indices. The leftmost column is labeled &lsquo;row,&rsquo; with row indices 1 through 7, with odd-numbered rows additionally labeled &lsquo;(odd)&rsquo;.  The matrix cells contain either the number &lsquo;1&rsquo; or a peach-colored circle representing &lsquo;0&rsquo;. The &lsquo;0&rsquo; values are arranged diagonally across the matrix, starting from row 3, column 2 and continuing down and to the right, with one &lsquo;0&rsquo; per row. All other cells contain the number &lsquo;1&rsquo;.  The arrangement suggests a pattern where the &lsquo;0&rsquo; values indicate a specific condition or state within the data structure represented by the matrix.
+So far, our hypothesis for odd-numbered rows is still true, but even-numbered rows seem to be following a different pattern. It’s still hard to pinpoint what it could be.</p>
+<p>Let&rsquo;s continue by displaying a few more rows to figure out what this pattern is:</p>
+<p>Image represents a 10x10 matrix illustrating a coding pattern, specifically focusing on odd-numbered rows.  The matrix is labeled with &lsquo;position&rsquo; across the top (numbers 1-10) and &lsquo;row&rsquo; down the side (numbers 1-10, with &lsquo;(odd)&rsquo; annotations beside odd-numbered rows).  The matrix cells contain either a &lsquo;0&rsquo; or a &lsquo;1&rsquo;.  Within each odd-numbered row (3, 5, 7, 9), a single cell contains a peach-colored &lsquo;0&rsquo;, visually highlighted.  This peach-colored &lsquo;0&rsquo; is positioned such that it moves one position to the right in each subsequent odd-numbered row.  The remaining cells in the odd-numbered rows contain &lsquo;1&rsquo;s, while the even-numbered rows are partially filled with &lsquo;1&rsquo;s, forming a pattern that mirrors the arrangement of &lsquo;1&rsquo;s in the odd rows, but without the highlighted &lsquo;0&rsquo;. The overall pattern suggests a relationship between row number and the position of the highlighted &lsquo;0&rsquo;, potentially representing an algorithm or data structure where the highlighted &lsquo;0&rsquo; indicates a specific index or element within each odd-numbered row.
+Now, we notice that the first four binary values from rows 3 to 6 repeat for rows 7 to 10. If we were to continue for future rows, we would notice that this pattern continues.</p>
+<p>Essentially, the following pattern is consistently repeated, starting from row 3:</p>
+<p>Image represents a 4x4 matrix, visually depicted as a table with rows labeled 3, 4, 5, and 6, and implicitly numbered columns.  Each cell contains a binary value (0 or 1).  The matrix is bordered by a light-blue rectangle.  Within the matrix, specific cells contain a light-peach colored circle encompassing the digit &lsquo;0&rsquo;. These circled zeros appear at positions (3,2), (4,3), (5,2), and (6,4), indicating a possible selection or highlighting of these specific elements.  The remaining cells contain either a &lsquo;1&rsquo; or a &lsquo;0&rsquo; without any special formatting.  No URLs or parameters are visible; the image solely presents the matrix data and the visual emphasis on certain &lsquo;0&rsquo; values.
+To understand why this pattern repeats, it’s important to realize that the first four values of a row are calculated solely from the four values of the previous row. We can see this visualized below, using the initial representation of the triangle to make it clearer:</p>
+<p>Image represents four identical numerical arrays, each consisting of a 7x1 arrangement of numbers.  Each array displays the numbers 1, 2, 1, 2, 1 across the second row, and 1, 3, 6, 7, 6, 3, 1 across the third row.  The top row of each array shows a single &lsquo;1&rsquo; in grey, and the fourth row shows a single &lsquo;1&rsquo; in grey.  The first and last numbers in the second and third rows are also in grey.  Within each array, orange arrows point downwards from the &lsquo;1&rsquo; and &lsquo;2&rsquo; values in the second row to the numbers below, indicating a summation operation.  Specifically, the &lsquo;1&rsquo; in the second row is added to the &lsquo;3&rsquo; below it, and the &lsquo;2&rsquo; is added to the &lsquo;6&rsquo; below it, resulting in the &lsquo;3&rsquo; and &lsquo;6&rsquo; in the third row being the sum of the numbers above them.  The &lsquo;7&rsquo; in the third row is the sum of the &lsquo;1&rsquo; and &lsquo;2&rsquo; above it.  This pattern of summation is consistent across all four arrays.
+So, whenever a specific sequence of four numbers occurs at the beginning of a row, it will generate a predictable sequence of four numbers in the following row. Extending this observation to the entire pattern, we can conclude that since the pattern repeated once (from rows 3 to 6 to rows 7 to 10), it will continue to repeat indefinitely.</p>
+<p>This gives us the below cyclic rationale:</p>
+<p>If n is odd (n % 2 != 0), return 2.
+If n is a multiple of 4 (n % 4 == 0), return 3.
+Else, return 4.
+Image represents three 10x4 matrices, each depicting a different pattern of 0s and 1s.  Above each matrix is a peach-colored annotation describing the pattern&rsquo;s rule. The first matrix, labeled &lsquo;all odd rows: position 2,&rsquo; shows a 0 in the second position of every odd-numbered row (rows 3, 5, 7, and 9). The second matrix, labeled &lsquo;all rows that are a multiple of 4: position 3,&rsquo; shows a 0 in the third position of every fourth row (row 4 and row 8). The third matrix, labeled &lsquo;all other rows: position 4,&rsquo; shows a 0 in the fourth position of all rows not covered by the first two rules (rows 3, 5, 6, 7, 9, and 10).  Each matrix has rows numbered 3 through 10, and each row contains four values (1 or 0).  A downward-pointing arrow connects each annotation to its corresponding matrix, visually indicating the application of the rule.  The highlighted 0s in each matrix clearly show the positions affected by each rule.
+This problem demonstrates how recognizing patterns and simplifying the problem can turn a time-consuming solution into a quick, constant-time one.</p>
+<p>Try it yourself
+Write your solution to the problem before checking the reference implementation.
+Implementation
+Python
+JavaScript
+Java
+def triangle_numbers(n: int) -&gt; int:
+    # If n is an odd-numbered row, the first even number always starts at position
+    # 2.
+    if n % 2 != 0:
+        return 2
+    # If n is a multiple of 4, the first even number always starts at position 3.
+    elif n % 4 == 0:
+        return 3
+    # For all other rows, the first even number always starts at position 4.
+    return 4
+Complexity Analysis
+Time complexity: The time complexity of triangle_numbers is 
+O
+(
+1
+)
+O(1).</p>
+<p>Space complexity: The space complexity is 
+O
+(
+1
+)
+O(1).</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="the-josephus-problem.html"><div class="label">← Anterior</div><div class="title">The Josephus Problem</div></a><a class="next" href="../../programming-typescript/01-introduction.html"><div class="label">Siguiente →</div><div class="title">Introduction</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="triangle-numbers.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

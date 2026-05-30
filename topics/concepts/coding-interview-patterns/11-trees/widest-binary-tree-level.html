@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Widest Binary Tree Level · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 11 — Trees</span><span class="sep">/</span><span class="current">Widest Binary Tree Level</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Widest Binary Tree Level</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">trees</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Widest Binary Tree Level
+Return the width of the widest level in a binary tree, where the width of a level is defined as the distance between its leftmost and rightmost non-null nodes.</p>
+<p>Example:
+Image represents a binary tree data structure.  The root node, labeled &lsquo;1&rsquo;, connects to two child nodes: &lsquo;2&rsquo; and &lsquo;3&rsquo;. Node &lsquo;2&rsquo; further branches into nodes &lsquo;4&rsquo; and &lsquo;5&rsquo;, while node &lsquo;3&rsquo; connects to node &lsquo;7&rsquo;. Node &lsquo;4&rsquo; has children &lsquo;8&rsquo; and &lsquo;9&rsquo;. Node &lsquo;5&rsquo; has a child &lsquo;11&rsquo;, and node &lsquo;7&rsquo; has a child &lsquo;14&rsquo;.  Nodes &lsquo;5&rsquo;, &lsquo;3&rsquo;, and &lsquo;7&rsquo; each have missing children represented by dashed circles labeled &lsquo;(null)&rsquo;, indicating that these branches are not yet populated or have null values. An orange line at the bottom spans the width of the tree, indicating a level or a specific operation on the tree, and is labeled &lsquo;7&rsquo;, possibly representing the width or a level of the tree.  The numbers within the circles represent the values stored in each node. The solid lines represent parent-child relationships in the tree, while the dashed lines indicate the absence of a child node.
+Output: 7
+Intuition
+Let&rsquo;s first understand how width is defined in a binary tree. An important distinction to make is that the width of a level is not necessarily equivalent to the number of nodes in that level.</p>
+<p>Image represents a tree-like structure illustrating a coding pattern, likely related to tree traversal or breadth-first search.  The diagram shows a complete binary tree with four levels.  The top level contains a single node labeled &lsquo;1&rsquo;. The second level has two nodes labeled &lsquo;2&rsquo; and &lsquo;3&rsquo;, connected to node &lsquo;1&rsquo;. The third level contains nodes &lsquo;4&rsquo;, &lsquo;5&rsquo;, and &lsquo;7&rsquo;, with &lsquo;4&rsquo; and &lsquo;5&rsquo; connected to &lsquo;2&rsquo; and &lsquo;7&rsquo; connected to &lsquo;3&rsquo;.  A dashed-line connection from &lsquo;3&rsquo; indicates a missing node (represented as &lsquo;(null)&rsquo;). The bottom level shows nodes &lsquo;8&rsquo;, &lsquo;9&rsquo;, &lsquo;11&rsquo;, and &lsquo;14&rsquo;, with &lsquo;8&rsquo; and &lsquo;9&rsquo; connected to &lsquo;4&rsquo;, and &lsquo;14&rsquo; connected to &lsquo;7&rsquo;.  Two additional &lsquo;(null)&rsquo; nodes are shown on this level, indicating missing nodes.  Orange horizontal lines connect nodes at each level, labeled with the &lsquo;width&rsquo; (number of nodes in that level) and the total &lsquo;number of nodes&rsquo; at or below that level.  The values for width are 1, 2, 4, and 7, respectively, while the number of nodes are 1, 2, 3, and 4, respectively.  The diagram visually demonstrates how the width of the tree increases exponentially with each level.
+As we can see, the null nodes between the leftmost and rightmost nodes are considered in the width, as well.</p>
+<p>Think about a data structure in which determining the width or distance between two elements is simple, such as an array, where the distance of two elements can be obtained by the difference between their indexes. If our binary tree also has indexes, it would similarly be possible to obtain the width between two nodes at a level. Let’s explore a method to assign an index to each node.</p>
+<p>Indexing a binary tree
+Below, we see how indexes can be assigned at each node, starting with index 0 for the root node:</p>
+<p>Image represents a binary tree structure visualized across multiple horizontal layers, each representing a level of the tree.  The nodes of the tree are circles containing numbers (1, 2, 3, 4, 5, 7, 8, 9, 11, 14), with orange numbers next to them indicating a sequential node numbering. Solid lines connect parent nodes to their children, illustrating the hierarchical relationships. Dashed lines and circles labeled &lsquo;[null]&rsquo; represent missing nodes or branches. To the right of the tree, calculations are shown for &lsquo;width&rsquo; at each level.  The formula used is <code>width = (largest node index - smallest node index) + 1</code>, with the result displayed below. For example, at the lowest level, the calculation is <code>width = (13 - 7) + 1 = 7</code>, reflecting the number of nodes (including nulls) present at that level.  The top level has a width of 1, the second level has a width of 2, the third level has a width of 4, and the bottom level has a width of 7.
+These indexes enable us to calculate the width of a level using rightmost_index - leftmost_index + 1, as shown in the diagram above. Note, the indexes at the null nodes are added only for visualization.</p>
+<p>But how can we set up something like this? The key observation is that each node&rsquo;s index can be determined from its parent&rsquo;s index. We can derive the following relationship for any node at index i:</p>
+<p>Its left child will be at index 2<em>i + 1.
+Its right child will be at index 2</em>i + 2.
+Now, we just need a way to traverse each level of the tree to determine the width at individual levels, allowing us to obtain the width of the widest level in the tree. We can use level-order traversal for this.</p>
+<p>Level-order traversal
+If you&rsquo;re unfamiliar with the level-order traversal algorithm, study the Rightmost Nodes of a Binary Tree problem before continuing.</p>
+<p>Remember, level-order traversal utilizes a queue to process the binary tree nodes. In this problem, whenever we push a node into this queue, we also push its respective index along with it, to know which index it’s associated with.</p>
+<p>The width of a level can be calculated using rightmost_index - leftmost_index + 1. To perform this calculation, we need the index of the first (leftmost) and last (rightmost) nodes of that level. Here’s how we obtain these indexes:</p>
+<p>Set leftmost_index to the index at the first node of the level.</p>
+<p>Start rightmost_index at the same point as leftmost_index and update it as we traverse the level. This way, it will eventually be set to the last index after traversing the level.</p>
+<p>Image represents a binary tree structure illustrating the concept of <code>leftmost_index</code> and <code>rightmost_index</code>.  The tree&rsquo;s root node is labeled &lsquo;1&rsquo;.  Node &lsquo;1&rsquo; connects to nodes &lsquo;2&rsquo; and &lsquo;3&rsquo; with solid lines. Node &lsquo;2&rsquo; further connects to nodes &lsquo;4&rsquo; and &lsquo;5&rsquo; with solid lines, while node &lsquo;3&rsquo; connects to node &lsquo;7&rsquo; with a solid line and has dashed lines indicating null children. Node &lsquo;4&rsquo; connects to nodes &lsquo;8&rsquo; and &lsquo;9&rsquo; with solid lines. Node &lsquo;5&rsquo; connects to node &lsquo;11&rsquo; with a solid line and has a dashed line indicating a null child. Node &lsquo;7&rsquo; connects to node &lsquo;14&rsquo; with a solid line.  Nodes &lsquo;8&rsquo;, &lsquo;9&rsquo;, &lsquo;11&rsquo;, and &lsquo;14&rsquo; are leaf nodes.  A peach-colored rectangular background highlights nodes &lsquo;4&rsquo;, &lsquo;5&rsquo;, &rsquo; (null) &lsquo;, and &lsquo;7&rsquo;, representing a level in the tree.  Orange rectangular boxes labeled <code>leftmost_index</code> and <code>rightmost_index</code> point downwards with arrows to nodes &lsquo;4&rsquo; and &lsquo;7&rsquo; respectively, indicating these nodes as the leftmost and rightmost nodes at that specific level of the tree.  Dashed lines and &lsquo;(null)&rsquo; labels represent null or missing child nodes.
+As we calculate the width at each level, we keep track of the largest width using max_width, representing the width of the widest level in the binary tree.</p>
+<p>Try it yourself
+Write your solution to the problem before checking the reference implementation.
+Implementation
+Python
+JavaScript
+Java
+from ds import TreeNode
+    
+def widest_binary_tree_level(root: TreeNode) -&gt; int:
+    if not root:
+        return 0
+    max_width = 0
+    queue = deque([(root, 0)])  # Stores (node, index) pairs.
+    while queue:
+        level_size = len(queue)
+        # Set the &lsquo;leftmost_index&rsquo; to the index of the first node in this level. Start
+        # &lsquo;rightmost_index&rsquo; at the same point as &lsquo;leftmost_index&rsquo; and update it as we
+        # traverse the level, eventually positioning it at the last node.
+        leftmost_index = queue[0][1]
+        rightmost_index = leftmost_index
+        # Process all nodes at the current level.
+        for _ in range(level_size):
+            node, i = queue.popleft()
+            if node.left:
+                queue.append((node.left, 2<em>i + 1))
+            if node.right:
+                queue.append((node.right, 2</em>i + 2))
+            rightmost_index = i
+        max_width = max(max_width, rightmost_index - leftmost_index + 1)
+    return max_width
+Complexity Analysis
+Time complexity: The time complexity of widest_binary_tree_level is 
+O
+(
+n
+)
+O(n), where 
+n
+n denotes the number of nodes in the tree. This is because we process each node once during level-order traversal.</p>
+<p>Space complexity: The space complexity is 
+O
+(
+n
+)
+O(n) due to the space taken up by the queue. The queue’s size will grow as large as the level with the most nodes. In the worst case, this occurs at the last level when all the last-level nodes are non-null, totaling approximately 
+n
+/
+2
+n/2 nodes.</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="rightmost-nodes-of-a-binary-tree.html"><div class="label">← Anterior</div><div class="title">Rightmost Nodes of a Binary Tree</div></a><a class="next" href="binary-search-tree-validation.html"><div class="label">Siguiente →</div><div class="title">Binary Search Tree Validation</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="widest-binary-tree-level.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

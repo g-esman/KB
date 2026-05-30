@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design a Trie · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 12 — Tries</span><span class="sep">/</span><span class="current">Design a Trie</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Design a Trie</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">tries</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Design a Trie
+Design and implement a trie data structure that supports the following operations:</p>
+<p>insert(word: str) -&gt; None: Inserts a word into the trie.
+search(word: str) -&gt; bool: Returns true if a word exists in the trie, and false if not.
+has_prefix(prefix: str) -&gt; bool: Returns true if the trie contains a word with the given prefix, and false if not.
+Example:
+Input: [
+  insert(&lsquo;top&rsquo;),
+  insert(&lsquo;bye&rsquo;),
+  has_prefix(&lsquo;to&rsquo;),
+  search(&lsquo;to&rsquo;),
+  insert(&lsquo;to&rsquo;),
+  search(&lsquo;to&rsquo;)
+]
+Output: [True, False, True]
+Explanation:</p>
+<p>insert(&ldquo;top&rdquo;)    # trie has: &ldquo;top&rdquo;
+insert(&ldquo;bye&rdquo;)    # trie has: &ldquo;top&rdquo; and &ldquo;bye&rdquo;
+has_prefix(&ldquo;to&rdquo;) # prefix &ldquo;to&rdquo; exists in the string &ldquo;top&rdquo;: return True
+search(&ldquo;to&rdquo;)     # trie does not contain the word &ldquo;to&rdquo;: return False
+insert(&ldquo;to&rdquo;)     # trie has: &ldquo;top&rdquo;, &ldquo;bye&rdquo;, and &ldquo;to&rdquo;
+search(&ldquo;to&rdquo;)     # trie contains the word &ldquo;to&rdquo;: return True
+Constraints:
+The words and prefixes consist only of lowercase English letters.</p>
+<p>The length of each word and prefix is at least one character.</p>
+<p>Intuition
+Let’s define a TrieNode using the same definition introduced in the introduction. In this implementation, the is_word attribute will be used to indicate whether a TrieNode marks the end of a word.</p>
+<p>Initializing the trie
+To initialize the Trie, we define the root TrieNode in the constructor. All words inserted into the trie will branch out from this root node.</p>
+<p>Inserting a word into the trie
+The insert function builds the trie word by word. What makes a trie useful is that it reduces redundancy by reusing existing nodes when possible. For example, if we insert “byte” when “bye” already exists in the trie, these two words should share the nodes that make up the prefix “by” to save space. This is an important point that will shape our implementation of this function.</p>
+<p>To understand the insertion logic, let&rsquo;s walk through an example. Consider inserting the word &ldquo;byte&rdquo; into the trie below.</p>
+<p>Image represents a Trie data structure, a tree-like data structure used for storing strings.  The topmost node, colored light gray, is labeled &lsquo;root&rsquo; and serves as the root of the Trie.  From the root, two branches extend downwards. The left branch leads to a node containing the letter &lsquo;t&rsquo;, connected to a node with &lsquo;o&rsquo;, which is further connected to a node with &lsquo;p&rsquo;.  The right branch leads to a node containing the letter &lsquo;b&rsquo;, connected to a node with &lsquo;y&rsquo;, which is further connected to a node with &lsquo;e&rsquo;.  Each node representing a letter is a black circle. Dashed lines extend from the &lsquo;o&rsquo;, &lsquo;p&rsquo;, and &lsquo;e&rsquo; nodes, each labeled &lsquo;is_word = True,&rsquo; indicating that &lsquo;top&rsquo; and &lsquo;bye&rsquo; are valid words stored in this Trie. The connections between nodes represent the sequential arrangement of letters within words.  The structure visually demonstrates how the Trie efficiently stores and searches for words by traversing paths from the root.
+We first check if &lsquo;b&rsquo;, the first letter of the string, exists as a child of the root node by querying the hash map containing its children. In this case, it does. So, move to node &lsquo;b&rsquo;:</p>
+<p>Image represents a Trie data structure illustrating the insertion of the word &lsquo;byte&rsquo;.  The diagram shows a root node labeled &lsquo;root&rsquo; (light gray) connected to two child nodes: &lsquo;t&rsquo; (black) and &lsquo;b&rsquo; (orange).  The &lsquo;t&rsquo; node branches down to &lsquo;o&rsquo; and then &lsquo;p&rsquo;, each labeled with &lsquo;is_word = True&rsquo;, indicating these letter combinations are valid words. The &lsquo;b&rsquo; node connects to &lsquo;y&rsquo; and then &lsquo;e&rsquo;, also labeled &lsquo;is_word = True&rsquo;.  A dashed box to the right explains the insertion process:  &lsquo; &lsquo;b&rsquo; is a child of the current node&rsquo; and the code snippet <code>node = node.children['b']</code> shows how the current node is updated to point to the &lsquo;b&rsquo; node during insertion.  A rectangular box labeled &lsquo;node&rsquo; points to the root node initially, indicating the starting point of the insertion process.  The lines connecting the nodes represent parent-child relationships within the Trie.
+Now consider the second letter, ‘y’. Similarly, node &lsquo;y&rsquo; exists as a child of node &lsquo;b&rsquo;, so let&rsquo;s move to node &lsquo;y&rsquo;:</p>
+<p>Image represents a tree-like data structure illustrating a coding pattern.  The topmost node, labeled &lsquo;root&rsquo; in light gray, branches into two nodes: &lsquo;t&rsquo; and &lsquo;b&rsquo;.  The &lsquo;t&rsquo; node connects downwards to &lsquo;o&rsquo;, which further connects to &lsquo;p&rsquo;.  Dashed lines connect &lsquo;o&rsquo; and &lsquo;p&rsquo; to the text &lsquo;is_word = True&rsquo;, indicating a property associated with these nodes.  Similarly, the &lsquo;b&rsquo; node connects to a node &lsquo;y&rsquo; highlighted in orange, which then connects to &lsquo;e&rsquo;.  &lsquo;e&rsquo; also has a dashed line connecting it to &lsquo;is_word = True&rsquo;. A rectangular box to the right shows the code snippet <code>'y' is a child of the current node  =&gt; node = node.children['y']</code>, explaining how to access the child node &lsquo;y&rsquo; from a parent node (represented by the variable &lsquo;node&rsquo;).  A smaller rectangular box labeled &lsquo;node&rsquo; points to the &lsquo;b&rsquo; node, illustrating the current node in the example.  The overall structure depicts a Trie or prefix tree, commonly used in data structures and algorithms, particularly for efficient string searching.
+Now consider the next letter, ‘t’. Since node &lsquo;t&rsquo; doesn&rsquo;t exist as a child of node &lsquo;y&rsquo;, we need to create it and add it to node &lsquo;y’s children hash map. Then, we can move to this newly created node &lsquo;t&rsquo;:</p>
+<p>Image represents a Trie data structure visualization alongside code snippets illustrating its modification.  The Trie is depicted as a tree with a light-grey root node labeled &lsquo;root&rsquo;.  Two branches extend from the root, leading to nodes labeled &lsquo;t&rsquo; and &lsquo;b&rsquo; respectively. The &lsquo;t&rsquo; node connects to an &lsquo;o&rsquo; node, which in turn connects to a &lsquo;p&rsquo; node.  Both &lsquo;o&rsquo; and &lsquo;p&rsquo; nodes have dashed lines indicating a boolean attribute &lsquo;is_word = True&rsquo;. The &lsquo;b&rsquo; node connects to a &lsquo;y&rsquo; node, which further connects to an &lsquo;e&rsquo; node. The &lsquo;e&rsquo; node also has a dashed line indicating &lsquo;is_word = True&rsquo;. A dashed line connects the &lsquo;y&rsquo; node to a new, orange-colored &lsquo;t&rsquo; node, representing a node being added. A rectangular box to the right displays code comments explaining that &lsquo;t&rsquo; is not a child of the current node (&lsquo;y&rsquo;), followed by two lines of code: <code>node.children['t'] = TrieNode()</code> which creates a new TrieNode for &lsquo;t&rsquo;, and <code>node = node.children['t']</code> which updates the current node pointer to the newly created &lsquo;t&rsquo; node.  A separate rectangular box labeled &lsquo;node&rsquo; points to the &lsquo;y&rsquo; node, indicating the current node before the addition of the &lsquo;t&rsquo; node.
+The last letter is ‘e’, which doesn’t exist as a child of node ‘t’. So, let’s create node ‘e’ and add it to node ‘t’s children:</p>
+<p>Image represents a Trie data structure illustrating the insertion of a new node.  The Trie is visualized as a tree with a light gray root node labeled &lsquo;root&rsquo;.  From the root, two branches extend to nodes labeled &lsquo;t&rsquo; and &lsquo;b&rsquo;. The &lsquo;t&rsquo; node connects to an &lsquo;o&rsquo; node, which in turn connects to a &lsquo;p&rsquo; node.  Both &lsquo;o&rsquo; and &lsquo;p&rsquo; nodes have a dashed line and label &lsquo;is_word = True&rsquo;, indicating they represent complete words. The &lsquo;b&rsquo; node connects to a &lsquo;y&rsquo; node, which further branches to &lsquo;e&rsquo; and &lsquo;t&rsquo; nodes. The &lsquo;e&rsquo; node has &lsquo;is_word = True&rsquo;. A dashed line connects the &lsquo;t&rsquo; node to a new, orange-colored &lsquo;e&rsquo; node, labeled &lsquo;node&rsquo;, signifying the addition of this node. A separate box explains the process:  &lsquo;&rsquo;e&rsquo; is not a child of the current node&rsquo; followed by two lines of code: &lsquo;→ node.children[&lsquo;e&rsquo;] = TrieNode()&rsquo; and &lsquo;→ <font color='orange'>node</font> = node.children[&lsquo;e&rsquo;]&rsquo;, showing how a new TrieNode is created and assigned to the &lsquo;e&rsquo; child of the current node.  The arrows indicate the flow of information and the creation of a new node within the Trie.
+Now that we&rsquo;ve reached the end of the word, we should set the is_word attribute of node &lsquo;e&rsquo; to true, indicating that it marks the end of a word.</p>
+<p>Image represents a Trie data structure, a tree-like data structure used for storing strings.  The topmost node is labeled &lsquo;root&rsquo; in gray, and branches down to two nodes, &lsquo;t&rsquo; and &lsquo;b&rsquo;.  The &lsquo;t&rsquo; node connects to &lsquo;o&rsquo;, which connects to &lsquo;p&rsquo;.  Each of &lsquo;o&rsquo; and &lsquo;p&rsquo; has a dashed box next to it indicating <code>is_word = True</code>, signifying that &lsquo;top&rsquo; is a valid word in the Trie. Similarly, &lsquo;b&rsquo; connects to &lsquo;y&rsquo;, which further branches to &lsquo;e&rsquo; and &lsquo;t&rsquo;.  Node &lsquo;e&rsquo; has <code>is_word = True</code> indicating &lsquo;bye&rsquo; is a valid word.  Node &lsquo;t&rsquo; connects to another &lsquo;e&rsquo; node highlighted in orange, also marked with <code>is_word = True</code>, suggesting &lsquo;byte&rsquo; is a valid word. A separate box displays <code>node.is_word = True</code>, illustrating a general condition for a node representing a complete word. Finally, a gray box labeled &lsquo;node&rsquo; points to the orange &lsquo;e&rsquo; node, demonstrating a potential traversal or search operation within the Trie.
+Searching for a word
+Searching for a word involves the same strategy as insertion, where we move node by node down the trie. The two main differences are:</p>
+<p>If a node corresponding to the current character in the word isn&rsquo;t found at any point, we return false because this would indicate the word doesn&rsquo;t exist in the trie.</p>
+<p>After traversing all characters of the search term, we return true only if the final node&rsquo;s is_word attribute is true.</p>
+<p>Image represents a Trie data structure illustrating a search operation for the word &lsquo;to&rsquo;.  The Trie is a tree-like structure where each node represents a character.  The root node, labeled &lsquo;root&rsquo;, is connected to a &lsquo;t&rsquo; node. This &lsquo;t&rsquo; node connects to an &lsquo;o&rsquo; node.  Both &lsquo;o&rsquo; and &lsquo;p&rsquo; nodes have a property <code>is_word = True</code> indicating they represent complete words.  A dashed orange line highlights the path traversed during the search for &lsquo;to&rsquo;.  An arrow labeled &lsquo;node&rsquo; points to the &lsquo;o&rsquo; node, showing the starting point of the search.  The &lsquo;o&rsquo; node&rsquo;s <code>is_word</code> property is also shown as <code>True</code>.  A separate branch from the root node leads to &lsquo;b&rsquo;, &lsquo;y&rsquo;, &lsquo;e&rsquo;, and another &lsquo;t&rsquo; node, which further connects to an &lsquo;e&rsquo; node; this &lsquo;e&rsquo; node also has <code>is_word = True</code>. A gray box with dashed lines displays the code snippet <code>return node.is_word</code>, indicating that the search function returns the boolean value of the <code>is_word</code> property of the final node reached.
+Searching for a prefix
+The logic for finding a prefix is nearly identical to the logic discussed above for the search function. The only difference is after successfully traversing all characters in our search term, we can just return true without checking the final node&rsquo;s is_word attribute, as a prefix doesn’t need to end at the end of a word.</p>
+<p>Image represents a Trie data structure illustrating a <code>has_prefix('by')</code> function.  The Trie is a tree-like structure where nodes represent characters and edges represent transitions between characters. The root node is labeled &lsquo;root&rsquo; and is enclosed in a dashed orange oval.  A gray line connects the root to a node labeled &lsquo;t,&rsquo; which connects to a node labeled &lsquo;o,&rsquo; which in turn connects to a node labeled &lsquo;p.&rsquo;  Dashed lines and the text &lsquo;is_word = True&rsquo; indicate that &lsquo;op&rsquo; and &lsquo;p&rsquo; are valid words in the Trie.  Separately, a gray line connects the root to a node labeled &lsquo;b,&rsquo; which connects to a node labeled &lsquo;y.&rsquo; This &lsquo;by&rsquo; node is also enclosed in a dashed orange oval.  A right-pointing arrow labeled &lsquo;node&rsquo; points to this &lsquo;by&rsquo; node.  From &lsquo;y,&rsquo; two branches extend, one to a node &lsquo;e&rsquo; and another to a node &lsquo;t,&rsquo; which further connects to a node &lsquo;e.&rsquo;  The nodes &lsquo;e&rsquo; and &lsquo;e&rsquo; also have dashed lines and &lsquo;is_word = True&rsquo; indicating they are valid words.  A dashed-line box to the upper right displays &lsquo;return True,&rsquo; indicating that the prefix &lsquo;by&rsquo; exists within the Trie.
+Try it yourself
+Write your solution to the problem before checking the reference implementation.
+Implementation
+Python
+JavaScript
+Java
+class TrieNode:
+    def <strong>init</strong>(self):
+        self.children = {}
+        self.is_word = False
+Python
+JavaScript
+Java
+class Trie:
+   def <strong>init</strong>(self):
+       self.root = TrieNode()
+    
+   def insert(self, word: str) -&gt; None:
+       node = self.root
+       for c in word:
+           # For each character in the word, if it’s not a child of the current node,
+           # create a new TrieNode for that character.
+           if c not in node.children:
+               node.children[c] = TrieNode()
+           node = node.children[c]
+       # Mark the last node as the end of a word.
+       node.is_word = True
+    
+   def search(self, word: str) -&gt; bool:
+       node = self.root
+       for c in word:
+           # For each character in the word, if it’s not a child of the current node,
+           # the word doesn&rsquo;t exist in the Trie.
+           if c not in node.children:
+               return False
+           node = node.children[c]
+       # Return whether the current node is marked as the end of the word.
+       return node.is_word
+    
+   def has_prefix(self, prefix: str) -&gt; bool:
+       node = self.root
+       for c in prefix:
+           if c not in node.children:
+               return False
+           node = node.children[c]
+       # Once we’ve traversed the nodes corresponding to each character in the
+       # prefix, return True.
+       return True
+Complexity Analysis
+Time complexity:</p>
+<p>The time complexity of insert is 
+O
+(
+k
+)
+O(k), where 
+k
+k is the length of the word being inserted. This is because we traverse through or insert up to 
+k
+k nodes into the trie in each iteration.
+The time complexity of search and has_prefix is 
+O
+(
+k
+)
+O(k) because we search through at most 
+k
+k characters in the trie.
+Space complexity:</p>
+<p>The space complexity of insert is 
+O
+(
+k
+)
+O(k) because in the worst case, the inserted word doesn’t share any prefix with words already in the trie. In this case, 
+k
+k new nodes are created.
+The space complexity of search and has_prefix is 
+O
+(
+1
+)
+O(1) because no additional space is used to traverse the search term in the trie.</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="introduction.html"><div class="label">← Anterior</div><div class="title">Introduction to Tries</div></a><a class="next" href="insert-and-search-words-with-wildcards.html"><div class="label">Siguiente →</div><div class="title">Insert and Search Words with Wildcards</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="design-a-trie.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

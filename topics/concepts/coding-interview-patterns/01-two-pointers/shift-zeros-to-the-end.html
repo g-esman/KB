@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shift Zeros to the End · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 1 — Two Pointers</span><span class="sep">/</span><span class="current">Shift Zeros to the End</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <ul class="toc">
+<li class="toc-h2"><a href="#in-this-entry">📑 In this entry</a></li>
+<li class="toc-h2"><a href="#for-dummies-empeza-por-aca">🎓 For Dummies — empezá por acá</a></li>
+<li class="toc-h3"><a href="#trampas-comunes">Trampas comunes</a></li>
+<li class="toc-h2"><a href="#problema">Problema</a></li>
+<li class="toc-h3"><a href="#ejemplo">Ejemplo</a></li>
+<li class="toc-h3"><a href="#constraints-implicitas">Constraints implícitas</a></li>
+<li class="toc-h2"><a href="#approach-naive-que-falla-la-consigna-in-place">Approach naive (que falla la consigna in-place)</a></li>
+<li class="toc-h2"><a href="#la-idea-enfocate-en-los-no-ceros">La idea: enfocate en los no-ceros</a></li>
+<li class="toc-h2"><a href="#two-pointers-unidirectional">Two pointers unidirectional</a></li>
+<li class="toc-h3"><a href="#optimizacion-menor">Optimización menor</a></li>
+<li class="toc-h2"><a href="#trace-paso-a-paso">Trace paso a paso</a></li>
+<li class="toc-h2"><a href="#algorithm-flowchart">Algorithm flowchart</a></li>
+<li class="toc-h2"><a href="#implementacion">Implementación</a></li>
+<li class="toc-h3"><a href="#javascript">JavaScript</a></li>
+<li class="toc-h3"><a href="#c">C</a></li>
+<li class="toc-h2"><a href="#por-que-left-right-siempre">Por qué left ≤ right siempre</a></li>
+<li class="toc-h2"><a href="#complexity-analysis">Complexity Analysis</a></li>
+<li class="toc-h3"><a href="#comparacion-con-alternativas">Comparación con alternativas</a></li>
+<li class="toc-h3"><a href="#variante-una-pasada-sin-swap-escribir-rellenar">Variante “una pasada sin swap” (escribir + rellenar)</a></li>
+<li class="toc-h2"><a href="#test-cases">Test Cases</a></li>
+<li class="toc-h2"><a href="#amplification-variantes-y-patrones-relacionados">⭐ Amplification: variantes y patrones relacionados</a></li>
+<li class="toc-h3"><a href="#variante-1-remove-element-leetcode-27">Variante 1: Remove Element (LeetCode #27)</a></li>
+<li class="toc-h3"><a href="#variante-2-remove-duplicates-from-sorted-array-leetcode-26">Variante 2: Remove Duplicates from Sorted Array (LeetCode #26)</a></li>
+<li class="toc-h3"><a href="#variante-3-sort-colors-dutch-flag-leetcode-75">Variante 3: Sort Colors / Dutch Flag (LeetCode #75)</a></li>
+<li class="toc-h3"><a href="#el-meta-patron-read-pointer-write-pointer">El meta-patrón: read pointer + write pointer</a></li>
+<li class="toc-h3"><a href="#variante-4-mover-los-ceros-al-principio">Variante 4: Mover los CEROS al PRINCIPIO</a></li>
+<li class="toc-h2"><a href="#pitfalls">⚠️ Pitfalls</a></li>
+<li class="toc-h2"><a href="#interview-tips">Interview Tips</a></li>
+<li class="toc-h2"><a href="#references">References</a></li>
+</ul>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Shift Zeros to the End</h1>
+  <div class="meta-row">
+    <span class="status-badge active">✓ active</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-08</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">two-pointers</span><span class="meta-tag">interview-prep</span><span class="meta-tag">unidirectional-traversal</span><span class="meta-tag">in-place</span></div>
+</header>
+      
+      <blockquote>
+<p>📍 <strong>Two Pointers · Problema 5/6</strong> · <a href="./is-palindrome-valid.html">⬅ Is Palindrome Valid</a> · <a href="./introduction.html">🏠 Chapter</a> · <a href="./next-lexicographical-sequence.html">Next Lex Sequence ➡</a> · <a href="../../../../index.html">📚 KB Index</a></p>
+<p><strong>TL;DR</strong> — Mover todos los <strong>ceros al final</strong> de un array, manteniendo el <strong>orden relativo de los no-ceros</strong>, <strong>in-place</strong>. Two pointers <strong>unidirectional</strong>: <code>left</code> marca dónde escribir el próximo no-cero; <code>right</code> recorre buscando no-ceros para mover. Cada vez que <code>right</code> encuentra un no-cero, swap con <code>left</code> y avanzá ambos. <strong>O(n) tiempo, O(1) espacio.</strong></p>
+</blockquote>
+<hr />
+<h2 id="in-this-entry">📑 In this entry<a class="headerlink" href="#in-this-entry" title="anchor">&para;</a></h2>
+<ol>
+<li><a href="#-for-dummies--empezá-por-acá">🎓 For Dummies — empezá por acá</a></li>
+<li><a href="#problema">Problema</a></li>
+<li><a href="#approach-naive-que-falla-la-consigna-in-place">Approach naive (que falla la consigna in-place)</a></li>
+<li><a href="#la-idea-enfocate-en-los-no-ceros">La idea: enfocate en los no-ceros</a></li>
+<li><a href="#two-pointers-unidirectional">Two pointers unidirectional</a></li>
+<li><a href="#trace-paso-a-paso">Trace paso a paso</a></li>
+<li><a href="#algorithm-flowchart">Algorithm flowchart</a></li>
+<li><a href="#implementación">Implementación</a></li>
+<li><a href="#por-qué-left--right-siempre">Por qué <code>left ≤ right</code> siempre</a></li>
+<li><a href="#complexity-analysis">Complexity Analysis</a></li>
+<li><a href="#test-cases">Test Cases</a></li>
+<li><a href="#-amplification-variantes-y-patrones-relacionados">⭐ Amplification: variantes y patrones relacionados</a></li>
+<li><a href="#️-pitfalls">⚠️ Pitfalls</a></li>
+<li><a href="#interview-tips">Interview Tips</a></li>
+</ol>
+<hr />
+<h2 id="for-dummies-empeza-por-aca">🎓 For Dummies — empezá por acá<a class="headerlink" href="#for-dummies-empeza-por-aca" title="anchor">&para;</a></h2>
+<p><strong>Analogía:</strong> tenés una <strong>fila de bandejas</strong> con manzanas y vacíos (las manzanas son los no-ceros, los vacíos son los ceros). Querés que <strong>todas las manzanas queden a la izquierda</strong> sin cambiar el orden entre ellas, y que los vacíos queden a la derecha. <strong>Sin usar bandejas extras.</strong></p>
+<div class="highlight"><pre><span></span><code>Antes:    [ 0    🍎    0    🍎    🍎 ]
+Después:  [ 🍎   🍎    🍎   0    0  ]
+</code></pre></div>
+<p><strong>Forma piola:</strong> dos personas empujan las manzanas:</p>
+<ul>
+<li><strong>Persona LEFT</strong> se queda parada en la próxima posición que tiene que recibir una manzana.</li>
+<li><strong>Persona RIGHT</strong> camina por toda la fila buscando manzanas.</li>
+<li>Cada vez que RIGHT encuentra una manzana, <strong>la cambia con lo que tenga LEFT en su posición</strong> (puede ser un vacío o la misma manzana).</li>
+<li>Después, LEFT da un paso adelante (porque ya tiene su manzana), y RIGHT sigue caminando.</li>
+</ul>
+<p>Cuando RIGHT terminó de recorrer toda la fila, <strong>todas las manzanas quedaron contiguas a la izquierda</strong> (en el orden original) y los vacíos quedaron solos a la derecha. ¡Magia!</p>
+<p><strong>Truco mental clave:</strong> en vez de &ldquo;mover los ceros al final&rdquo; (difícil), <strong>mové los no-ceros al principio</strong> (fácil). Los ceros van quedando solos al final por descarte.</p>
+<h3 id="trampas-comunes">Trampas comunes<a class="headerlink" href="#trampas-comunes" title="anchor">&para;</a></h3>
+<ul>
+<li>⚠️ <strong>Mover <code>left</code> cuando RIGHT cae en cero.</strong> No: <code>left</code> solo avanza cuando hubo swap (es decir, cuando RIGHT encontró un no-cero). Si RIGHT está en cero, RIGHT avanza solo.</li>
+<li>⚠️ <strong>Hacer swap con uno mismo cuando <code>left == right</code>.</strong> No es bug funcional (el array no cambia), pero es trabajo perdido. La optimización <code>if right != left</code> lo evita.</li>
+<li>⚠️ <strong>Romper la consigna &ldquo;in-place&rdquo; creando un array nuevo.</strong> Si el enunciado pide modificar el input, <strong>no puedo allocar <code>temp</code> y devolverlo</strong> — eso es trampa.</li>
+</ul>
+<p>¿Listo para la versión completa? ⬇️</p>
+<hr />
+<h2 id="problema">Problema<a class="headerlink" href="#problema" title="anchor">&para;</a></h2>
+<p>Dado un array de enteros, modificá el array <strong>in-place</strong> para mover todos los ceros al final, manteniendo el <strong>orden relativo</strong> de los elementos no-cero.</p>
+<h3 id="ejemplo">Ejemplo<a class="headerlink" href="#ejemplo" title="anchor">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>Input:  nums = [0, 1, 0, 3, 2]
+Output: [1, 3, 2, 0, 0]
+</code></pre></div>
+<h3 id="constraints-implicitas">Constraints implícitas<a class="headerlink" href="#constraints-implicitas" title="anchor">&para;</a></h3>
+<ul>
+<li><strong>In-place:</strong> no podés devolver un array nuevo; tenés que mutar <code>nums</code>.</li>
+<li><strong>Orden de los no-ceros:</strong> se preserva (<code>1, 3, 2</code> en el ejemplo).</li>
+<li><strong>Orden de los ceros:</strong> irrelevante (todos son <code>0</code>, son indistinguibles).</li>
+</ul>
+<hr />
+<h2 id="approach-naive-que-falla-la-consigna-in-place">Approach naive (que falla la consigna in-place)<a class="headerlink" href="#approach-naive-que-falla-la-consigna-in-place" title="anchor">&para;</a></h2>
+<p>Crear un array auxiliar <code>temp</code> del mismo tamaño, copiar los no-ceros al frente, y rellenar el resto con ceros. Después, copiar <code>temp</code> de vuelta a <code>nums</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">shiftZerosNaive</span><span class="p">(</span><span class="nx">nums</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">temp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Array</span><span class="p">(</span><span class="nx">nums</span><span class="p">.</span><span class="nx">length</span><span class="p">).</span><span class="nx">fill</span><span class="p">(</span><span class="mf">0</span><span class="p">);</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="nx">num</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nx">nums</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">num</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">temp</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">num</span><span class="p">;</span>
+<span class="w">            </span><span class="nx">i</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">let</span><span class="w"> </span><span class="nx">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span><span class="w"> </span><span class="nx">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">nums</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span><span class="w"> </span><span class="nx">j</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">nums</span><span class="p">[</span><span class="nx">j</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">temp</span><span class="p">[</span><span class="nx">j</span><span class="p">];</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><strong>Tiempo:</strong> O(n). <strong>Espacio:</strong> O(n) ❌ (rompe la consigna in-place).</p>
+<p>Pero <strong>la idea es buena</strong>: ignorar los ceros y solo mover los <strong>no-ceros</strong> al principio. Solo falta hacerlo sin allocar.</p>
+<hr />
+<h2 id="la-idea-enfocate-en-los-no-ceros">La idea: enfocate en los no-ceros<a class="headerlink" href="#la-idea-enfocate-en-los-no-ceros" title="anchor">&para;</a></h2>
+<p>Reformulá el problema: en vez de <em>&ldquo;mover los ceros al final&rdquo;</em>, hacé <em>&ldquo;mover los no-ceros al principio en orden&rdquo;</em>. Si lo lográs, los ceros quedan al final automáticamente (eran lo único que sobraba).</p>
+<div class="highlight"><pre><span></span><code>Input:        [ 0    1    0    3    2 ]
+                    ▲         ▲    ▲
+                    └─────────┴────┴───── son los no-ceros, en orden
+
+Output:       [ 1    3    2    _    _ ]   ← no-ceros movidos al principio
+                                  └────┴── posiciones que sobran → ceros
+</code></pre></div>
+<p>Si tuviera un cursor que indique <em>&ldquo;acá va el próximo no-cero&rdquo;</em>, y otro cursor que <strong>busque</strong> el próximo no-cero, podría escribirlo y avanzar el primer cursor. Eso es exactamente two pointers unidirectional.</p>
+<hr />
+<h2 id="two-pointers-unidirectional">Two pointers unidirectional<a class="headerlink" href="#two-pointers-unidirectional" title="anchor">&para;</a></h2>
+<p><strong>Convención:</strong></p>
+<ul>
+<li><code>left</code>: posición donde <strong>se va a escribir</strong> el próximo no-cero. Empieza en <code>0</code>.</li>
+<li><code>right</code>: cursor que <strong>recorre</strong> el array buscando no-ceros. Empieza en <code>0</code> y avanza siempre.</li>
+</ul>
+<p><strong>Lógica por iteración:</strong></p>
+<div class="highlight"><pre><span></span><code>Si nums[right] == 0:
+    No hago nada — solo avanzo right.
+
+Si nums[right] != 0:
+    Swap nums[left] con nums[right].   (mover el no-cero a la posición correcta)
+    left += 1.                          (la próxima posición de escritura es la siguiente)
+    Avanzo right.
+</code></pre></div>
+<p><code>right</code> avanza <strong>siempre</strong> (sea cero o no), por eso lo escribimos como un <code>for</code> regular sobre todos los índices del array.</p>
+<p><code>left</code> solo avanza cuando hubo un swap.</p>
+<h3 id="optimizacion-menor">Optimización menor<a class="headerlink" href="#optimizacion-menor" title="anchor">&para;</a></h3>
+<p>Si <code>left == right</code> cuando hay match (porque arrancó así o porque venimos pegados), el swap es una operación &ldquo;no-op&rdquo; (cambiar el elemento consigo mismo). Podés saltarte el swap con <code>if right != left</code>.</p>
+<hr />
+<h2 id="trace-paso-a-paso">Trace paso a paso<a class="headerlink" href="#trace-paso-a-paso" title="anchor">&para;</a></h2>
+<p>Ejemplo: <code>nums = [0, 1, 0, 3, 2]</code>.</p>
+<p><img alt="Shift Zeros trace" src="../../img/tp-fig-sz-01-trace.png" /></p>
+<p><strong>Resultado:</strong> <code>nums = [1, 3, 2, 0, 0]</code> ✓</p>
+<p><strong>Observación clave:</strong> en cada iteración, <strong>todo lo que está a la izquierda de <code>left</code> es no-cero y en orden original</strong>. <strong>Todo lo que está entre <code>left</code> y <code>right</code> (inclusive) son ceros listos para ser sobreescritos</strong>. Esa es la <strong>invariante</strong> del algoritmo.</p>
+<hr />
+<h2 id="algorithm-flowchart">Algorithm flowchart<a class="headerlink" href="#algorithm-flowchart" title="anchor">&para;</a></h2>
+<p><img alt="Shift Zeros flowchart" src="../../img/tp-fig-sz-02-flow.png" /></p>
+<hr />
+<h2 id="implementacion">Implementación<a class="headerlink" href="#implementacion" title="anchor">&para;</a></h2>
+<h3 id="javascript">JavaScript<a class="headerlink" href="#javascript" title="anchor">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">shiftZerosToTheEnd</span><span class="p">(</span><span class="nx">nums</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">let</span><span class="w"> </span><span class="nx">right</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span><span class="w"> </span><span class="nx">right</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">nums</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span><span class="w"> </span><span class="nx">right</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">nums</span><span class="p">[</span><span class="nx">right</span><span class="p">]</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// Optimización: skip swap si los punteros coinciden.</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">right</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="nx">left</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="p">[</span><span class="nx">nums</span><span class="p">[</span><span class="nx">left</span><span class="p">],</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">right</span><span class="p">]]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="nx">nums</span><span class="p">[</span><span class="nx">right</span><span class="p">],</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">left</span><span class="p">]];</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">            </span><span class="nx">left</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="c">C<a class="headerlink" href="#c" title="anchor">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="k">void</span><span class="w"> </span><span class="nf">ShiftZerosToTheEnd</span><span class="p">(</span><span class="kt">int</span><span class="p">[]</span><span class="w"> </span><span class="n">nums</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">right</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">right</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">nums</span><span class="p">.</span><span class="n">Length</span><span class="p">;</span><span class="w"> </span><span class="n">right</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">nums</span><span class="p">[</span><span class="n">right</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// Optimización: skip swap si los punteros coinciden.</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">right</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">left</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="p">(</span><span class="n">nums</span><span class="p">[</span><span class="n">left</span><span class="p">],</span><span class="w"> </span><span class="n">nums</span><span class="p">[</span><span class="n">right</span><span class="p">])</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">nums</span><span class="p">[</span><span class="n">right</span><span class="p">],</span><span class="w"> </span><span class="n">nums</span><span class="p">[</span><span class="n">left</span><span class="p">]);</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">            </span><span class="n">left</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="por-que-left-right-siempre">Por qué <code>left ≤ right</code> siempre<a class="headerlink" href="#por-que-left-right-siempre" title="anchor">&para;</a></h2>
+<p>Una <strong>invariante</strong> importante: en este algoritmo, <code>left</code> <strong>nunca supera</strong> a <code>right</code>.</p>
+<ul>
+<li><code>left</code> empieza en 0 igual que <code>right</code>.</li>
+<li><code>left</code> solo avanza después de que <code>right</code> ya está en una posición válida.</li>
+<li>En cada iteración del for-loop, <code>right</code> avanza al final, así que después de incrementar <code>left</code> por un swap, <code>right</code> se incrementa también → <code>left ≤ right</code> se mantiene.</li>
+</ul>
+<p>Esto garantiza que <strong>nunca</strong> sobrescribís un valor que todavía no leíste. Por eso el swap es seguro y el algoritmo funciona en una sola pasada.</p>
+<hr />
+<h2 id="complexity-analysis">Complexity Analysis<a class="headerlink" href="#complexity-analysis" title="anchor">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Métrica</th>
+<th>Valor</th>
+<th>Por qué</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Tiempo</strong></td>
+<td>O(n)</td>
+<td>El for-loop hace exactamente <code>n</code> iteraciones. Cada iteración es O(1) (comparación + swap opcional).</td>
+</tr>
+<tr>
+<td><strong>Espacio</strong></td>
+<td>O(1)</td>
+<td>Solo <code>left</code> y la variable temporal del swap. No allocamos arrays nuevos.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="comparacion-con-alternativas">Comparación con alternativas<a class="headerlink" href="#comparacion-con-alternativas" title="anchor">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Tiempo</th>
+<th>Espacio</th>
+<th>In-place?</th>
+<th>Preserva orden?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Naive (array auxiliar)</td>
+<td>O(n)</td>
+<td><strong>O(n)</strong></td>
+<td>❌</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>Dos pasadas (escribir no-ceros, después rellenar ceros)</td>
+<td>O(n)</td>
+<td>O(1)</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td><strong>Two pointers (una pasada con swap)</strong></td>
+<td><strong>O(n)</strong></td>
+<td><strong>O(1)</strong></td>
+<td><strong>✓</strong></td>
+<td><strong>✓</strong></td>
+</tr>
+<tr>
+<td>Quicksort partitioning style</td>
+<td>O(n)</td>
+<td>O(1)</td>
+<td>✓</td>
+<td>❌ (no garantiza orden)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Two pointers gana</strong> porque hace <strong>una sola pasada</strong> y preserva el orden. La versión &ldquo;dos pasadas&rdquo; es válida también pero hace más trabajo.</p>
+<h3 id="variante-una-pasada-sin-swap-escribir-rellenar">Variante &ldquo;una pasada sin swap&rdquo; (escribir + rellenar)<a class="headerlink" href="#variante-una-pasada-sin-swap-escribir-rellenar" title="anchor">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">shiftZerosTwoPasses</span><span class="p">(</span><span class="nx">nums</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">write</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// Pasada 1: copiar no-ceros al frente.</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">let</span><span class="w"> </span><span class="nx">read</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span><span class="w"> </span><span class="nx">read</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">nums</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span><span class="w"> </span><span class="nx">read</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">nums</span><span class="p">[</span><span class="nx">read</span><span class="p">]</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">nums</span><span class="p">[</span><span class="nx">write</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">read</span><span class="p">];</span>
+<span class="w">            </span><span class="nx">write</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="c1">// Pasada 2: rellenar el resto con ceros.</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">let</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">write</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">nums</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Misma complexity, pero hace ≤ 2n escrituras vs ≈ n escrituras del swap version. En la práctica son equivalentes.</p>
+<hr />
+<h2 id="test-cases">Test Cases<a class="headerlink" href="#test-cases" title="anchor">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Input</th>
+<th>Expected</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>[]</code></td>
+<td><code>[]</code></td>
+<td>Array vacío.</td>
+</tr>
+<tr>
+<td><code>[0]</code></td>
+<td><code>[0]</code></td>
+<td>Un solo cero.</td>
+</tr>
+<tr>
+<td><code>[1]</code></td>
+<td><code>[1]</code></td>
+<td>Un solo no-cero.</td>
+</tr>
+<tr>
+<td><code>[0, 0, 0]</code></td>
+<td><code>[0, 0, 0]</code></td>
+<td>Todos ceros.</td>
+</tr>
+<tr>
+<td><code>[1, 3, 2]</code></td>
+<td><code>[1, 3, 2]</code></td>
+<td>Sin ceros — sin cambios.</td>
+</tr>
+<tr>
+<td><code>[1, 1, 1, 0, 0]</code></td>
+<td><code>[1, 1, 1, 0, 0]</code></td>
+<td>Ceros ya al final.</td>
+</tr>
+<tr>
+<td><code>[0, 0, 1, 1, 1]</code></td>
+<td><code>[1, 1, 1, 0, 0]</code></td>
+<td>Ceros al principio.</td>
+</tr>
+<tr>
+<td><code>[0, 1, 0, 3, 2]</code></td>
+<td><code>[1, 3, 2, 0, 0]</code></td>
+<td>Caso del enunciado.</td>
+</tr>
+<tr>
+<td><code>[1, 0, 1, 0, 1]</code></td>
+<td><code>[1, 1, 1, 0, 0]</code></td>
+<td>Alternados.</td>
+</tr>
+<tr>
+<td><code>[4, 2, 4, 0, 0, 3, 0, 5, 1, 0]</code></td>
+<td><code>[4, 2, 4, 3, 5, 1, 0, 0, 0, 0]</code></td>
+<td>Mix grande.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="amplification-variantes-y-patrones-relacionados">⭐ Amplification: variantes y patrones relacionados<a class="headerlink" href="#amplification-variantes-y-patrones-relacionados" title="anchor">&para;</a></h2>
+<h3 id="variante-1-remove-element-leetcode-27">Variante 1: Remove Element (LeetCode #27)<a class="headerlink" href="#variante-1-remove-element-leetcode-27" title="anchor">&para;</a></h3>
+<p><em>&ldquo;Eliminar todas las apariciones de un valor específico in-place. Devolver la nueva longitud.&rdquo;</em></p>
+<p>Idéntico al patrón:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">removeElement</span><span class="p">(</span><span class="nx">nums</span><span class="p">,</span><span class="w"> </span><span class="nx">val</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">let</span><span class="w"> </span><span class="nx">right</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span><span class="w"> </span><span class="nx">right</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">nums</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span><span class="w"> </span><span class="nx">right</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">nums</span><span class="p">[</span><span class="nx">right</span><span class="p">]</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="nx">val</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">nums</span><span class="p">[</span><span class="nx">left</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">right</span><span class="p">];</span>
+<span class="w">            </span><span class="nx">left</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">left</span><span class="p">;</span><span class="w">  </span><span class="c1">// nueva longitud</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><strong>Diferencia con shift-zeros:</strong> acá no necesitás preservar los valores &ldquo;removidos&rdquo; al final, así que no hay swap — solo escribís <code>nums[left] = nums[right]</code> (overwrite).</p>
+<h3 id="variante-2-remove-duplicates-from-sorted-array-leetcode-26">Variante 2: Remove Duplicates from Sorted Array (LeetCode #26)<a class="headerlink" href="#variante-2-remove-duplicates-from-sorted-array-leetcode-26" title="anchor">&para;</a></h3>
+<p><em>&ldquo;Eliminar duplicados in-place de un array sorted. Devolver la nueva longitud.&rdquo;</em></p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">removeDuplicates</span><span class="p">(</span><span class="nx">nums</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">nums</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">let</span><span class="w"> </span><span class="nx">right</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1</span><span class="p">;</span><span class="w"> </span><span class="nx">right</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">nums</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span><span class="w"> </span><span class="nx">right</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">nums</span><span class="p">[</span><span class="nx">right</span><span class="p">]</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">right</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span><span class="p">])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">nums</span><span class="p">[</span><span class="nx">left</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">right</span><span class="p">];</span>
+<span class="w">            </span><span class="nx">left</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">left</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Mismo esqueleto: <code>left</code> apunta a dónde escribir, <code>right</code> recorre.</p>
+<h3 id="variante-3-sort-colors-dutch-flag-leetcode-75">Variante 3: Sort Colors / Dutch Flag (LeetCode #75)<a class="headerlink" href="#variante-3-sort-colors-dutch-flag-leetcode-75" title="anchor">&para;</a></h3>
+<p><em>&ldquo;Ordenar in-place un array que contiene solo 0, 1, 2 — sin usar sort.&rdquo;</em></p>
+<p>Necesita <strong>tres punteros</strong> (low, mid, high). Es una generalización de shift-zeros:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">sortColors</span><span class="p">(</span><span class="nx">nums</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">low</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">mid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">high</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">nums</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nx">mid</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="nx">high</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">nums</span><span class="p">[</span><span class="nx">mid</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="p">[</span><span class="nx">nums</span><span class="p">[</span><span class="nx">low</span><span class="p">],</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">mid</span><span class="p">]]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="nx">nums</span><span class="p">[</span><span class="nx">mid</span><span class="p">],</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">low</span><span class="p">]];</span>
+<span class="w">            </span><span class="nx">low</span><span class="o">++</span><span class="p">;</span>
+<span class="w">            </span><span class="nx">mid</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">nums</span><span class="p">[</span><span class="nx">mid</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">mid</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w">  </span><span class="c1">// nums[mid] === 2</span>
+<span class="w">            </span><span class="p">[</span><span class="nx">nums</span><span class="p">[</span><span class="nx">mid</span><span class="p">],</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">high</span><span class="p">]]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="nx">nums</span><span class="p">[</span><span class="nx">high</span><span class="p">],</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">mid</span><span class="p">]];</span>
+<span class="w">            </span><span class="nx">high</span><span class="o">--</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><code>low</code> separa los 0s de los 1s; <code>high</code> separa los 1s de los 2s; <code>mid</code> es el cursor de exploración. <strong>Patrón &ldquo;Three-way partitioning&rdquo;.</strong></p>
+<h3 id="el-meta-patron-read-pointer-write-pointer">El meta-patrón: read pointer + write pointer<a class="headerlink" href="#el-meta-patron-read-pointer-write-pointer" title="anchor">&para;</a></h3>
+<p>Todas estas variantes comparten la misma estructura:</p>
+<ol>
+<li>Un <strong>read pointer</strong> (<code>right</code>) que <strong>siempre avanza</strong>, escaneando.</li>
+<li>Un <strong>write pointer</strong> (<code>left</code>) que avanza <strong>solo cuando se escribe</strong> un valor &ldquo;válido&rdquo;.</li>
+<li>La condición para escribir cambia según el problema (no-cero, no-igual-al-anterior, no-igual-a-val).</li>
+</ol>
+<p>Una vez que lo internalizás, <strong>una familia entera de problemas se resuelve igual</strong>.</p>
+<h3 id="variante-4-mover-los-ceros-al-principio">Variante 4: Mover los CEROS al PRINCIPIO<a class="headerlink" href="#variante-4-mover-los-ceros-al-principio" title="anchor">&para;</a></h3>
+<p>(simétrico) — recorrés desde la derecha:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">shiftZerosToTheStart</span><span class="p">(</span><span class="nx">nums</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">right</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">nums</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">let</span><span class="w"> </span><span class="nx">left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">nums</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span><span class="p">;</span><span class="w"> </span><span class="nx">left</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span><span class="w"> </span><span class="nx">left</span><span class="o">--</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">nums</span><span class="p">[</span><span class="nx">left</span><span class="p">]</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">left</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="nx">right</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="p">[</span><span class="nx">nums</span><span class="p">[</span><span class="nx">left</span><span class="p">],</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">right</span><span class="p">]]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="nx">nums</span><span class="p">[</span><span class="nx">right</span><span class="p">],</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">left</span><span class="p">]];</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">            </span><span class="nx">right</span><span class="o">--</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Cambio: las direcciones de los punteros se invierten.</p>
+<hr />
+<h2 id="pitfalls">⚠️ Pitfalls<a class="headerlink" href="#pitfalls" title="anchor">&para;</a></h2>
+<ul>
+<li><strong>Avanzar <code>left</code> siempre, no solo en match.</strong> Si <code>left++</code> cuando RIGHT está en cero, perdés la posición de escritura.</li>
+<li><strong>Olvidar el swap.</strong> Si solo hacés <code>nums[left] = nums[right]</code> (overwrite) sin swap, <strong>perdés el valor de <code>nums[left]</code></strong> — y para shift-zeros eso era un cero útil, lo necesitás conservar para que aparezca al final.</li>
+<li><strong>Asumir que el problema pide devolver el array.</strong> El enunciado dice &ldquo;modify in place&rdquo; — la firma típica devuelve <code>void</code> (no <code>int[]</code>).</li>
+<li><strong>No considerar arrays sin ceros o solo ceros.</strong> El algoritmo los maneja bien sin código extra. No agregues casos especiales.</li>
+<li><strong>Confundir con remove-element.</strong> En remove-element no importan los valores removidos (devolvés solo la nueva longitud). En shift-zeros sí necesitás que los ceros queden al final con el conteo correcto — por eso swap, no overwrite.</li>
+</ul>
+<hr />
+<h2 id="interview-tips">Interview Tips<a class="headerlink" href="#interview-tips" title="anchor">&para;</a></h2>
+<p><strong>Tip 1 — Reformulá el problema.</strong>
+Decí: <em>&ldquo;En vez de mover ceros al final, voy a mover no-ceros al principio. Es el mismo resultado, pero más fácil de razonar.&rdquo;</em> Mostrar que cambiás el ángulo del problema impresiona.</p>
+<p><strong>Tip 2 — Aclará los constraints.</strong></p>
+<ul>
+<li>¿Tengo que devolver algo? (típicamente no, porque es in-place).</li>
+<li>¿Importa el orden de los ceros entre sí? (no, son indistinguibles).</li>
+<li>¿Importa el orden relativo de los no-ceros? (sí, hay que preservarlo).</li>
+<li>¿Puedo usar memoria extra? (no, in-place).</li>
+</ul>
+<p><strong>Tip 3 — Habla de la invariante.</strong>
+Decí: <em>&ldquo;En cada iteración, todo a la izquierda de <code>left</code> son los no-ceros encontrados hasta ahora, en orden. Entre <code>left</code> y <code>right</code> hay solo ceros. <code>right</code> busca el siguiente no-cero.&rdquo;</em></p>
+<p><strong>Tip 4 — Si el follow-up es &ldquo;minimizá las escrituras&rdquo;, tirá la versión sin swap.</strong>
+La versión &ldquo;dos pasadas&rdquo; hace ≤ 2n escrituras. La versión swap hace ≤ n swaps (cada swap = 2 escrituras), pero <strong>muchos pueden ser self-swaps</strong>. Ambas son O(n) pero pueden tener constants distintas. Mostrar que pensaste en eso suma.</p>
+<p><strong>Tip 5 — La complejidad es O(n) tiempo, O(1) espacio.</strong>
+Sabela en frío. Es la clase de problema que aparece en screen rounds.</p>
+<hr />
+<h2 id="references">References<a class="headerlink" href="#references" title="anchor">&para;</a></h2>
+<ul>
+<li>LeetCode — <a href="https://leetcode.com/problems/move-zeroes/">#283 Move Zeroes</a></li>
+<li>LeetCode — <a href="https://leetcode.com/problems/remove-element/">#27 Remove Element</a> (variante)</li>
+<li>LeetCode — <a href="https://leetcode.com/problems/remove-duplicates-from-sorted-array/">#26 Remove Duplicates from Sorted Array</a> (variante)</li>
+<li>LeetCode — <a href="https://leetcode.com/problems/sort-colors/">#75 Sort Colors</a> (Dutch flag, tres punteros)</li>
+<li>Coding Interview Patterns — capítulo &ldquo;Two Pointers&rdquo; → &ldquo;Shift Zeros to the End&rdquo;</li>
+<li>Entradas relacionadas:</li>
+<li><a href="./introduction.html">Introduction to Two Pointers</a></li>
+</ul>
+<hr />
+<blockquote>
+<p>📍 <strong>Two Pointers · Problema 5/6</strong> · <a href="./is-palindrome-valid.html">⬅ Is Palindrome Valid</a> · <a href="./introduction.html">🏠 Chapter</a> · <a href="./next-lexicographical-sequence.html">Next Lex Sequence ➡</a> · <a href="../../../../index.html">📚 KB Index</a></p>
+</blockquote>
+      <nav class="prev-next"><a class="prev" href="is-palindrome-valid.html"><div class="label">← Anterior</div><div class="title">Is Palindrome Valid</div></a><a class="next" href="next-lexicographical-sequence.html"><div class="label">Siguiente →</div><div class="title">Next Lexicographical Sequence</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="shift-zeros-to-the-end.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

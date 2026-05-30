@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Largest Container · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 1 — Two Pointers</span><span class="sep">/</span><span class="current">Largest Container</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <ul class="toc">
+<li class="toc-h2"><a href="#in-this-entry">📑 In this entry</a></li>
+<li class="toc-h2"><a href="#for-dummies-empeza-por-aca">🎓 For Dummies — empezá por acá</a></li>
+<li class="toc-h3"><a href="#trampas-comunes">Trampas comunes</a></li>
+<li class="toc-h2"><a href="#problema">Problema</a></li>
+<li class="toc-h3"><a href="#ejemplo">Ejemplo</a></li>
+<li class="toc-h2"><a href="#como-se-calcula-el-agua">Cómo se calcula el agua</a></li>
+<li class="toc-h3"><a href="#ejemplo-visual">Ejemplo visual</a></li>
+<li class="toc-h2"><a href="#brute-force-on2-y-por-que-no-alcanza">Brute force O(n²) y por qué no alcanza</a></li>
+<li class="toc-h2"><a href="#la-intuicion-clave-maximizar-ancho-primero">La intuición clave: maximizar ancho primero</a></li>
+<li class="toc-h2"><a href="#por-que-siempre-se-mueve-la-columna-mas-baja">Por qué siempre se mueve la columna más baja</a></li>
+<li class="toc-h3"><a href="#y-si-las-dos-son-iguales">¿Y si las dos son iguales?</a></li>
+<li class="toc-h2"><a href="#trace-paso-a-paso">Trace paso a paso</a></li>
+<li class="toc-h2"><a href="#decision-flowchart">Decision flowchart</a></li>
+<li class="toc-h2"><a href="#implementacion">Implementación</a></li>
+<li class="toc-h3"><a href="#javascript">JavaScript</a></li>
+<li class="toc-h3"><a href="#c">C</a></li>
+<li class="toc-h2"><a href="#complexity-analysis">Complexity Analysis</a></li>
+<li class="toc-h3"><a href="#demostracion-informal-de-correctness">Demostración informal de correctness</a></li>
+<li class="toc-h2"><a href="#test-cases">Test Cases</a></li>
+<li class="toc-h2"><a href="#amplification-trapping-rain-water-variante-hermana">⭐ Amplification: Trapping Rain Water (variante hermana)</a></li>
+<li class="toc-h3"><a href="#diferencia-conceptual">Diferencia conceptual</a></li>
+<li class="toc-h3"><a href="#trapping-rain-water-solucion-con-two-pointers">Trapping Rain Water — solución con two pointers</a></li>
+<li class="toc-h3"><a href="#cuando-es-container-vs-rain-water">Cuándo es “container” vs “rain water”</a></li>
+<li class="toc-h2"><a href="#pitfalls">⚠️ Pitfalls</a></li>
+<li class="toc-h2"><a href="#interview-tips">Interview Tips</a></li>
+<li class="toc-h2"><a href="#references">References</a></li>
+</ul>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Largest Container</h1>
+  <div class="meta-row">
+    <span class="status-badge active">✓ active</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-08</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">two-pointers</span><span class="meta-tag">interview-prep</span><span class="meta-tag">inward-traversal</span><span class="meta-tag">geometry</span></div>
+</header>
+      
+      <blockquote>
+<p>📍 <strong>Two Pointers · Problema 3/6</strong> · <a href="./triplet-sum.html">⬅ Triplet Sum</a> · <a href="./introduction.html">🏠 Chapter</a> · <a href="./is-palindrome-valid.html">Is Palindrome Valid ➡</a> · <a href="../../../../index.html">📚 KB Index</a></p>
+<p><strong>TL;DR</strong> — Dado un array donde cada valor es la altura de una columna, encontrá el par de columnas que <strong>contengan más agua</strong> (área = <code>min(altura) × ancho</code>). Two pointers desde los extremos: empezás con el ancho máximo, y movés siempre el puntero de la <strong>columna más baja</strong> hacia adentro, esperando encontrar una más alta. <strong>O(n) tiempo, O(1) espacio.</strong></p>
+</blockquote>
+<hr />
+<h2 id="in-this-entry">📑 In this entry<a class="headerlink" href="#in-this-entry" title="anchor">&para;</a></h2>
+<ol>
+<li><a href="#-for-dummies--empezá-por-acá">🎓 For Dummies — empezá por acá</a></li>
+<li><a href="#problema">Problema</a></li>
+<li><a href="#cómo-se-calcula-el-agua">Cómo se calcula el agua</a></li>
+<li><a href="#brute-force-on-y-por-qué-no-alcanza">Brute force O(n²) y por qué no alcanza</a></li>
+<li><a href="#la-intuición-clave-maximizar-ancho-primero">La intuición clave: maximizar ancho primero</a></li>
+<li><a href="#por-qué-siempre-se-mueve-la-columna-más-baja">Por qué siempre se mueve la columna más baja</a></li>
+<li><a href="#trace-paso-a-paso">Trace paso a paso</a></li>
+<li><a href="#decision-flowchart">Decision flowchart</a></li>
+<li><a href="#implementación">Implementación</a></li>
+<li><a href="#complexity-analysis">Complexity Analysis</a></li>
+<li><a href="#test-cases">Test Cases</a></li>
+<li><a href="#-amplification-trapping-rain-water-variante-hermana">⭐ Amplification: Trapping Rain Water (variante hermana)</a></li>
+<li><a href="#️-pitfalls">⚠️ Pitfalls</a></li>
+<li><a href="#interview-tips">Interview Tips</a></li>
+</ol>
+<hr />
+<h2 id="for-dummies-empeza-por-aca">🎓 For Dummies — empezá por acá<a class="headerlink" href="#for-dummies-empeza-por-aca" title="anchor">&para;</a></h2>
+<p><strong>Analogía:</strong> imaginá una <strong>fila de paredes verticales de distintas alturas</strong>, todas paradas sobre el suelo. Querés llenar de agua <strong>el espacio entre dos paredes</strong> (cualquier par). El agua queda <strong>contenida</strong> entre las dos paredes y el suelo. Tu pregunta: ¿qué par de paredes guarda <strong>la mayor cantidad de agua</strong>?</p>
+<div class="highlight"><pre><span></span><code>Altura
+  8 |       ▓
+  7 |    ▓  ▓     ▓
+  6 |    ▓  ▓     ▓  ▓
+  5 |    ▓  ▓     ▓  ▓
+  4 |    ▓  ▓     ▓  ▓
+  3 |    ▓  ▓  ▓  ▓  ▓
+  2 | ▓  ▓  ▓  ▓  ▓  ▓
+  1 | ▓  ▓  ▓  ▓  ▓  ▓
+    +─────────────────
+      0  1  2  3  4  5      heights = [2, 7, 8, 3, 7, 6]
+</code></pre></div>
+<p><strong>Dos verdades obvias:</strong></p>
+<ol>
+<li>El agua llega <strong>a la altura de la pared más baja</strong> del par. Si una pared mide 2 y la otra 8, el agua llega a 2 — todo lo que esté arriba se rebalsa.</li>
+<li>La cantidad de agua es <strong><code>altura × ancho</code></strong>, donde <code>ancho</code> es la distancia entre las dos paredes.</li>
+</ol>
+<p><strong>¿Cómo encontrar el mejor par sin probar todos?</strong></p>
+<p>Empezá con <strong>el par más ancho posible</strong>: la primera pared y la última. Ese es tu primer candidato. Después, <strong>acercá los punteros</strong>, pero hay que elegir cuál mover:</p>
+<ul>
+<li>Si la pared izquierda es <strong>más baja</strong> → movés el puntero <strong>izquierdo</strong> hacia adentro. ¿Por qué? Porque la pared baja <strong>es la que limita</strong> el agua. Si moveras la alta, el ancho disminuye y la altura no mejora (sigue limitada por la baja).</li>
+<li>Si la pared derecha es <strong>más baja</strong> → movés el puntero <strong>derecho</strong> hacia adentro.</li>
+<li>Si ambas miden lo mismo → movés cualquiera (o las dos), porque el ancho va a bajar de todos modos y solo una pared más alta no alcanza para subir el agua.</li>
+</ul>
+<p>En cada paso, calculás el área del par actual y la comparás con el máximo registrado.</p>
+<h3 id="trampas-comunes">Trampas comunes<a class="headerlink" href="#trampas-comunes" title="anchor">&para;</a></h3>
+<ul>
+<li>⚠️ <strong>Querer mover siempre el mismo lado.</strong> No: la regla es <em>mover el lado </em><em>más bajo</em>**, no &ldquo;siempre el izquierdo&rdquo; o &ldquo;siempre el derecho&rdquo;.</li>
+<li>⚠️ <strong>Pensar que es &ldquo;trapping rain water&rdquo;.</strong> Son problemas <strong>distintos</strong>. Largest Container = encontrar <strong>un solo par</strong> que maximice el área. Trapping Rain Water = sumar el agua que queda en <strong>todos los huecos</strong> entre todas las columnas. Ver <a href="#-amplification-trapping-rain-water-variante-hermana">Amplification</a>.</li>
+<li>⚠️ <strong>No actualizar el máximo en cada iteración.</strong> Hay que comparar el área de cada par contra el máximo, <strong>antes</strong> de mover los punteros.</li>
+</ul>
+<p>¿Listo para la versión completa? ⬇️</p>
+<hr />
+<h2 id="problema">Problema<a class="headerlink" href="#problema" title="anchor">&para;</a></h2>
+<p>Te dan un array de números, cada uno representando la <strong>altura</strong> de una línea vertical en un gráfico. Un &ldquo;container&rdquo; se forma con cualquier par de líneas más el eje X. Devolvé la <strong>cantidad de agua que el contenedor más grande puede sostener</strong>.</p>
+<h3 id="ejemplo">Ejemplo<a class="headerlink" href="#ejemplo" title="anchor">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>Input:  heights = [2, 7, 8, 3, 7, 6]
+Output: 24
+</code></pre></div>
+<p>El par óptimo es <code>heights[1] = 7</code> y <code>heights[4] = 7</code>:</p>
+<ul>
+<li>altura = <code>min(7, 7) = 7</code></li>
+<li>ancho = <code>4 - 1 = 3</code></li>
+<li>agua = <code>7 × 3 = 21</code></li>
+</ul>
+<p>Espera&hellip; 21, no 24. Déjenme recalcular. El par óptimo es <code>heights[1] = 7</code> y <code>heights[5] = 6</code>:</p>
+<ul>
+<li>altura = <code>min(7, 6) = 6</code></li>
+<li>ancho = <code>5 - 1 = 4</code></li>
+<li>agua = <code>6 × 4 = **24**</code> ✓</li>
+</ul>
+<hr />
+<h2 id="como-se-calcula-el-agua">Cómo se calcula el agua<a class="headerlink" href="#como-se-calcula-el-agua" title="anchor">&para;</a></h2>
+<p>Para dos columnas en posiciones <code>i</code> y <code>j</code> con alturas <code>heights[i]</code> y <code>heights[j]</code>:</p>
+<div class="highlight"><pre><span></span><code>agua = min(heights[i], heights[j]) × (j - i)
+</code></pre></div>
+<ul>
+<li><code>min(heights[i], heights[j])</code>: la altura de la <strong>más baja</strong>, porque arriba de esa altura el agua se rebalsa por el lado bajo.</li>
+<li><code>(j - i)</code>: el <strong>ancho</strong> entre las dos columnas.</li>
+</ul>
+<h3 id="ejemplo-visual">Ejemplo visual<a class="headerlink" href="#ejemplo-visual" title="anchor">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>Altura
+  4 | ▓                                  ░░░░░░░░░░
+  3 | ▓        ░░░░░░░░░░░░░░░░░░░░░░░░  ▓░░░░░░░░░
+  2 | ▓░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░▓░░░░░░░░░
+  1 | ▓░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░▓░░░░░░░░░
+    +─────────────────────────────────────────────
+      0           1           2           3
+                   ◄────── ancho = 2 ──────►
+
+  heights[0]=4, heights[2]=3
+  agua = min(4, 3) × (2 - 0) = 3 × 2 = 6
+</code></pre></div>
+<hr />
+<h2 id="brute-force-on2-y-por-que-no-alcanza">Brute force O(n²) y por qué no alcanza<a class="headerlink" href="#brute-force-on2-y-por-que-no-alcanza" title="anchor">&para;</a></h2>
+<p>Probás todas las parejas y te quedás con el área máxima:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">largestContainerBruteForce</span><span class="p">(</span><span class="nx">heights</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">heights</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">maxWater</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">let</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">n</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">let</span><span class="w"> </span><span class="nx">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span><span class="p">;</span><span class="w"> </span><span class="nx">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">n</span><span class="p">;</span><span class="w"> </span><span class="nx">j</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kd">const</span><span class="w"> </span><span class="nx">water</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Math</span><span class="p">.</span><span class="nx">min</span><span class="p">(</span><span class="nx">heights</span><span class="p">[</span><span class="nx">i</span><span class="p">],</span><span class="w"> </span><span class="nx">heights</span><span class="p">[</span><span class="nx">j</span><span class="p">])</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="nx">j</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">i</span><span class="p">);</span>
+<span class="w">            </span><span class="nx">maxWater</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">(</span><span class="nx">maxWater</span><span class="p">,</span><span class="w"> </span><span class="nx">water</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">maxWater</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><strong>Tiempo:</strong> O(n²). Para <code>n = 10⁵</code>, eso es 10¹⁰ operaciones. Inviable.</p>
+<hr />
+<h2 id="la-intuicion-clave-maximizar-ancho-primero">La intuición clave: maximizar ancho primero<a class="headerlink" href="#la-intuicion-clave-maximizar-ancho-primero" title="anchor">&para;</a></h2>
+<p>Queremos <strong>maximizar <code>min(altura) × ancho</code></strong>. Las dos cantidades cambian de manera distinta cuando movemos punteros:</p>
+<table>
+<thead>
+<tr>
+<th>Movimiento</th>
+<th>Ancho</th>
+<th>Altura</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mover puntero hacia adentro</td>
+<td><strong>disminuye</strong> siempre</td>
+<td>puede subir o bajar</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Estrategia:</strong> empezamos con el ancho <strong>máximo posible</strong> (<code>right - left = n - 1</code>). Después, cada movimiento sacrifica ancho con la <strong>esperanza</strong> de ganar más altura. La pregunta es: ¿qué puntero mover para maximizar las chances de ganar altura?</p>
+<p>Como el ancho <strong>siempre baja</strong> al movernos hacia adentro, la única forma de aumentar el área es <strong>subir la altura</strong>. Y la altura está limitada por la columna <strong>más baja</strong>.</p>
+<hr />
+<h2 id="por-que-siempre-se-mueve-la-columna-mas-baja">Por qué siempre se mueve la columna más baja<a class="headerlink" href="#por-que-siempre-se-mueve-la-columna-mas-baja" title="anchor">&para;</a></h2>
+<p>Supongamos <code>heights[left] &lt; heights[right]</code>. La altura del agua está dictada por <code>heights[left]</code>. Tenemos dos opciones:</p>
+<p><strong>Opción A — mover <code>left++</code>:</strong> la nueva <code>heights[left]</code> puede ser <strong>mayor</strong> que la anterior, igual, o menor. Existe la posibilidad de <strong>subir la altura del agua</strong> si encontramos algo más alto. ✓</p>
+<p><strong>Opción B — mover <code>right--</code>:</strong> la altura sigue limitada por <code>heights[left]</code> (que no cambió). Aunque la nueva <code>heights[right]</code> fuera enorme, <strong>el agua no sube</strong> porque depende del lado bajo. Y el ancho sí baja. <strong>Garantiza un área menor o igual.</strong> ✗</p>
+<p>Por lo tanto: <strong>mover el puntero del lado bajo es la única jugada que puede mejorar el área</strong>. La del lado alto solo puede empeorar.</p>
+<div class="highlight"><pre><span></span><code>heights[left]=2  ◄  heights[right]=8
+
+  ▓                              ▓
+  ▓                              ▓
+  ▓                              ▓
+  ▓                              ▓
+  ▓                              ▓
+  ▓                              ▓
+  ▓░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░▓
+   ▲                              ▲
+  left                          right
+
+agua actual = min(2, 8) × (5) = 10
+
+Si muevo left  → la altura puede subir si la próxima pared es ≥ 2
+Si muevo right → la altura sigue siendo 2 (limitada por left), y el ancho baja
+                 → área garantizadamente menor
+</code></pre></div>
+<h3 id="y-si-las-dos-son-iguales">¿Y si las dos son iguales?<a class="headerlink" href="#y-si-las-dos-son-iguales" title="anchor">&para;</a></h3>
+<p>Si <code>heights[left] == heights[right]</code>, la altura está limitada por las <strong>dos</strong>. Mover <strong>una sola</strong> no sirve: aunque la nueva pared sea más alta, la otra sigue siendo el techo. La única forma de subir la altura es <strong>mover ambas</strong> (o, equivalentemente, mover una sabiendo que en la próxima iteración igual vas a tener que mover la otra). Por eficiencia, movés ambas a la vez.</p>
+<hr />
+<h2 id="trace-paso-a-paso">Trace paso a paso<a class="headerlink" href="#trace-paso-a-paso" title="anchor">&para;</a></h2>
+<p>Ejemplo: <code>heights = [2, 7, 8, 3, 7, 6]</code>. Esperamos <code>max_water = 24</code>.</p>
+<p><img alt="Largest Container trace" src="../../img/tp-fig-lc-01-trace.png" /></p>
+<p><strong>Resultado:</strong> <code>max_water = 24</code> ✓</p>
+<p><strong>Solo 4 iteraciones</strong> para un array de 6 elementos, vs <strong>15 comparaciones</strong> del brute force (6×5/2). El ahorro escala linealmente.</p>
+<hr />
+<h2 id="decision-flowchart">Decision flowchart<a class="headerlink" href="#decision-flowchart" title="anchor">&para;</a></h2>
+<p><img alt="Largest Container flowchart" src="../../img/tp-fig-lc-02-flow.png" /></p>
+<hr />
+<h2 id="implementacion">Implementación<a class="headerlink" href="#implementacion" title="anchor">&para;</a></h2>
+<h3 id="javascript">JavaScript<a class="headerlink" href="#javascript" title="anchor">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">largestContainer</span><span class="p">(</span><span class="nx">heights</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">maxWater</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">right</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">heights</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nx">left</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">right</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Calcular agua con el par actual.</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">water</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Math</span><span class="p">.</span><span class="nx">min</span><span class="p">(</span><span class="nx">heights</span><span class="p">[</span><span class="nx">left</span><span class="p">],</span><span class="w"> </span><span class="nx">heights</span><span class="p">[</span><span class="nx">right</span><span class="p">])</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="nx">right</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">left</span><span class="p">);</span>
+<span class="w">        </span><span class="nx">maxWater</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">(</span><span class="nx">maxWater</span><span class="p">,</span><span class="w"> </span><span class="nx">water</span><span class="p">);</span>
+<span class="w">        </span><span class="c1">// Mover el puntero del lado más bajo (o ambos si están empatados).</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">heights</span><span class="p">[</span><span class="nx">left</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">heights</span><span class="p">[</span><span class="nx">right</span><span class="p">])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">left</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">heights</span><span class="p">[</span><span class="nx">left</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="nx">heights</span><span class="p">[</span><span class="nx">right</span><span class="p">])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">right</span><span class="o">--</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">left</span><span class="o">++</span><span class="p">;</span>
+<span class="w">            </span><span class="nx">right</span><span class="o">--</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">maxWater</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="c">C<a class="headerlink" href="#c" title="anchor">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">LargestContainer</span><span class="p">(</span><span class="kt">int</span><span class="p">[]</span><span class="w"> </span><span class="n">heights</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">maxWater</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">right</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">heights</span><span class="p">.</span><span class="n">Length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">left</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">right</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Calcular agua con el par actual.</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">water</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Math</span><span class="p">.</span><span class="n">Min</span><span class="p">(</span><span class="n">heights</span><span class="p">[</span><span class="n">left</span><span class="p">],</span><span class="w"> </span><span class="n">heights</span><span class="p">[</span><span class="n">right</span><span class="p">])</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="n">right</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">left</span><span class="p">);</span>
+<span class="w">        </span><span class="n">maxWater</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Math</span><span class="p">.</span><span class="n">Max</span><span class="p">(</span><span class="n">maxWater</span><span class="p">,</span><span class="w"> </span><span class="n">water</span><span class="p">);</span>
+<span class="w">        </span><span class="c1">// Mover el puntero del lado más bajo (o ambos si están empatados).</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">heights</span><span class="p">[</span><span class="n">left</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">heights</span><span class="p">[</span><span class="n">right</span><span class="p">])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">left</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">heights</span><span class="p">[</span><span class="n">left</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">heights</span><span class="p">[</span><span class="n">right</span><span class="p">])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">right</span><span class="o">--</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">left</span><span class="o">++</span><span class="p">;</span>
+<span class="w">            </span><span class="n">right</span><span class="o">--</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">maxWater</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<blockquote>
+<p><strong>Variante de código:</strong> podés simplificar la triple decisión a <strong>siempre mover el más bajo y, si empatan, mover cualquiera</strong>. Es equivalente porque cuando empatan, el siguiente paso de todos modos va a comparar y mover. Pero el código de arriba es más explícito sobre la lógica.</p>
+</blockquote>
+<hr />
+<h2 id="complexity-analysis">Complexity Analysis<a class="headerlink" href="#complexity-analysis" title="anchor">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Métrica</th>
+<th>Valor</th>
+<th>Por qué</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Tiempo</strong></td>
+<td>O(n)</td>
+<td>Cada iteración mueve <code>left++</code>, <code>right--</code>, o ambos. Como nunca retroceden, el total de movimientos es ≤ n.</td>
+</tr>
+<tr>
+<td><strong>Espacio</strong></td>
+<td>O(1)</td>
+<td>Solo <code>max_water</code>, <code>left</code>, <code>right</code>, <code>water</code>. No depende de n.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="demostracion-informal-de-correctness">Demostración informal de correctness<a class="headerlink" href="#demostracion-informal-de-correctness" title="anchor">&para;</a></h3>
+<p>Cuando movemos el puntero del lado bajo (digamos <code>left</code>), descartamos <strong>todos los pares <code>(left, j)</code> con <code>j</code> entre <code>left+1</code> y <code>right</code></strong>. ¿Por qué es seguro?</p>
+<ul>
+<li>Para cualquier <code>j</code> entre <code>left+1</code> y <code>right</code>, el ancho <code>(j - left)</code> es <strong>menor</strong> que <code>(right - left)</code>.</li>
+<li>La altura sigue limitada por <code>heights[left]</code> (que es la más baja del par actual) o por algo más bajo todavía si <code>heights[j] &lt; heights[left]</code>.</li>
+<li>En cualquier caso, <code>min × ancho &lt; min × (right - left) = water</code> actual.</li>
+</ul>
+<p>Por lo tanto, mover <code>left</code> no descarta una solución mejor. <strong>Lo mismo con <code>right</code>.</strong> Como cada iteración descarta un puntero (y todas sus combinaciones con ese índice), el algoritmo es correcto.</p>
+<hr />
+<h2 id="test-cases">Test Cases<a class="headerlink" href="#test-cases" title="anchor">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Input</th>
+<th>Expected</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>[]</code></td>
+<td>0</td>
+<td>Array vacío.</td>
+</tr>
+<tr>
+<td><code>[1]</code></td>
+<td>0</td>
+<td>Un solo elemento — no se puede formar contenedor.</td>
+</tr>
+<tr>
+<td><code>[0, 1, 0]</code></td>
+<td>0</td>
+<td>Sin contenedores que sostengan agua (la columna del medio &ldquo;tapa&rdquo;).</td>
+</tr>
+<tr>
+<td><code>[3, 3, 3, 3]</code></td>
+<td>9</td>
+<td>Todas iguales: <code>3 × 3 = 9</code> (de índice 0 a 3).</td>
+</tr>
+<tr>
+<td><code>[1, 2, 3]</code></td>
+<td>2</td>
+<td>Estrictamente creciente. Mejor par: <code>(0, 2)</code> → <code>min(1, 3) × 2 = 2</code>.</td>
+</tr>
+<tr>
+<td><code>[3, 2, 1]</code></td>
+<td>2</td>
+<td>Estrictamente decreciente. Mejor: <code>(0, 2)</code> → <code>min(3, 1) × 2 = 2</code>.</td>
+</tr>
+<tr>
+<td><code>[2, 7, 8, 3, 7, 6]</code></td>
+<td>24</td>
+<td>Caso del enunciado.</td>
+</tr>
+<tr>
+<td><code>[1, 8, 6, 2, 5, 4, 8, 3, 7]</code></td>
+<td>49</td>
+<td>Caso clásico de LeetCode #11 (par <code>(1, 8)</code> → <code>min(8, 7) × 7 = 49</code>).</td>
+</tr>
+<tr>
+<td><code>[1, 1]</code></td>
+<td>1</td>
+<td>Mínimo válido: <code>min(1,1) × 1 = 1</code>.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="amplification-trapping-rain-water-variante-hermana">⭐ Amplification: Trapping Rain Water (variante hermana)<a class="headerlink" href="#amplification-trapping-rain-water-variante-hermana" title="anchor">&para;</a></h2>
+<p>Frecuentemente confundido con Largest Container, pero es <strong>otro problema</strong>.</p>
+<h3 id="diferencia-conceptual">Diferencia conceptual<a class="headerlink" href="#diferencia-conceptual" title="anchor">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Largest Container</th>
+<th>Trapping Rain Water</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pregunta</td>
+<td>¿Cuál es el <strong>par único</strong> que sostiene <strong>más agua</strong>?</td>
+<td>¿Cuánta agua <strong>total</strong> queda atrapada <strong>entre todas las columnas</strong>?</td>
+</tr>
+<tr>
+<td>Salida</td>
+<td>un solo número (el área máxima)</td>
+<td>un solo número (suma de toda el agua atrapada)</td>
+</tr>
+<tr>
+<td>Modelo</td>
+<td>el agua llena el espacio entre <strong>dos</strong> paredes</td>
+<td>el agua queda atrapada <strong>encima de cada columna</strong>, limitada por las paredes más altas a su izquierda y derecha</td>
+</tr>
+<tr>
+<td>LeetCode</td>
+<td>#11</td>
+<td>#42</td>
+</tr>
+</tbody>
+</table>
+<h3 id="trapping-rain-water-solucion-con-two-pointers">Trapping Rain Water — solución con two pointers<a class="headerlink" href="#trapping-rain-water-solucion-con-two-pointers" title="anchor">&para;</a></h3>
+<p>Para cada columna <code>i</code>, el agua que queda encima es:</p>
+<div class="highlight"><pre><span></span><code>agua[i] = min(max_left[i], max_right[i]) - heights[i]
+</code></pre></div>
+<p>donde <code>max_left[i]</code> es la altura máxima a la izquierda de <code>i</code>, y <code>max_right[i]</code> análogo a la derecha.</p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">trap</span><span class="p">(</span><span class="nx">heights</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">heights</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">right</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">heights</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">maxLeft</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">maxRight</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">water</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nx">left</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">right</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">heights</span><span class="p">[</span><span class="nx">left</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">heights</span><span class="p">[</span><span class="nx">right</span><span class="p">])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">heights</span><span class="p">[</span><span class="nx">left</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="nx">maxLeft</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nx">maxLeft</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">heights</span><span class="p">[</span><span class="nx">left</span><span class="p">];</span>
+<span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nx">water</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="nx">maxLeft</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">heights</span><span class="p">[</span><span class="nx">left</span><span class="p">];</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">            </span><span class="nx">left</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">heights</span><span class="p">[</span><span class="nx">right</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="nx">maxRight</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nx">maxRight</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">heights</span><span class="p">[</span><span class="nx">right</span><span class="p">];</span>
+<span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nx">water</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="nx">maxRight</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">heights</span><span class="p">[</span><span class="nx">right</span><span class="p">];</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">            </span><span class="nx">right</span><span class="o">--</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">water</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><strong>Tiempo:</strong> O(n). <strong>Espacio:</strong> O(1). Mismo &ldquo;shape&rdquo; del algoritmo (two pointers desde extremos), pero la lógica interna es distinta.</p>
+<h3 id="cuando-es-container-vs-rain-water">Cuándo es &ldquo;container&rdquo; vs &ldquo;rain water&rdquo;<a class="headerlink" href="#cuando-es-container-vs-rain-water" title="anchor">&para;</a></h3>
+<ul>
+<li><em>&ldquo;How much water can the </em><em>container</em><em> hold?&rdquo;</em> → Largest Container (par único).</li>
+<li><em>&ldquo;How much rain water gets </em><em>trapped</em><em>?&rdquo;</em> → Trapping Rain Water (suma total).</li>
+</ul>
+<p>Lee el enunciado dos veces — los problemas se confunden mucho.</p>
+<hr />
+<h2 id="pitfalls">⚠️ Pitfalls<a class="headerlink" href="#pitfalls" title="anchor">&para;</a></h2>
+<ul>
+<li><strong>Mover siempre el mismo puntero.</strong> La regla es <em>mover el lado más bajo</em>, no &ldquo;siempre left&rdquo; o &ldquo;siempre right&rdquo;.</li>
+<li><strong>Olvidar <code>max_water = max(...)</code>.</strong> Sin esto, devolvés el agua del <strong>último</strong> par, no el máximo.</li>
+<li><strong>Condición de salida <code>left &lt;= right</code>.</strong> Cuando <code>left == right</code>, el ancho es 0 → agua 0. No rompe nada pero tampoco aporta. Quedate con <code>left &lt; right</code>.</li>
+<li><strong>Confundir con Trapping Rain Water.</strong> Algoritmos parecidos, problemas distintos. (Ver Amplification.)</li>
+<li><strong>No considerar arrays con 0 o 1 elemento.</strong> Devolver 0 directamente sin entrar al while está cubierto naturalmente por la condición.</li>
+<li><strong>Pensar que el óptimo siempre involucra la columna más alta.</strong> Falso. En <code>[1, 100, 1, 1, 1, 100, 1]</code> el óptimo no involucra los 100s solos, sino el par <code>(1, 5)</code> con altura limitada por <code>min(100, 100) = 100</code> y ancho 4 → área 400.</li>
+</ul>
+<hr />
+<h2 id="interview-tips">Interview Tips<a class="headerlink" href="#interview-tips" title="anchor">&para;</a></h2>
+<p><strong>Tip 1 — Dibujá el histograma antes de codear.</strong>
+Es un problema visual. Tomate 30 segundos en hacer un dibujo en la pizarra/papel/Whimsical. El entrevistador ve que pensás antes de tipear.</p>
+<p><strong>Tip 2 — Justificá la decisión &ldquo;mover el más bajo&rdquo;.</strong>
+Decí en voz alta: <em>&ldquo;Si muevo el alto, la altura sigue limitada por el bajo y el ancho disminuye → área garantizadamente menor o igual. Si muevo el bajo, la altura puede subir.&rdquo;</em> Mostrar el razonamiento es lo que diferencia este problema.</p>
+<p><strong>Tip 3 — No pares en el primer match.</strong>
+A diferencia de pair-sum, <strong>no devolvés en cuanto encontrás un área buena</strong>: tenés que recorrer hasta que los punteros se cruzen, porque puede haber un par mejor más adentro.</p>
+<p><strong>Tip 4 — Si te preguntan trapping rain water como follow-up, pensalo distinto.</strong>
+No es &ldquo;mover el más bajo y listo&rdquo;. Necesitás trackear <code>max_left</code> y <code>max_right</code>. Comentá la diferencia explícitamente.</p>
+<p><strong>Tip 5 — La complexity es O(n), aclaralo.</strong>
+Cada iteración mueve al menos un puntero. Como <code>left</code> solo crece y <code>right</code> solo decrece y se cruzan a lo sumo una vez, total ≤ n iteraciones.</p>
+<hr />
+<h2 id="references">References<a class="headerlink" href="#references" title="anchor">&para;</a></h2>
+<ul>
+<li>LeetCode — <a href="https://leetcode.com/problems/container-with-most-water/">#11 Container With Most Water</a></li>
+<li>LeetCode — <a href="https://leetcode.com/problems/trapping-rain-water/">#42 Trapping Rain Water</a> (variante distinta)</li>
+<li>Coding Interview Patterns — capítulo &ldquo;Two Pointers&rdquo; → &ldquo;Largest Container&rdquo;</li>
+<li>Entradas relacionadas:</li>
+<li><a href="./introduction.html">Introduction to Two Pointers</a></li>
+<li><a href="./pair-sum-sorted.html">Pair Sum - Sorted</a></li>
+</ul>
+<hr />
+<blockquote>
+<p>📍 <strong>Two Pointers · Problema 3/6</strong> · <a href="./triplet-sum.html">⬅ Triplet Sum</a> · <a href="./introduction.html">🏠 Chapter</a> · <a href="./is-palindrome-valid.html">Is Palindrome Valid ➡</a> · <a href="../../../../index.html">📚 KB Index</a></p>
+</blockquote>
+      <nav class="prev-next"><a class="prev" href="triplet-sum.html"><div class="label">← Anterior</div><div class="title">Triplet Sum</div></a><a class="next" href="is-palindrome-valid.html"><div class="label">Siguiente →</div><div class="title">Is Palindrome Valid</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="largest-container.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

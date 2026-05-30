@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weighted Random Selection · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 6 — Binary Search</span><span class="sep">/</span><span class="current">Weighted Random Selection</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Weighted Random Selection</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">binary-search</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Weighted Random Selection
+Given an array of items, each with a corresponding weight, implement a function that randomly selects an item from the array, where the probability of selecting any item is proportional to its weight.</p>
+<p>In other words, the probability of picking the item at index i is:
+weights[i] / sum(weights).</p>
+<p>Return the index of the selected item.</p>
+<p>Example:
+Input: weights = [3, 1, 2, 4]
+Explanation:
+sum(weights) = 10
+3 has a 3/10 probability of being selected.
+1 has a 1/10 probability of being selected.
+2 has a 2/10 probability of being selected.
+4 has a 4/10 probability of being selected.
+For example, we expect index 0 to be returned 30% of the time.</p>
+<p>Constraints:
+The weights array contains at least one element.
+Intuition
+A completely uniform random selection implies every index has an equal chance of being selected. A weighted random selection means some items are more likely to be picked than others. If we repeatedly perform a random selection many times, the frequency of each index being picked will match their expected probabilities.</p>
+<p>The challenge with this problem is determining a method to randomly select an index based on its probability.</p>
+<p>Let’s say we had weights 1 and 4 for indexes 0 and 1, respectively:</p>
+<p>Image represents a Python code snippet assigning a list of weights.  The snippet shows the variable <code>weights</code> being assigned a list containing two numerical values: 1 and 4.  The assignment is represented using the equals sign (<code>=</code>). The list is denoted by square brackets (<code>[</code> and <code>]</code>).  The numbers 0 and 1 are faintly visible below the numbers 1 and 4 respectively, possibly indicating indices or positions within the list.  There is no other information, such as URLs or parameters, present in the image. The overall structure is a simple variable assignment statement common in programming languages.
+Here, index 1 should be selected with a probability of 4/5, significantly higher than index 0’s probability of 1/5:</p>
+<p>Image represents a simple illustration of weight normalization in a context likely related to machine learning or weighted averaging.  The top line shows a Python-like variable assignment, <code>weights = [1 4]</code>, defining a weight vector with two elements: 1 and 4.  Below, these weights are individually depicted with small downward arrows pointing to their normalized counterparts.  The normalization appears to be a simple division by the sum of the weights (1+4=5).  Therefore, the weight 1 is transformed into 1/5 (displayed in cyan), and the weight 4 is transformed into 4/5 (displayed in orange).  The small numbers &lsquo;0&rsquo; and &lsquo;1&rsquo; above the arrows likely represent indices indicating the position of each weight within the original vector. The overall diagram visually demonstrates the process of converting a set of weights into their normalized probability distribution.
+A useful observation is that all probabilities have the same denominator (which is 5 in this case). Now, imagine we had a line with the same length as this denominator, and we divided this line into two segments of size 1 and 4, respectively:</p>
+<p>Image represents a horizontal bar chart or diagram illustrating a concept likely related to data partitioning or resource allocation.  The chart is composed of five rectangular sections arranged contiguously from left to right, each numbered sequentially from 1 to 5 below. The first section is colored light blue, while the remaining four sections are a light peach or beige color.  The sections are all of equal width and enclosed within a single, thick black border. The color difference between the first section and the others suggests a distinction, possibly representing a different category, status, or allocation of a resource. The numbers beneath each section likely represent identifiers or indices for each part, indicating their position or order within the whole.  The overall visual suggests a simple representation of a dataset or resource divided into five parts, with the first part differentiated from the rest.
+If we were to randomly pick a number on this line, we’d pick the first segment with a probability of 1/5 and the second segment 4/5 times. Now, imagine index 0 represents the first segment, and index 1 represents the second segment:</p>
+<p>Image represents a visual depiction of an array or list data structure.  The top section shows a horizontal rectangular block divided into five smaller, equal-width sections. The leftmost section is light blue and labeled &lsquo;index 0&rsquo;. The remaining four sections are peach-colored and labeled &lsquo;index 1&rsquo; (the second section), with the third, fourth, and fifth sections implicitly representing indices 2, 3, and 4 respectively, though not explicitly labeled. Below this top section, a second row displays the numbers 1, 2, 3, 4, and 5, each aligned vertically beneath its corresponding index in the top row. This arrangement visually maps each index to its associated value, illustrating how data is stored and accessed using indices in an array.  The overall structure suggests a simple, one-dimensional array with five elements.
+If we randomly select a number on this line, we’ll select index 0 with a probability of 1/5, and index 1 with a probability of 4/5. This reflects their expected probabilities.</p>
+<p>What we need now is a way to identify which numbers on the number line correspond to which index so that when we pick a random number on this line, we know which index to return.</p>
+<p>Before we continue, let’s establish the definitions of terms used in this explanation:</p>
+<p>“Weights” refers to the values of the elements in the weights array.
+“Indexes” refers to the indexes of the weights array.
+“Numbers” or “numbers on the number line” refers to the numbers from 1 to sum(weights).
+Determining which numbers on the number line correspond to which indexes
+As mentioned before, to know which index to return, we need a way to tell which index our random number line number corresponds to. Consider a larger distribution of weights:</p>
+<p>Image represents a visual depiction of weighted indexing.  At the top, a list named &lsquo;weights&rsquo; is defined as an array containing the integers [3, 1, 2, 4]. Below this, a horizontal bar is segmented into four color-coded sections, each labeled &lsquo;index 0,&rsquo; &lsquo;index 1,&rsquo; &lsquo;index 2,&rsquo; and &lsquo;index 3,&rsquo; respectively.  The bar is further divided into numbered units from 1 to 10.  Colored arrows connect the weights to the bar; a cyan arrow from the weight &lsquo;3&rsquo; points to the end of the &lsquo;index 0&rsquo; section (at position 3), a green arrow from the weight &lsquo;1&rsquo; points to the end of the &lsquo;index 1&rsquo; section (at position 4), an orange arrow from the weight &lsquo;2&rsquo; points to the end of the &lsquo;index 2&rsquo; section (at position 6), and a magenta arrow from the weight &lsquo;4&rsquo; points to the end of the &lsquo;index 3&rsquo; section (at position 8).  Each arrow&rsquo;s length visually represents the corresponding weight value, indicating how many units each index occupies within the bar.  The numbers above the arrows (0, 1, 2, 3) correspond to the index of the weight in the <code>weights</code> array.
+One strategy is to use a hash map. In this hash map, each number on the line is a key, and its corresponding index is the value:</p>
+<p>Image represents a hash map, visualized as a table with two columns.  The left column, labeled &lsquo;number,&rsquo; lists integers sequentially from 1 to 10. The right column, labeled &lsquo;index,&rsquo; shows the corresponding index or bucket assigned to each number after a hashing operation.  The indices are color-coded for clarity: 0 is light blue, 1 is green, 2 is orange, and 3 is magenta.  Numbers 1, 2, and 3 hash to index 0; number 4 hashes to index 1; numbers 5 and 6 hash to index 2; and numbers 7, 8, 9, and 10 hash to index 3.  The table demonstrates how a hash function maps input numbers (keys) to different indices (values) in the hash map, potentially leading to collisions (multiple numbers mapping to the same index) as seen with indices 0, 2, and 3.
+This method uses a lot of space because we need to store a key-value pair for each number on the number line. Let&rsquo;s consider some other more space-efficient methods.</p>
+<p>A more efficient strategy is to store only the endpoints of each segment instead.</p>
+<p>Image represents a diagram illustrating a data structure, possibly an array or list.  The top section shows four color-coded blocks representing elements of the data structure. Each block is labeled with &lsquo;index&rsquo; followed by a number (0, 1, 2, and 3), indicating its position within the structure.  The blocks are light blue, light green, light peach, and light pink respectively. Below this, a sequence of numbers (1 through 10) is displayed.  Numbers 3, 4, 6, and 10 are circled, suggesting a possible selection or highlighting of specific elements or indices.  There&rsquo;s an implied relationship between the top and bottom sections; the numbers below likely represent some form of access or operation on the elements, with the circled numbers potentially indicating specific actions or data points of interest within the data structure.  The overall arrangement suggests a visual representation of data access or manipulation using indices.
+Naturally, the endpoint of a segment marks where that segment ends. It also helps us know where the next segment begins, as each new segment starts right after the previous one ends. This way, we can determine the start and end of each index’s segment.</p>
+<p>By storing only the endpoints, we need to keep just n values, one for each endpoint. When storing these endpoints in an array, the array index of each endpoint is the same as its index value on the number line:</p>
+<p>Image represents a visual depiction of an array, specifically a one-dimensional array or list.  The array is enclosed in square brackets <code>[</code> and <code>]</code>.  The array contains four elements: 3, 4, 6, and 10. These elements are displayed horizontally, separated by spaces. Below each element, in a lighter gray font, is an index indicating its position within the array. The indices start from 0 and increment sequentially: 0 for the element 3, 1 for the element 4, 2 for the element 6, and 3 for the element 10.  The arrangement clearly shows the mapping between each element&rsquo;s value and its corresponding index within the array&rsquo;s structure.
+The question now is, how do we find these endpoints?</p>
+<p>Obtaining the endpoints of each index’s segment on the line
+A key observation is that the endpoint of a segment is equal to the length of all previous segments, plus the length of the current segment. We can see how this works below:</p>
+<p>Image represents a diagram illustrating a cumulative sum pattern.  The top section shows a horizontally divided rectangle representing an array or list, segmented into four color-coded sections labeled &lsquo;index 0,&rsquo; &lsquo;index 1,&rsquo; &lsquo;index 2,&rsquo; and &lsquo;index 3.&rsquo; Below this, a sequence of numbers 1 through 10 is presented.  Arrows descend from numbers 3, 4, 6, and 10, pointing to expressions representing a cumulative sum.  Specifically, the arrow from 3 points to &lsquo;3,&rsquo; the arrow from 4 points to &lsquo;3+1,&rsquo; the arrow from 6 points to &lsquo;3+1+2,&rsquo; and the arrow from 10 points to &lsquo;3+1+2+4.&rsquo;  This visually demonstrates how each subsequent cumulative sum incorporates the preceding values, suggesting a pattern of iteratively adding elements from the sequence (potentially an array) to a running total.  The color-coding of the top section might indicate different segments or partitions within the data structure.
+This demonstrates that each endpoint is a cumulative sum, suggesting we can obtain the endpoint of each segment by obtaining the prefix sums of the array of weights:</p>
+<p>Image represents a simple illustration of prefix sums.  The top line shows a list labeled &lsquo;weights&rsquo; containing four integer values: 3, 1, 2, and 4, enclosed in square brackets, indicating an array or list data structure.  Below this, another list labeled &lsquo;prefix_sums&rsquo; is shown, also enclosed in square brackets. This list contains the cumulative sums of the &lsquo;weights&rsquo; list.  Specifically, the first element of &lsquo;prefix_sums&rsquo; (3) is the same as the first element of &lsquo;weights&rsquo;. The second element of &lsquo;prefix_sums&rsquo; (4) is the sum of the first two elements of &lsquo;weights&rsquo; (3 + 1). The third element (6) is the sum of the first three elements of &lsquo;weights&rsquo; (3 + 1 + 2), and the final element (10) is the sum of all elements in &lsquo;weights&rsquo; (3 + 1 + 2 + 4).  The arrangement visually demonstrates the direct relationship and calculation between the original &lsquo;weights&rsquo; and their resulting &lsquo;prefix_sums&rsquo;.
+As we can see, the prefix sums array stores the endpoint of each segment.</p>
+<p>Now, let&rsquo;s see how the prefix sums array helps us. When we pick a random number from 1 to 10, we need to determine which index it corresponds to using the prefix sum array. Let&rsquo;s see how we can do this.</p>
+<p>Using the prefix sums to determine which numbers correspond to which indexes
+Let’s say we pick a random number from 1 to 10 and get 5. How can we use the prefix sum array to determine which index that 5 corresponds to? To determine the segment, we’ll need to find its corresponding endpoint. We know that:</p>
+<p>Either 5 itself is the endpoint, since 5 could be the endpoint of its own segment, or:
+The endpoint is somewhere to the right of 5 since its endpoint cannot be to the left.
+Among all the endpoints to the right of 5, the closest one to 5 will be the endpoint of its segment. Endpoints farther away belong to different segments:</p>
+<p>Image represents a visual explanation of finding the closest endpoint to the right of a target value within a data structure.  A horizontal rectangular bar is divided into segments, each representing an element in a sequence.  The segments are color-coded: light blue for the first two elements (labeled &lsquo;index 0&rsquo; and &lsquo;index 1&rsquo;), light green for the next element (&lsquo;index 2&rsquo;), and light pink for the remaining elements (&lsquo;index 3&rsquo;).  Below the bar, numerical values (1, 2, 3, 4, 5, 6, 7, 8, 9, 10) are aligned with the corresponding segments.  The target value, &lsquo;target = 5,&rsquo; is specified above the bar.  The number 5 is highlighted within the bar in a peach color.  A circled number (6) is positioned below the segment containing the value 6, with an upward arrow pointing to it and the text &lsquo;closest endpoint to the right of 5&rsquo; indicating that index 2 (containing the value 6) is the closest endpoint to the right of the target value 5.  The circled numbers (3, 4, 6, 10) seem to highlight specific indices or elements for illustrative purposes within the context of the algorithm being explained.
+This means for any target, we’re looking for the first prefix sum (endpoint) greater than or equal to the target. Below, we can see which prefix sum first meets this condition for a target of 5:</p>
+<p>Image represents a depiction of prefix sums, showing an array <code>prefix_sums</code> initialized with values [3, 4, 6, 10].  The array is presented horizontally. Each element&rsquo;s value is displayed numerically. Below each element, a colored vertical line indicates its status:  &lsquo;F&rsquo; (in red) represents &lsquo;False&rsquo;, and &lsquo;T&rsquo; (in green) represents &lsquo;True&rsquo;. The first two elements (3 and 4) are marked with &lsquo;F&rsquo;, while the last two elements (6 and 10) are marked with &lsquo;T&rsquo;. This suggests a visual representation of a boolean condition applied to the prefix sums, where the last two elements satisfy the condition and the first two do not.  The arrangement visually links the numerical value of each element with its corresponding boolean status.
+As we can see, the first prefix sum that satisfies this condition is the same as the lower-bound prefix sum that satisfies this condition. Therefore, we can perform a lower-bound binary search to find it.</p>
+<p>Let’s see how this works over our example with a random target of 5. The search space should encompass all prefix sum values:</p>
+<p>Image represents a visual depiction of a two-pointer approach to finding a subarray with a target sum.  Two orange rectangular boxes labeled &lsquo;left&rsquo; and &lsquo;right&rsquo; point downwards towards an array represented by <code>prefix_sums = [3, 4, 6, 10]</code>.  Beneath each element of the <code>prefix_sums</code> array, its index (0, 1, 2, 3) is shown in gray. The number 6 in the <code>prefix_sums</code> array is highlighted in light green. A separate line indicates <code>target = 5</code>. The arrows from &lsquo;left&rsquo; and &lsquo;right&rsquo; visually suggest the movement of pointers across the <code>prefix_sums</code> array during the algorithm&rsquo;s execution, aiming to find a subarray whose sum equals the <code>target</code> value.  The highlighted &lsquo;6&rsquo; likely represents a point where the algorithm might find a solution (or a relevant intermediate state), given that the difference between consecutive prefix sums could be used to determine the sum of subarrays.
+Let’s begin narrowing the search space. Remember that we’re looking for the lower-bound prefix sum which satisfies the condition prefix_sums[mid] ≥ target.</p>
+<p>The initial midpoint value is 4, which is less than the target of 5. This means the lower bound is somewhere to the right of the midpoint, so let’s narrow the search space toward the right:</p>
+<p>Image represents a visual depiction of a binary search algorithm&rsquo;s step within the context of prefix sums.  The diagram shows four labeled boxes: &lsquo;left,&rsquo; &lsquo;mid,&rsquo; and &lsquo;right&rsquo; representing index pointers, and a dashed box containing a conditional statement.  &lsquo;left&rsquo; and &lsquo;mid&rsquo; point downwards to an array [3, 4, 6, 10] with indices 0, 1, 2, and 3 respectively displayed below each element.  &lsquo;right&rsquo; also points downwards to the same array. Below the array, &lsquo;target = 5&rsquo; is specified. The dashed box displays the condition &lsquo;prefix_sums[mid] &lt; target,&rsquo; which evaluates whether the prefix sum at the &lsquo;mid&rsquo; index is less than the target value (5).  If true, as indicated by the arrow, the &lsquo;left&rsquo; pointer is updated to &lsquo;mid + 1,&rsquo; effectively narrowing the search space in a binary search fashion.  The light blue box around &lsquo;mid&rsquo; and the blue arrow visually emphasize the current &lsquo;mid&rsquo; index and its role in the conditional statement.
+Image represents a visual depiction of a binary search algorithm&rsquo;s step.  A sorted array <code>[3, 4, 6, 10]</code> is shown with indices 0, 1, 2, and 3 labeled below each element.  A light gray rectangle labeled &lsquo;mid&rsquo; points to the element &lsquo;4&rsquo; at index 1. An orange rectangle labeled &lsquo;left&rsquo; points to the element &lsquo;6&rsquo; at index 2. A dark gray rectangle labeled &lsquo;right&rsquo; points to the element &lsquo;10&rsquo; at index 3.  A dashed orange line connects the &lsquo;mid&rsquo; label to the element &lsquo;3&rsquo; at index 0, indicating a comparison. A solid orange arrow points from &lsquo;left&rsquo; to &lsquo;6&rsquo;, showing the selection of the left subarray. A solid dark gray arrow points from &lsquo;right&rsquo; to &lsquo;10&rsquo;, showing the selection of the right subarray. The arrangement visually demonstrates the partitioning of the array during a binary search iteration, with the &lsquo;mid&rsquo; element acting as the pivot for comparison and subsequent subarray selection.
+The midpoint value is now 6, which is greater than the target. This midpoint satisfies our condition, so it could be the lower bound. If it isn’t, then the lower bound is somewhere further to the left. So, let’s narrow the search space toward the left while including the midpoint:</p>
+<p>Image represents a visual depiction of a binary search algorithm step within a coding pattern context.  The top shows three labeled boxes: &lsquo;left,&rsquo; &lsquo;mid&rsquo; (highlighted in cyan), and &lsquo;right.&rsquo; Arrows point downwards from &lsquo;left&rsquo; and &lsquo;right&rsquo; to the array [3, 4, 6, 10], indicating index positions 0, 2, and 3 respectively.  The &lsquo;mid&rsquo; box points to the element &lsquo;6&rsquo; at index 2. Below the array, &lsquo;target = 5&rsquo; is specified. A dashed box to the right shows a conditional statement: &lsquo;prefix_sums[mid] ≥ target,&rsquo; which evaluates whether the prefix sum at the midpoint (6 in this case) is greater than or equal to the target (5).  A right-pointing arrow from this condition leads to the assignment &lsquo;right = mid,&rsquo; indicating that if the condition is true, the right boundary of the search space is updated to the midpoint.  The overall diagram illustrates a single iteration of a binary search, where the algorithm checks if the prefix sum at the midpoint meets or exceeds the target value to refine the search range.
+The image represents a visual depiction of a data structure, possibly an array or list, undergoing a partitioning process, likely as part of a sorting algorithm like Quicksort.  A gray horizontal line shows an array segment with elements &lsquo;3&rsquo; and &lsquo;4&rsquo; at indices 0 and 1 respectively, enclosed in square brackets.  Below this, the indices 0 and 1 are labeled. Separately, the number &lsquo;6&rsquo; is shown, representing a pivot element.  Two rectangular boxes labeled &lsquo;left&rsquo; (gray) and &lsquo;right&rsquo; (orange) indicate pointers or indices. A solid gray arrow from &lsquo;left&rsquo; points to &lsquo;6&rsquo;, and an orange arrow from &lsquo;right&rsquo; also points to &lsquo;6&rsquo;.  A dashed orange curved line connects &lsquo;6&rsquo; to an element &lsquo;10&rsquo; at index 3 (labeled below), which is also part of the array segment, enclosed in square brackets.  The arrangement suggests that the &lsquo;left&rsquo; and &lsquo;right&rsquo; pointers are converging towards the pivot &lsquo;6&rsquo; during the partitioning phase, with &lsquo;10&rsquo; being an element greater than the pivot that needs to be moved.
+Now, the left and right pointers have met with the search space consisting of a single value which represents the lower bound. So, we can exit the binary search and return the index that corresponds to this prefix sum: left:</p>
+<p>Image represents a diagram illustrating a coding pattern, possibly related to binary search or a similar algorithm.  At the top, two orange rectangular boxes labeled &lsquo;left&rsquo; and &lsquo;right&rsquo; are shown, with downward-pointing arrows indicating data flow. Below, a horizontally oriented array or list is depicted, showing the elements [3, 4, 6, 10] with their indices [0, 1, 2, 3] displayed underneath.  The &lsquo;left&rsquo; and &lsquo;right&rsquo; labels appear to represent pointers or indices into this array.  The arrows from &lsquo;left&rsquo; and &lsquo;right&rsquo; point to the element &lsquo;6&rsquo; in the array, suggesting that these pointers are converging on a specific element. To the right, a light gray, dashed-line rectangle contains the conditional statement &lsquo;left == right&rsquo; followed by a right-pointing arrow and the action &lsquo;return left&rsquo;. This indicates that if the left and right pointers are equal, the algorithm returns the value at the left pointer&rsquo;s index. The overall diagram visualizes a search or comparison process where two pointers move towards each other until they meet, at which point a result is returned.
+Try it yourself
+Write your solution to the problem before checking the reference implementation.
+Implementation
+Python
+JavaScript
+Java
+from typing import List
+import random
+    
+class WeightedRandomSelection:
+    def <strong>init</strong>(self, weights: List[int]):
+        self.prefix_sums = [weights[0]]
+        for i in range(1, len(weights)):
+            self.prefix_sums.append(self.prefix_sums[-1] + weights[i])
+      
+    def select(self) -&gt; int:
+        # Pick a random target between 1 and the largest endpoint on the number
+        # line.
+        target = random.randint(1, self.prefix_sums[-1])
+        left, right = 0, len(self.prefix_sums) - 1
+        # Perform lower-bound binary search to find which endpoint (i.e., prefix
+        # sum value) corresponds to the target.
+        while left &lt; right:
+            mid = (left + right) // 2
+            if self.prefix_sums[mid] &lt; target:
+                left = mid + 1
+            else:
+                right = mid
+        return left
+Complexity Analysis
+Time complexity: The time complexity of the constructor is 
+O
+(
+n
+)
+O(n) because we iterate through each weight in the weights array once. The time complexity of select is 
+O
+(
+log
+⁡
+(
+n
+)
+)
+O(log(n)) since we perform binary search over the prefix_sums array.</p>
+<p>Space complexity: The space complexity of the constructor is 
+O
+(
+n
+)
+O(n) due to the prefix_sums array. The space complexity of select is 
+O
+(
+1
+)
+O(1).</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="local-maxima-in-array.html"><div class="label">← Anterior</div><div class="title">Local Maxima in Array</div></a><a class="next" href="../07-stacks/introduction.html"><div class="label">Siguiente →</div><div class="title">Introduction to Stacks</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="weighted-random-selection.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

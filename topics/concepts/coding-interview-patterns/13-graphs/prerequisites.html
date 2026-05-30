@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prerequisites · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 13 — Graphs</span><span class="sep">/</span><span class="current">Prerequisites</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Prerequisites</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">graphs</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Prerequisites
+Given an integer n representing the number of courses labeled from 0 to n - 1, and an array of prerequisite pairs, determine if it&rsquo;s possible to enroll in all courses.</p>
+<p>Each prerequisite is represented as a pair [a, b], indicating that course a must be taken before course b.</p>
+<p>Example:
+Image represents a directed graph illustrating a simple coding pattern, possibly related to data flow or state transitions.  The graph contains three nodes represented as circles.  One node is labeled &lsquo;θ&rsquo; (theta), suggesting an initial state or input. Another node is labeled &lsquo;1&rsquo;, and the third is labeled &lsquo;2&rsquo;.  A directed edge (arrow) connects the &lsquo;θ&rsquo; node to the &lsquo;1&rsquo; node, indicating a unidirectional flow of information or a transition from &lsquo;θ&rsquo; to &lsquo;1&rsquo;.  Two curved, bidirectional edges connect nodes &lsquo;1&rsquo; and &lsquo;2&rsquo;, showing a reciprocal relationship or iterative interaction between these two states; information or control flows in both directions between &lsquo;1&rsquo; and &lsquo;2&rsquo;.  The overall structure suggests a sequence where an initial input (&lsquo;θ&rsquo;) triggers a process (&lsquo;1&rsquo;) that interacts iteratively with another component (&lsquo;2&rsquo;) before potentially completing or transitioning to another state (not shown).
+Input: n = 3, prerequisites = [[0, 1], [1, 2], [2, 1]]
+Output: False
+Explanation: Course 1 cannot be taken without first completing course 2 and, and vice versa.</p>
+<p>Constraints:
+For any prerequisite [a, b], a will not equal b.
+Intuition
+Our goal is to check if enrollment into all courses is possible. Let’s start by identifying which situations make enrollment impossible.</p>
+<p>Consider a simple case where there are just two courses. A scenario where enrollment into all courses is impossible occurs when each course is a prerequisite to the other, as graphically represented below:</p>
+<p>Image represents a directed graph illustrating prerequisites, where <code>prerequisites = [[0, 1], [1, 0]]</code> defines the dependencies.  The graph consists of two nodes, represented by circles labeled &lsquo;0&rsquo; and &lsquo;1&rsquo;.  A directed edge, indicated by an arrow, connects node &lsquo;0&rsquo; to node &lsquo;1&rsquo;, signifying that node &lsquo;1&rsquo; requires node &lsquo;0&rsquo; as a prerequisite.  Conversely, another directed edge connects node &lsquo;1&rsquo; to node &lsquo;0&rsquo;, indicating a reciprocal dependency; node &lsquo;0&rsquo; also requires node &lsquo;1&rsquo;. The <code>prerequisites</code> array is a matrix where each inner array represents a dependency; <code>[0, 1]</code> means 1 depends on 0, and <code>[1, 0]</code> means 0 depends on 1.  This visual representation shows a cyclical dependency between the two nodes.
+Here are a couple of impossible enrollment scenarios that could occur with prerequisites for three courses:</p>
+<p>Image represents two directed graphs illustrating different prerequisite relationships.  Each graph contains three nodes labeled &lsquo;0&rsquo;, &lsquo;1&rsquo;, and &lsquo;2&rsquo;, representing tasks or modules.  Arrows indicate dependencies; an arrow from node A to node B signifies that B requires A as a prerequisite. The left graph shows node 0 pointing to node 1, node 1 pointing to node 2, and node 2 pointing back to node 1, representing a cyclical dependency.  Above this graph, the text &lsquo;prerequisites = [[0,1] [1,2] [2,1]]&rsquo; lists these dependencies as ordered pairs within a list of lists. The right graph shows node 0 pointing to node 1, node 1 pointing to node 2, and node 2 pointing to node 0, forming a different cyclical dependency.  Above this graph, the text &lsquo;prerequisites = [[2,0] [0,1] [1,2]]&rsquo; similarly lists the dependencies as ordered pairs in a list of lists, reflecting the connections in the graph.  Both graphs visually represent different sets of prerequisites, highlighting how different dependency structures can be represented using directed graphs and their corresponding list representations.
+What do we notice about these cases and their graphical representations? They both have a circular relationship: a cycle. This highlights that it’s impossible to enroll in all courses if there exists a circular dependency between courses. In other words, there must not be a cycle in the graphical representation of the courses for complete enrollment to be possible.</p>
+<p>Another thing to note is that the first courses which can be completed are those without prerequisites. In the graphical representation, such a course would have no directed arrows pointing at them. Let’s refer to the number of directed edges incoming to a node as the in-degree of that node.</p>
+<p>In the example below, each node&rsquo;s in-degree is displayed at the top right:</p>
+<p>Image represents a directed graph illustrating prerequisites.  The graph consists of six nodes, numbered 0 through 5, represented as circles containing their respective numbers.  Arrows indicate directed edges showing dependencies; a directed edge from node <em>x</em> to node <em>y</em> means <em>y</em> depends on <em>x</em>.  The edges are labeled with small orange numbers, possibly representing weights or costs associated with the dependencies.  Specifically, node 0 has outgoing edges to nodes 1 and 2; node 1 has an outgoing edge to node 4; node 3 has an outgoing edge to node 2; node 2 has an outgoing edge to node 4; and node 4 has an outgoing edge to node 5. Above the graph, a Python list named <code>prerequisites</code> is defined, containing nested lists. Each nested list represents a dependency pair; for example, <code>[0,1]</code> indicates that node 1 depends on node 0.  The list explicitly defines all the dependencies shown in the graph.
+Courses 0 and 3 have an in-degree of 0. So, let’s complete them first and remove them from the graph. By doing this, we reduce the number of prerequisites for courses 1 and 2. Course 1&rsquo;s indegree then decreases by 1, and course 2&rsquo;s indegree decreases by 2:</p>
+<p>Image represents a directed graph illustrating a coding pattern transformation.  The left side shows an initial graph with two source nodes, labeled &lsquo;0&rsquo; (crossed out in red, indicating inactivity or removal) and &lsquo;3&rsquo; (also crossed out in red), each connected via grey, directed edges with weights (small orange numbers) to nodes &lsquo;1&rsquo; (weight 1) and &lsquo;2&rsquo; (weight 2) respectively. Node &lsquo;1&rsquo; and &lsquo;2&rsquo; are then connected to node &lsquo;4&rsquo; (weights 1 and 2 respectively), which in turn connects to node &lsquo;5&rsquo; (weight 1).  A dashed grey arrow separates the left and right graphs, indicating a transformation. The right side shows the transformed graph where nodes &lsquo;0&rsquo; and &lsquo;3&rsquo; are removed. Nodes &lsquo;1&rsquo; and &lsquo;2&rsquo; now directly connect to node &lsquo;4&rsquo; (weights 1 and 0 respectively), and node &lsquo;4&rsquo; still connects to node &lsquo;5&rsquo; (weight 1).  The weights on the edges represent some form of cost or value associated with the connection between nodes. The overall diagram depicts a simplification or optimization of the graph structure, potentially representing a refactoring step in a coding pattern.
+Now, courses 1 and 2 have an in-degree of 0, which means we can enroll in them and remove them from the graph. Observe what happens when we continue the process of removing courses with an in-degree of 0 from the graph:</p>
+<p>Image represents a directed graph illustrating a coding pattern, possibly related to dependency management or task execution.  The initial state shows three nodes: nodes &lsquo;1&rsquo; and &lsquo;2&rsquo; (grey, with a red strikethrough, indicating inactive or completed states) and node &lsquo;4&rsquo; (black, active).  Orange numbers (2 and 1) above the arrows indicate weights or priorities associated with the connections. Node &lsquo;1&rsquo; connects to node &lsquo;4&rsquo; with a weight of 2, and node &lsquo;2&rsquo; connects to node &lsquo;4&rsquo; with a weight of 0. Node &lsquo;4&rsquo; connects to node &lsquo;5&rsquo; (black, active) with a weight of 1.  The graph then transitions. Node &lsquo;4&rsquo; becomes inactive (grey with a red strikethrough), and a dashed arrow indicates a non-deterministic or asynchronous transition.  Node &lsquo;5&rsquo; remains active (black), but eventually also becomes inactive (grey with a red strikethrough) after a further transition indicated by a dashed arrow.  The overall diagram depicts a sequence of states, showing how dependencies are resolved and tasks are completed, potentially highlighting a scenario where a task (node 4) is completed before its dependent task (node 5) is executed, and then node 5 is completed.
+By the end of this process, no courses remain, indicating it’s possible to enroll in all courses.</p>
+<p>Now, consider an example with a cyclic dependency:</p>
+<p>Image represents a directed graph illustrating prerequisites.  At the top, a Python list named <code>prerequisites</code> is defined, containing pairs of numbers representing dependencies: <code>[[0,1] [0,2] [3,2] [1,4] [2,4] [4,5] [5,2]]</code>.  The graph visually depicts these dependencies.  The graph consists of six nodes, numbered 0 through 5, represented as circles containing their respective numbers.  Directed edges, represented by arrows, connect the nodes, indicating the flow of dependencies.  For example, the edge from node 0 to node 1 (labeled with an orange &lsquo;1&rsquo; above the arrow) signifies that node 1 requires node 0 as a prerequisite. Similarly, node 2 requires node 0 (labeled &lsquo;0&rsquo;), node 2 requires node 3 (labeled &lsquo;3&rsquo;), node 4 requires node 1 (labeled &lsquo;2&rsquo;), node 4 requires node 2 (labeled &lsquo;1&rsquo;), node 5 requires node 4 (labeled &lsquo;1&rsquo;), and node 2 requires node 5 (a curved edge).  The numbers on the arrows correspond to the order of dependencies as listed in the <code>prerequisites</code> list.
+Let&rsquo;s follow the same steps of removing courses with an in-degree of 0:</p>
+<p>Image represents a directed graph illustrating a coding pattern, possibly related to graph transformations or optimization.  The initial graph shows nodes labeled 0 (greyed out and crossed with a red line, indicating it&rsquo;s inactive or removed), 1, 2, 3 (also greyed out and crossed), 4, and 5.  Orange numbers next to the edges represent weights or costs associated with each connection. Node 0 connects to node 1 with weight 1, and to node 2 with weight 0. Node 1 connects to node 4 with weight 2, and node 3 connects to node 2 with weight 3 and to node 4 with weight 1. Node 4 connects to node 5 with weight 1, and node 5 connects back to node 2 with weight 1.  The graph then undergoes a transformation, indicated by a dashed arrow.  In the transformed graph, nodes 0 and 3 are absent. The connections and weights between nodes 1, 2, 4, and 5 are rearranged. Node 1 is removed, and node 2 now connects to node 4 with weight 1. Node 4 connects to node 5 with weight 1, and node 5 connects back to node 2 with weight 1. A further transformation is shown, resulting in a final graph with the same nodes (1,2,4,5) but with slightly different connections and weights.  The transformations suggest a process of simplifying or optimizing the graph by removing nodes and adjusting edge weights.
+Here, there is no way to progress because there aren&rsquo;t any courses with an in-degree of 0. When this happens, and there are still unvisited courses, a cyclic dependency exists, meaning enrolment is impossible.</p>
+<p>Now, let’s identify a way to simulate the above process algorithmically.</p>
+<p>Topological sort
+The process we described above is essentially topological sorting, where vertices of a graph are sorted in such a way that for every directed edge u → v, node u comes before node v in the ordering of the topological sort.</p>
+<p>An algorithm designed to perform topological sort is Kahn’s algorithm. Let’s see how we can use it to solve this problem.</p>
+<p>The first step of Kahn&rsquo;s algorithm is to determine the in-degree of each course. This can be achieved by counting the number of times each course appears as a dependent in the prerequisite pairs: for a pair [a, b], course b depends on course a, so course b’s in-degree is incremented by one:</p>
+<p>Image represents a directed acyclic graph (DAG) illustrating a topological sort problem, along with its prerequisites and in-degrees.  The upper part shows the DAG with six nodes (0, 1, 2, 3, 4, 5) represented as circles, connected by directed edges indicated by arrows.  The numbers on the arrows represent edge weights (not explicitly defined but implied). Node 0 points to node 1 and node 2; node 3 points to node 2; node 1 points to node 4; and node 4 points to node 5.  Below the DAG, a list named &lsquo;prerequisites&rsquo; shows the dependencies as pairs of node indices: <code>[[0,1] [0,2] [3,2] [1,4] [2,4] [4,5]]</code>, indicating that node 1 requires node 0, node 2 requires node 0, node 2 requires node 3, node 4 requires node 1, node 4 requires node 2, and node 5 requires node 4.  Finally, a list named &lsquo;in_degrees&rsquo; shows the number of incoming edges for each node: <code>[0 1 2 0 2 1]</code>, indicating that node 0 has 0 incoming edges, node 1 has 1, node 2 has 2, and so on.  Orange curved arrows connect the prerequisites pairs to their corresponding in-degree values in the <code>in_degrees</code> list, visually linking the dependencies to the count of incoming edges for each node.  The numbers below the <code>in_degrees</code> list (0, 1, 2, 3, 4, 5) correspond to the node indices.
+Now, we want to process all the courses with an in-degree of 0 first. We can add these courses to a queue to be processed:</p>
+<p>Image represents a directed acyclic graph (DAG) with five nodes (0, 1, 2, 3, 4) and edges connecting them, along with an accompanying illustration of a topological sort algorithm&rsquo;s execution.  The nodes are numbered 0 through 4 and are depicted as circles containing their respective numbers.  Edges are represented by arrows indicating direction; for example, node 0 points to node 1, and node 3 points to node 2.  Small orange numbers next to each edge indicate a weight or some associated value. The algorithm uses an <code>in_degrees</code> array, shown as <code>[0 1 2 0 2 1]</code>, representing the number of incoming edges for each node (node 0 has 0 incoming edges, node 1 has 1, and so on).  A <code>queue</code> array, initialized as <code>[0 3]</code>, stores nodes with zero incoming edges.  A light green highlight visually emphasizes the current state of the <code>in_degrees</code> array, showing that nodes 0 and 3 are initially in the queue because they have no incoming edges.  The graph&rsquo;s structure and the <code>in_degrees</code> and <code>queue</code> arrays together illustrate the data structures used in a topological sorting algorithm.
+To begin processing, pop the first course from the queue: course 0. Then, for each course that has course 0 as a prerequisite (i.e., courses pointed to by course 0), reduce their in-degree by one:</p>
+<p>Image represents a directed acyclic graph (DAG) illustrating a topological sort algorithm.  The DAG consists of five nodes (circles) numbered 1 through 5, with directed edges (arrows) indicating dependencies. Node 0 is shown in gray and crossed out, indicating it&rsquo;s a source node that has been processed.  A directed edge from node <em>i</em> to node <em>j</em> implies that node <em>j</em> depends on node <em>i</em>.  The edges are labeled with small numbers representing weights or counts (e.g., 1→0, 2→1).  To the right, an array named <code>in_degrees</code> is shown, representing the in-degree of each node (number of incoming edges).  Initially, <code>in_degrees</code> is [0, 1, 2, 0, 2, 1], with node 0&rsquo;s in-degree crossed out because it&rsquo;s processed.  Another array, <code>queue</code>, is shown as [0, 3], indicating nodes with an in-degree of 0 (ready to be processed).  The orange numbers on the nodes and edges likely represent the order of processing during the topological sort.  The graph visually demonstrates the flow of information and dependencies, with the arrays tracking the algorithm&rsquo;s progress.
+If any of the courses have an in-degree of 0 after being decremented, add them to the queue. Course 1 now has an in-degree of 0, so we add it to the queue:</p>
+<p>Image represents a directed acyclic graph (DAG) illustrating a topological sorting algorithm.  The DAG consists of five nodes (1, 2, 3, 4, 5) represented as circles containing their respective node numbers.  Directed edges, represented by arrows, connect nodes indicating the flow of information; the numbers next to the arrows represent edge weights. Node 3 points to node 2 (weight 1), node 1 points to node 4 (weight 2), and node 2 points to node 4 (weight 2). Finally, node 4 points to node 5 (weight 1). To the right, an array labeled &lsquo;in_degrees&rsquo; shows the in-degree of each node (number of incoming edges): node 1 has 0, node 2 has 1, node 3 has 0, node 4 has 2, and node 5 has 1.  A highlighted element &lsquo;0&rsquo; in the &lsquo;in_degrees&rsquo; array indicates a node with an in-degree of 0, ready for processing.  Below, an array labeled &lsquo;queue&rsquo; shows the queue of nodes ready for processing, initially containing nodes 3 and 1.  The arrangement visually demonstrates the algorithm&rsquo;s steps: identifying nodes with zero in-degrees, adding them to a queue, processing them, and updating in-degrees accordingly.
+We can continue the above process until the queue is empty, indicating that there aren&rsquo;t any more courses with an in-degree of 0.</p>
+<p>If we&rsquo;ve processed all n courses, enrollment to all courses is possible.
+If we couldn’t process all n courses, a cycle was found, indicating enrollment to all courses is impossible.
+Try it yourself
+Write your solution to the problem before checking the reference implementation.
+Implementation
+Python
+JavaScript
+Java
+from typing import List
+from collections import defaultdict, deque
+    
+def prerequisites(n: int, prerequisites: List[List[int]]) -&gt; bool:
+    graph = defaultdict(list)
+    in_degrees = [0] * n
+    # Represent the graph as an adjacency list and record the in-degree of each
+    # course.
+    for prerequisite, course in prerequisites:
+        graph[prerequisite].append(course)
+        in_degrees[course] += 1
+    queue = deque()
+    # Add all courses with an in-degree of 0 to the queue.
+    for i in range(n):
+        if in_degrees[i] == 0:
+            queue.append(i)
+    enrolled_courses = 0
+    # Perform topological sort.
+    while queue:
+        node = queue.popleft()
+        enrolled_courses += 1
+        for neighbor in graph[node]:
+            in_degrees[neighbor] -= 1
+            # If the in-degree of a neighboring course becomes 0, add it to the queue.
+            if in_degrees[neighbor] == 0:
+                queue.append(neighbor)
+    # Return true if we&rsquo;ve successfully enrolled in all courses.
+    return enrolled_courses == n
+Complexity Analysis
+Time complexity: The time complexity of prerequisites is 
+O
+(
+n
++
+e
+)
+O(n+e) where 
+e
+e denotes the number of edges derived from the prerequisites array. Here’s why:</p>
+<p>Creating the adjacency list and recording the in-degrees takes 
+O
+(
+e
+)
+O(e) time because we iterate through each prerequisite once.</p>
+<p>Adding all courses with in-degree 0 to the queue takes 
+O
+(
+n
+)
+O(n) time because we check the in-degree of each course once.</p>
+<p>Performing Kahn’s algorithm takes 
+O
+(
+n
++
+e
+)
+O(n+e) time because each course and prerequisite is processed at most once during the traversal.</p>
+<p>Space complexity: The space complexity is 
+O
+(
+n
++
+e
+)
+O(n+e), since the adjacency list takes up 
+O
+(
+n
++
+e
+)
+O(n+e) space, while the in_degrees array and queue each take up 
+O
+(
+n
+)
+O(n) space.</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="merging-communities.html"><div class="label">← Anterior</div><div class="title">Merging Communities</div></a><a class="next" href="shortest-path.html"><div class="label">Siguiente →</div><div class="title">Shortest Path</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="prerequisites.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

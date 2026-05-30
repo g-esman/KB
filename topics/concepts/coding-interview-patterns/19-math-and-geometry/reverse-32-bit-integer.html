@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reverse 32-Bit Integer · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 19 — Math and Geometry</span><span class="sep">/</span><span class="current">Reverse 32-Bit Integer</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Reverse 32-Bit Integer</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">math-geometry</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Reverse 32-Bit Integer
+Reverse the digits of a signed 32-bit integer. If the reversed integer overflows (i.e., is outside the range [
+−
+2
+31
+−2 
+31
+ , 
+2
+31
+−
+1
+2 
+31
+ −1]), return 0. Assume the environment only allows you to store integers within the signed 32-bit integer range.</p>
+<p>Example 1:
+Input: n = 420
+Output: 24
+Example 2:
+Input: n = -15
+Output: -51
+Intuition
+The primary challenge with this problem is in handling its edge cases. Before tackling these edge cases, let’s first try handling the more basic cases and later see how we would need to modify our strategy.</p>
+<p>Reversing positive numbers
+Consider n = 123. Let&rsquo;s try building the reversed integer one digit at a time. The first thing to figure out is how to iterate through the digits of n to build our reversed number (initially set to 0):</p>
+<p>Image represents a simple illustration demonstrating a reversal operation.  The left side shows an input sequence &lsquo;n = 1 2 3&rsquo;, indicating a variable &lsquo;n&rsquo; assigned a sequence of three integers: 1, 2, and 3. A comma follows this sequence. The right side displays the result of a reversal operation, labeled &lsquo;reversed n = θ&rsquo;, showing the variable &lsquo;n&rsquo; after reversal is assigned an empty sequence represented by the symbol &lsquo;θ&rsquo;.  There is no explicit connection drawn between the input and output; the implication is that the operation transforms the input sequence into an empty sequence.  The text &lsquo;reversed&rsquo; acts as a label describing the transformation applied to the input sequence &lsquo;n&rsquo;.
+One way to do this is by starting at the last digit of n and appending each digit to reversed_n:</p>
+<p>Image represents a visual depiction of a recursive function reversing a sequence of numbers.  Three horizontal rows illustrate the function&rsquo;s iterative steps. Each row shows an input sequence &lsquo;m&rsquo; (on the left) and the corresponding reversed output sequence &lsquo;reversed_n&rsquo; (on the right).  Orange boxes contain the numbers in each sequence.  Orange arrows connect the input &lsquo;m&rsquo; to the output &lsquo;reversed_n&rsquo; in each row.  The first row shows the input sequence &lsquo;m = 1 2 3&rsquo; and the output &lsquo;reversed_n = 3&rsquo;. The second row shows the input &lsquo;m = 1 2&rsquo; and the output &lsquo;reversed_n = 3 2&rsquo;, building upon the previous step.  The third row shows the input &lsquo;m = 1&rsquo; and the final reversed output &lsquo;reversed_n = 3 2 1&rsquo;, completing the reversal of the initial sequence.  The diagram visually demonstrates how the function recursively processes the input sequence, adding the next element to the beginning of the reversed sequence in each iteration.
+Let’s explore how we can do this. To extract the last digit, we can use the modulus operator: n % 10. This operation effectively finds what the remainder of n would be if divided by 10:</p>
+<p>Image represents a code snippet demonstrating how to extract the last digit from an integer.  The top line declares an integer variable &lsquo;n&rsquo; and assigns it the value 123. The next line shows a calculation to extract the last digit:  &lsquo;digit = n % 10&rsquo;. This uses the modulo operator (%) which returns the remainder after division.  In this case, 123 modulo 10 equals 3, representing the remainder when 123 is divided by 10. The final line shows the result of this calculation: &lsquo;digit = 3&rsquo;, indicating that the last digit of 123 is 3. The arrangement is vertical, with each line representing a step in the calculation, flowing from the variable declaration to the calculation and finally to the result.
+After extracting the last digit, we can remove it by dividing n by 10, which shifts the second-to-last digit to the last position, preparing it for the next iteration:</p>
+<p>Image represents a mathematical equation demonstrating integer division. The equation is structured as follows:  &lsquo;n = n // 10&rsquo;.  This indicates that a variable &lsquo;n&rsquo; is being assigned a new value. The new value is calculated by performing integer division (represented by &lsquo;//&rsquo;) of the original value of &lsquo;n&rsquo; by 10.  Below this, a second line shows &rsquo; = 12&rsquo;, indicating that after the integer division operation, the variable &lsquo;n&rsquo; now holds the value 12.  The equation implies that the original value of &lsquo;n&rsquo; before the division was 120 (since 120 // 10 = 12).  There are no URLs or parameters present; the image solely depicts a simple arithmetic operation within a coding context, likely illustrating a specific step in an algorithm or calculation.
+Once that’s done, let’s add the last digit extracted to our reversed number:</p>
+<p>Image represents a line of code snippet, likely from a program designed to reverse an integer.  The snippet shows an assignment statement where a variable named <code>reversed_n</code> is being updated.  The operation is an addition (<code>+=</code>) of a variable named <code>digit</code>, which currently holds the value 3. This suggests that the algorithm is iteratively building the reversed integer by appending digits one at a time. The <code>reversed_n</code> variable accumulates the reversed number, with <code>digit</code> representing the next digit to be added to the reversed number. The overall structure implies a loop where <code>digit</code> would take on different values in successive iterations, each contributing to the construction of <code>reversed_n</code>.
+Below, we see the current states of n and reversed_n:</p>
+<p>Image represents a simple illustration of a coding pattern, specifically demonstrating the concept of reversing a sequence.  The image consists of a linear arrangement of text elements.  It begins with &lsquo;n = 1 2,&rsquo;, indicating an initial sequence represented by the variable &lsquo;n&rsquo; containing the values 1 and 2.  This is followed by the word &lsquo;reversed&rsquo;, signifying the operation being performed. Finally, &lsquo;n = 3&rsquo; shows the reversed sequence, implying that the original sequence &lsquo;1 2&rsquo; has been reversed to become &lsquo;2 1&rsquo; (although only the result &lsquo;3&rsquo; is shown, suggesting a simplified or incomplete representation of the reversal process, possibly due to context missing from the image).  There are no visual connections or arrows; the relationship between the initial and reversed sequences is implied solely through the textual description and the change in the value of &lsquo;n&rsquo;.
+To process the next digit, let’s extract it from n using the modulus operation, then remove it by dividing n by 10:</p>
+<p>Image represents a code snippet illustrating an algorithm to extract digits from an integer.  The top line shows an assignment statement: <code>digit = n % 10</code>, where <code>n</code> represents an integer input and the modulo operator (<code>%</code>) calculates the remainder when <code>n</code> is divided by 10, effectively extracting the last digit. This is then assigned to the variable <code>digit</code>. Below, a sample calculation is shown, where the result of <code>n % 10</code> is <code>2</code>. The next line shows another assignment statement: <code>n = n // 10</code>, using floor division (<code>//</code>) to remove the last digit from <code>n</code> by integer division.  A sample calculation follows, showing the result of <code>n // 10</code> as <code>1</code>.  The arrangement vertically displays the sequential steps of the algorithm: first extracting the last digit, then updating the integer by removing that digit.  The algorithm implicitly iterates to extract all digits sequentially.
+To append this digit to reversed_n, we can multiply reversed_n by 10 to shift its digits to the left, making space for the new digit. Then, we just add the new digit as before:</p>
+<p>Image represents a step-by-step calculation illustrating a coding pattern, likely for reversing an integer.  The top line shows an equation: <code>reversed_n = 10 * reversed_n + digit</code>. This suggests an iterative process where <code>reversed_n</code> accumulates the reversed digits of a number, and <code>digit</code> represents the next digit to be added.  The next line shows a specific instance of this equation: <code>= 30 + 2</code>, implying that at this step, the current reversed number (<code>reversed_n</code>) is 30, and the next digit (<code>digit</code>) is 2. The final line shows the result of this addition: <code>= 32</code>, indicating the updated value of <code>reversed_n</code> after incorporating the digit 2.  The overall structure demonstrates how a reversed integer is constructed digit by digit through repeated multiplication and addition.
+We can repeat the above process until all digits of n are appended to reversed_n (i.e., until n equals 0). Here’s a breakdown of this process:</p>
+<p>Extract the last digit: digit = n % 10.
+Remove the last digit: n = n // 10.
+Append the digit: reversed_n = reversed_n * 10 + digit.
+Reversing negative numbers
+Before considering a separate strategy to handle negative numbers, let&rsquo;s first check if the set of steps above also work for negative numbers. Applying these steps to n = -15 gives:</p>
+<p>Image represents a step-by-step calculation demonstrating a coding pattern for reversing a negative integer.  The top line initializes two variables: <code>n</code> to -15 and <code>reversed_n</code> to 0.  Below, the calculation proceeds in three steps. First, <code>digit</code> is calculated as <code>n % 10</code>, resulting in -5 (the modulo operator finds the remainder after division). Second, <code>n</code> is updated to <code>n // 10</code> using floor division, resulting in -1 (integer division discarding the remainder). Finally, <code>reversed_n</code> is updated using the formula <code>10 * reversed_n + digit</code>, which incorporates the extracted digit into the reversed number, resulting in -5.  The calculations are shown with both the formula and the resulting value for each step, illustrating the iterative process of extracting digits and building the reversed integer.
+Image represents a step-by-step calculation demonstrating a single iteration of an algorithm to reverse a negative integer.  The top line initializes two variables: <code>n</code> with a value of -1 and <code>reversed_n</code> with a value of -5.  Below, the algorithm extracts the last digit of <code>n</code> using the modulo operator (<code>%</code>), assigning the result (-1) to the variable <code>digit</code>. Next, integer division (<code>//</code>) is used to remove the last digit from <code>n</code>, updating <code>n</code> to 0. Finally, the reversed number is updated by multiplying the current <code>reversed_n</code> by 10, adding <code>digit</code>, and assigning the result (-51) back to <code>reversed_n</code>.  The calculations are clearly shown with the formulas and their results displayed sequentially, illustrating the flow of data between the variables.
+As we can see, it works for negative numbers. Now, let’s tackle situations in which reversing a number could result in integer overflow or underflow.</p>
+<p>Detecting integer overflow
+If the reverse of a positive number is larger than 
+2
+31
+−
+1
+2 
+31
+ −1, it will overflow, and we should return 0. Let’s call this maximum value INT_MAX.</p>
+<p>Image represents an equation showing the maximum value for a 32-bit signed integer.  The left side of the equation is labeled &lsquo;INT_MAX =&rsquo;.  The right side begins with &lsquo;2<sup>31</sup> - 1 =&rsquo;, indicating that the maximum integer value is calculated by subtracting 1 from 2 raised to the power of 31. The result of this calculation, 2147483647, is displayed to the far right of the equation, representing the maximum positive value that can be stored in a 32-bit signed integer variable.  The equation demonstrates a common calculation in computer science to determine the upper limit of integer data types based on their bit size.
+Initially, it might seem sufficient to reverse the number completely, check if it exceeds 
+2
+31
+−
+1
+2 
+31
+ −1, and return 0 if it does. However, in an environment where integers larger than 
+2
+31
+−
+1
+2 
+31
+ −1 cannot be stored, attempting to reverse such an integer would cause an overflow:</p>
+<p>Image represents a sequence of operations and their outcome.  It begins with the integer 2199999999.  A gray arrow labeled &lsquo;reverse&rsquo; points to the right, indicating a reversal of the digits, resulting in the integer 9999999912.  A second gray arrow, pointing to the right, shows a comparison:  &lsquo;9999999912 &gt; INT_MAX&rsquo;. This signifies that the reversed number is greater than the maximum value allowed for an integer data type (INT_MAX). Finally, a red arrow points to the right from the comparison, leading to the word &lsquo;overflow&rsquo; in red text, indicating that the operation has resulted in an integer overflow error due to exceeding the maximum representable integer value.
+So, let’s think of another way to detect overflow.</p>
+<p>We&rsquo;re constructing the number reversed_n one digit at a time, which means we need to ensure not to cause the number to overflow with each new digit we add. Let&rsquo;s think about when adding a new digit might cause reversed_n to become too large. Here&rsquo;s how we can analyze this:</p>
+<p>If reversed_n is equal to 214748364 (i.e., INT_MAX // 10), then the final digit we can add to it must be less than or equal to 7 to avoid an overflow (since 214748364<strong>7</strong> == INT_MAX):</p>
+<p>Image represents a step-by-step calculation demonstrating the appending of a digit to a reversed number.  Initially, the variable <code>reversed_n</code> holds the value 21478364, and the variable <code>digit</code> holds the value 7. The process, labeled &lsquo;append digit:&rsquo;, involves the calculation <code>reversed_n = reversed_n * 10 + digit</code>. This results in a new value for <code>reversed_n</code>, which is 214783647.  A comparison is then made, showing that this new value is equal to <code>INT_MAX</code> (presumably representing the maximum value for an integer data type), and an arrow indicates that this equality leads to &lsquo;no overflow,&rsquo; suggesting the calculation successfully appended the digit without exceeding the integer&rsquo;s maximum capacity.
+Image represents a step-by-step calculation demonstrating integer overflow.  The top line initializes a variable <code>reversed_n</code> to the value 21478364 and a variable <code>digit</code> to 8. The second line shows the calculation for appending <code>digit</code> to <code>reversed_n</code>:  <code>reversed_n</code> is multiplied by 10 and <code>digit</code> is added to the result, updating <code>reversed_n</code>. The third line displays the outcome of this calculation: <code>reversed_n</code> becomes 214783648.  A comparison follows, indicating that this new value (214783648) exceeds <code>INT_MAX</code> (the maximum value for an integer data type), resulting in an integer overflow, which is highlighted in red as &lsquo;overflow&rsquo;.  The gray text &lsquo;append digit:&rsquo; acts as a label describing the operation performed in the second line.
+Now, keep in mind that when reversed_n == INT_MAX // 10, only one more digit can be added to it. The key observation here is that this digit can only ever be 1 because a larger final digit would be impossible, as shown below:</p>
+<p>Image represents two examples illustrating a coding pattern related to integer reversal and overflow.  Each example shows a process where a number (<code>reversed_n</code>) is reversed, and the result (<code>n</code>) is compared against the maximum integer value (<code>INT_MAX</code>). The first example begins with <code>reversed_n = 2147483641</code>.  Above it, in orange text, is <code>INT_MAX // 10</code>, indicating a potential division operation. A grey arrow labeled &lsquo;implies&rsquo; connects <code>reversed_n</code> to the reversed number <code>n = 1463847412</code>. The second example follows the same structure, starting with <code>reversed_n = 2147483642</code>, also with <code>INT_MAX // 10</code> above it.  The reversed number is <code>n = 2463847412</code>.  However, this result is greater than <code>INT_MAX</code>, as indicated by <code>n = 2463847412 &gt; INT_MAX</code>, leading to a red &lsquo;impossible input&rsquo; label, highlighting a potential overflow error.  Both examples use the same initial operation (<code>INT_MAX // 10</code>) suggesting a common step in the algorithm before the reversal.
+This means that when reversed_n == INT_MAX // 10, the last digit added to it won’t cause an overflow, meaning we don’t need to check the last digit in this case.</p>
+<p>If reversed_n is already larger than INT_MAX // 10, adding any digit will cause it to overflow. We can handle this case with the following condition:</p>
+<p>if reversed_n &gt; INT_MAX // 10: return 0</p>
+<p>Detecting integer underflow
+We can apply similar logic to the above for handling integer underflow. Here, we just need to check that reversed_n never falls below INT_MIN // 10:</p>
+<p>if reversed_n &lt; INT_MIN // 10: return 0</p>
+<p>Try it yourself
+Write your solution to the problem before checking the reference implementation.
+Implementation
+In Python, using the modulus operator (%) with a negative number gives a positive result. To avoid this, we can instead use math.fmod and cast its result to an integer to attain a negative modulus value.</p>
+<p>For division, Python&rsquo;s // operator performs floor division, which can result in an undesired value when dealing with negative numbers (e.g., -15 // 10 results in -2, instead of the desired -1). To achieve the desired behavior, use / for division and cast its result to an integer.</p>
+<p>Python
+JavaScript
+Java
+import math
+    
+def reverse_32_bit_integer(n: int) -&gt; int:
+    INT_MAX = 2<strong>31 - 1
+    INT_MIN = -2</strong>31
+    reversed_n = 0
+    # Keep looping until we&rsquo;ve added all digits of &lsquo;n&rsquo; to &lsquo;reversed_n&rsquo; in reverse
+    # order.
+    while n != 0:
+        # digit = n % 10
+        digit = int(math.fmod(n, 10))
+        # n = n // 10
+        n = int(n / 10)
+        # Check for integer overflow or underflow.
+        if reversed_n &gt; int(INT_MAX / 10) or reversed_n &lt; int(INT_MIN / 10):
+            return 0
+        # Add the current digit to &lsquo;reversed_n&rsquo;.
+        reversed_n = reversed_n * 10 + digit
+    return reversed_n
+Complexity Analysis
+Time complexity: The time complexity of reverse_32_bit_integer is 
+O
+(
+log
+⁡
+(
+n
+)
+)
+O(log(n)) because we loop through each digit of 
+n
+n, of which there are roughly 
+log
+⁡
+(
+n
+)
+log(n) digits. As this environment only supports 32-bit integers, the time complexity can also be considered 
+O
+(
+1
+)
+O(1).</p>
+<p>Space complexity: The space complexity is 
+O
+(
+1
+)
+O(1).</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="spiral-traversal.html"><div class="label">← Anterior</div><div class="title">Spiral Traversal</div></a><a class="next" href="maximum-collinear-points.html"><div class="label">Siguiente →</div><div class="title">Maximum Collinear Points</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="reverse-32-bit-integer.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flatten a Multi-Level Linked List · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 3 — Linked Lists</span><span class="sep">/</span><span class="current">Flatten a Multi-Level Linked List</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Flatten a Multi-Level Linked List</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">linked-lists</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Flatten a Multi-Level Linked List
+In a multi-level linked list, each node has a next pointer and child pointer. The next pointer connects to the subsequent node in the same linked list, while the child pointer points to the head of a new linked list under it. This creates multiple levels of linked lists. If a node does not have a child list, its child attribute is set to null.</p>
+<p>Flatten the multi-level linked list into a single-level linked list by linking the end of each level to the start of the next one.</p>
+<p>Example:
+Image represents a tree-like data structure visualized through numbered nodes and directed edges, illustrating a &lsquo;flattening&rsquo; operation.  The structure is organized into three levels labeled &lsquo;Level 1,&rsquo; &lsquo;Level 2,&rsquo; and &lsquo;Level 3.&rsquo; Level 1 contains nodes 1 through 5, connected sequentially by &lsquo;next&rsquo; labeled arrows.  Nodes 2 and 4 have downward-pointing arrows labeled &lsquo;child,&rsquo; connecting them to Level 2 nodes 6 and 8, respectively. Level 2 consists of nodes 6 through 9, with nodes 6 and 8 connected sequentially by &lsquo;next&rsquo; arrows.  Nodes 7 and 9 have downward-pointing &lsquo;child&rsquo; arrows connecting to Level 3 nodes 10 and 11, respectively.  A thick downward arrow labeled &lsquo;FLATTEN&rsquo; indicates a transformation. Below this arrow is a flattened, single-level linked list comprising all nodes (1 through 11) connected sequentially by &lsquo;next&rsquo; arrows, demonstrating the result of the flattening operation where the hierarchical structure is removed, resulting in a linear sequence.  The nodes&rsquo; colors vary across levels, with Level 1 nodes in light orange, Level 2 in darker reddish-orange, and Level 3 in a yellowish-orange.
+Intuition
+Consider the two main conditions required to form the flattened linked list:</p>
+<p>The order of the nodes on each level needs to be preserved.
+All the nodes in one level must connect before appending nodes from the next level.
+The challenge with this problem is figuring out how we process linked lists in lower levels. One strategy that might come to mind is level-order traversal using breadth-first search. However, breadth-first search usually involves the use of a queue, which would result in at least a linear space complexity. Is there a way we could merge the levels of the linked lists in place?</p>
+<p>A key observation is that for any level of the multi-level linked list, we have direct access to all the nodes on the next level. This is because each node’s child node at any given level ‘L’ has direct access to nodes on the next level ‘L + 1’:</p>
+<p>Image represents a diagram illustrating a tree-like data structure, specifically showing the relationship between nodes at two levels, labeled &lsquo;Level L&rsquo; and &lsquo;Level L + 1&rsquo;.  At Level L, four black circles representing nodes are arranged horizontally, connected by arrows labeled &lsquo;next&rsquo;, indicating a sequential relationship.  Each of the second and fourth nodes in Level L has a downward-pointing arrow labeled &lsquo;child&rsquo; connecting it to a light-blue circle in Level L + 1. These light-blue circles, also representing nodes, are arranged horizontally and connected by arrows labeled &lsquo;next&rsquo;, mirroring the structure of Level L. A gray horizontal line with tick marks underneath Level L + 1 visually groups the nodes at that level, and the text &lsquo;Level L + 1 nodes are accessible from level L&rsquo; clarifies that the lower-level nodes are children of, and therefore accessible from, the upper-level nodes.  The overall structure demonstrates a hierarchical relationship where nodes at Level L can access nodes at Level L + 1 through the &lsquo;child&rsquo; connections.
+How can we connect the nodes on level ‘L + 1’ to the end of level ‘L’? Since we have access to the nodes at the next level from the current level’s child pointers, we can append each child linked list to the end of the current level, which effectively merges these two levels into one.</p>
+<p>Image represents a diagram illustrating a linked list data structure with nested lists.  The diagram shows a sequence of five solid-line circles connected by solid-line arrows labeled &lsquo;next,&rsquo; representing nodes in a primary linked list. The third and fourth nodes have downward-pointing arrows labeled &lsquo;child,&rsquo; connecting them to separate light-blue rectangular boxes. Each box contains a smaller linked list of two nodes (solid-line circles) connected by a &lsquo;next&rsquo; arrow.  The primary list then continues with two additional nodes represented by dashed-line circles within a light-blue rectangle, also connected by &lsquo;next&rsquo; arrows.  Finally, a light-blue upward-pointing arrow connects the bottom of each of the child linked lists to the dashed-line nodes in the primary list, indicating a hierarchical relationship where the child lists are appended to the main list.  The overall structure depicts a tree-like organization where the main list acts as the parent, and the child lists are sub-lists branching from specific nodes.
+So, with all the nodes on level ‘L + 1’ appended to level ‘L’, we can continue this process by appending nodes from level ‘L + 2’ to level ‘L + 1’, and so on.</p>
+<p>Now that we have a high-level idea about what we should do, let’s try this strategy on the following example:</p>
+<p>Image represents a directed acyclic graph illustrating a coding pattern, possibly a tree-like data structure.  The graph is composed of ten nodes, numbered 1 through 10, represented as circles with varying shades of orange and brown.  Nodes 1, 2, 3, and 4 are lighter orange, while nodes 5, 6, 7, and 8 are darker brown. Nodes 9 and 10 are a lighter orange than nodes 1-4.  Arrows connect the nodes, indicating direction.  Nodes 1, 2, 3, and 4 are linked horizontally by arrows labeled &lsquo;next,&rsquo; forming a sequence. Node 1 has a downward arrow labeled &lsquo;child&rsquo; connecting it to node 5, and node 4 has a downward arrow labeled &lsquo;child&rsquo; connecting it to node 7. Similarly, nodes 5 and 6 are linked horizontally by an arrow labeled &lsquo;next,&rsquo; with node 6 having a downward arrow labeled &lsquo;child&rsquo; connecting it to node 9.  Nodes 7 and 8 are linked horizontally by an arrow labeled &lsquo;next,&rsquo; with node 7 having a downward arrow labeled &lsquo;child&rsquo; connecting it to node 10. The label &lsquo;head: 1&rsquo; indicates node 1 as the starting point or root of the structure.  The overall structure suggests a combination of linked lists (horizontal &lsquo;next&rsquo; connections) and a tree-like hierarchy (vertical &lsquo;child&rsquo; connections).
+We’ll start by appending level 2’s nodes to the end of level 1. Before we can do this, we would need a reference to level 1’s tail node so we can easily add nodes to the end of the linked list. To set this reference, we&rsquo;ll create a tail pointer and advance it through level 1&rsquo;s linked list until it reaches the last node, which happens when tail.next is equal to null:</p>
+<p>Image represents a singly linked list data structure.  The list is labeled &lsquo;head:&rsquo; and consists of four nodes, each represented by an orange circle containing a numerical value (1, 2, 3, and 4). Each node, except the last, has a solid black arrow labeled &lsquo;next&rsquo; pointing to the subsequent node, indicating the directional flow of data within the list.  Dashed light-blue curved arrows connect each node to the <code>tail</code> which is represented by a light-blue rectangular box containing the text &lsquo;tail&rsquo;. These dashed arrows visually represent the connection to the tail, but don&rsquo;t imply a direct data flow in the same way as the &lsquo;next&rsquo; arrows. The overall structure shows a linear sequence of nodes, where each node points to the next, and all nodes are indirectly connected to the tail.
+Now, let’s add the child linked lists (5 → 6 and 7 → 8) to the tail node. We must keep the tail pointer fixed at the end of the linked list, so let’s introduce a separate pointer, curr, to traverse the linked list. Whenever curr encounters a node with a child node that isn’t null, we know we’ve found a child linked list. In the example, the first node (node 1) has a child linked list, which we want to add to the tail node:</p>
+<p>Image represents a linked list data structure illustrating a coding pattern.  The main list is composed of orange-filled nodes (1, 2, 3, 4) connected by arrows labeled &lsquo;next,&rsquo; indicating the directional flow of data.  A gray box labeled &lsquo;curr&rsquo; points to node 1, signifying a current pointer. A light-blue box labeled &lsquo;tail&rsquo; points to node 4, indicating the tail of the main list. Node 1 has a downward-pointing arrow labeled &lsquo;child&rsquo; connecting it to a sub-list enclosed in a green box. This sub-list contains brown-filled nodes (5, 6) also linked by &lsquo;next&rsquo; arrows.  Node 4 similarly has a downward-pointing arrow labeled &lsquo;child&rsquo; connecting it to another sub-list with brown-filled nodes (7, 8) linked by &lsquo;next&rsquo; arrows. The text &lsquo;add to tail&rsquo; is written below the first sub-list, suggesting a potential operation.  The overall structure shows a main list with child lists branching from specific nodes, demonstrating a hierarchical or tree-like structure within a linked list context.
+To add this child linked list to the end of the tail node, set tail.next to the head of the child list:</p>
+<p>Image represents a linked list data structure illustrating a coding pattern.  The main list, labeled &lsquo;head:&rsquo;, consists of orange nodes numbered 1 through 4, connected sequentially by &lsquo;next&rsquo; pointers.  A gray box labeled &lsquo;curr&rsquo; points to node 1, indicating a current pointer. Node 1 has a downward-pointing &lsquo;child&rsquo; pointer to a sub-list enclosed in a green box, containing maroon nodes 5 and 6 linked by a &lsquo;next&rsquo; pointer.  Similarly, node 4 has a downward-pointing &lsquo;child&rsquo; pointer to a maroon node 7, which is linked to node 8 via a &lsquo;next&rsquo; pointer. A light-blue box labeled &lsquo;tail&rsquo; points to node 4, indicating the tail of the main list.  A dashed-line box displays the code snippet &lsquo;tail.next = curr.child&rsquo;, representing an operation to append the child list to the main list, connecting the tail of the main list to the head of the child list.
+Image represents a linked list data structure with additional child pointers illustrating a tree-like structure.  The main list is composed of nodes numbered 1 through 6, each node (except the last) connected to the next by a &lsquo;next&rsquo; pointer represented by an arrow.  Node 1 is labeled &lsquo;head,&rsquo; indicating the start of the list.  A light blue box labeled &lsquo;tail&rsquo; points to node 4.  Nodes 5 and 6 are enclosed in a green box, suggesting a sub-section or a different level in the structure.  Each of nodes 1, 4, and 6 has a downward-pointing &lsquo;child&rsquo; pointer connecting it to another node: node 1 points to node 5, node 4 points to node 7, and node 6 points to node 9.  Nodes 5 and 6 are also linked together via a &lsquo;next&rsquo; pointer.  Nodes 7, 8, and 9 form a secondary linked list, with node 7 connected to node 8 via a &lsquo;next&rsquo; pointer.  Nodes 5 and 6 are lighter gray than the main list, suggesting a different level or type of data.  The overall structure shows a combination of a singly linked list and a tree structure, where the main list has nodes with child pointers creating branches.
+Before incrementing curr to find the next node with a child linked list, we need to readjust the position of the tail pointer so it’s pointing at the last node of the newly extended linked list (node 6 in this case). Again, we can do this by iterating the tail pointer until its next node is null:</p>
+<p>Image represents a linked list data structure with nested lists.  The main list, labeled &lsquo;head:&rsquo;, consists of nodes numbered 1 through 6, each represented by an orange circle containing its value.  Solid black arrows labeled &lsquo;next&rsquo; connect these nodes sequentially, indicating the order of elements. Node 1 has a downward-pointing arrow labeled &lsquo;child&rsquo; connecting it to a smaller, gray node labeled 5, which is linked to another gray node labeled 6 via a &lsquo;next&rsquo; arrow. Similarly, node 4 has a &lsquo;child&rsquo; arrow pointing to a darker-red node labeled 7, which connects to node 8 via a &lsquo;next&rsquo; arrow. Finally, node 6 has a &lsquo;child&rsquo; arrow pointing to an orange node labeled 9.  A light-blue dashed arrow points from node 4 to node 5, and another from node 5 to node 6, suggesting a secondary connection or traversal path.  Rectangular boxes labeled &lsquo;curr&rsquo; and &lsquo;tail&rsquo; indicate pointers to the beginning and end of the main list, respectively, with arrows showing their positions.  The overall structure depicts a linked list where some nodes have child lists branching off, demonstrating a tree-like structure within the main linear list.
+With the tail pointer now repositioned, we can continue this process of:</p>
+<p>Finding the next node with a child linked list using the curr pointer.
+Adding the child linked list to the tail node.
+Advancing the tail pointer to the last node of the flattened linked list.
+Image represents a linked list data structure illustrating the process of adding a node to the tail.  The main list is composed of orange-filled nodes (1-6) labeled sequentially, each connected to the next by a directed arrow labeled &lsquo;next&rsquo;.  A gray-filled sub-list (5, 6) branches down from node 1, indicating a &lsquo;child&rsquo; relationship.  A dark-red filled sub-list (7, 8) branches down from node 4, also labeled &lsquo;child&rsquo; and enclosed in a green box with the text &lsquo;add to tail&rsquo; below.  A light-orange node (9) hangs off node 6, also labeled &lsquo;child&rsquo;.  A gray box labeled &lsquo;curr&rsquo; points to node 4, and a light-blue box labeled &lsquo;tail&rsquo; points to node 6, indicating the current and tail pointers respectively.  Finally, a green box contains two dashed-line circles representing empty nodes, connected by a &lsquo;next&rsquo; arrow, showing the space where new nodes would be added to the tail of the main list.  The arrows indicate the direction of the &lsquo;next&rsquo; pointers in the list.
+Image represents a linked list data structure illustrating an operation.  The main list is composed of nodes numbered 1 through 8, each node (except the last) containing an integer value and a &lsquo;next&rsquo; pointer connecting it to the subsequent node.  Nodes 1 through 4 are colored light orange, while nodes 5 through 8 are dark red.  The &lsquo;head&rsquo; label points to node 1, indicating the beginning of the list.  A light gray linked list, labeled &lsquo;child&rsquo;, branches off from nodes 1 and 4, containing nodes 5-6 and 7-8 respectively.  A blue box labeled &lsquo;tail&rsquo; points to node 8, indicating the current end of the main list. A gray dashed-line box represents a new node to be added. A green box labeled &lsquo;9&rsquo; is shown below node 6, representing a new node being added to the list.  A dark orange node labeled &lsquo;10&rsquo; is shown below node 8, representing the new tail of the list after the addition.  A black box labeled &lsquo;curr&rsquo; points to node 6, indicating the current node being processed. The text &lsquo;add to tail&rsquo; in green indicates the operation being performed.  The arrows represent the &lsquo;next&rsquo; pointers, showing the directional flow of data within the linked list.
+Image represents a linked list data structure illustrating the process of adding a node to the tail.  The list begins with a &lsquo;head&rsquo; node labeled &lsquo;1&rsquo;, colored orange, connected via &lsquo;next&rsquo; pointers to subsequent nodes (2, 3, 4, 5, 6, 7, 8, and 9) with colors transitioning from orange to dark-red and then orange again.  Nodes 2, 3, 4, 6, and 7 are also colored orange, while 5 is dark-red.  Each node, except the last, points to the next node in the sequence.  Nodes 1, 2, 3, 4, 6, and 7 have downward-pointing arrows labeled &lsquo;child&rsquo; connecting them to secondary linked lists (5-6, 7-8, and 9 respectively), represented by lighter gray nodes.  A &lsquo;curr&rsquo; pointer points to node 8, and a &lsquo;tail&rsquo; pointer points to node 9.  A new node, &lsquo;10&rsquo;, colored orange and enclosed in a green box, is being added to the tail, indicated by the text &lsquo;add to tail&rsquo; and an arrow from node 8 to node 10.  The final node in the main list is represented by a dashed-line box, indicating that it is the current end of the list before the addition of node 10.
+Image represents a linked list data structure with nodes numbered 1 through 10.  The nodes are connected by directed edges labeled &lsquo;next,&rsquo; indicating the sequential order. Nodes 1 through 4 are colored light orange, nodes 5 through 7 are dark red, and nodes 8 through 10 are light orange.  The list starts with a &lsquo;head&rsquo; pointer pointing to node 1.  Each node (except the last) points to the next node in the sequence via its &lsquo;next&rsquo; pointer.  Additionally, nodes 4, 6, and 8 have downward-pointing edges labeled &lsquo;child,&rsquo; each connecting to a separate, smaller linked list containing nodes 5-6, 7-8, and 9-10 respectively. These child lists also use &lsquo;next&rsquo; pointers to link their nodes. A &lsquo;curr&rsquo; pointer points to node 8, and a &lsquo;tail&rsquo; pointer points to node 10, indicating current position and the end of the main list.
+After the process is complete, we can return head, which is the head of the flattened linked list.</p>
+<p>One last important detail to mention is that after appending any child linked list to the tail, we should nullify the child attribute to ensure the linked list is fully flattened.</p>
+<p>Try it yourself
+Write your solution to the problem before checking the reference implementation.
+Implementation
+The definition of the MultiLevelListNode class is provided below:</p>
+<p>Python
+JavaScript
+Java
+class MultiLevelListNode:
+    def <strong>init</strong>(self, val, next, child):
+        self.val = val
+        self.next = next
+        self.child = child
+Python
+JavaScript
+Java
+from ds import MultiLevelListNode
+   
+def flatten_multi_level_list(head: MultiLevelListNode) -&gt; MultiLevelListNode:
+    if not head:
+        return None
+    tail = head
+    # Find the tail of the linked list at the first level.
+    while tail.next:
+        tail = tail.next
+    curr = head
+    # Process each node at the current level. If a node has a child linked list,
+    # append it to the tail and then update the tail to the end of the extended linked
+    # list. Continue until all nodes at the current level are processed.
+    while curr:
+        if curr.child:
+            tail.next = curr.child
+            curr.child = None
+            while tail.next:
+                tail = tail.next
+        curr = curr.next
+    return head
+Complexity Analysis
+Time complexity: The time complexity of flatten_multi_level_list is 
+O
+(
+n
+)
+O(n), where 
+n
+n denotes the number of nodes in the multi-level linked list. This is because we iterate through each node in the multi-level linked list at most twice: once to iterate tail and once to iterate curr.</p>
+<p>Space complexity: We only allocated a constant number of variables, so the space complexity is 
+O
+(
+1
+)
+O(1).</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="palindromic-linked-list.html"><div class="label">← Anterior</div><div class="title">Palindromic Linked List</div></a><a class="next" href="../04-fast-and-slow-pointers/introduction.html"><div class="label">Siguiente →</div><div class="title">Introduction to Fast and Slow Pointers</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="flatten-multi-level-linked-list.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

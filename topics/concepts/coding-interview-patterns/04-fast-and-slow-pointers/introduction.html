@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Introduction to Fast and Slow Pointers · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 4 — Fast and Slow Pointers</span><span class="sep">/</span><span class="current">Introduction to Fast and Slow Pointers</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Introduction to Fast and Slow Pointers</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">fast-slow-pointers</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Introduction to Fast and Slow Pointers
+Intuition
+The fast and slow pointer technique is a specialized variant of the two-pointer pattern, characterized by the differing speeds at which two pointers traverse a data structure. In this technique, we designate a fast pointer and a slow pointer:</p>
+<p>Usually, the slow pointer moves one step in each iteration.</p>
+<p>Usually, the fast pointer moves two steps in each iteration.</p>
+<p>This creates a dynamic in which the fast pointer moves at twice the speed of the slow pointer:</p>
+<p>Image represents a visual depiction of the &lsquo;slow and fast pointer&rsquo; algorithm often used in linked list traversal.  The diagram shows two parallel linked lists, each composed of several circular nodes connected by solid arrows representing the <code>next</code> pointer in each node.  The top list illustrates the initial state, with a &lsquo;slow&rsquo; pointer (indicated by a light blue box labeled &lsquo;slow&rsquo;) and a &lsquo;fast&rsquo; pointer (indicated by an orange box labeled &lsquo;fast&rsquo;) both initially pointing to the first node.  Arrows from the boxes point to their respective nodes.  The bottom list shows the pointers after one iteration. The &lsquo;slow&rsquo; pointer has moved one node to the right, and the &lsquo;fast&rsquo; pointer has moved two nodes to the right.  Both lists continue with ellipses (&hellip;) indicating that they extend beyond the visible portion.  Dashed arrows on the bottom list show the movement of the pointers.  To the right, a gray box with dashed borders contains pseudocode: <code>slow = slow.next</code> and <code>fast = fast.next.next</code>, illustrating how the pointers are updated in each iteration.  This code snippet explains the algorithm&rsquo;s core logic: the slow pointer advances one node at a time, while the fast pointer advances two nodes at a time.
+Keep in mind these pointers aren&rsquo;t limited to just one and two steps. As long as the fast pointer advances more steps than the slow pointer does, the logic of the fast and slow pointer technique still applies.</p>
+<p>Real-world Example
+Detecting cycles in symlinks: Symlinks are shortcuts that point to files or directories in a file system. A real-world example of using the fast and slow pointer technique is detecting cycles in symlinks.</p>
+<p>In this process, the slow pointer follows each symlink one step at a time, while the fast pointer moves two steps at a time. If the fast pointer catches up to the slow pointer, it indicates a loop in the symlinks, which can cause infinite loops or errors when accessing files. To understand how fast and slow pointers detect cycles in this way, study the Linked List Loop problem.</p>
+<p>Chapter Outline
+Fast and slow pointers are particularly beneficial in data structures like linked lists, where index-based access isn&rsquo;t available. They allow us to gather crucial information about the data structure&rsquo;s elements through the relative positions of the two pointers, rather than with indexing. This will become clearer as we explore some common use cases in this chapter.</p>
+<p>Image represents a hierarchical diagram illustrating the applications of &lsquo;Fast and Slow Pointers&rsquo; coding pattern.  The top-level node, a rounded rectangle, is labeled &lsquo;Fast and Slow Pointers&rsquo;.  From this node, three dashed lines descend to three lower-level nodes, each representing a specific application.  The leftmost node is a rounded rectangle labeled &lsquo;Cycle Detection - <code>Linked List Loop</code>&rsquo;, indicating its use in detecting cycles within linked lists. The rightmost node is a similarly styled rounded rectangle labeled &lsquo;Sequence Analysis - <code>Happy Number</code>&rsquo;, showing its application in analyzing number sequences, specifically the &lsquo;Happy Number&rsquo; problem.  Finally, a central lower-level node, also a rounded rectangle, is labeled &lsquo;Fractional Point Identification - <code>Linked List Midpoint</code>&rsquo;, demonstrating its use in finding the midpoint of a linked list.  The connections between the top node and the three lower nodes represent the different ways the &lsquo;Fast and Slow Pointers&rsquo; pattern can be utilized, with each lower node detailing a specific problem solved using this pattern.</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="../03-linked-lists/flatten-multi-level-linked-list.html"><div class="label">← Anterior</div><div class="title">Flatten a Multi-Level Linked List</div></a><a class="next" href="linked-list-loop.html"><div class="label">Siguiente →</div><div class="title">Linked List Loop</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="introduction.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

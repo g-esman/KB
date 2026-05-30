@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Introduction to Linked Lists · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 3 — Linked Lists</span><span class="sep">/</span><span class="current">Introduction to Linked Lists</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Introduction to Linked Lists</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">linked-lists</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Introduction to Linked Lists
+Intuition
+A linked list is a data structure consisting of a sequence of nodes, where each node is linked to the next. A node in a linked list has two main components: the data it stores (val) and a reference to the next node (next) in the sequence:</p>
+<p>The image represents a single node in a linked list data structure.  A circular node, outlined in black, contains the label &lsquo;val&rsquo; indicating it holds a value. A light-blue arrow extends from this node, labeled &lsquo;next,&rsquo; pointing to the right. This arrow signifies a pointer or reference to the next node in the sequence.  The &lsquo;next&rsquo; label indicates the direction of traversal through the linked list, implying that the node&rsquo;s data (&lsquo;val&rsquo;) is followed by another node accessible via the &lsquo;next&rsquo; pointer. The absence of a node at the arrow&rsquo;s end suggests this is either the last node in a list or a partially depicted structure.
+We define a node using the ListNode class, as below:</p>
+<p>Python
+JavaScript
+Java
+class ListNode:
+   def <strong>init</strong>(self, val: int, next: ListNode):
+       self.val = val
+       self.next = next
+Singly linked list</p>
+<p>The simplest form of a linked list is a singly linked list, where each node points to the next node in the linked list, and the last node points to nothing (null), indicating the end of the linked list. The start of the linked list is called the ‘head,’ which is generally the only node we initially have immediate access to:</p>
+<p>Image represents a singly linked list data structure.  A rectangular box labeled &lsquo;head&rsquo; points downwards to a circle containing the number &lsquo;1&rsquo;. This circle represents the first node in the list. Each subsequent node (circles numbered 2, 3, 4, and 5) is connected to the previous node by a light-blue arrow labeled &lsquo;next&rsquo;. This &lsquo;next&rsquo; label indicates a pointer that stores the memory address of the following node in the sequence. The arrows illustrate the unidirectional flow of information, showing how each node points to the next one in the list. The final node (5) has no outgoing arrow, signifying the end of the list.  The entire structure visually demonstrates the sequential arrangement of nodes and the use of pointers to navigate through the linked list.
+To access the other nodes in a linked list, we would need to traverse it starting at the head.</p>
+<p>Image represents a singly linked list data structure.  Five circular nodes, numbered 1 through 5, are depicted, each containing a single integer value.  Solid, light-blue arrows labeled &lsquo;next&rsquo; connect each node sequentially, indicating the directional flow of the list.  These arrows represent pointers in the linked list, showing the connection from one node to the next.  Dashed, orange arrows also arc above the solid arrows, visually representing the traversal of the list.  A separate orange rectangle labeled &lsquo;ptr&rsquo; points down to node 5, indicating a pointer variable named &lsquo;ptr&rsquo; currently referencing the last node in the list.  The overall diagram illustrates the structure and traversal of a singly linked list, with the &lsquo;ptr&rsquo; highlighting a specific point of access within the list.
+Singly linked lists can be used to store a collection of data. One of their main benefits lies in their dynamic sizing capability, since they can grow or shrink in size flexibly, unlike arrays which are fixed in size. Additionally, singly linked lists excel in scenarios requiring frequent insertions and deletions, as these operations can be performed more efficiently than in arrays, which need to shift elements to perform insertion or deletion.</p>
+<p>Image represents a visual explanation of inserting a node into a linked list.  The top section shows an initial linked list with five nodes (numbered 1 through 5), connected sequentially by light-blue arrows labeled &lsquo;next&rsquo;.  A separate node &lsquo;3&rsquo; is shown above this list. A thick black downward-pointing arrow indicates a transformation. The bottom section depicts the linked list after the insertion of node 3 between nodes 2 and 4.  Node 3 is now connected to node 2 and node 4 via light-blue &lsquo;next&rsquo; arrows. The original connection between nodes 2 and 4 is shown crossed out with a red &lsquo;X&rsquo;, illustrating the modification of the list&rsquo;s structure. The title &lsquo;example - insert node 3 between nodes 2 and 4:&rsquo; clarifies the operation being demonstrated.
+The efficiency of these operations comes at the cost of the inability to perform random access, as nodes can’t be accessed by indexes like in an array. This trade-off may be acceptable in many use cases where the benefits of dynamic sizing and the efficiency of insertion/deletion outweigh the main performance benefits of random access.</p>
+<p>Doubly linked list
+A doubly linked list is an extended version of the linked list where each node contains two references: one to the next node (next), and one to the previous node (prev). In most implementations, doubly linked lists have immediate access to both the head node and the tail node.</p>
+<p>Image represents a doubly linked list data structure.  Five nodes, numbered 1 through 5, are depicted as circles, each containing its respective numerical value.  A rectangular box labeled &lsquo;head&rsquo; points to node 1, indicating the beginning of the list, and another rectangular box labeled &lsquo;tail&rsquo; points to node 5, indicating the end.  Between each pair of adjacent nodes are two curved arrows: a light-blue arrow labeled &lsquo;next&rsquo; pointing from the lower-numbered node to the higher-numbered node, representing the forward link in the list; and a purple arrow labeled &lsquo;prev&rsquo; pointing in the opposite direction, representing the backward link. This bidirectional linking allows traversal in both directions within the list.
+A big advantage of doubly linked list is that it allows for bidirectional traversal. Additionally, deleting nodes in a doubly linked list is generally more straightforward because we have references to both the next and previous nodes:</p>
+<p>Image represents a doubly linked list before and after the deletion of a node.  The top half shows the initial state: a doubly linked list with five nodes (numbered 1 through 5). Each node is represented by a circle containing its numerical value.  Light-blue curved arrows labeled &lsquo;next&rsquo; indicate the forward links between nodes, while purple curved arrows labeled &lsquo;prev&rsquo; show the backward links.  Rectangular boxes labeled &lsquo;head&rsquo; and &lsquo;tail&rsquo; point to the first and last nodes respectively, indicating the list&rsquo;s boundaries. The bottom half depicts the list after node 3 has been removed. Node 3 is replaced by a large red &lsquo;X&rsquo; signifying its deletion. The &lsquo;next&rsquo; and &lsquo;prev&rsquo; pointers of nodes 2 and 4 are now connected directly, bypassing the deleted node, maintaining the doubly linked structure.  A thick black arrow points downwards from node 3 in the top half to the &lsquo;X&rsquo; in the bottom half, clearly showing the node removal operation.
+Pointer Manipulation
+Many linked list interview problems require traversing or restructuring a linked list. Understanding and being proficient at pointer manipulation is essential to solving these problems. A useful tip is to visualize pointers as arrows that point from one node to another, and observe how these arrows should be moved to reflect the structural change. For example, this is how we would visualize a node insertion:</p>
+<p>Image represents a visual depiction of inserting a new node into a linked list.  The top shows a labeled orange rectangle &lsquo;new_node&rsquo; pointing down to a circled &lsquo;3&rsquo;, representing the new node to be inserted. Below, a linked list is shown with nodes numbered 1, 2, 4, and 5, connected by light-blue arrows labeled &lsquo;next&rsquo;. A thick black arrow points downwards indicating a transformation. The bottom section shows the result of the insertion. Node 3 is now inserted between nodes 2 and 4.  Dashed gray arrows and text indicate the changes: a dashed gray arrow labeled &lsquo;add arrow&rsquo; points from node 2 to node 3, another from node 3 to node 4, and a dashed gray arrow labeled &lsquo;remove this arrow&rsquo; shows the original connection between nodes 2 and 4 being replaced, with a red &lsquo;X&rsquo; marking the removed connection.  All new connections use light-blue arrows labeled &lsquo;next&rsquo;, maintaining the linked list structure.
+Real-world Example
+Music Playlist: Music player applications often use linked lists to implement playlists, particularly doubly linked lists, where each song node links to the next and previous songs. This structure enables efficient addition, removal, and reordering of songs because only the pointers between nodes need to be updated, rather than moving the song data in memory.</p>
+<p>Chapter Outline
+In this chapter, we explore problems involving both singly and doubly linked lists. We also explore the unique challenge of restructuring a multi-level linked list.</p>
+<p>Image represents a hierarchical diagram illustrating different coding patterns related to linked lists.  A rounded rectangle at the top, labeled &lsquo;Linked Lists,&rsquo; serves as the root node, branching down with dashed lines to three subordinate categories.  The leftmost branch leads to a dashed-line rectangle labeled &lsquo;Traversal,&rsquo; which further lists two sub-patterns: &lsquo;Linked List Intersection&rsquo; and &lsquo;Palindrome Linked List.&rsquo; The central branch connects to another dashed-line rectangle labeled &lsquo;Restructuring,&rsquo; containing three sub-patterns: &lsquo;Linked List Reversal,&rsquo; &lsquo;Remove the Kth Last Node From a Linked List,&rsquo; and &lsquo;Flatten a Multi-Level Linked List.&rsquo; Finally, the rightmost branch points to a dashed-line rectangle labeled &lsquo;Doubly Linked List,&rsquo; which includes a single sub-pattern: &lsquo;LRU Cache.&rsquo;  The diagram visually organizes various linked list coding problems based on their approach (traversal or restructuring) and the type of linked list (singly or doubly linked).</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="../02-hash-maps-and-sets/geometric-sequence-triplets.html"><div class="label">← Anterior</div><div class="title">Geometric Sequence Triplets</div></a><a class="next" href="linked-list-reversal.html"><div class="label">Siguiente →</div><div class="title">Linked List Reversal</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="introduction.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

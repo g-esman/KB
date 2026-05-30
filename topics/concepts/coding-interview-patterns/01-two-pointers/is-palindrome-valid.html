@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Is Palindrome Valid · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 1 — Two Pointers</span><span class="sep">/</span><span class="current">Is Palindrome Valid</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <ul class="toc">
+<li class="toc-h2"><a href="#in-this-entry">📑 In this entry</a></li>
+<li class="toc-h2"><a href="#for-dummies-empeza-por-aca">🎓 For Dummies — empezá por acá</a></li>
+<li class="toc-h3"><a href="#trampas-comunes">Trampas comunes</a></li>
+<li class="toc-h2"><a href="#problema">Problema</a></li>
+<li class="toc-h3"><a href="#ejemplo-1">Ejemplo 1</a></li>
+<li class="toc-h3"><a href="#ejemplo-2">Ejemplo 2</a></li>
+<li class="toc-h3"><a href="#constraints">Constraints</a></li>
+<li class="toc-h2"><a href="#que-es-un-palindromo-con-simetria">Qué es un palíndromo (con simetría)</a></li>
+<li class="toc-h2"><a href="#estrategia-dos-punteros-que-se-encuentran-en-el-medio">Estrategia: dos punteros que se encuentran en el medio</a></li>
+<li class="toc-h2"><a href="#manejo-de-caracteres-no-alfanumericos">Manejo de caracteres no alfanuméricos</a></li>
+<li class="toc-h2"><a href="#trace-paso-a-paso">Trace paso a paso</a></li>
+<li class="toc-h2"><a href="#decision-flowchart">Decision flowchart</a></li>
+<li class="toc-h2"><a href="#implementacion">Implementación</a></li>
+<li class="toc-h3"><a href="#javascript">JavaScript</a></li>
+<li class="toc-h3"><a href="#c">C</a></li>
+<li class="toc-h2"><a href="#complexity-analysis">Complexity Analysis</a></li>
+<li class="toc-h3"><a href="#comparacion-con-la-version-naive">Comparación con la versión naive</a></li>
+<li class="toc-h2"><a href="#test-cases">Test Cases</a></li>
+<li class="toc-h2"><a href="#amplification-variantes-y-casos-especiales">⭐ Amplification: variantes y casos especiales</a></li>
+<li class="toc-h3"><a href="#variante-1-valid-palindrome-ii-leetcode-680">Variante 1: Valid Palindrome II (LeetCode #680)</a></li>
+<li class="toc-h3"><a href="#variante-2-longest-palindromic-substring-leetcode-5">Variante 2: Longest Palindromic Substring (LeetCode #5)</a></li>
+<li class="toc-h3"><a href="#variante-3-palindrome-ignorando-solo-case-sin-signos">Variante 3: palindrome ignorando solo case (sin signos)</a></li>
+<li class="toc-h3"><a href="#variante-4-linked-list-palindrome">Variante 4: linked list palindrome</a></li>
+<li class="toc-h3"><a href="#follow-ups-tipicos">Follow-ups típicos</a></li>
+<li class="toc-h2"><a href="#pitfalls">⚠️ Pitfalls</a></li>
+<li class="toc-h2"><a href="#interview-tips">Interview Tips</a></li>
+<li class="toc-h2"><a href="#references">References</a></li>
+</ul>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Is Palindrome Valid</h1>
+  <div class="meta-row">
+    <span class="status-badge active">✓ active</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-08</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">two-pointers</span><span class="meta-tag">interview-prep</span><span class="meta-tag">inward-traversal</span><span class="meta-tag">strings</span></div>
+</header>
+      
+      <blockquote>
+<p>📍 <strong>Two Pointers · Problema 4/6</strong> · <a href="./largest-container.html">⬅ Largest Container</a> · <a href="./introduction.html">🏠 Chapter</a> · <a href="./shift-zeros-to-the-end.html">Shift Zeros ➡</a> · <a href="../../../../index.html">📚 KB Index</a></p>
+<p><strong>TL;DR</strong> — Verificar si un string es palíndromo <strong>ignorando</strong> caracteres no alfanuméricos. Two pointers desde los extremos: si ambos son alfanuméricos y coinciden, ambos avanzan al centro; si no coinciden, no es palíndromo. Skip de no-alfanuméricos antes de comparar. <strong>O(n) tiempo, O(1) espacio.</strong></p>
+</blockquote>
+<hr />
+<h2 id="in-this-entry">📑 In this entry<a class="headerlink" href="#in-this-entry" title="anchor">&para;</a></h2>
+<ol>
+<li><a href="#-for-dummies--empezá-por-acá">🎓 For Dummies — empezá por acá</a></li>
+<li><a href="#problema">Problema</a></li>
+<li><a href="#qué-es-un-palíndromo-con-simetría">Qué es un palíndromo (con simetría)</a></li>
+<li><a href="#estrategia-dos-punteros-que-se-encuentran-en-el-medio">Estrategia: dos punteros que se encuentran en el medio</a></li>
+<li><a href="#manejo-de-caracteres-no-alfanuméricos">Manejo de caracteres no alfanuméricos</a></li>
+<li><a href="#trace-paso-a-paso">Trace paso a paso</a></li>
+<li><a href="#decision-flowchart">Decision flowchart</a></li>
+<li><a href="#implementación">Implementación</a></li>
+<li><a href="#complexity-analysis">Complexity Analysis</a></li>
+<li><a href="#test-cases">Test Cases</a></li>
+<li><a href="#-amplification-variantes-y-casos-especiales">⭐ Amplification: variantes y casos especiales</a></li>
+<li><a href="#️-pitfalls">⚠️ Pitfalls</a></li>
+<li><a href="#interview-tips">Interview Tips</a></li>
+</ol>
+<hr />
+<h2 id="for-dummies-empeza-por-aca">🎓 For Dummies — empezá por acá<a class="headerlink" href="#for-dummies-empeza-por-aca" title="anchor">&para;</a></h2>
+<p><strong>Analogía:</strong> un palíndromo es una palabra-espejo. Se lee igual de izquierda a derecha y de derecha a izquierda. Ejemplos: <code>racecar</code>, <code>neuquen</code>, <code>anita lava la tina</code>, <code>arribaba la birra</code>.</p>
+<p>Imaginá la palabra escrita en una hoja, y <strong>doblás la hoja por la mitad</strong>: si todas las letras de cada lado se superponen perfectamente, es palíndromo.</p>
+<p><strong>¿Cómo lo verificás algorítmicamente?</strong> Poneé un dedo al principio y otro al final:</p>
+<ul>
+<li>¿La letra de la izquierda y la de la derecha <strong>son la misma</strong>? Sí → ambos dedos hacia adentro un paso.</li>
+<li>¿No coinciden? → no es palíndromo, terminás.</li>
+<li>¿Los dedos se cruzaron? → revisaste todo, sí es palíndromo.</li>
+</ul>
+<p><strong>¿Y los espacios y signos de puntuación?</strong> Los <strong>ignorás</strong>. La frase <code>"a dog! a panic in a pagoda."</code> es palíndromo porque <strong>solo contando letras y números</strong> queda <code>adogapanicinapagoda</code> ↔ <code>adogapanicinapagoda</code>. Cuando un dedo cae en un signo, simplemente lo saltás (movés el dedo un paso más).</p>
+<h3 id="trampas-comunes">Trampas comunes<a class="headerlink" href="#trampas-comunes" title="anchor">&para;</a></h3>
+<ul>
+<li>⚠️ <strong>Olvidar la condición <code>left &lt; right</code> dentro de los while-skips.</strong> Si el string es puro signos (<code>"!?,."</code>), <code>left</code> puede pasarse de <code>right</code>. Si no chequeás, intentás comparar índices invertidos.</li>
+<li>⚠️ <strong>Comparar con sensibilidad a mayúsculas.</strong> <code>"Aa"</code> ¿es palíndromo? Depende del enunciado. La mayoría de variantes piden case-insensitive, pero <strong>siempre preguntá</strong>. En el código se resuelve con <code>.lower()</code> o usando <code>Character.toLowerCase()</code>.</li>
+<li>⚠️ <strong>Pensar que &ldquo;no alfanuméricos&rdquo; significa &ldquo;solo espacios&rdquo;.</strong> No: incluye signos de puntuación, emojis, acentos según el enunciado. Regex <code>[a-zA-Z0-9]</code> (JS) o <code>char.IsLetterOrDigit</code> (C#) cubre letras + dígitos. Si el problema permite Unicode con acentos, depende de la implementación del lenguaje.</li>
+</ul>
+<p>¿Listo para la versión completa? ⬇️</p>
+<hr />
+<h2 id="problema">Problema<a class="headerlink" href="#problema" title="anchor">&para;</a></h2>
+<p>Dado un string, determiná si es palíndromo después de <strong>eliminar todos los caracteres no alfanuméricos</strong>. Un carácter es alfanumérico si es una letra o un número.</p>
+<h3 id="ejemplo-1">Ejemplo 1<a class="headerlink" href="#ejemplo-1" title="anchor">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>Input:  s = &quot;a dog! a panic in a pagoda.&quot;
+Output: True
+Explicación: ignorando espacios y signos queda &quot;adogapanicinapagoda&quot;,
+             que se lee igual al revés.
+</code></pre></div>
+<h3 id="ejemplo-2">Ejemplo 2<a class="headerlink" href="#ejemplo-2" title="anchor">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>Input:  s = &quot;abc123&quot;
+Output: False
+Explicación: ignorando signos queda &quot;abc123&quot;, que al revés es &quot;321cba&quot; ≠ &quot;abc123&quot;.
+</code></pre></div>
+<h3 id="constraints">Constraints<a class="headerlink" href="#constraints" title="anchor">&para;</a></h3>
+<p>El string puede incluir letras inglesas en minúscula, números, espacios y puntuación.</p>
+<hr />
+<h2 id="que-es-un-palindromo-con-simetria">Qué es un palíndromo (con simetría)<a class="headerlink" href="#que-es-un-palindromo-con-simetria" title="anchor">&para;</a></h2>
+<p>Un palíndromo se lee igual de adelante hacia atrás:</p>
+<div class="highlight"><pre><span></span><code>&quot;racecar&quot;   ─reverse─►   &quot;racecar&quot;   ✓
+</code></pre></div>
+<p>La propiedad clave: <strong>el primer carácter es igual al último, el segundo al penúltimo, etc.</strong> Visualmente, los pares simétricos coinciden:</p>
+<p><img alt="Palindrome symmetry" src="../../img/tp-fig-pal-01-symmetry.png" /></p>
+<p>Cuando la longitud es <strong>impar</strong>, hay un carácter central que se compara consigo mismo (no afecta la decisión, lo podemos saltear). Cuando es <strong>par</strong>, los dos punteros se cruzan sin coincidir, lo que también es señal de éxito.</p>
+<hr />
+<h2 id="estrategia-dos-punteros-que-se-encuentran-en-el-medio">Estrategia: dos punteros que se encuentran en el medio<a class="headerlink" href="#estrategia-dos-punteros-que-se-encuentran-en-el-medio" title="anchor">&para;</a></h2>
+<p>Two pointers <strong>inward traversal</strong> es el match perfecto para esto:</p>
+<div class="highlight"><pre><span></span><code>   left                           right
+    ▼                              ▼
+[ a    b    c    d    c    b    a ]
+                 ^
+                 (después de varias iteraciones,
+                  los dos llegan al medio)
+</code></pre></div>
+<p>Lógica básica (sin considerar signos):</p>
+<ol>
+<li><code>left = 0</code>, <code>right = len(s) - 1</code>.</li>
+<li>Mientras <code>left &lt; right</code>:</li>
+<li>Si <code>s[left] != s[right]</code> → no es palíndromo, return <code>False</code>.</li>
+<li>Si <code>s[left] == s[right]</code> → <code>left++</code>, <code>right--</code>.</li>
+<li>Si salimos del while sin returnear <code>False</code> → return <code>True</code>.</li>
+</ol>
+<hr />
+<h2 id="manejo-de-caracteres-no-alfanumericos">Manejo de caracteres no alfanuméricos<a class="headerlink" href="#manejo-de-caracteres-no-alfanumericos" title="anchor">&para;</a></h2>
+<p>Como hay que ignorar signos y espacios, <strong>antes de comparar</strong>, avanzamos los punteros hasta que ambos apunten a un carácter alfanumérico:</p>
+<div class="highlight"><pre><span></span><code>Skip desde la izquierda:
+  while s[left] no es alfanumérico:
+      left += 1
+
+Skip desde la derecha:
+  while s[right] no es alfanumérico:
+      right -= 1
+</code></pre></div>
+<p><strong>⚠️ Cuidado con los bordes:</strong> mientras hacés skip, podés pasarte. Si el string es <code>"!?,."</code> (puros signos), <code>left</code> pasaría de <code>right</code>. Por eso los <code>while</code> internos siempre llevan también <code>left &lt; right</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nx">left</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">right</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="nx">isAlnum</span><span class="p">(</span><span class="nx">s</span><span class="p">[</span><span class="nx">left</span><span class="p">]))</span><span class="w"> </span><span class="nx">left</span><span class="o">++</span><span class="p">;</span>
+<span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nx">left</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">right</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="nx">isAlnum</span><span class="p">(</span><span class="nx">s</span><span class="p">[</span><span class="nx">right</span><span class="p">]))</span><span class="w"> </span><span class="nx">right</span><span class="o">--</span><span class="p">;</span>
+</code></pre></div>
+<hr />
+<h2 id="trace-paso-a-paso">Trace paso a paso<a class="headerlink" href="#trace-paso-a-paso" title="anchor">&para;</a></h2>
+<p>Ejemplo: <code>s = "a+2c!2a"</code> (versión compacta, sin espacios).</p>
+<p><img alt="Palindrome trace" src="../../img/tp-fig-pal-02-trace.png" /></p>
+<p><strong>Resultado:</strong> <code>True</code>. El string, ignorando signos, es <code>a2c2a</code>, que es palíndromo.</p>
+<hr />
+<h2 id="decision-flowchart">Decision flowchart<a class="headerlink" href="#decision-flowchart" title="anchor">&para;</a></h2>
+<p><img alt="Palindrome flowchart" src="../../img/tp-fig-pal-03-flow.png" /></p>
+<hr />
+<h2 id="implementacion">Implementación<a class="headerlink" href="#implementacion" title="anchor">&para;</a></h2>
+<h3 id="javascript">JavaScript<a class="headerlink" href="#javascript" title="anchor">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">isPalindromeValid</span><span class="p">(</span><span class="nx">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">isAlnum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">c</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="o">/</span><span class="p">[</span><span class="nx">a</span><span class="o">-</span><span class="nx">zA</span><span class="o">-</span><span class="nx">Z0</span><span class="o">-</span><span class="mf">9</span><span class="p">]</span><span class="o">/</span><span class="p">.</span><span class="nx">test</span><span class="p">(</span><span class="nx">c</span><span class="p">);</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">right</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nx">left</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">right</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Skip caracteres no alfanuméricos desde la izquierda.</span>
+<span class="w">        </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nx">left</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">right</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="nx">isAlnum</span><span class="p">(</span><span class="nx">s</span><span class="p">[</span><span class="nx">left</span><span class="p">]))</span><span class="w"> </span><span class="nx">left</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="c1">// Skip caracteres no alfanuméricos desde la derecha.</span>
+<span class="w">        </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nx">left</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">right</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="nx">isAlnum</span><span class="p">(</span><span class="nx">s</span><span class="p">[</span><span class="nx">right</span><span class="p">]))</span><span class="w"> </span><span class="nx">right</span><span class="o">--</span><span class="p">;</span>
+<span class="w">        </span><span class="c1">// Comparar caracteres alfanuméricos.</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">s</span><span class="p">[</span><span class="nx">left</span><span class="p">]</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="nx">s</span><span class="p">[</span><span class="nx">right</span><span class="p">])</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span>
+<span class="w">        </span><span class="nx">left</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="nx">right</span><span class="o">--</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="c">C<a class="headerlink" href="#c" title="anchor">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="k">public</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">IsPalindromeValid</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">right</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">Length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">left</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">right</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Skip caracteres no alfanuméricos desde la izquierda.</span>
+<span class="w">        </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">left</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">right</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="kt">char</span><span class="p">.</span><span class="n">IsLetterOrDigit</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">left</span><span class="p">]))</span><span class="w"> </span><span class="n">left</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="c1">// Skip caracteres no alfanuméricos desde la derecha.</span>
+<span class="w">        </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">left</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">right</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="kt">char</span><span class="p">.</span><span class="n">IsLetterOrDigit</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">right</span><span class="p">]))</span><span class="w"> </span><span class="n">right</span><span class="o">--</span><span class="p">;</span>
+<span class="w">        </span><span class="c1">// Comparar caracteres alfanuméricos.</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">left</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">s</span><span class="p">[</span><span class="n">right</span><span class="p">])</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="k">false</span><span class="p">;</span>
+<span class="w">        </span><span class="n">left</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="n">right</span><span class="o">--</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">true</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<blockquote>
+<p><strong>Nota sobre case-sensitivity:</strong> el enunciado original asume todo lowercase. Si el problema permite mayúsculas, agregá <code>.toLowerCase()</code> (JS) o <code>char.ToLower()</code> (C#) al comparar, o normalizá el string al inicio.</p>
+</blockquote>
+<hr />
+<h2 id="complexity-analysis">Complexity Analysis<a class="headerlink" href="#complexity-analysis" title="anchor">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Métrica</th>
+<th>Valor</th>
+<th>Por qué</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Tiempo</strong></td>
+<td>O(n)</td>
+<td>Cada carácter del string se visita <strong>a lo sumo una vez</strong> (sea por <code>left</code> o por <code>right</code>). Los while-skips internos no convierten esto en O(n²) porque cada skip avanza un puntero que <strong>nunca retrocede</strong>.</td>
+</tr>
+<tr>
+<td><strong>Espacio</strong></td>
+<td>O(1)</td>
+<td>Solo variables <code>left</code> y <code>right</code>. No allocamos arrays auxiliares.</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Por qué los while anidados NO son O(n²):</strong> parece que tenés un while afuera y dos while adentro, pero la suma total de iteraciones de <strong>todos</strong> los whiles es ≤ n. Cada paso adelante de <code>left</code> (o atrás de <code>right</code>) cuenta como una iteración total — el costo se amortiza.</p>
+</blockquote>
+<h3 id="comparacion-con-la-version-naive">Comparación con la versión naive<a class="headerlink" href="#comparacion-con-la-version-naive" title="anchor">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Tiempo</th>
+<th>Espacio</th>
+<th>Notas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Filtrar + reversed comparison</td>
+<td>O(n)</td>
+<td><strong>O(n)</strong></td>
+<td>Crear string filtrado y compararlo con su reverso. Más fácil de leer pero usa memoria extra.</td>
+</tr>
+<tr>
+<td><strong>Two pointers</strong></td>
+<td><strong>O(n)</strong></td>
+<td><strong>O(1)</strong></td>
+<td>Misma performance, espacio constante. <strong>Preferida en entrevista.</strong></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><span class="c1">// Versión naive (educativa, NO óptima en espacio):</span>
+<span class="kd">function</span><span class="w"> </span><span class="nx">isPalindromeNaive</span><span class="p">(</span><span class="nx">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">filtered</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">().</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/[^a-z0-9]/g</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">filtered</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="p">[...</span><span class="nx">filtered</span><span class="p">].</span><span class="nx">reverse</span><span class="p">().</span><span class="nx">join</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="test-cases">Test Cases<a class="headerlink" href="#test-cases" title="anchor">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Input</th>
+<th>Expected</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>""</code></td>
+<td><code>True</code></td>
+<td>String vacío: trivialmente palíndromo.</td>
+</tr>
+<tr>
+<td><code>"a"</code></td>
+<td><code>True</code></td>
+<td>Un solo carácter.</td>
+</tr>
+<tr>
+<td><code>"aa"</code></td>
+<td><code>True</code></td>
+<td>Palíndromo de longitud par mínima.</td>
+</tr>
+<tr>
+<td><code>"ab"</code></td>
+<td><code>False</code></td>
+<td>Dos caracteres distintos.</td>
+</tr>
+<tr>
+<td><code>"!,(?)"</code></td>
+<td><code>True</code></td>
+<td>Solo signos: queda &ldquo;&rdquo; → palíndromo.</td>
+</tr>
+<tr>
+<td><code>"12.02.2021"</code></td>
+<td><code>True</code></td>
+<td>Palíndromo con números: <code>12022021</code> ↔ <code>12022021</code>.</td>
+</tr>
+<tr>
+<td><code>"21.02.2021"</code></td>
+<td><code>False</code></td>
+<td>No-palíndromo con números.</td>
+</tr>
+<tr>
+<td><code>"hello, world!"</code></td>
+<td><code>False</code></td>
+<td>Frase normal no-palíndromo.</td>
+</tr>
+<tr>
+<td><code>"A man, a plan, a canal: Panama"</code></td>
+<td><code>True</code>*</td>
+<td>Caso clásico — <em>requiere case-insensitive</em>.</td>
+</tr>
+<tr>
+<td><code>"a dog! a panic in a pagoda."</code></td>
+<td><code>True</code></td>
+<td>Caso del enunciado.</td>
+</tr>
+<tr>
+<td><code>"race a car"</code></td>
+<td><code>False</code></td>
+<td>Casi palíndromo.</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><em>Para <code>"A man, a plan, a canal: Panama"</code> el enunciado de este ejercicio asume lowercase, así que con la implementación de arriba </em><em>devolvería False</em>* (porque <code>'A' != 'a'</code>). Hay que normalizar a lowercase si el problema lo permite.</p>
+</blockquote>
+<hr />
+<h2 id="amplification-variantes-y-casos-especiales">⭐ Amplification: variantes y casos especiales<a class="headerlink" href="#amplification-variantes-y-casos-especiales" title="anchor">&para;</a></h2>
+<h3 id="variante-1-valid-palindrome-ii-leetcode-680">Variante 1: Valid Palindrome II (LeetCode #680)<a class="headerlink" href="#variante-1-valid-palindrome-ii-leetcode-680" title="anchor">&para;</a></h3>
+<p><em>&ldquo;Podés borrar </em><em>a lo sumo un carácter</em><em>. ¿Podés volverlo palíndromo?&rdquo;</em></p>
+<p>Idea: cuando los dos punteros no coinciden, <strong>probás dos opciones</strong>: saltarte <code>left</code> o saltarte <code>right</code>. Si <strong>alguna</strong> de las dos vuelve palíndromo lo que queda, devolvés <code>True</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">validPalindromeII</span><span class="p">(</span><span class="nx">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">isPal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">l</span><span class="p">,</span><span class="w"> </span><span class="nx">r</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nx">l</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">r</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">s</span><span class="p">[</span><span class="nx">l</span><span class="p">]</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="nx">s</span><span class="p">[</span><span class="nx">r</span><span class="p">])</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span>
+<span class="w">            </span><span class="nx">l</span><span class="o">++</span><span class="p">;</span><span class="w"> </span><span class="nx">r</span><span class="o">--</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
+<span class="w">    </span><span class="p">};</span>
+
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">right</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nx">left</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">right</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">s</span><span class="p">[</span><span class="nx">left</span><span class="p">]</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="nx">s</span><span class="p">[</span><span class="nx">right</span><span class="p">])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// Probar saltar uno de los dos lados.</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="nx">isPal</span><span class="p">(</span><span class="nx">left</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="nx">right</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nx">isPal</span><span class="p">(</span><span class="nx">left</span><span class="p">,</span><span class="w"> </span><span class="nx">right</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="nx">left</span><span class="o">++</span><span class="p">;</span><span class="w"> </span><span class="nx">right</span><span class="o">--</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Sigue siendo O(n) tiempo (en el peor caso una sola &ldquo;branch&rdquo; extra).</p>
+<h3 id="variante-2-longest-palindromic-substring-leetcode-5">Variante 2: Longest Palindromic Substring (LeetCode #5)<a class="headerlink" href="#variante-2-longest-palindromic-substring-leetcode-5" title="anchor">&para;</a></h3>
+<p>Esto <strong>NO</strong> es two pointers puro — es <strong>expand around center</strong>: para cada índice <code>i</code>, intentás expandir un palíndromo desde el centro hacia afuera. Lo incluyo porque suele aparecer como follow-up.</p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">longestPalindrome</span><span class="p">(</span><span class="nx">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">expand</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">l</span><span class="p">,</span><span class="w"> </span><span class="nx">r</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nx">l</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mf">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">r</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">s</span><span class="p">[</span><span class="nx">l</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">s</span><span class="p">[</span><span class="nx">r</span><span class="p">])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">l</span><span class="o">--</span><span class="p">;</span><span class="w"> </span><span class="nx">r</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="nx">l</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="nx">r</span><span class="p">);</span>
+<span class="w">    </span><span class="p">};</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">best</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">let</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Centro impar (un solo char) y par (dos chars).</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="nx">cand</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="p">[</span><span class="nx">expand</span><span class="p">(</span><span class="nx">i</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span><span class="p">),</span><span class="w"> </span><span class="nx">expand</span><span class="p">(</span><span class="nx">i</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span><span class="p">)])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">cand</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="nx">best</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span><span class="w"> </span><span class="nx">best</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">cand</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">best</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Tiempo O(n²), espacio O(1). Para O(n) verdadero hay que mirar <strong>algoritmo de Manacher</strong>, pero rara vez se pide en entrevistas.</p>
+<h3 id="variante-3-palindrome-ignorando-solo-case-sin-signos">Variante 3: palindrome ignorando solo case (sin signos)<a class="headerlink" href="#variante-3-palindrome-ignorando-solo-case-sin-signos" title="anchor">&para;</a></h3>
+<p>Si te dicen <em>&ldquo;todos los caracteres cuentan, solo ignorá case&rdquo;</em>, sacás los while-skips y dejás solo:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">isPalindromeCaseInsensitive</span><span class="p">(</span><span class="nx">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">right</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">s</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nx">left</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">right</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">s</span><span class="p">[</span><span class="nx">left</span><span class="p">].</span><span class="nx">toLowerCase</span><span class="p">()</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="nx">s</span><span class="p">[</span><span class="nx">right</span><span class="p">].</span><span class="nx">toLowerCase</span><span class="p">())</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span>
+<span class="w">        </span><span class="nx">left</span><span class="o">++</span><span class="p">;</span><span class="w"> </span><span class="nx">right</span><span class="o">--</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="variante-4-linked-list-palindrome">Variante 4: linked list palindrome<a class="headerlink" href="#variante-4-linked-list-palindrome" title="anchor">&para;</a></h3>
+<p>Para una <strong>linked list</strong> no podés indexar, así que cambia el approach:</p>
+<ol>
+<li>Encontrar el medio (slow/fast pointers — ver <a href="../04-fast-and-slow-pointers/">Cap. 4</a>).</li>
+<li>Reverse la segunda mitad in-place.</li>
+<li>Comparar la primera mitad con la segunda mitad reversed.</li>
+</ol>
+<p>O(n) tiempo, O(1) espacio.</p>
+<h3 id="follow-ups-tipicos">Follow-ups típicos<a class="headerlink" href="#follow-ups-tipicos" title="anchor">&para;</a></h3>
+<ul>
+<li><em>&ldquo;¿Y si el string es muy largo y solo tenés streaming?&rdquo;</em> — No podés hacer two pointers porque no podés moverte hacia atrás. Hay que parsear hacia adelante y guardar todo (O(n) espacio).</li>
+<li><em>&ldquo;¿Y si querés ignorar también los caracteres acentuados?&rdquo;</em> — Normalizar primero (<code>s.normalize("NFKD").replace(/[̀-ͯ]/g, "")</code> en JS; <code>s.Normalize(NormalizationForm.FormD)</code> + filtrar combining marks en C#).</li>
+</ul>
+<hr />
+<h2 id="pitfalls">⚠️ Pitfalls<a class="headerlink" href="#pitfalls" title="anchor">&para;</a></h2>
+<ul>
+<li><strong>Olvidar <code>left &lt; right</code> dentro de los while-skips.</strong> Sin esa guarda, en strings con puros signos te pasás de los bordes y rompés.</li>
+<li><strong>Asumir que el input es ya lowercase.</strong> Aclarar con el entrevistador. Si no lo es, normalizar.</li>
+<li><strong>No considerar string vacío.</strong> <code>""</code> es palíndromo por convención. Algunas tests lo verifican.</li>
+<li><strong>Hacer dos pasadas (filtrar + reversar)</strong> cuando la consigna pide O(1) espacio.</li>
+<li><strong>Confundir &ldquo;alfanumérico&rdquo; con &ldquo;letra&rdquo;.</strong> &ldquo;Alfanumérico&rdquo; incluye dígitos (regex <code>[a-zA-Z0-9]</code> o <code>char.IsLetterOrDigit</code>); &ldquo;letra&rdquo; no (<code>[a-zA-Z]</code> o <code>char.IsLetter</code>). Lee bien el problema.</li>
+<li><strong>No saltarse el medio en longitudes impares.</strong> En realidad <strong>no hace falta saltarlo</strong>: cuando <code>left == right</code> se sale del while sin compararlo, así que está cubierto naturalmente.</li>
+</ul>
+<hr />
+<h2 id="interview-tips">Interview Tips<a class="headerlink" href="#interview-tips" title="anchor">&para;</a></h2>
+<p><strong>Tip 1 — Aclará constraints antes de tipear.</strong></p>
+<ul>
+<li>¿Hay caracteres no alfanuméricos? ¿Cómo los trato?</li>
+<li>¿Hay diferencia entre mayúsculas y minúsculas?</li>
+<li>¿Hay Unicode / acentos / emojis?</li>
+<li>¿Qué devuelvo para <code>""</code>?</li>
+</ul>
+<p><strong>Tip 2 — Confirmá el uso de built-ins.</strong>
+Regex <code>/[a-zA-Z0-9]/</code> (JS) o <code>char.IsLetterOrDigit()</code> (C#) — son <strong>azúcar</strong> que vale la pena. Pero el entrevistador puede pedirte implementarla a mano:</p>
+<div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">isAlnum</span><span class="p">(</span><span class="nx">c</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="nx">c</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="s1">&#39;a&#39;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">c</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="s1">&#39;z&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">(</span><span class="nx">c</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="s1">&#39;A&#39;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">c</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="s1">&#39;Z&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">(</span><span class="nx">c</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="s1">&#39;0&#39;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">c</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="s1">&#39;9&#39;</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="kt">bool</span><span class="w"> </span><span class="nf">IsAlnum</span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="n">c</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span>
+<span class="w">    </span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="sc">&#39;a&#39;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="sc">&#39;z&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="sc">&#39;A&#39;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="sc">&#39;Z&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="sc">&#39;0&#39;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="sc">&#39;9&#39;</span><span class="p">);</span>
+</code></pre></div>
+<p>Mostrar que <strong>sabés cómo está construida</strong> (rangos ASCII) suma puntos.</p>
+<p><strong>Tip 3 — Habla de la invariante.</strong>
+Decí: <em>&ldquo;En cada iteración, todo lo de afuera de [left, right] ya fue verificado y matchea. Si llego al centro sin contradicción, todo el string es palíndromo.&rdquo;</em> Eso muestra que entendés por qué funciona, no solo que lo memorizaste.</p>
+<p><strong>Tip 4 — Si el follow-up es &ldquo;implementá <code>isAlnum</code> por tu cuenta&rdquo;, no entres en pánico.</strong>
+Es un check de char ranges. Tres comparaciones encadenadas con <code>or</code>.</p>
+<hr />
+<h2 id="references">References<a class="headerlink" href="#references" title="anchor">&para;</a></h2>
+<ul>
+<li>LeetCode — <a href="https://leetcode.com/problems/valid-palindrome/">#125 Valid Palindrome</a></li>
+<li>LeetCode — <a href="https://leetcode.com/problems/valid-palindrome-ii/">#680 Valid Palindrome II</a> (con eliminación de un carácter)</li>
+<li>LeetCode — <a href="https://leetcode.com/problems/longest-palindromic-substring/">#5 Longest Palindromic Substring</a> (follow-up)</li>
+<li>Coding Interview Patterns — capítulo &ldquo;Two Pointers&rdquo; → &ldquo;Is Palindrome Valid&rdquo;</li>
+<li>Entradas relacionadas:</li>
+<li><a href="./introduction.html">Introduction to Two Pointers</a></li>
+<li><a href="./pair-sum-sorted.html">Pair Sum - Sorted</a> (otro inward traversal)</li>
+</ul>
+<hr />
+<blockquote>
+<p>📍 <strong>Two Pointers · Problema 4/6</strong> · <a href="./largest-container.html">⬅ Largest Container</a> · <a href="./introduction.html">🏠 Chapter</a> · <a href="./shift-zeros-to-the-end.html">Shift Zeros ➡</a> · <a href="../../../../index.html">📚 KB Index</a></p>
+</blockquote>
+      <nav class="prev-next"><a class="prev" href="largest-container.html"><div class="label">← Anterior</div><div class="title">Largest Container</div></a><a class="next" href="shift-zeros-to-the-end.html"><div class="label">Siguiente →</div><div class="title">Shift Zeros to the End</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="is-palindrome-valid.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sort Linked List · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 17 — Sort and Search</span><span class="sep">/</span><span class="current">Sort Linked List</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Sort Linked List</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">sort-search</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Sort Linked List
+Given the head of a singly linked list, sort the linked list in ascending order.</p>
+<p>Example:
+Image represents two linear sequences of numbered nodes (3, 2, 4, 5, 1) and (1, 2, 3, 4, 5) connected by unidirectional arrows indicating a flow from left to right.  The top sequence uses black-bordered circles containing numbers 3, 2, 4, 5, and 1 respectively, linked sequentially by black arrows.  The bottom sequence uses orange-bordered circles with the same numbers (1, 2, 3, 4, 5) arranged sequentially and connected by black arrows. A downward-pointing grey arrow connects the node &lsquo;4&rsquo; in the top sequence to the node &lsquo;3&rsquo; in the bottom sequence, suggesting a transformation or transition between the two sequences.  The overall arrangement visually depicts a before-and-after scenario, or a process that reorders the sequence of nodes.
+Intuition
+Let’s start by finding a sorting algorithm that allows us to sort a linked list.</p>
+<p>Choosing a sorting algorithm
+We&rsquo;re tasked with sorting a linked list, not an array. This distinction is crucial because algorithms like quicksort rely on random access through indexing, which linked lists don&rsquo;t support. Merge sort is a great 
+O
+(
+n
+log
+⁡
+(
+n
+)
+)
+O(nlog(n)) time option, where 
+n
+n denotes the length of the linked list, because it does not require random access and works well with linked lists, as we’ll see in this explanation.</p>
+<p>Merge sort
+The merge sort algorithm uses a divide and conquer strategy. At a high level, it can be broken down into three steps:</p>
+<p>Split the linked list into two halves:
+Image represents a directed graph illustrating a coding pattern, possibly related to state transitions or workflow.  The upper path shows a sequence of nodes (circles) numbered 3, 2, 4, 5, and 1, connected by solid black arrows indicating a directional flow from one node to the next.  A lower path mirrors part of the upper path, starting with nodes 3, 2, and 4, also connected by solid black arrows.  The key difference is that node 4 in the upper path has two gray curved arrows emanating from it, one pointing downwards to node 2 in the lower path, and another pointing downwards to node 5 in the lower path, which is then followed by node 1. This suggests a branching or conditional logic where node 4&rsquo;s processing can lead to two different subsequent sequences, both ultimately ending at node 1, but via different intermediate nodes (2 and 4 versus 5).  The numbers within the nodes likely represent states or steps in a process.
+Recursively sort both halves:
+Image represents a visual depiction of the merge sort algorithm&rsquo;s operation on two input arrays.  The top half shows the initial input array <code>(3, 2, 4)</code> represented as three interconnected circles, each containing a number, with arrows indicating the flow of data.  The numbers are connected sequentially from left to right. Below this, a second row shows the result of an intermediate step in the merge sort, <code>(2, 3, 4)</code>, also represented by interconnected circles with arrows showing data flow.  A grey arrow connects the initial input to the intermediate result, suggesting a transformation.  The right side mirrors this structure, showing the initial input array <code>(5, 1)</code> in the top row and the intermediate result <code>(1, 5)</code> in the bottom row, again with arrows indicating data flow and a grey arrow connecting the input to the intermediate result.  The text &lsquo;merge_sort(&rsquo; precedes each input array, indicating the function being applied.  The parentheses enclose the input arrays, and the closing parenthesis follows the last element of each array.
+Merge the halves back together in a sorted manner to form a single sorted list:
+Image represents a diagram illustrating a merge operation in a coding pattern.  The upper portion shows two separate sequences: one sequence (in black circles) progresses from node &lsquo;2&rsquo; to &lsquo;3&rsquo; and then to &lsquo;4&rsquo;; the other sequence (also in black circles) goes from node &lsquo;1&rsquo; to &lsquo;5&rsquo;.  The lower portion depicts a merged sequence (in orange circles) resulting from the combination of the upper sequences.  A curved grey arrow labeled &lsquo;merge&rsquo; connects nodes &lsquo;3&rsquo; and &lsquo;5&rsquo; from the upper sequences to node &lsquo;3&rsquo; in the lower sequence, indicating the merging point. The merged sequence in the lower portion flows from node &lsquo;1&rsquo; to &lsquo;2&rsquo;, then to &lsquo;3&rsquo;, &lsquo;4&rsquo;, and finally &lsquo;5&rsquo;.  The numbers within the circles represent data elements or nodes in the sequences, and the arrows indicate the flow or order of processing.
+We can see what the entire process looks like in the diagram below:</p>
+<p>Image represents a directed graph illustrating a coding pattern, possibly related to state transitions or workflow.  The graph consists of nodes, represented by circles containing numbers (1 through 5), and directed edges, represented by grey arrows connecting the nodes.  Several distinct paths are visible, with some nodes appearing multiple times in different paths.  The numbers within the nodes likely represent different states or stages in a process.  Some nodes are colored light blue, others are colored orange, suggesting a possible distinction between different types of states or stages.  The paths show the sequence of transitions between these states.  For example, one path shows a sequence of 3 → 2 → 4 → 5 → 1, while another shows 3 → 2 → 4, and yet another shows a loop involving nodes 2 and 3. The overall structure suggests a complex system with multiple possible state transitions and potentially parallel or branching workflows.
+This is what this process looks like as pseudocode:</p>
+<p>def merge_sort(head):
+    # Split the linked list into two halves.
+    second_head = split_list(head)
+    # Recursively sort both halves.
+    first_half_sorted = merge_sort(head)
+    second_half_sorted = merge_sort(second_head)
+    # Merge the sorted sublists.
+    return merge(first_half_sorted, second_half_sorted)
+Let’s discuss in more detail how to split a linked list, and how to merge two sorted linked lists.</p>
+<p>Splitting the linked list in half
+To split a linked list in half, we need access to its middle node because the node next to the middle node can represent the head of the second linked list:</p>
+<p>The image represents a linked list divided into two halves.  The linked list consists of nodes containing the numbers 3, 2, 4, 5, and 1, connected sequentially by arrows indicating the next element in the sequence.  A gray box labeled &lsquo;mid&rsquo; points down to node 4, indicating this node as the midpoint of the list.  The nodes 3, 2, and 4 are enclosed under a gray line labeled &lsquo;first half,&rsquo; while nodes 5 and 1 are enclosed under an orange line labeled &lsquo;second half.&rsquo;  An orange box labeled &lsquo;mid.next&rsquo; points down to node 5, highlighting the node immediately following the midpoint.  The arrows visually represent the flow of data through the linked list, showing the connections between consecutive nodes.
+We can retrieve the middle node using the fast and slow pointer technique, as described in the Linked List Midpoint problem:</p>
+<p>Image represents a linked list traversal visualization illustrating a &lsquo;fast&rsquo; and &lsquo;slow&rsquo; pointer technique.  The linked list is depicted as a sequence of numbered nodes (3, 2, 4, 5, 1) connected by solid arrows indicating the direction of traversal. A light-blue rectangular box labeled &lsquo;slow&rsquo; points to node 4, and an orange rectangular box labeled &lsquo;fast&rsquo; points to node 1.  Dashed arrows show the movement of the pointers; the slow pointer moves one node at a time (3→2→4), while the fast pointer moves two nodes at a time (1→5→1). A grey dashed-line box to the right displays the condition &lsquo;fast.next == null → break,&rsquo; indicating that the algorithm terminates when the fast pointer reaches the end of the list (where the next node is null).  The overall diagram demonstrates a common pattern used in algorithms like cycle detection in linked lists, where the fast pointer&rsquo;s faster traversal allows for efficient detection of loops or the end of the list.
+Image represents a linked list data structure illustrating a pointer manipulation technique.  The diagram shows a singly linked list with nodes numbered 3, 2, 4, 5, and 1.  Arrows indicate the direction of the <code>next</code> pointers connecting each node. A rectangular box labeled &lsquo;head&rsquo; points to node 3, indicating it&rsquo;s the head of the list. Another rectangular box labeled &lsquo;slow&rsquo; points to node 4. A third rectangular box, &lsquo;second_head&rsquo;, points to node 5.  A dashed-line rectangle to the right displays the assignment statement &lsquo;second_head = slow.next&rsquo;, showing that the <code>second_head</code> pointer is being assigned the value of the <code>next</code> pointer of the <code>slow</code> pointer (which points to node 5).  The overall diagram depicts a step in an algorithm, likely involving two pointers traversing the list at different speeds, where <code>second_head</code> is being updated based on the position of the <code>slow</code> pointer.
+Then, we just need to disconnect the two halves by setting slow.next to null:</p>
+<p>Image represents a linked list data structure with two pointers, &lsquo;slow&rsquo; and &lsquo;second_head&rsquo;, traversing it.  A grey rectangular box labeled &lsquo;head&rsquo; points to a circular node containing the number &lsquo;3&rsquo;. This node is connected via a right-pointing arrow to a node containing &lsquo;2&rsquo;, which in turn connects to a node containing &lsquo;4&rsquo;. A light-blue rectangular box labeled &lsquo;slow&rsquo; points to the node containing &lsquo;4&rsquo;.  Another circular node containing &lsquo;5&rsquo; is connected to a node containing &lsquo;1&rsquo; via a right-pointing arrow. A rectangular box labeled &lsquo;second_head&rsquo; points to the node containing &lsquo;5&rsquo;. Finally, a dashed-line grey rectangle displays the condition &lsquo;slow.next = null&rsquo;, indicating that the next pointer of the node pointed to by &lsquo;slow&rsquo; is null, signifying the end of a linked list segment.  The arrows represent the connections between nodes, showing the flow of traversal through the list.
+Note that when the linked list is of even length, there are two middle nodes. We want the slow pointer to stop at the first middle node so we can get the head of the second half more easily. As mentioned in Linked List Midpoint, we can achieve this by stopping the fast pointer when fast.next.next is null:</p>
+<p>Image represents a linked list traversal visualization illustrating a fast and slow pointer approach.  The diagram shows a singly linked list with nodes numbered 3, 2, 4, and 5.  A rectangular box labeled &lsquo;slow&rsquo; in light blue points to node 2 with a downward-pointing arrow, indicating the slow pointer&rsquo;s initial position.  Similarly, a rectangular box labeled &lsquo;fast&rsquo; in orange points to node 4, showing the fast pointer&rsquo;s starting position. Solid arrows indicate the forward traversal of the list: node 3 points to node 2, node 2 to node 4, and node 4 to node 5.  Dashed orange and light blue curved arrows from node 3 to node 2 and from node 4 to node 2 represent the iterative movement of the fast and slow pointers, respectively.  A separate light gray box with dashed borders displays a conditional statement: &lsquo;fast.next.next == null → break,&rsquo; indicating that the traversal terminates when the pointer two steps ahead of the fast pointer (fast.next.next) reaches the end of the list (null).
+Image represents a linked list data structure illustrating a pointer manipulation technique.  Three rectangular boxes labeled &lsquo;head&rsquo;, &lsquo;slow&rsquo;, and &lsquo;second_head&rsquo; point to nodes within the linked list.  The linked list consists of four circular nodes containing the numerical values 3, 2, 4, and 5 respectively.  Arrows indicate the connections between nodes, showing the sequence of the list.  &lsquo;head&rsquo; points to node 3, &lsquo;slow&rsquo; points to node 2, and &lsquo;second_head&rsquo; points to node 4. A dashed rectangular box to the right displays the assignment statement &lsquo;second_head = slow.next&rsquo;, indicating that the pointer &lsquo;second_head&rsquo; is being assigned the value of the &lsquo;next&rsquo; pointer of the node pointed to by &lsquo;slow&rsquo;. This demonstrates how &lsquo;second_head&rsquo; is advanced one step ahead of &lsquo;slow&rsquo; in the linked list.
+Merging two sorted linked lists
+First, let&rsquo;s consider merging two linked lists, each containing a single node, meaning they’re both inherently sorted. We merge them by placing the smaller node first, followed by the other node:</p>
+<p>Image represents a diagram illustrating a data flow or transformation process.  Two circles labeled &lsquo;5&rsquo; and &lsquo;1&rsquo; are positioned at the top, representing input data points or sources.  These are connected via curved, grey arrows to a lower level containing two orange-bordered circles labeled &lsquo;1&rsquo; and &lsquo;5&rsquo;. The grey arrows indicate a merging or combining of the initial data.  A solid, black arrow connects the lower-left orange circle (&lsquo;1&rsquo;) to the lower-right orange circle (&lsquo;5&rsquo;), suggesting a unidirectional transformation or processing step where data from &lsquo;1&rsquo; is processed to produce &lsquo;5&rsquo;. The arrangement visually depicts a scenario where two distinct inputs (&lsquo;5&rsquo; and &lsquo;1&rsquo;) are combined and then undergo a transformation resulting in a new output (&lsquo;5&rsquo;), potentially implying a pattern of data aggregation and subsequent modification.
+With that established, how would we merge two longer linked lists? To do this, we can set two pointers, one at the start of each linked list, then perform the following steps:</p>
+<p>Compare the nodes at each pointer and add the node with the smaller value to the merged linked list.</p>
+<p>Advance the pointer at that node with the smaller value to the next node in its linked list.</p>
+<p>Repeat the above two steps until we can no longer advance either pointer.</p>
+<p>Before discussing the final step, observe how these steps are applied to the following two sorted linked lists. We can use a dummy node to point to the head of the merged linked list:</p>
+<p>Image represents two linked lists being merged.  The top list consists of nodes labeled 2, 3, and 4, with a node labeled 11 pointing to node 2. The bottom list consists of nodes labeled 1 and 5, with a node labeled 12 pointing to node 1.  Arrows indicate the direction of links between nodes. A rectangular box describes the merging process:  if the value of node 11 is greater than the value of node 12, a new node (12) is added to the merged list, and the &lsquo;next&rsquo; pointer of node 12 is set to point to the next node in the merged list (which is node 1 in this case).  To the right of the lists, a visual representation of this step shows a grey node labeled &lsquo;D&rsquo; (likely representing a dummy node or pointer) pointing to an orange node labeled &lsquo;1&rsquo;, illustrating the insertion of node 12 (implied, not explicitly shown) before node 1 in the merged list.
+Image represents a visual explanation of a merging operation in a linked list data structure.  The top section shows two linked lists. The first list, in black, consists of nodes containing the values 2, 3, and 4, with a node labeled &lsquo;11&rsquo; pointing to the node with value 2. The second list, in gray, contains nodes with values 1 and 5, with a node labeled &lsquo;12&rsquo; pointing to the node with value 5.  Arrows indicate the direction of links between nodes. A rectangular box explains the logic:  &lsquo;11.val &lt; 12.val → add node 11 to the merged list&rsquo; and &lsquo;11 = 11.next,&rsquo; indicating that because the value of node 11 is less than the value of node 12, node 11 is added to the merged list, and its &lsquo;next&rsquo; pointer is updated. The bottom section depicts the resulting merged list, where a new gray node &lsquo;D&rsquo; points to an orange node &lsquo;1&rsquo;, which points to an orange node &lsquo;2&rsquo;.  The orange nodes represent the merged list, showing the integration of node 11 (implicitly) into the sorted structure.
+Image represents a visual explanation of a merging operation in linked lists.  The left side shows two linked lists: one with nodes containing values &lsquo;2&rsquo;, &lsquo;3&rsquo;, and &lsquo;4&rsquo;, and another with nodes containing &lsquo;1&rsquo; and &lsquo;5&rsquo;.  Above each list, a square box indicates a node with value &lsquo;11&rsquo; and &lsquo;12&rsquo; respectively, representing nodes to be merged. Arrows depict the connections between nodes within each list.  The right side displays the result of merging the &lsquo;11&rsquo; node into a new list, which starts with a &lsquo;D&rsquo; node (likely representing a dummy head node).  A rectangular box explains the merging logic: &lsquo;11.val &lt; 12.val → add node 11 to the merged list — 11 = 11.next&rsquo;, indicating that the node with value &lsquo;11&rsquo; is added to the merged list because its value is less than the value of the next node (&lsquo;12&rsquo;), and its &lsquo;next&rsquo; pointer is set to point to the next node in the merged list. The merged list visually shows nodes &lsquo;1&rsquo;, &lsquo;2&rsquo;, and &lsquo;3&rsquo; in orange, indicating that node &lsquo;11&rsquo; has been successfully integrated into the sorted merged list.
+Image represents a visual explanation of a merging operation in a linked list data structure.  The top-left shows two linked lists; one in light gray with nodes containing values &lsquo;2&rsquo;, &lsquo;3&rsquo;, and a node &lsquo;4&rsquo; (in black, indicating it&rsquo;s a focus point), and another below it, also in light gray, with nodes &lsquo;1&rsquo; and &lsquo;5&rsquo; (also in black).  Above the node &lsquo;4&rsquo; is a gray box labeled &lsquo;11&rsquo;, representing a node with value 11 to be inserted. Above the node &lsquo;5&rsquo; is a gray box labeled &lsquo;12&rsquo;, representing a node with value 12. A downward arrow connects &lsquo;11&rsquo; to &lsquo;4&rsquo; and &lsquo;12&rsquo; to &lsquo;5&rsquo;, indicating the insertion point. A large light-gray box in the center explains the logic: &lsquo;11.val &lt; 12.val → add node 11 to the merged list — 11 = 11.next&rsquo;. This describes the condition for merging (value 11 is less than value 12) and the action (inserting node 11) along with the pointer update (11.next will point to the next node). The bottom-right shows the resulting merged linked list, with nodes &lsquo;D&rsquo;, &lsquo;1&rsquo;, &lsquo;2&rsquo;, &lsquo;3&rsquo;, and &lsquo;4&rsquo; (all in orange to highlight the merged list), connected by arrows indicating the sequence.  The &lsquo;D&rsquo; node likely represents a dummy head node. The overall diagram illustrates the step-by-step process of merging two sorted linked lists.
+If one of the linked lists has been entirely added to the merged list, we can just add the rest of the other linked list to the merged list:</p>
+<p>Image represents a visual explanation of a merging algorithm, likely for linked lists.  The top section shows two linked lists; one light gray list with nodes labeled &lsquo;2&rsquo;, &lsquo;3&rsquo;, and &lsquo;4&rsquo;, and another light gray list with a single node labeled &lsquo;1&rsquo; connected to a node labeled &lsquo;5&rsquo; (in bold, indicating a potential end point). A gray box labeled &lsquo;12&rsquo; points down to node &lsquo;5&rsquo;.  A gray box labeled &lsquo;11&rsquo; points down to node &lsquo;4&rsquo;.  A dashed-line box contains the condition &lsquo;11 == null → add the rest of the second list to the merged list.&rsquo;  The bottom section depicts the result of the merge.  A light gray node labeled &lsquo;D&rsquo; (possibly representing a dummy node or the beginning of the merged list) connects to a linked list with nodes labeled &lsquo;1&rsquo;, &lsquo;2&rsquo;, &lsquo;3&rsquo;, &lsquo;4&rsquo;, and &lsquo;5&rsquo;, all highlighted in orange, indicating they are part of the merged list. The arrows show the direction of connections within each list and the flow of data during the merge operation.  The condition in the dashed box suggests that if the pointer &lsquo;11&rsquo; reaches the end of the first list (null), the remaining elements of the second list are appended to the merged list.
+Try it yourself
+Write your solution to the problem before checking the reference implementation.
+Implementation
+Python
+JavaScript
+Java
+from typing import List
+    
+def sort_linked_list(head: ListNode) -&gt; ListNode:
+    # If the linked list is empty or has only one element, it&rsquo;s already sorted.
+    if not head or not head.next:
+        return head
+    # Split the linked list into halves using the fast and slow pointer technique.
+    second_head = split_list(head)
+    # Recursively sort both halves.
+    first_half_sorted = sort_linked_list(head)
+    second_half_sorted = sort_linked_list(second_head)
+    # Merge the sorted sublists.
+    return merge(first_half_sorted, second_half_sorted)
+    
+def split_list(head: ListNode) -&gt; ListNode:
+    slow = fast = head
+    while fast.next and fast.next.next:
+        slow = slow.next
+        fast = fast.next.next
+    second_head = slow.next
+    slow.next = None
+    return second_head
+    
+def merge(l1: ListNode, l2: ListNode) -&gt; ListNode:
+    dummy = ListNode(0)
+    # This pointer will be used to append nodes to the tail of the merged linked list.
+    tail = dummy
+    # Continually append the node with the smaller value from each linked list to the
+    # merged linked list until one of the linked lists has no more nodes to merge.
+    while l1 and l2:
+        if l1.val &lt; l2.val:
+            tail.next = l1
+            l1 = l1.next
+        else:
+            tail.next = l2
+            l2 = l2.next
+        tail = tail.next
+    # One of the two linked lists could still have nodes remaining. Attach those nodes
+    # to the end of the merged linked list.
+    tail.next = l1 or l2
+    return dummy.next
+Complexity Analysis
+Time complexity: The time complexity of sort_linked_list is 
+O
+(
+n
+log
+⁡
+(
+n
+)
+)
+O(nlog(n)) because it uses merge sort. Here’s the breakdown:</p>
+<p>The linked list is recursively split until each sublist contains only one node. This splitting process happens about 
+log
+⁡
+2
+(
+n
+)
+log 
+2
+​
+ (n) times because each split reduces the size of the linked list by half.</p>
+<p>At each level, we merge the split linked lists. Merging all elements at one level takes about 
+n
+n operations.</p>
+<p>Since there are 
+log
+⁡
+2
+(
+n
+)
+log 
+2
+​
+ (n) levels of splitting and merging, and there are 
+n
+n operations at each level, the time complexity is 
+O
+(
+n
+log
+⁡
+(
+n
+)
+)
+O(nlog(n)).</p>
+<p>Space complexity: The space complexity is 
+O
+(
+log
+⁡
+(
+n
+)
+)
+O(log(n)) due to the recursive call stack, which can grow up to 
+log
+⁡
+2
+(
+n
+)
+log 
+2
+​
+ (n) in height.</p>
+<p>Stable Sorting
+Merge sort is a stable sorting algorithm. This is important in scenarios where the original order of equal elements must be preserved. For example, if we are sorting a list of nodes that share the same value, but have an additional attribute storing the time they were created, then it’s important for the relative order of these nodes to stay the same. Stability can be important for database systems; for instance, where stable sorting is required to maintain data integrity and consistency across multiple operations.</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="sort-array.html"><div class="label">← Anterior</div><div class="title">Sort Array</div></a><a class="next" href="kth-largest-integer.html"><div class="label">Siguiente →</div><div class="title">Kth Largest Integer</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="sort-linked-list.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

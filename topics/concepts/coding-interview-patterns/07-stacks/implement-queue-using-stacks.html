@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Implement a Queue using Stacks · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 7 — Stacks</span><span class="sep">/</span><span class="current">Implement a Queue using Stacks</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Implement a Queue using Stacks</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">stacks</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Implement a Queue using Stacks
+Implement a queue using the stack data structure. Include the following functions:</p>
+<p>enqueue(x: int) -&gt; None: adds x to the end of the queue.
+dequeue() -&gt; int: removes and returns the element from the front of the queue.
+peek() -&gt; int: returns the front element of the queue.
+You may not use any other data structures to implement the queue.</p>
+<p>Example
+Input: [enqueue(1), enqueue(2), dequeue(), enqueue(3), peek()]
+Output: [1, 2]
+Constraints:
+The dequeue and peek operations will only be called on a non-empty queue.
+Intuition
+A queue is a first-in-first-out (FIFO) data structure, whereas stacks are a first-in-last-out (FILO) data structure:</p>
+<p>Image represents a comparison of queue and stack data structures.  On the left, a queue is depicted as a vertically stacked series of light-grey boxes, each containing a number (4, 3, 2, 1) from top to bottom.  The bottom box is labeled &lsquo;front:&rsquo; and the top box is labeled &lsquo;end:&rsquo;. A curved cyan arrow labeled &lsquo;enqueue&rsquo; points from the left to the top box, indicating the addition of elements. A curved magenta arrow labeled &lsquo;dequeue&rsquo; points from the bottom box to the right, showing the removal of elements.  The text &lsquo;first-in-first-out&rsquo; describes the queue&rsquo;s behavior.  A label &lsquo;: peek&rsquo; is present next to the bottom box, indicating the ability to view the front element without removal. On the right, a stack is shown similarly, with identical numbered boxes but arranged identically.  The top box is labeled &lsquo;top:&rsquo;, and a curved cyan arrow labeled &lsquo;push&rsquo; points from the left to the top box, showing element addition. A curved magenta arrow labeled &lsquo;pop&rsquo; points from the top box to the right, illustrating element removal. The text &lsquo;first-in-last-out&rsquo; describes the stack&rsquo;s behavior. A label &lsquo;: peek&rsquo; is also present next to the top box, indicating the ability to view the top element without removal.  Both diagrams visually demonstrate the difference in how elements are added and removed in queues (FIFO) and stacks (LIFO).
+The main difference between these data structures is how items are evicted from them. In a queue, the first value to enter is the first to leave, whereas it would be the last to leave in a stack.</p>
+<p>Now that we understand how they work, let’s dive into the problem. Let’s start by seeing if it’s possible to replicate the functionality of a queue with just one stack.</p>
+<p>Consider the following stack where we push values 1, 2, and 3 to it after receiving enqueue(1), enqueue(2), and enqueue(3):</p>
+<p>Image represents a visual demonstration of implementing a queue data structure using a stack.  The image is divided into three sections, each labeled &lsquo;enqueue(n):&rsquo; where &lsquo;n&rsquo; represents the enqueue operation number (1, 2, and 3). Each section shows a stack represented as a vertical rectangle with a rounded bottom, labeled &lsquo;stack&rsquo; at the bottom.  The top element of each stack is indicated by &lsquo;top:&rsquo;.  A light gray &lsquo;top:&rsquo; label precedes the top element&rsquo;s value.  In each section, a light blue arrow labeled &lsquo;push(n)&rsquo; shows the element &lsquo;n&rsquo; being pushed onto the stack.  The first section shows an empty stack initially, then the number 1 is pushed onto the stack after the enqueue(1) operation. The second section shows the stack after enqueue(2), with 1 at the bottom and 2 at the top.  The third section shows the stack after enqueue(3), with 1 at the bottom, 2 in the middle, and 3 at the top.  The arrangement demonstrates how elements are added to the stack (using push operations) to simulate the enqueue operation of a queue, where elements are added at the rear and removed from the front.
+We now encounter a problem with attempting a dequeue operation since popping off the top of the stack would return 3. The value we actually want popped off is 1, since it was the first value that entered the data structure. However, 1 is all the way at the bottom of the stack.</p>
+<p>To get to the bottom, we need to pop off all the values from the top of the stack and temporarily store these values in a separate data structure (temp) so we can add them back to the stack later:</p>
+<p>Image represents a step-by-step visualization of a stack data structure&rsquo;s pop operation.  Three diagrams show the stack&rsquo;s state at different points.  Each diagram features a stack represented as a container with numbered elements (1, 2, 3) stacked vertically, with the top element indicated by &lsquo;top:&rsquo;.  A &lsquo;temp&rsquo; array below each stack shows the elements popped so far.  In the first diagram, a purple arrow labeled &lsquo;pop&rsquo; shows the top element (3) being removed from the stack and added to the &lsquo;temp&rsquo; array, which now contains [3]. The second diagram shows the next pop operation, with the top element (2) being removed and added to &lsquo;temp&rsquo;, resulting in [3, 2]. The third diagram shows the final pop operation, where the top element (1) is removed and the operation is labeled &lsquo;pop and return&rsquo; in green, indicating the value is returned from the function. The &lsquo;temp&rsquo; array remains [3, 2] as the stack is now empty.
+Once we&rsquo;ve popped and returned the bottom value (1), push the values stored in temp back onto the stack in reverse order to ensure they&rsquo;re added back correctly:</p>
+<p>Image represents a step-by-step visualization of a stack data structure&rsquo;s behavior during a <code>push</code> operation.  The image shows two stages.  The leftmost stage depicts a stack labeled &lsquo;stack&rsquo; containing the element &lsquo;2&rsquo;, with &lsquo;top&rsquo; indicating its position. A light-blue arrow labeled <code>push(2)</code> points to the stack, illustrating the addition of &lsquo;2&rsquo;. Below the stack, a dashed-line box displays a temporary variable <code>temp</code> holding the array <code>[3, 2]</code>. The next stage shows the stack after pushing the element &lsquo;3&rsquo; onto it. The element &lsquo;3&rsquo; is now at the top, with &lsquo;2&rsquo; below it. A light-blue arrow labeled <code>push(3)</code> shows the addition of &lsquo;3&rsquo;. The <code>temp</code> variable now holds <code>[3]</code>, reflecting the removal of &lsquo;2&rsquo; from the temporary storage.  The overall image demonstrates how the <code>push</code> operation adds elements to the top of the stack and how a temporary variable might be used to manage data during this process.
+We know that if we were to use a data structure such as temp, it’d have to be a stack, since the problem specifies only stacks can be used. In this temporary data structure, we remove values in the opposite order in which we added them. In other words, it follows the LIFO principle, which is conveniently how a stack works. This means we can use a stack for our temporary storage.</p>
+<p>Now, even though we have a solution that works, having to pop off every single value from the top of the stack whenever we want to access the bottom value is quite time-consuming. To find a way around this, let’s have a closer look at the state of our two stacks right after we’ve moved the stack values to temp:</p>
+<p>Image represents a step-by-step illustration of a stack manipulation process.  Initially, a stack labeled &lsquo;stack&rsquo; contains elements 1, 2, and 3, with 3 at the top (indicated by &lsquo;top:&rsquo;).  Two purple arrows labeled &lsquo;pop&rsquo; show the top two elements (3 and 2) being removed from the stack and transferred to a second stack labeled &lsquo;temp&rsquo;.  The element 3 is moved to the bottom of the &lsquo;temp&rsquo; stack, and the element 2 is moved to the top. A large black arrow indicates a transition to the next step. In this next step, the &lsquo;stack&rsquo; now only contains element 1, labeled &lsquo;top:&rsquo;. A green arrow labeled &lsquo;pop and ruturn&rsquo; shows element 1 being popped from the stack. Finally, the &lsquo;temp&rsquo; stack now contains elements 2 and 3, with 2 at the top (indicated by &lsquo;top:&rsquo;).  The entire process demonstrates a sequence of pop operations from one stack to another, reversing the order of the elements.
+In our original solution, we would now move the values from temp back to the main stack. However, notice the top of the temp stack now contains the next value we expect to return. This is because it’s the second value to have entered the data structure, and according to the FIFO eviction policy, it should be the next one to be removed.</p>
+<p>So, instead of adding these values back to the main stack, we could just leave them in temp and return the stack’s top value at the next dequeue call.</p>
+<p>In the above logic, we ended up using two stacks which each serve a unique purpose. In particular, we used:</p>
+<p>A stack to push values onto during each enqueue call (enqueue_stack).
+A stack to pop values from during each dequeue call (dequeue_stack).
+An important thing to realize here is that the dequeue stack won’t always be populated with values. So, what should we do when it’s empty? We can just populate it by moving all the values from the enqueue stack to the dequeue stack, just like we did in the example. To understand this more clearly, let’s dive into a full example.</p>
+<p>Let’s start with two enqueue calls and push each number onto the enqueue stack.</p>
+<p>Image represents a visual depiction of enqueue operation using two stacks.  The left side shows an &lsquo;enqueue_stack&rsquo; represented as a simple container with the number &lsquo;1&rsquo; inside, labeled &lsquo;top: 1&rsquo;. A light-blue arrow labeled &lsquo;push(1)&rsquo; points to the &lsquo;1&rsquo;, indicating that the value &lsquo;1&rsquo; is being pushed onto the enqueue_stack. Above this stack, the text &lsquo;enqueue(1):&rsquo; indicates that this is the visual representation of an enqueue operation with the value 1. The right side shows an empty &lsquo;dequeue_stack&rsquo;, also represented as a similar container, illustrating the state of the dequeue stack before any operation. The overall image demonstrates the step of adding an element (1) to the enqueue stack during a queue implementation using two stacks.
+Image represents a visual depiction of an enqueue operation using two stacks.  The left side shows an &lsquo;enqueue_stack&rsquo; containing the elements &lsquo;1&rsquo; and &lsquo;2&rsquo;, with &lsquo;2&rsquo; at the top, indicated by the label &lsquo;top:&rsquo;. A light-blue arrow labeled &lsquo;push(2)&rsquo; points from the right to the left, illustrating the addition of the element &lsquo;2&rsquo; to the top of the <code>enqueue_stack</code>. The right side displays an empty &lsquo;dequeue_stack&rsquo;. The overall image demonstrates a step in implementing a queue data structure using two stacks, where the <code>enqueue</code> operation involves pushing the new element onto the <code>enqueue_stack</code>.  The text &lsquo;enqueue(2):&rsquo; above the left stack clarifies that this diagram shows the result of enqueuing the value 2.
+Now, let&rsquo;s try processing a dequeue call. The first step is to pop off each element from the enqueue stack and push them onto the dequeue stack:</p>
+<p>Image represents a visualization of a dequeue operation implemented using two stacks, labeled &lsquo;enqueue_stack&rsquo; and &lsquo;dequeue_stack&rsquo;.  The top-left diagram shows &lsquo;enqueue_stack&rsquo; containing elements &lsquo;1&rsquo; and &lsquo;2&rsquo;, with &lsquo;2&rsquo; at the top. A purple arrow labeled &lsquo;pop&rsquo; indicates the removal of &lsquo;2&rsquo; from the top of &lsquo;enqueue_stack&rsquo;. The bottom-left diagram shows the resulting &lsquo;enqueue_stack&rsquo; after the pop operation, now containing only &lsquo;1&rsquo;. The top-right diagram shows &lsquo;dequeue_stack&rsquo; initially empty, with a light-blue arrow labeled &lsquo;push(2)&rsquo; illustrating the addition of &lsquo;2&rsquo; to the top of &lsquo;dequeue_stack&rsquo;. Finally, the bottom-right diagram shows &lsquo;dequeue_stack&rsquo; after a &lsquo;push(1)&rsquo; operation (indicated by a light-blue arrow), resulting in a stack with &lsquo;2&rsquo; at the bottom and &lsquo;1&rsquo; at the top.  The overall image demonstrates the process of dequeuing an element using two stacks: elements are added to the &lsquo;enqueue_stack&rsquo; and then transferred to the &lsquo;dequeue_stack&rsquo; to simulate the FIFO (First-In, First-Out) behavior of a queue.  The &lsquo;top:&rsquo; label consistently indicates the top element of each stack.
+Then, we just return the top value from the dequeue stack:</p>
+<p>The image represents a visual depiction of a dequeue operation on a stack data structure.  The left side shows an empty &lsquo;enqueue_stack,&rsquo; represented as a simple, empty rectangular container with rounded bottom corners and labeled accordingly. The right side depicts a &lsquo;dequeue_stack&rsquo; containing two elements, &lsquo;1&rsquo; and &lsquo;2&rsquo;, with &lsquo;1&rsquo; highlighted in a light green circle and labeled as &lsquo;top:&rsquo;. A green arrow originates from the highlighted &lsquo;1&rsquo; and points to the text &lsquo;pop and return,&rsquo; indicating that the top element (&lsquo;1&rsquo;) is being removed (popped) from the stack and returned as the result of the dequeue operation.  The arrangement clearly shows the before and after states of the stack, illustrating the Last-In, First-Out (LIFO) nature of the stack data structure during a dequeue operation.
+Let’s enqueue one more value:</p>
+<p>Image represents a visual depiction of a queue implementation using two stacks, labeled &lsquo;enqueue_stack&rsquo; and &lsquo;dequeue_stack&rsquo;.  The left stack, &lsquo;enqueue_stack,&rsquo; is initially empty. The operation <code>enqueue(3)</code> is shown, indicating the addition of the element &lsquo;3&rsquo; to the queue. This is visually represented by the number &lsquo;3&rsquo; appearing at the bottom of the &lsquo;enqueue_stack&rsquo; with a label &lsquo;top:&rsquo; indicating its position. A cyan-colored arrow labeled <code>push(3)</code> points from the right side of the &lsquo;enqueue_stack&rsquo; to the number &lsquo;3&rsquo;, illustrating that the element &lsquo;3&rsquo; is pushed onto the &lsquo;enqueue_stack&rsquo; using a <code>push()</code> operation. The right stack, &lsquo;dequeue_stack,&rsquo; contains the element &lsquo;2&rsquo; at its bottom, labeled with &lsquo;top:&rsquo;, showing the current top element of this stack.  The two stacks are distinct and independent, illustrating a common technique for implementing a queue data structure using stacks.
+If we call dequeue again, we return the value from the top of the dequeue stack:</p>
+<p>Image represents a visual depiction of the <code>dequeue()</code> operation on a stack data structure.  The image shows two diagrams side-by-side. The left diagram, labeled &lsquo;enqueue_stack,&rsquo; depicts a stack containing the integer value &lsquo;3&rsquo; at its top.  The right diagram, labeled &lsquo;dequeue_stack,&rsquo; shows the same stack after the <code>dequeue()</code> operation has been performed.  In the &lsquo;dequeue_stack&rsquo; diagram, the value &lsquo;2&rsquo; is highlighted with a light green circle at the top of the stack. A green arrow originates from this highlighted &lsquo;2&rsquo; and points to the right, with the text &lsquo;pop and return&rsquo; indicating that the top element (&lsquo;2&rsquo;) is popped from the stack and returned as the result of the <code>dequeue()</code> function call.  The label &lsquo;top:&rsquo; is present in both diagrams, indicating the top element of the stack.  The overall image illustrates the process of removing and returning the top element from a stack, a fundamental operation in stack-based data structures.
+Now, what happens when we call dequeue and the dequeue stack is empty? We need to repopulate it by popping all the values from the enqueue stack and pushing them into the dequeue stack. Once this is done, we return the top of the dequeue stack as usual:</p>
+<p>Image represents a visualization of a dequeue operation using two stacks, labeled &lsquo;enqueue_stack&rsquo; and &lsquo;dequeue_stack&rsquo;.  The top-left shows an &lsquo;enqueue_stack&rsquo; with the value &lsquo;3&rsquo; at its top, indicated by a &lsquo;top:&rsquo; label. A purple arrow labeled &lsquo;pop&rsquo; shows the value &lsquo;3&rsquo; being moved from the &lsquo;enqueue_stack&rsquo; to the &lsquo;dequeue_stack&rsquo; in the top-right. The top-right shows the &lsquo;dequeue_stack&rsquo; receiving the value &lsquo;3&rsquo; via a cyan arrow labeled &lsquo;push(3)&rsquo;, with &lsquo;top:&rsquo; indicating its position. The bottom-left shows the &lsquo;enqueue_stack&rsquo; after the pop operation, now empty. Finally, the bottom-right depicts the &lsquo;dequeue_stack&rsquo; with &lsquo;3&rsquo; at its top (indicated by &lsquo;top:&rsquo;), and a green arrow labeled &lsquo;pop and return&rsquo; shows this value being popped and returned as the result of the dequeue operation.  The overall diagram illustrates the process of dequeuing an element using two stacks: first, elements are pushed onto the &lsquo;enqueue_stack&rsquo;, and then, when a dequeue is requested, elements are moved from the &lsquo;enqueue_stack&rsquo; to the &lsquo;dequeue_stack&rsquo; one by one, and finally popped from the &lsquo;dequeue_stack&rsquo; to be returned.
+Regarding the peek function, we follow the same logic as the dequeue function, but instead, we return the top element of the dequeue stack without popping it.</p>
+<p>Try it yourself
+Write your solution to the problem before checking the reference implementation.
+Implementation
+As mentioned before, the dequeue and peek functions have mostly the same behavior, with the only difference being that dequeue pops the top value while peek does not. To avoid duplicate code, the common logic between these functions for transferring values from the enqueue stack to the dequeue stack has been extracted into a separate function, transfer_enqueue_to_dequeue.</p>
+<p>Python
+JavaScript
+Java
+class Queue:
+    def <strong>init</strong>(self):
+        self.enqueue_stack = []
+        self.dequeue_stack = []</p>
+<div class="codehilite"><pre><span></span><code>def enqueue(self, x: int) -&gt; None:
+    self.enqueue_stack.append(x)
+
+def transfer_enqueue_to_dequeue(self) -&gt; None:
+    # If the dequeue stack is empty, push all elements from the enqueue stack
+    # onto the dequeue stack. This ensures the top of the dequeue stack
+    # contains the most recent value.
+    if not self.dequeue_stack:
+        while self.enqueue_stack:
+            self.dequeue_stack.append(self.enqueue_stack.pop())
+
+def dequeue(self) -&gt; int:
+    self.transfer_enqueue_to_dequeue()
+    # Pop and return the value at the top of the dequeue stack.
+    return self.dequeue_stack.pop() if self.dequeue_stack else None
+
+def peek(self) -&gt; int:
+    self.transfer_enqueue_to_dequeue()
+    return self.dequeue_stack[-1] if self.dequeue_stack else None
+</code></pre></div>
+
+<p>Complexity Analysis
+Time complexity: The time complexity of:</p>
+<p>enqueue is 
+O
+(
+1
+)
+O(1) because we add one element to the enqueue stack in constant time.</p>
+<p>dequeue is amortized 
+O
+(
+1
+)
+O(1).</p>
+<p>In the worst case, all elements from the enqueue stack are moved to the dequeue stack. This takes 
+O
+(
+n
+)
+O(n) time, where 
+n
+n denotes the number of elements in the enqueue queue.
+However, each element is only ever moved once during its lifetime. So, over 
+n
+n dequeue calls, at most 
+n
+n elements are moved between stacks, averaging the cost to 
+O
+(
+1
+)
+O(1) time per dequeue operation.
+peek is amortized 
+O
+(
+1
+)
+O(1) for the same reasons as dequeue.</p>
+<p>Space complexity: The space complexity is 
+O
+(
+n
+)
+O(n) since we maintain two stacks that collectively store all elements of the queue at any given time.</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="repeated-removal-of-adjacent-duplicates.html"><div class="label">← Anterior</div><div class="title">Repeated Removal of Adjacent Duplicates</div></a><a class="next" href="maximums-of-sliding-window.html"><div class="label">Siguiente →</div><div class="title">Maximums of Sliding Window</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="implement-queue-using-stacks.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spiral Traversal · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 19 — Math and Geometry</span><span class="sep">/</span><span class="current">Spiral Traversal</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Spiral Traversal</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">math-geometry</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Spiral Traversal
+Return the elements of a matrix in clockwise spiral order.</p>
+<p>Example:
+Image represents a grid-based diagram illustrating a linear data structure traversal pattern, possibly demonstrating a specific algorithm or data flow.  The diagram shows a sequence of numbered nodes (0-19) arranged in a snake-like path across a 5x4 grid.  Each node is represented by a number within a peach-colored rectangle.  Orange arrows connect adjacent nodes, indicating the direction of traversal. The path starts at node 0, proceeds rightward to node 4, then downwards, traversing nodes 9, 14, and 19.  From node 4, the path turns downwards to node 9, then downwards again to node 14, and finally to node 19.  The path then reverses direction at node 19, moving leftward to node 18, and continues leftward and upward, forming a loop that eventually connects back to node 5, then to node 10, and finally to node 15.  The overall structure resembles a snake winding through the grid, demonstrating a non-standard linear traversal order.
+Output: [0, 1, 2, 3, 4, 9, 14, 19, 18, 17, 16, 15, 10, 5, 6, 7, 8, 13, 12, 11]
+Intuition
+To create the expected output for this problem, let&rsquo;s try simulating exactly what the problem describes and traverse the matrix in spiral order, adding each value to the output as we go. How can we do this?</p>
+<p>Spiral traversal involves moving through the matrix in one direction until we can&rsquo;t go any further, then changing direction and continuing. Specifically, the sequence of directions is right, down, left, and up, repeated until all elements are traversed. To achieve this, we need to determine the exact conditions for switching directions.</p>
+<p>Initially, our approach may seem simple: we start by moving right until reaching the right-most column of the matrix, at which point we switch directions. We can move and switch directions like this three times without running into any problems:</p>
+<p>Image represents three 4x4 matrices illustrating different traversal patterns. Each matrix contains numbers from 0 to 19 arranged sequentially.  The first matrix shows a rightward traversal, indicated by orange right-pointing arrows connecting the numbers 0 through 4 in the first row, then continuing to the next row and so on. Above this matrix, text reads &lsquo;move right until we reach the rightmost column:&rsquo;. The second matrix demonstrates a downward traversal, with orange downward-pointing arrows connecting the numbers 4, 9, 14, and 19, positioned in the last column.  The text above it reads &lsquo;move down until we reach the bottom row:&rsquo;. The third matrix depicts a leftward traversal, using orange left-pointing arrows connecting the numbers 19, 18, 17, and 15 in the last row, then continuing to the previous row and so on.  The text above this matrix reads &lsquo;move left until we reach the leftmost column:&rsquo;.  All three matrices share the same numerical arrangement, but the arrows highlight different paths through the data.  Row and column indices (0-3) are displayed along the top and left side of each matrix.
+However, as shown below, if we move upward until we hit the top row of the matrix, we&rsquo;ll return to where we started, adding a value from a previously visited cell to the output:</p>
+<p>Image represents a 4x5 grid illustrating a coding pattern.  The grid is labeled with row numbers (0, 1, 2, 3) on the left and column numbers (0, 1, 2, 3, 4) at the top. Each cell contains a number from 0 to 19, sequentially arranged.  The top-left cell (0,0) is highlighted in light red and labeled as the &lsquo;revisited cell&rsquo;.  A red arrow points from the text &lsquo;revisited cell&rsquo; to this cell (0,0).  Within the grid, upward-pointing grey arrows are shown originating from cells (1,0), (2,0), and (3,0), indicating a movement upwards towards the top row. The text above the grid, &lsquo;move up until we reach the top row:&rsquo;, describes the process depicted by the arrows, suggesting an upward traversal of the grid from a specific cell until the top row is reached.
+A potential solution to this is to keep track of all cells visited by using a hash set. This allows us to stop moving in a direction when we encounter a visited cell. While this approach is effective, it requires 
+O
+(
+m
+⋅
+n
+)
+O(m⋅n) space, where 
+m
+m and 
+n
+n are the dimensions of the matrix. This is because we need to store every cell of the matrix in the hash set. Is there a way to avoid revisiting cells without using an additional data structure?</p>
+<p>Notice in the above diagrams that when we move in a certain direction, we continue until we reach one of the boundary rows or columns (i.e., the top or bottom row, or the leftmost or rightmost column).</p>
+<p>What if we adjust these boundaries as we traverse the matrix, to avoid revisiting previous cells?</p>
+<p>Adjusting boundaries
+Let&rsquo;s initialize the four boundaries (top, bottom, left, right) with their initial positions:</p>
+<p>top = 0
+bottom = m - 1
+left = 0
+right = n - 1
+Image represents a 4x5 matrix of numbers from 0 to 19, visually illustrating a 2-dimensional array.  The matrix is labeled with numbers 0-4 across the top and 0-3 down the left side, representing row and column indices respectively.  The numbers within the matrix are arranged sequentially, increasing from left to right and top to bottom.  Four rectangular boxes labeled &lsquo;left,&rsquo; &lsquo;right,&rsquo; &lsquo;top,&rsquo; and &lsquo;bottom&rsquo; are positioned outside the matrix. Arrows indicate data flow: &lsquo;left&rsquo; points down to the top-left corner (0,0) of the matrix, &lsquo;right&rsquo; points down to the top-right corner (0,4), &lsquo;top&rsquo; points right to the leftmost column (0), and &lsquo;bottom&rsquo; points right to the bottom-most column (3). This arrangement suggests a visual representation of how data might be accessed or traversed within a 2D array using different starting points or directions.
+We begin traversal by moving right through the first row from the left boundary to the right. Since we&rsquo;ve just visited all cells in the first row, we need to prevent future access to this row. This can be done by moving the top boundary down by 1 (top += 1), ensuring the top row can&rsquo;t be accessed:</p>
+<p>Image represents a comparison of two data structures, both 4x4 matrices.  The left matrix visually demonstrates data traversal.  It contains numbers 0-19 arranged in a grid, with the top row (0-4) highlighted in peach circles and connected by rightward arrows, indicating a sequential traversal from left to right.  Labels &lsquo;left&rsquo; and &lsquo;right&rsquo; (orange boxes) point to the starting and ending points of this traversal, respectively.  Labels &lsquo;top&rsquo; and &lsquo;bottom&rsquo; (grey boxes) indicate the entry and exit points for the data flow into and out of the matrix. The right matrix shows the same numerical data but without the highlighted traversal.  A dotted arrow connects the &lsquo;top&rsquo; label of the left matrix to the &lsquo;top&rsquo; label of the right matrix, suggesting a transformation or mapping between the two structures.  The right matrix&rsquo;s top row (0-4) is shaded light beige, possibly indicating a different state or highlighting a specific aspect of the data.  Both matrices are labeled with row and column indices (0-3 and 0-4 respectively), providing a clear coordinate system for data access.
+Next, we move down from the top boundary to the bottom boundary. To ensure this column is not revisited, update the right boundary (right -= 1):</p>
+<p>Image represents a comparison of two 5x5 matrices before and after a rightward shift operation.  The left matrix shows a 5x5 grid with numbers from 0 to 24 arranged sequentially, row by row.  Orange rectangular boxes labeled &lsquo;top&rsquo; and &lsquo;bottom&rsquo; indicate data input from the top and bottom, respectively.  Grey rectangular boxes labeled &lsquo;left&rsquo; and &lsquo;right&rsquo; indicate the column indices.  Within the matrix, the numbers 9, 14, and 19 are highlighted in peach circles.  An orange arrow points from the &lsquo;top&rsquo; box to the first row of the matrix, and another from the &lsquo;bottom&rsquo; box to the third row.  A downward orange arrow connects the highlighted numbers 9, 14, and 19, indicating a vertical flow of data. The right matrix depicts the result after a rightward shift. The numbers 9, 14, and 19 have moved to the rightmost column, with the rightmost column&rsquo;s original values (9, 14, 19) now appearing as light peach-colored numbers. A grey arrow points from the &lsquo;top&rsquo; box to the first row of the right matrix, and another from the &lsquo;bottom&rsquo; box to the third row. A dashed grey arrow points from the right matrix to the &lsquo;right&rsquo; label, indicating the output of the shift operation.  The &lsquo;left&rsquo; label remains unchanged, indicating that the leftmost column remains unaffected.
+Next, we move left from the right boundary to the left. To ensure this row doesn&rsquo;t get revisited, update the bottom boundary (bottom -= 1):</p>
+<p>Image represents two 5x5 matrices, each labeled with row and column indices from 0 to 4.  The first matrix contains numbers 0-19 arranged sequentially, row by row.  The second matrix is initially identical.  Above each matrix are orange rectangular boxes labeled &lsquo;left&rsquo; and &lsquo;right,&rsquo; indicating directional input.  To the left of both matrices are gray rectangular boxes labeled &lsquo;top&rsquo; and &lsquo;bottom,&rsquo; representing input sources.  Arrows show data flow: &lsquo;top&rsquo; feeds into row 1 of both matrices, &lsquo;bottom&rsquo; feeds into row 3 of both matrices, &lsquo;left&rsquo; feeds into column 0, and &lsquo;right&rsquo; feeds into column 3.  In the first matrix, the numbers 15, 16, 17, and 18 in the bottom row are highlighted in peach.  In the second matrix, these same numbers are highlighted and connected by bidirectional arrows, illustrating a data transformation or interaction specifically within the bottom row, possibly representing a data flow or manipulation within a specific section of the matrix.
+Next, we move up from the bottom boundary to the top boundary. To ensure this column isn&rsquo;t revisited, update the left boundary (left += 1):</p>
+<p>Image represents a visual depiction of data transformation or flow within a coding pattern, possibly related to matrix manipulation or data indexing.  The image is divided into two main sections, each showing a 4x5 matrix with numerical values (0-19) arranged sequentially.  The left section displays the initial matrix, with values 5 and 10 highlighted in peach circles at coordinates (1,0) and (2,0) respectively.  Above this matrix, labels &lsquo;left&rsquo; and &lsquo;right&rsquo; indicate column headers, and numbers 0-4 represent row indices.  Orange rectangular boxes labeled &lsquo;top&rsquo; and &lsquo;bottom&rsquo; show data input sources, with arrows indicating data flow into the matrix at row indices 1 and 2 respectively, targeting the highlighted cells. The right section shows the transformed matrix after the data flow.  The &lsquo;top&rsquo; input (from the left section) is shown flowing into row 1, and the &lsquo;bottom&rsquo; input flows into row 2.  A dashed arrow points from the &lsquo;left&rsquo; label in the left section to the &lsquo;left&rsquo; label in the right section, suggesting a potential data transformation or mapping process affecting the column headers.  The numbers in the right matrix are identical to the left except for the highlighted cells, which remain unchanged, illustrating a selective update operation.
+We&rsquo;ve just discussed how to traverse in each of the four directions and update the corresponding boundaries. These traversals are repeated until either the top boundary surpasses the bottom boundary, or the left boundary surpasses the right boundary. Either of these indicate there are no more cells left to traverse.</p>
+<p>In summary, we traverse the matrix in spiral order by repeating the following sequences of traversals:</p>
+<p>Move from left to right along the top boundary, then update the top boundary (top += 1)</p>
+<p>Move from top to bottom along the right boundary, then update the right boundary (right -= 1)</p>
+<p>Move from right to left along the bottom boundary, then update the bottom boundary (bottom -= 1)</p>
+<p>Move from bottom to top along the left boundary, then update the left boundary (left += 1)</p>
+<p>This continues while top ≤ bottom and left ≤ right.</p>
+<p>A crucial thing to keep in mind is that after updating the top boundary, the top boundary might pass the bottom boundary (top &gt; bottom). So, we need to check that top ≤ bottom before traversing the bottom boundary. Similarly, we need to check that left ≤ right before traversing the left boundary to ensure the boundaries haven&rsquo;t crossed.</p>
+<p>As we move through the matrix, we add each value we encounter to the output array. This way, the matrix values are recorded in a spiral order.</p>
+<p>Try it yourself
+Write your solution to the problem before checking the reference implementation.
+Implementation
+Python
+JavaScript
+Java
+from typing import List
+    
+def spiral_matrix(matrix: List[List[int]]) -&gt; List[int]:
+    if not matrix:
+        return []
+    result = []
+    # Initialize the matrix boundaries.
+    top, bottom = 0, len(matrix) - 1
+    left, right = 0, len(matrix[0]) - 1
+    # Traverse the matrix in spiral order.
+    while top &lt;= bottom and left &lt;= right:
+        # Move from left to right along the top boundary.
+        for i in range(left, right + 1):
+            result.append(matrix[top][i])
+        top += 1
+        # Move from top to bottom along the right boundary.
+        for i in range(top, bottom + 1):
+            result.append(matrix[i][right])
+        right -= 1
+        # Check that the bottom boundary hasn&rsquo;t passed the top boundary before
+        # moving from right to left along the bottom boundary.
+        if top &lt;= bottom:
+            for i in range(right, left - 1, -1):
+                result.append(matrix[bottom][i])
+            bottom -= 1
+        # Check that the left boundary hasn&rsquo;t passed the right boundary before
+        # moving from bottom to top along the left boundary.
+        if left &lt;= right:
+            for i in range(bottom, top - 1, -1):
+                result.append(matrix[i][left])
+            left += 1
+    return result
+Complexity Analysis
+Time complexity: The time complexity of spiral_matrix is 
+O
+(
+m
+⋅
+n
+)
+O(m⋅n) because we traverse each cell of the matrix once.</p>
+<p>Space complexity: The space complexity is 
+O
+(
+1
+)
+O(1). The res array is not included in the space complexity.</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="introduction.html"><div class="label">← Anterior</div><div class="title">Introduction to Math and Geometry</div></a><a class="next" href="reverse-32-bit-integer.html"><div class="label">Siguiente →</div><div class="title">Reverse 32-Bit Integer</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="spiral-traversal.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

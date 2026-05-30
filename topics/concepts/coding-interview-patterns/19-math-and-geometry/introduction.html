@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Introduction to Math and Geometry · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 19 — Math and Geometry</span><span class="sep">/</span><span class="current">Introduction to Math and Geometry</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Introduction to Math and Geometry</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">math-geometry</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Introduction to Math and Geometry
+Intuition
+This chapter tackles several problems relating to important math and geometry concepts in programming, which regularly appear in technical interviews.</p>
+<p>We explore subjects such as:</p>
+<p>Greatest common divisor (GCD).
+Modular arithmetic.
+Handling floating-point precision.
+Handling integer overflow and underflow.
+Recognizing patterns.
+Real-world Example
+Computer graphics: In 3D rendering, geometry is used to represent objects as shapes like polygons, and mathematical transformations such as rotation, scaling, and translation, are applied to these objects to animate them, or change their perspective. Algorithms that use trigonometry, vector math, and matrix operations, are critical for determining how objects move, interact with light, or cast shadows in virtual environments.</p>
+<p>Chapter Outline
+Image represents a hierarchical diagram illustrating categories within &lsquo;Math and Geometry.&rsquo;  A rounded rectangle at the top, labeled &lsquo;Math and Geometry,&rsquo; acts as the root node.  From this root, a dashed horizontal line extends, branching into two subordinate, rounded-rectangle boxes. The left box is labeled &lsquo;Math&rsquo; and lists three sub-items: &lsquo;Reverse 32-bit Integer,&rsquo; &lsquo;The Josephus Problem,&rsquo; and &lsquo;Triangle Numbers.&rsquo; The right box is labeled &lsquo;Geometry&rsquo; and contains two sub-items: &lsquo;Spiral Traversal&rsquo; and &lsquo;Maximum Collinear Points.&rsquo;  All text within the boxes is in a monospace font.  The dashed lines indicate a hierarchical relationship, showing that &lsquo;Math&rsquo; and &lsquo;Geometry&rsquo; are subcategories of &lsquo;Math and Geometry,&rsquo; and the listed items are specific problems or concepts within those subcategories.</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="../18-bit-manipulation/swap-odd-and-even-bits.html"><div class="label">← Anterior</div><div class="title">Swap Odd and Even Bits</div></a><a class="next" href="spiral-traversal.html"><div class="label">Siguiente →</div><div class="title">Spiral Traversal</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="introduction.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

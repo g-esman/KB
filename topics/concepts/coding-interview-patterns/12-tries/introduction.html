@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Introduction to Tries · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 12 — Tries</span><span class="sep">/</span><span class="current">Introduction to Tries</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Introduction to Tries</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">tries</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Introduction to Tries
+Intuition
+Tries, also known as prefix trees, are specialized tree-like data structures that efficiently store strings by taking advantage of shared prefixes.</p>
+<p>To understand how a trie works, consider the string &ldquo;internet&rdquo;. We can store this string as a sequence of connected nodes, where each node represents a character in the string:</p>
+<p>Image represents a directed graph illustrating a sequence of data transformations or processing steps.  The graph consists of eight circular nodes, each containing a single lowercase letter: &lsquo;i&rsquo;, &lsquo;n&rsquo;, &lsquo;t&rsquo;, &lsquo;e&rsquo;, &lsquo;r&rsquo;, &lsquo;n&rsquo;, &lsquo;e&rsquo;, and &lsquo;t&rsquo;.  These nodes are connected by directed edges (arrows) indicating the flow of data. The data flows unidirectionally from &lsquo;i&rsquo; to &lsquo;n&rsquo;, then to &lsquo;t&rsquo;, then to &lsquo;e&rsquo;, then to &lsquo;r&rsquo;, then back to &lsquo;n&rsquo;, then to &lsquo;e&rsquo;, and finally to &lsquo;t&rsquo;.  Each letter likely represents a stage in a process, with the arrows showing the order of execution or data transformation from one stage to the next.  The repetition of &lsquo;n&rsquo; and &lsquo;e&rsquo; suggests potential loops or iterative steps within the overall process. The &lsquo;i&rsquo; likely represents the initial input, and &lsquo;t&rsquo; the final output.
+Now, let&rsquo;s say we also want to store the word &ldquo;interface&rdquo;. Instead of creating a separate sequence of nodes, we take advantage of their common prefix &ldquo;inter&rdquo;. Both words can share the nodes for &ldquo;inter&rdquo;, and the remainder of &ldquo;interface&rdquo; can branch out from the node &lsquo;r&rsquo;:</p>
+<p>Image represents a directed acyclic graph illustrating a sequence of data processing or workflow.  The graph consists of several circular nodes, each containing a single lowercase letter, representing stages or steps in the process.  Arrows indicate the direction of data flow between these stages. The sequence begins with node &lsquo;i&rsquo; which flows into &lsquo;n&rsquo;, then &lsquo;t&rsquo;, and finally &lsquo;e&rsquo;.  From &lsquo;e&rsquo;, the flow diverges. One branch connects to node &lsquo;r&rsquo;, which then splits into two further branches. The upper branch leads to &lsquo;n&rsquo;, then &lsquo;e&rsquo;, and finally &lsquo;t&rsquo;. The lower branch from &lsquo;r&rsquo; connects to &lsquo;f&rsquo;, then &lsquo;a&rsquo;, &lsquo;c&rsquo;, and finally &lsquo;e&rsquo;.  Therefore, the graph shows two distinct parallel processing paths originating from &lsquo;r&rsquo;, both ultimately contributing to the final &lsquo;e&rsquo; node, while the initial sequence &lsquo;i&rsquo;, &lsquo;n&rsquo;, &lsquo;t&rsquo;, &lsquo;e&rsquo; acts as a precursor to the branching point at &lsquo;r&rsquo;.
+This is, in essence, how a trie works: by allowing words to reuse existing nodes based on shared prefixes, it efficiently stores strings in a way that minimizes redundancy.</p>
+<p>TrieNode
+There are two attributes each TrieNode should have.</p>
+<ol>
+<li>Children: Each TrieNode has a data structure to store references to its child nodes. A hash map is typically used for this, with a character as the key and its corresponding child node as the value.</li>
+</ol>
+<p>Image represents a tree-like data structure visualization alongside a tabular representation of its children.  The left side shows a tree with a central, empty, circular node connected to three child nodes labeled &lsquo;a&rsquo;, &lsquo;b&rsquo;, and &lsquo;c&rsquo; respectively, each depicted as a filled, orange-toned circle. An arrow points from a rectangular box labeled &lsquo;node&rsquo; to the central node, suggesting that this box represents the parent node. The right side displays a table titled &lsquo;node.children,&rsquo; with two columns: &lsquo;char&rsquo; listing characters &lsquo;a&rsquo;, &lsquo;b&rsquo;, and &lsquo;c&rsquo;, and &lsquo;child node&rsquo; visually mirroring the child nodes from the tree diagram, using the same orange-toned circles containing the corresponding characters.  The table illustrates the relationship between the parent node and its children, showing that the parent node&rsquo;s children are represented by the characters &lsquo;a&rsquo;, &lsquo;b&rsquo;, and &lsquo;c&rsquo;, each associated with a corresponding child node.
+Sometimes, an array is used instead of a hash map if the possible characters of words in the trie are limited and known in advance. For example, if they only contain lowercase English letters, an array of size 26 can be used, instead.</p>
+<ol>
+<li>End of word indicator: Each TrieNode needs an attribute to indicate whether it marks the end of a word. This can be done in two ways:</li>
+</ol>
+<p>A boolean attribute (is_word) to confirm if the node is the end of a word.
+A string variable (word) that stores the word itself at the node. This is usually used if we also want to know the specific word that ends at this node.
+Trie structure
+This is an example of a trie that’s been populated by inserting the words &ldquo;internet&rdquo;, &ldquo;interface&rdquo;, &ldquo;byte&rdquo;, &ldquo;bytes&rdquo;, &ldquo;dog&rdquo;, and &ldquo;dig&rdquo;. Every word represented by the trie branches out of a root TrieNode, which does not represent any character.</p>
+<p>Image represents a Trie data structure, a tree-like data structure used for storing a dynamic set of strings.  The topmost node is labeled &lsquo;root,&rsquo; and from it branch three main paths. Each path consists of nodes, each node containing a single character.  The paths represent different strings.  For example, one path spells &lsquo;inter,&rsquo; another &lsquo;bytes,&rsquo; and a third contains &lsquo;dog&rsquo; and &lsquo;dig.&rsquo; Dashed lines connect certain leaf nodes (terminal nodes) to labels indicating &lsquo;is_word = True,&rsquo; signifying that the string formed by the path to that node is a valid word in the Trie&rsquo;s vocabulary.  The arrangement shows how the Trie efficiently stores and searches for words by sharing prefixes.  The characters in the nodes are arranged sequentially along each path to form words, and the &lsquo;is_word&rsquo; label indicates whether the word represented by the path is present in the dataset.
+Below is the time complexity breakdown for trie operations involving a word of length 
+k
+k:</p>
+<p>Operation   Complexity  Description
+Insert<br />
+O
+(
+k
+)
+O(k)    Insert a word into the trie.
+Search<br />
+O
+(
+k
+)
+O(k)    Search for a word in the trie.
+Search prefix <br />
+O
+(
+k
+)
+O(k)    Check if any word in the trie starts with a given prefix.
+Delete<br />
+O
+(
+k
+)
+O(k)    Delete a word from the trie</p>
+<p>The implementation details of most of these functions are discussed in detail in the Design a Trie problem.</p>
+<p>When to use tries
+The primary use of a trie is to handle efficient prefix searches. If an interview problem asks you to find all strings that share a common prefix, a trie is likely the ideal data structure. Tries are also useful for word validation, allowing us to quickly verify the existence of words within a set of strings. They also help optimize data storage by reducing redundancy through shared prefixes among strings.</p>
+<p>Real-world Example
+Autocomplete: When you start typing a word, some systems use a trie to quickly suggest possible completions. Each node in the trie represents a character, and as you type, the system traverses the trie based on the input characters. This allows the system to efficiently retrieve all possible words or phrases that start with the entered prefix, enabling fast autocomplete suggestions.</p>
+<p>Chapter Outline
+Image represents a hierarchical diagram illustrating the concept of Tries in coding patterns.  At the top, a rounded rectangle labeled &lsquo;Tries&rsquo; acts as the parent node.  From this node, two dashed lines descend, each pointing to a separate child node represented by rounded rectangles with a light gray fill. The left child node is labeled &lsquo;Implementation&rsquo; and contains two bullet points: &lsquo;Design a Trie&rsquo; and &lsquo;Insert and Search Words with Wildcards&rsquo;. The right child node is labeled &lsquo;Traversal&rsquo; and contains a single bullet point: &lsquo;Find All Words on a Board&rsquo;.  The diagram visually depicts that the concept of Tries branches into two main aspects:  the implementation details (designing and using a Trie data structure for insertion and search, including handling wildcards) and the traversal aspect (specifically, using Tries to find all words on a board, suggesting a word search application).</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="../11-trees/serialize-and-deserialize-a-binary-tree.html"><div class="label">← Anterior</div><div class="title">Serialize and Deserialize a Binary Tree</div></a><a class="next" href="design-a-trie.html"><div class="label">Siguiente →</div><div class="title">Design a Trie</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="introduction.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

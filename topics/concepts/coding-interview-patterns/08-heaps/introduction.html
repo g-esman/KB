@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Introduction to Heaps · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 8 — Heaps</span><span class="sep">/</span><span class="current">Introduction to Heaps</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Introduction to Heaps</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">heaps</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Introduction to Heaps
+Intuition
+A heap is a data structure that organizes elements based on priority, ensuring the highest-priority element is always at the top of the heap. This allows for efficient access to the highest-priority element at any time. There are two main types of heaps:</p>
+<p>Min-heap: prioritizes the smallest element by keeping it at the top of the heap.
+Max-heap: prioritizes the largest element by keeping it at the top of the heap.
+Image represents a comparison of a min-heap and a max-heap data structures.  The left side depicts a min-heap, visualized as a trapezoidal structure with a purple border, containing the numbers 7, 4, 5, and 12 arranged in a hierarchical manner.  Atop this structure, a separate purple rectangle labeled &lsquo;min:&rsquo; displays the minimum value, 2, which is not part of the main heap structure itself.  The right side shows a max-heap, similarly structured but with a cyan border, containing the numbers 2, 7, 5, and 4.  A separate cyan rectangle labeled &lsquo;max:&rsquo; above this structure displays the maximum value, 12, also separate from the main heap.  Both heaps are labeled at their base with &lsquo;min_heap&rsquo; and &lsquo;max_heap&rsquo; respectively, clearly indicating the type of heap each structure represents.  The arrangement of numbers within each heap demonstrates the property of each heap type: the minimum element (2) is at the top of the min-heap, and the maximum element (12) is at the top of the max-heap.
+Efficient prioritization is possible due to how heaps are structured. A heap is essentially a binary tree. In the case of a min-heap, for example, each node’s value is less than or equal to that of its children. This guarantees the root of this tree (the top of the heap) is always the smallest element:</p>
+<p>Image represents a min-heap data structure, labeled as such at the top.  The heap is depicted as a binary tree with nodes encircled in violet. The root node, at the top, contains the value &lsquo;2&rsquo;.  This node connects to two child nodes: a left child node with the value &lsquo;4&rsquo;, and a right child node with the value &lsquo;12&rsquo;. The left child node (&lsquo;4&rsquo;) further branches into two child nodes: a left child with the value &lsquo;7&rsquo; and a right child with the value &lsquo;5&rsquo;.  All connections between nodes are represented by simple black lines indicating a parent-child relationship within the tree structure. The arrangement of nodes ensures that the value of each node is less than or equal to the values of its children, fulfilling the min-heap property where the smallest element is at the root.
+Here’s a time complexity breakdown of common heap operations:</p>
+<p>Operation   Time complexity Description
+Insert<br />
+O
+(
+log
+⁡
+(
+n
+)
+)
+O(log(n))   Adds an element to the heap, ensuring the binary tree remains correctly ordered
+Deletion  <br />
+O
+(
+log
+⁡
+(
+n
+)
+)
+O(log(n))   Removes the element at the top of the heap, then restructures the heap to replace the top element
+Peek  <br />
+O
+(
+1
+)
+O(1)    Retrieves the top element of the heap without removing it
+Heapify 
+O
+(
+n
+)
+O(n)    Transforms an unsorted list of values into a heap [1]</p>
+<p>This chapter discusses the practical uses of heaps. For a deeper understanding of how a heap works, we recommend diving into the details behind its internal implementation, and how its binary tree structure is consistently maintained during various operations [2].</p>
+<p>Priority queue
+A priority queue is a special type of heap that follows the structure of min-heaps or max-heaps but allows customization in how elements are prioritized (e.g., prioritizing strings with a higher number of vowels).</p>
+<p>Real-world Example
+Managing tasks in operating systems: Operating systems often use a priority queue to manage the execution of tasks, and a heap is commonly used to implement this priority queue efficiently.</p>
+<p>For example, when multiple processes are running on a computer, each process might be assigned a priority level. The operating system needs to schedule the processes so that higher-priority tasks are executed before lower-priority ones. A heap is ideal for this because it allows the system to quickly access the highest-priority task and efficiently re-arrange the priorities as new tasks are added or existing tasks are completed.</p>
+<p>Chapter Outline
+Image represents a hierarchical diagram illustrating the applications of Heaps data structure in coding.  A rounded rectangle at the top labeled &lsquo;Heaps&rsquo; is connected via dotted lines to two rectangular boxes below. The left box is titled &lsquo;Sorting&rsquo; and lists two sub-problems: &lsquo;Combine Sorted Linked Lists&rsquo; and &lsquo;Sort a K-Sorted Array&rsquo;. The right box is titled &lsquo;Finding Values in Sorted Order&rsquo; and lists two further sub-problems: &lsquo;K Most Frequent Strings&rsquo; and &lsquo;Median of an Integer Stream&rsquo;.  The dotted lines indicate that the problems listed under &lsquo;Sorting&rsquo; and &lsquo;Finding Values in Sorted Order&rsquo; are solved using the &lsquo;Heaps&rsquo; data structure, showing how this data structure is applied to different sorting and searching problems.</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="../07-stacks/maximums-of-sliding-window.html"><div class="label">← Anterior</div><div class="title">Maximums of Sliding Window</div></a><a class="next" href="k-most-frequent-strings.html"><div class="label">Siguiente →</div><div class="title">K Most Frequent Strings</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="introduction.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

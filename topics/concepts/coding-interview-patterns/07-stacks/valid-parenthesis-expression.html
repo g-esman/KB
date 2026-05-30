@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Valid Parenthesis Expression · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 7 — Stacks</span><span class="sep">/</span><span class="current">Valid Parenthesis Expression</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Valid Parenthesis Expression</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">stacks</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Valid Parenthesis Expression
+Given a string representing an expression of parentheses containing the characters &lsquo;(&lsquo;, &lsquo;)&rsquo;, &lsquo;[&lsquo;, &lsquo;]&rsquo;, &lsquo;{&lsquo;, or &lsquo;}&rsquo;, determine if the expression forms a valid sequence of parentheses.</p>
+<p>A sequence of parentheses is valid if every opening parenthesis has a corresponding closing parenthesis, and no closing parenthesis appears before its matching opening parenthesis.</p>
+<p>Example 1:
+Input: s = &lsquo;([]{})&rsquo;
+Output: True
+Example 2:
+Input: s = &lsquo;([]{)}&rsquo;
+Output: False
+Explanation: The &lsquo;(&rsquo; parenthesis is closed before its nested &lsquo;{&rsquo; parenthesis is closed.</p>
+<p>Intuition
+An early observation is that for each type of parenthesis, the number of opening and closing parenthesis must be identical. However, to check if an expression is valid, this observation alone isn’t enough. For example, the string &ldquo;())(&rdquo; has the same number of opening and closing parentheses, but is still invalid. This means we need a way to account for the order of parentheses.</p>
+<p>Consider the string “()”. The first parenthesis is opening, and we’re waiting for it to be closing. Upon reaching the second parenthesis, the first parenthesis gets closed.</p>
+<p>Image represents a comparison of two scenarios related to parenthesis in code, likely illustrating a coding pattern or concept.  The left side depicts a state where an opening parenthesis &lsquo;(&rsquo; is &lsquo;waiting to be closed,&rsquo; indicated by a downward arrow pointing from the text &lsquo;waiting to be closed&rsquo; to a single opening parenthesis <code>(</code> below, labeled with &lsquo;0&rsquo; and &lsquo;1&rsquo; underneath, possibly representing a counter or index. The right side shows the state where a closing parenthesis &lsquo;)&rsquo; is introduced, represented by a downward arrow from &lsquo;closes &lsquo;(&lsquo;&rsquo; to a closing parenthesis <code>)</code> below, also labeled with &lsquo;0&rsquo; and &lsquo;1&rsquo; similarly.  The overall structure highlights the difference between an unclosed opening parenthesis and the subsequent closing of that parenthesis, emphasizing the importance of balanced parentheses in programming syntax.
+Now, consider the string “[(])”. When we reach index 1, we have two opening parentheses waiting to be closed. In particular, we expect ‘(‘ to be closed before ‘[’. The first closing parenthesis we encounter is ‘]’, which does not close ‘(’. Therefore, this string is invalid.</p>
+<p>Image represents a comparison of two scenarios illustrating parenthesis matching in a coding context.  The left side depicts a correctly matched sequence, showing the text &lsquo;most recent parenthesis waiting to be closed&rsquo; above a gray downward-pointing arrow. This arrow points to a sequence of parentheses: <code>[(])</code>, indexed 0 to 3 from left to right.  The closing parenthesis at index 3 correctly matches the opening parenthesis at index 1, indicating proper nesting.  In contrast, the right side shows an incorrectly matched sequence.  The text &lsquo;does not close most recent parenthesis&rsquo; (in red) is positioned above a red downward-pointing arrow, which points to a similar sequence <code>[(])</code>, also indexed 0 to 3. However, here the closing parenthesis at index 3 does <em>not</em> match the most recent opening parenthesis (at index 1), highlighting an error in parenthesis matching.  Both sides use the same parenthesis characters and indexing to facilitate a direct comparison of correct versus incorrect parenthesis closure.
+The key observation here is that the most recent opening parenthesis we encounter should be the first parenthesis that gets closed. So, opening parentheses are processed from most recent to least recent, which is indicative of a last-in-first-out (LIFO) dynamic. This leads to the idea that a stack can be used to solve this problem.</p>
+<p>Stack
+Here’s a high-level strategy:</p>
+<p>Add each opening parenthesis we encounter to the stack. This way, the most recent parenthesis is always at the top of the stack.</p>
+<p>When encountering a closing parenthesis, check if it can close the most recent opening parenthesis.</p>
+<p>If it can, close that pair of parenthesis by popping off the top of the stack.
+If not, the string is invalid.
+Let’s see how this strategy works over an example:</p>
+<p>Image represents a sequence of six distinct symbols, arranged horizontally from left to right with spaces between them.  The symbols are: an opening parenthesis <code>(</code>, an opening square bracket <code>[</code>, a closing square bracket <code>]</code>, an opening curly brace <code>{</code>, a closing parenthesis <code>)</code>, and a closing curly brace <code>}</code>.  There are no connections or information flow depicted between the symbols; they are simply presented as individual, independent elements.  No labels, text, URLs, or parameters are present within the image. The image likely illustrates the different types of grouping symbols used in programming languages or mathematical notation.
+For each opening parenthesis we encounter, push it to the top of the stack:</p>
+<p>Image represents a visual explanation of a stack data structure used for parenthesis matching.  On the left, a sequence of opening and closing parentheses, brackets, and braces – <code>( [ ] { } )</code> – is shown, with an orange square containing an &lsquo;i&rsquo; and a downward arrow pointing to the sequence, suggesting input.  On the right, a diagram depicts a stack labeled &lsquo;stack&rsquo; with a &lsquo;top&rsquo; indicator.  A light-grey &lsquo;top:&rsquo; label points to the top of the stack, which is currently empty. A light-blue arrow labeled &lsquo;push (&rsquo; indicates that the opening parenthesis &lsquo;(&rsquo; is being pushed onto the stack, implying that the algorithm is processing the input sequence from left to right and using the stack to keep track of opening delimiters.  The overall image illustrates the initial step of a parenthesis matching algorithm using a stack.
+Image represents a visual explanation of a stack data structure used in coding, specifically demonstrating a push operation.  On the left, a sequence of opening and closing parentheses, brackets, and braces: <code>( [ ] { ) }</code> is shown.  An orange square containing an &lsquo;i&rsquo; symbol, suggesting input, points downwards with an arrow towards the &lsquo;[&rsquo; bracket, indicating the element being processed. On the right, a diagram depicts a stack labeled &lsquo;stack&rsquo; with a &lsquo;top&rsquo; pointer.  The stack currently contains an opening parenthesis &lsquo;(&lsquo;. A light-blue arrow labeled &lsquo;push [&rsquo; shows the &lsquo;[&rsquo; bracket being added to the top of the stack, illustrating the &lsquo;push&rsquo; operation where a new element is added to the top of the stack.  The arrangement visually explains how an input element is added to the stack, modifying its contents and updating the top pointer.
+Next, we encounter a closing parenthesis. Comparing it to the opening parenthesis at the top of the stack, we see that it correctly closes that opening parenthesis. So, we can pop off the opening parenthesis at the top of the stack:</p>
+<p>Image represents a visual explanation of a stack data structure used for parenthesis matching.  On the left, a sequence of opening and closing parentheses, brackets, and braces — <code>(</code>, <code>[</code>, <code>]</code>, <code>{</code>, <code>)</code> — is shown. An orange square labeled &lsquo;i&rsquo; points downwards, indicating an input stream of these characters.  To the right, a stack is depicted as a container labeled &lsquo;stack&rsquo; with a &lsquo;top&rsquo; pointer indicating the top element.  Inside the stack, an opening bracket &lsquo;[&rsquo; is present. A purple arrow labeled &lsquo;pop&rsquo; extends from the top of the stack to a light gray dashed box containing the text &lsquo;&rsquo;[&rsquo; is closed by &lsquo;]&rsquo;:&rsquo;, illustrating that the top element &lsquo;[&rsquo; is being popped from the stack, implying a matching closing bracket &lsquo;]&rsquo; is expected in the input stream to maintain balanced parentheses.  The diagram demonstrates how a stack is used to verify the correct pairing of opening and closing delimiters in a given input string.
+The next character is an opening parenthesis, which we just push to the top of the stack:</p>
+<p>Image represents a visual explanation of a stack data structure and its &lsquo;push&rsquo; operation.  The left side shows a sequence of opening and closing brackets and braces: &lsquo;(&lsquo;, &lsquo;[&lsquo;, &lsquo;]&rsquo;, &lsquo;{&lsquo;, &lsquo;)&rsquo;, &lsquo;}&rsquo;.  A downward-pointing orange arrow with a small orange square containing an &lsquo;i&rsquo; (likely indicating information or instruction) points to the &lsquo;{&rsquo; character. This suggests the &lsquo;{&rsquo; is the next element to be processed. The right side depicts a stack labeled &lsquo;stack&rsquo; with its contents shown as &lsquo;{&rsquo; and &lsquo;(&lsquo;; the label &lsquo;top:&rsquo; indicates the top of the stack. A light-blue arrow labeled &lsquo;push { &rsquo; points from the right to the stack, illustrating the &lsquo;push&rsquo; operation where the &lsquo;{&rsquo; character is being added to the top of the stack.  The overall diagram demonstrates how a character (&lsquo;{&lsquo;) is pushed onto a stack, which is a Last-In, First-Out (LIFO) data structure.
+The next character is a closing parenthesis, ‘)’, which does not close the opening parenthesis at the top of the stack, ‘{’. This means this parenthesis expression is invalid. As such, we return false.</p>
+<p>Image represents a visual explanation of a stack-based approach to validating balanced parentheses in a code snippet.  On the left, a sequence of opening and closing parentheses, brackets, and braces (<code>(</code>, <code>[</code>, <code>{</code>, <code>)</code>, <code>]</code>, <code>}</code>) is shown. An orange arrow with an &lsquo;i&rsquo; icon points downwards towards the curly brace &lsquo;{&rsquo; and closing parenthesis &lsquo;)&rsquo;. To the right, a diagram depicts a stack data structure labeled &lsquo;stack,&rsquo; with the characters &lsquo;{&rsquo; and &lsquo;(&rsquo; currently inside it, indicating that these opening brackets have been pushed onto the stack. The label &lsquo;top:&rsquo; points to the top of the stack, which is &lsquo;{&lsquo;.  A light gray dashed-line box contains pseudocode: <code>'{' is not closed by ')': return False</code>, illustrating a scenario where an opening curly brace &lsquo;{&rsquo; is encountered, but its corresponding closing brace &lsquo;}&rsquo; is not found before a closing parenthesis &lsquo;)&rsquo;, resulting in a <code>False</code> return value, indicating unbalanced parentheses.  The overall image demonstrates how a stack can be used to track opening brackets and check for proper closing counterparts during code validation.
+If we’ve iterated over the entire string without returning false, that means we’ve accounted for all closing parentheses in the string.</p>
+<p>Edge case: extra opening parentheses
+We only check for invalidity at closing parenthesis, so need to perform a final check to ensure there aren’t any opening parentheses in the string left unclosed. This can be done by checking if the stack is empty after processing the whole input string, as a non-empty stack indicates opening parentheses remain in the stack.</p>
+<p>Managing three types of parentheses
+In our algorithm, we need a way to ensure we compare the correct types of opening and closing parentheses. We can use a hash map for this, which maps each type of opening parenthesis to its corresponding closing parenthesis:</p>
+<p>Image represents a simple diagram titled &lsquo;parenthesis_map&rsquo; illustrating a mapping between opening and closing parentheses, brackets, and braces.  The diagram is rectangular and divided vertically into two equal sections labeled &lsquo;open&rsquo; and &lsquo;closed&rsquo; respectively.  The &lsquo;open&rsquo; section displays an opening curly brace &lsquo;{&lsquo;, an opening square bracket &lsquo;[&lsquo;, and an opening parenthesis &lsquo;(&lsquo;, stacked vertically.  The &lsquo;closed&rsquo; section mirrors this, showing the corresponding closing curly brace &lsquo;}&rsquo;, closing square bracket &lsquo;]&rsquo;, and closing parenthesis &lsquo;)&rsquo;, also stacked vertically in the same order.  The arrangement visually demonstrates a one-to-one correspondence between each opening symbol on the left and its respective closing symbol on the right, implying a data structure or algorithm that relies on pairing these symbols for validation or processing.
+This hash map can also be used as a way to check if a parenthesis is an opening or a closing one: if the parenthesis exists in this hash map as a key, it’s an opening parenthesis.</p>
+<p>Try it yourself
+Write your solution to the problem before checking the reference implementation.
+Implementation
+Python
+JavaScript
+Java
+def valid_parenthesis_expression(s: str) -&gt; bool:
+    parentheses_map = {&lsquo;(&lsquo;: &lsquo;)&rsquo;, &lsquo;{&lsquo;: &lsquo;}&rsquo;, &lsquo;[&lsquo;: &lsquo;]&rsquo;}
+    stack = []
+    for c in s:
+        # If the current character is an opening parenthesis, push it onto the stack.
+        if c in parentheses_map:
+            stack.append(c)
+        # If the current character is a closing parenthesis, check if it closes the
+        # opening parenthesis at the top of the stack.
+        else:
+            if stack and parentheses_map[stack[-1]] == c:
+                stack.pop()
+            else:
+                return False
+    # If the stack is empty, all opening parentheses were successfully closed.
+    return not stack
+Complexity Analysis
+Time complexity: The time complexity of valid_parenthesis_expression is 
+O
+(
+n
+)
+O(n) because we traverse the entire string once. For each character, we perform a constant-time operation, either pushing an opening parenthesis onto the stack or popping it off for a matching closing parenthesis.</p>
+<p>Space complexity: The space complexity is 
+O
+(
+n
+)
+O(n) because the stack stores at most 
+n
+n characters, and the hash map takes up 
+O
+(
+1
+)
+O(1) space.</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="introduction.html"><div class="label">← Anterior</div><div class="title">Introduction to Stacks</div></a><a class="next" href="evaluate-expression.html"><div class="label">Siguiente →</div><div class="title">Evaluate Expression</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="valid-parenthesis-expression.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Introduction to Two Pointers · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 1 — Two Pointers</span><span class="sep">/</span><span class="current">Introduction to Two Pointers</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <ul class="toc">
+<li class="toc-h2"><a href="#in-this-chapter">📑 In this chapter</a></li>
+<li class="toc-h3"><a href="#navegacion-rapida-los-6-problemas">🧭 Navegación rápida — los 6 problemas</a></li>
+<li class="toc-h2"><a href="#for-dummies-empeza-por-aca">🎓 For Dummies — empezá por acá</a></li>
+<li class="toc-h3"><a href="#la-idea-en-una-analogia-aun-mas-cotidiana">La idea en una analogía aún más cotidiana</a></li>
+<li class="toc-h3"><a href="#las-3-trampas-mas-comunes">Las 3 trampas más comunes</a></li>
+<li class="toc-h2"><a href="#que-es-un-puntero-en-este-contexto">Qué es un “puntero” en este contexto</a></li>
+<li class="toc-h2"><a href="#por-que-dos-punteros-vencen-al-doble-for-loop">Por qué dos punteros vencen al doble for-loop</a></li>
+<li class="toc-h2"><a href="#las-tres-estrategias-canonicas">Las tres estrategias canónicas</a></li>
+<li class="toc-h3"><a href="#inward-traversal-extremos-hacia-el-centro">Inward traversal (extremos hacia el centro)</a></li>
+<li class="toc-h3"><a href="#unidirectional-traversal-mismo-sentido">Unidirectional traversal (mismo sentido)</a></li>
+<li class="toc-h3"><a href="#staged-traversal-uno-busca-otro-confirma">Staged traversal (uno busca, otro confirma)</a></li>
+<li class="toc-h2"><a href="#cuando-usar-two-pointers">Cuándo usar Two Pointers</a></li>
+<li class="toc-h2"><a href="#ejemplo-del-mundo-real-garbage-collection">Ejemplo del mundo real: garbage collection</a></li>
+<li class="toc-h2"><a href="#mapa-del-capitulo">Mapa del capítulo</a></li>
+<li class="toc-h2"><a href="#amplification-decision-matrix">⭐ Amplification: decision matrix</a></li>
+<li class="toc-h3"><a href="#heuristica-rapida-3-preguntas">Heurística rápida (3 preguntas)</a></li>
+<li class="toc-h2"><a href="#pitfalls-comunes">⚠️ Pitfalls comunes</a></li>
+<li class="toc-h2"><a href="#references">References</a></li>
+</ul>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Introduction to Two Pointers</h1>
+  <div class="meta-row">
+    <span class="status-badge active">✓ active</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-08</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">two-pointers</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      
+      <blockquote>
+<p>📍 <strong>Cap. 1 / Book III</strong> — Two Pointers · <em>Capítulo raíz</em> · <a href="./pair-sum-sorted.html">Primer problema: Pair Sum ➡</a> · <a href="../../../../index.html">📚 KB Index</a></p>
+<p><strong>TL;DR</strong> — Two Pointers reemplaza un doble for-loop O(n²) por dos índices que se mueven a lo largo de una estructura lineal en O(n). Funciona cuando el input tiene <strong>dinámica predecible</strong> (sorted array, palíndromo simétrico, posiciones complementarias) y la pregunta es del tipo &ldquo;encontrar un par/triplete&rdquo; o &ldquo;reordenar in-place&rdquo;.</p>
+</blockquote>
+<hr />
+<h2 id="in-this-chapter">📑 In this chapter<a class="headerlink" href="#in-this-chapter" title="anchor">&para;</a></h2>
+<ol>
+<li><a href="#-for-dummies--empezá-por-acá">🎓 For Dummies — empezá por acá</a></li>
+<li><a href="#qué-es-un-puntero-en-este-contexto">Qué es un &ldquo;puntero&rdquo; en este contexto</a></li>
+<li><a href="#por-qué-dos-punteros-vencen-al-doble-for-loop">Por qué dos punteros vencen al doble for-loop</a></li>
+<li><a href="#las-tres-estrategias-canónicas">Las tres estrategias canónicas</a></li>
+<li><a href="#inward-traversal-extremos-hacia-el-centro">Inward traversal</a></li>
+<li><a href="#unidirectional-traversal-mismo-sentido">Unidirectional traversal</a></li>
+<li><a href="#staged-traversal-uno-busca-otro-confirma">Staged traversal</a></li>
+<li><a href="#cuándo-usar-two-pointers">Cuándo usar Two Pointers</a></li>
+<li><a href="#ejemplo-del-mundo-real-garbage-collection">Ejemplo del mundo real: garbage collection</a></li>
+<li><a href="#mapa-del-capítulo">Mapa del capítulo</a></li>
+<li><a href="#-amplification-decision-matrix">⭐ Amplification: decision matrix</a></li>
+<li><a href="#️-pitfalls-comunes">⚠️ Pitfalls comunes</a></li>
+<li><a href="#references">References</a></li>
+</ol>
+<h3 id="navegacion-rapida-los-6-problemas">🧭 Navegación rápida — los 6 problemas<a class="headerlink" href="#navegacion-rapida-los-6-problemas" title="anchor">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Problema</th>
+<th>Strategy</th>
+<th>Difficulty</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><a href="./pair-sum-sorted.html">Pair Sum — Sorted</a></td>
+<td>Inward</td>
+<td>🟢 Easy</td>
+</tr>
+<tr>
+<td>2</td>
+<td><a href="./triplet-sum.html">Triplet Sum (3Sum)</a></td>
+<td>Inward + outer loop</td>
+<td>🟡 Medium</td>
+</tr>
+<tr>
+<td>3</td>
+<td><a href="./largest-container.html">Largest Container</a></td>
+<td>Inward</td>
+<td>🟡 Medium</td>
+</tr>
+<tr>
+<td>4</td>
+<td><a href="./is-palindrome-valid.html">Is Palindrome Valid</a></td>
+<td>Inward</td>
+<td>🟢 Easy</td>
+</tr>
+<tr>
+<td>5</td>
+<td><a href="./shift-zeros-to-the-end.html">Shift Zeros to the End</a></td>
+<td>Unidirectional</td>
+<td>🟢 Easy</td>
+</tr>
+<tr>
+<td>6</td>
+<td><a href="./next-lexicographical-sequence.html">Next Lexicographical Sequence</a></td>
+<td>Staged</td>
+<td>🟡 Medium</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="for-dummies-empeza-por-aca">🎓 For Dummies — empezá por acá<a class="headerlink" href="#for-dummies-empeza-por-aca" title="anchor">&para;</a></h2>
+<p>Imaginate que tenés una <strong>fila ordenada</strong> de gente con un cartel con la edad. Te piden encontrar <strong>dos personas cuya edad sume 50</strong>.</p>
+<p><strong>Brute force (cómo lo haría alguien sin pensar):</strong> agarrás a cada persona, y para esa persona vas a comparar contra todas las demás. Si hay 100 personas, eso son 100 × 100 = <strong>10.000 comparaciones</strong>. O sea, te morís de aburrimiento.</p>
+<p><strong>Two pointers (la posta):</strong> poneé un dedo al inicio (la persona más joven) y otro al final (la más vieja). Sumá las dos edades:</p>
+<ul>
+<li><strong>¿La suma da menos que 50?</strong> → necesitás más edad → movés el dedo de la <strong>izquierda</strong> una posición a la derecha (a alguien más viejo).</li>
+<li><strong>¿La suma da más que 50?</strong> → te pasaste → movés el dedo de la <strong>derecha</strong> una posición a la izquierda (a alguien más joven).</li>
+<li><strong>¿Da exactamente 50?</strong> → bingo, encontraste el par.</li>
+</ul>
+<p>En una sola pasada (≈100 movimientos en vez de 10.000) terminaste. <strong>Eso es two pointers</strong>: convertís O(n²) en O(n) <strong>aprovechando que el input está ordenado</strong> (la &ldquo;dinámica predecible&rdquo;).</p>
+<h3 id="la-idea-en-una-analogia-aun-mas-cotidiana">La idea en una analogía aún más cotidiana<a class="headerlink" href="#la-idea-en-una-analogia-aun-mas-cotidiana" title="anchor">&para;</a></h3>
+<p>Pensalo como una <strong>balanza de farmacia antigua</strong>:</p>
+<ul>
+<li>A la izquierda ponés la cabeza de la fila (los livianos).</li>
+<li>A la derecha la cola de la fila (los pesados).</li>
+<li>Si la balanza marca menos de lo que querés, <strong>sacás un liviano y ponés uno un poco más pesado</strong> (mover left).</li>
+<li>Si marca de más, <strong>sacás un pesado y ponés uno un poco más liviano</strong> (mover right).</li>
+<li>Si marca justo, listo.</li>
+</ul>
+<p>Cada movimiento te acerca a la respuesta de forma garantizada. Nunca tenés que volver atrás.</p>
+<h3 id="las-3-trampas-mas-comunes">Las 3 trampas más comunes<a class="headerlink" href="#las-3-trampas-mas-comunes" title="anchor">&para;</a></h3>
+<ul>
+<li>⚠️ <strong>Pensar que sirve para arrays sin orden.</strong> Si el array no es sorted (o no tiene otra dinámica predecible como simetría), mover el puntero no te garantiza acercarte a la respuesta. Two pointers <strong>no es magia</strong>: necesita un input con estructura.</li>
+<li>⚠️ <strong>Olvidarse de la condición de salida.</strong> Casi siempre es <code>while left &lt; right</code>. Si usás <code>&lt;=</code>, comparás un elemento contra sí mismo (y eso a veces rompe la lógica, ej: pair-sum donde no podés usar el mismo índice dos veces).</li>
+<li>⚠️ <strong>Mover los dos punteros cuando solo deberías mover uno.</strong> En problemas como pair-sum solo se mueve uno por iteración (decidido por la comparación). Si los movés a los dos siempre, te saltás respuestas válidas.</li>
+</ul>
+<p>¿Listo para la versión completa? ⬇️</p>
+<hr />
+<h2 id="que-es-un-puntero-en-este-contexto">Qué es un &ldquo;puntero&rdquo; en este contexto<a class="headerlink" href="#que-es-un-puntero-en-este-contexto" title="anchor">&para;</a></h2>
+<p>Un <strong>puntero</strong> acá no es un puntero de C/C++. Es simplemente una <strong>variable que guarda un índice o posición</strong> dentro de una estructura lineal (array, string, linked list).</p>
+<p>Con un solo puntero podés hacer una pasada simple y leer/escribir en esa posición. Con <strong>dos</strong>, desbloqueás la capacidad de <strong>comparar dos elementos al mismo tiempo</strong> sin tener que rebobinar:</p>
+<p><img alt="Single pointer vs two pointers" src="../../img/tp-fig-intro-01-pointer-basics.png" /></p>
+<hr />
+<h2 id="por-que-dos-punteros-vencen-al-doble-for-loop">Por qué dos punteros vencen al doble for-loop<a class="headerlink" href="#por-que-dos-punteros-vencen-al-doble-for-loop" title="anchor">&para;</a></h2>
+<p>La forma &ldquo;naive&rdquo; de comparar todas las parejas es:</p>
+<div class="highlight"><pre><span></span><code><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">let</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">n</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">let</span><span class="w"> </span><span class="nx">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span><span class="p">;</span><span class="w"> </span><span class="nx">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">n</span><span class="p">;</span><span class="w"> </span><span class="nx">j</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">compare</span><span class="p">(</span><span class="nx">nums</span><span class="p">[</span><span class="nx">i</span><span class="p">],</span><span class="w"> </span><span class="nx">nums</span><span class="p">[</span><span class="nx">j</span><span class="p">]);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Esto cuesta <strong>O(n²)</strong> porque revisa cada par. El problema: <strong>no aprovecha información</strong> que el input pueda tener.</p>
+<p>Two pointers explota una <strong>dinámica predecible</strong> en el input. El ejemplo más típico es un sorted array: si movés un puntero a la derecha, <strong>garantizás</strong> que el valor en la nueva posición es <strong>mayor o igual</strong> que el anterior. Esa garantía es lo que te permite <strong>descartar combinaciones enteras</strong> sin probarlas.</p>
+<blockquote>
+<p><strong>Regla de oro:</strong> si podés explicar por qué mover el puntero <strong>descarta</strong> un subconjunto entero de respuestas posibles, two pointers va a funcionar. Si no podés, probablemente necesites otro pattern (hash map, sliding window, DP).</p>
+</blockquote>
+<hr />
+<h2 id="las-tres-estrategias-canonicas">Las tres estrategias canónicas<a class="headerlink" href="#las-tres-estrategias-canonicas" title="anchor">&para;</a></h2>
+<h3 id="inward-traversal-extremos-hacia-el-centro">Inward traversal (extremos hacia el centro)<a class="headerlink" href="#inward-traversal-extremos-hacia-el-centro" title="anchor">&para;</a></h3>
+<p>Los punteros arrancan en los <strong>extremos opuestos</strong> y se mueven hacia adentro.</p>
+<p><img alt="Inward traversal" src="../../img/tp-fig-intro-02-inward.png" /></p>
+<p><strong>Cuándo usarla:</strong> problemas donde necesitás comparar elementos de <strong>extremos opuestos</strong>:</p>
+<ul>
+<li><a href="./pair-sum-sorted.html">Pair Sum - Sorted</a> (sumar puntas).</li>
+<li><a href="./is-palindrome-valid.html">Is Palindrome Valid</a> (comparar simetría).</li>
+<li><a href="./largest-container.html">Largest Container</a> (área entre dos columnas).</li>
+<li><a href="./triplet-sum.html">Triplet Sum</a> (después de fijar <code>a</code>, busca par con inward).</li>
+</ul>
+<p><strong>Decisión típica:</strong> según la comparación entre <code>nums[left]</code> y <code>nums[right]</code>, movés <code>left++</code>, <code>right--</code>, o ambos.</p>
+<hr />
+<h3 id="unidirectional-traversal-mismo-sentido">Unidirectional traversal (mismo sentido)<a class="headerlink" href="#unidirectional-traversal-mismo-sentido" title="anchor">&para;</a></h3>
+<p>Los dos punteros arrancan <strong>en el mismo extremo</strong> y se mueven en el <strong>mismo sentido</strong>, pero a velocidades distintas o con propósitos distintos.</p>
+<p><img alt="Unidirectional traversal" src="../../img/tp-fig-intro-03-unidirectional.png" /></p>
+<p><strong>Cuándo usarla:</strong> problemas donde <strong>uno de los punteros busca</strong> información y el <strong>otro mantiene el estado</strong> (típicamente la próxima posición de escritura):</p>
+<ul>
+<li><a href="./shift-zeros-to-the-end.html">Shift Zeros to the End</a> (<code>right</code> busca no-cero, <code>left</code> marca dónde escribir).</li>
+<li>Remove duplicates from sorted array.</li>
+<li>Merge sorted arrays in-place.</li>
+</ul>
+<p><strong>Diferencia clave con sliding window:</strong> en sliding window los dos punteros forman una &ldquo;ventana&rdquo; que se mueve. En unidirectional two-pointer <strong>no necesariamente</strong> mantenés un rango contiguo entre ambos: podés sobrescribir.</p>
+<hr />
+<h3 id="staged-traversal-uno-busca-otro-confirma">Staged traversal (uno busca, otro confirma)<a class="headerlink" href="#staged-traversal-uno-busca-otro-confirma" title="anchor">&para;</a></h3>
+<p>El <strong>primer puntero</strong> recorre el array buscando una condición. Cuando la encuentra, <strong>el segundo puntero</strong> entra en escena y hace una operación adicional.</p>
+<p><img alt="Staged traversal" src="../../img/tp-fig-intro-04-staged.png" /></p>
+<p><strong>Cuándo usarla:</strong> problemas en <strong>dos fases</strong>, donde la segunda fase depende de algo que descubrió la primera:</p>
+<ul>
+<li><a href="./next-lexicographical-sequence.html">Next Lexicographical Sequence</a> (primero buscar el pivot, luego buscar el rightmost successor).</li>
+<li>Algunas variantes de partitioning.</li>
+</ul>
+<hr />
+<h2 id="cuando-usar-two-pointers">Cuándo usar Two Pointers<a class="headerlink" href="#cuando-usar-two-pointers" title="anchor">&para;</a></h2>
+<p>Indicadores fuertes de que el problema admite two pointers:</p>
+<table>
+<thead>
+<tr>
+<th>Indicador</th>
+<th>Por qué</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Input es <strong>lineal</strong> (array, string, linked list)</td>
+<td>Two pointers necesita una estructura recorrible por índice.</td>
+</tr>
+<tr>
+<td>Input está <strong>sorted</strong> o tiene <strong>simetría</strong> (palíndromo)</td>
+<td>La dinámica predecible te permite descartar pares al moverte.</td>
+</tr>
+<tr>
+<td>Te piden <strong>un par / triplete / k-tupla</strong> que cumple una condición</td>
+<td>Naturalmente mapea a &ldquo;fijar uno, buscar el otro con dos punteros&rdquo;.</td>
+</tr>
+<tr>
+<td>Te piden <strong>modificar el array in-place</strong> (mover, eliminar, particionar)</td>
+<td>Unidirectional two-pointer suele resolverlo sin memoria extra.</td>
+</tr>
+<tr>
+<td>El brute force es <strong>O(n²)</strong> y necesitás <strong>O(n)</strong> o <strong>O(n log n)</strong></td>
+<td>Two pointers es la herramienta canónica de reducción.</td>
+</tr>
+</tbody>
+</table>
+<p>Si <strong>ninguno</strong> de estos aplica, probablemente two pointers no es el pattern. Mirá si encaja hash map (búsqueda O(1)), sliding window (subarray contiguo con condición), o binary search (búsqueda en sorted con descarte logarítmico).</p>
+<hr />
+<h2 id="ejemplo-del-mundo-real-garbage-collection">Ejemplo del mundo real: garbage collection<a class="headerlink" href="#ejemplo-del-mundo-real-garbage-collection" title="anchor">&para;</a></h2>
+<p>En <strong>memory compaction</strong> (parte clave del garbage collection), el goal es liberar memoria contigua eliminando los huecos que dejan los objetos muertos.</p>
+<p>Two pointers lo resuelve elegantemente:</p>
+<div class="highlight"><pre><span></span><code>Heap antes de compactar (O = vivo, X = muerto):
+
+  [ O   X   O   X   X   O   O   X   O ]
+
+Dos punteros:
+   - free  → próxima posición libre donde escribir
+   - scan  → recorre el heap buscando objetos vivos
+
+Heap después:
+
+  [ O   O   O   O   O   _   _   _   _ ]
+                        ▲
+                        free apunta acá → todo lo de la derecha es libre
+</code></pre></div>
+<p>Es <strong>literalmente shift-zeros-to-the-end</strong> pero con objetos vivos en lugar de números no-cero. La técnica es la misma.</p>
+<p>Otros ejemplos del mundo real:</p>
+<ul>
+<li><strong>Database compaction</strong> (LSM trees, RocksDB) — mismo patrón aplicado a SSTables.</li>
+<li><strong>Buffer compaction</strong> en networking (TCP receive buffer reordering).</li>
+<li><strong>String trimming / deduplication</strong> in-place en parsers.</li>
+</ul>
+<hr />
+<h2 id="mapa-del-capitulo">Mapa del capítulo<a class="headerlink" href="#mapa-del-capitulo" title="anchor">&para;</a></h2>
+<p><img alt="Chapter outline" src="../../img/tp-fig-intro-05-outline.png" /></p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Problema</th>
+<th>Estrategia</th>
+<th>Dificultad</th>
+<th>Link</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Pair Sum - Sorted</td>
+<td>Inward</td>
+<td>🟢 Easy</td>
+<td><a href="./pair-sum-sorted.html">pair-sum-sorted.md</a></td>
+</tr>
+<tr>
+<td>2</td>
+<td>Triplet Sum</td>
+<td>Inward + outer loop</td>
+<td>🟡 Medium</td>
+<td><a href="./triplet-sum.html">triplet-sum.md</a></td>
+</tr>
+<tr>
+<td>3</td>
+<td>Largest Container</td>
+<td>Inward</td>
+<td>🟡 Medium</td>
+<td><a href="./largest-container.html">largest-container.md</a></td>
+</tr>
+<tr>
+<td>4</td>
+<td>Is Palindrome Valid</td>
+<td>Inward</td>
+<td>🟢 Easy</td>
+<td><a href="./is-palindrome-valid.html">is-palindrome-valid.md</a></td>
+</tr>
+<tr>
+<td>5</td>
+<td>Shift Zeros to the End</td>
+<td>Unidirectional</td>
+<td>🟢 Easy</td>
+<td><a href="./shift-zeros-to-the-end.html">shift-zeros-to-the-end.md</a></td>
+</tr>
+<tr>
+<td>6</td>
+<td>Next Lexicographical Sequence</td>
+<td>Staged</td>
+<td>🟡 Medium</td>
+<td><a href="./next-lexicographical-sequence.html">next-lexicographical-sequence.md</a></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>El pattern de two pointers es muy amplio. Variantes más especializadas se tratan en capítulos separados:
+- <strong>Fast and Slow Pointers</strong> (Cap. 4) — punteros que se mueven a velocidades distintas (cycle detection).
+- <strong>Sliding Windows</strong> (Cap. 5) — los dos punteros mantienen un rango contiguo con una condición.</p>
+</blockquote>
+<hr />
+<h2 id="amplification-decision-matrix">⭐ Amplification: decision matrix<a class="headerlink" href="#amplification-decision-matrix" title="anchor">&para;</a></h2>
+<p>Cuando ves un problema nuevo, esta tabla te ayuda a elegir la estrategia:</p>
+<table>
+<thead>
+<tr>
+<th>Pista en el enunciado</th>
+<th>Estrategia probable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&ldquo;sorted array&rdquo; + &ldquo;find pair / triplet that sums to X&rdquo;</td>
+<td><strong>Inward</strong> — pair sum o triplet sum</td>
+</tr>
+<tr>
+<td>&ldquo;palindrome&rdquo; / &ldquo;símetrico&rdquo; / &ldquo;comparar punta con cola&rdquo;</td>
+<td><strong>Inward</strong> — comparación directa</td>
+</tr>
+<tr>
+<td>&ldquo;área / volumen / container&rdquo; entre dos elementos</td>
+<td><strong>Inward</strong> — largest container, trapping rain water</td>
+</tr>
+<tr>
+<td>&ldquo;modificar in-place&rdquo; / &ldquo;remove / shift / partition&rdquo;</td>
+<td><strong>Unidirectional</strong> — un puntero lee, el otro escribe</td>
+</tr>
+<tr>
+<td>&ldquo;remove duplicates from sorted array&rdquo;</td>
+<td><strong>Unidirectional</strong> clásico</td>
+</tr>
+<tr>
+<td>&ldquo;next permutation&rdquo; / &ldquo;rearrange&rdquo; siguiendo una regla local</td>
+<td><strong>Staged</strong> — encontrar pivot y luego ajustar</td>
+</tr>
+<tr>
+<td>&ldquo;sort 0s, 1s, 2s in place&rdquo; (Dutch flag)</td>
+<td><strong>Tres punteros</strong> (variante de unidirectional)</td>
+</tr>
+<tr>
+<td>&ldquo;find pair in unsorted array&rdquo;</td>
+<td><strong>NO two pointers</strong> — probablemente hash map</td>
+</tr>
+<tr>
+<td>&ldquo;longest substring with condition&rdquo;</td>
+<td><strong>NO two pointers clásico</strong> — sliding window</td>
+</tr>
+</tbody>
+</table>
+<h3 id="heuristica-rapida-3-preguntas">Heurística rápida (3 preguntas)<a class="headerlink" href="#heuristica-rapida-3-preguntas" title="anchor">&para;</a></h3>
+<ol>
+<li><strong>¿El input es lineal y tiene orden o simetría?</strong> → Two pointers viable.</li>
+<li><strong>¿El brute force es O(n²) por probar todas las parejas?</strong> → Two pointers va a bajar a O(n).</li>
+<li><strong>¿Necesito modificar in-place o encontrar un par/triplete?</strong> → Two pointers casi seguro.</li>
+</ol>
+<p>Si las 3 dan &ldquo;sí&rdquo;, apuntá a two pointers. Si la #1 da &ldquo;no&rdquo;, probablemente necesites otro pattern (hash map para unsorted, DP para problemas con subestructura).</p>
+<hr />
+<h2 id="pitfalls-comunes">⚠️ Pitfalls comunes<a class="headerlink" href="#pitfalls-comunes" title="anchor">&para;</a></h2>
+<ul>
+<li><strong>No verificar que el array esté sorted.</strong> Pair sum <strong>necesita</strong> sorted. Si en la entrevista te dan unsorted, primero ordenás (O(n log n)) o usás hash map (O(n) pero con espacio extra). Aclaralo siempre con el entrevistador.</li>
+<li><strong>Off-by-one en la condición de salida.</strong> Casi siempre <code>while left &lt; right</code>. Usar <code>&lt;=</code> te hace comparar <code>nums[i]</code> consigo mismo, lo cual rompe pair-sum (no podés usar el mismo elemento dos veces como pareja).</li>
+<li><strong>Mover ambos punteros cuando solo deberías mover uno.</strong> En pair-sum, si la suma es chica solo movés <code>left</code>. Si movés ambos te saltás el valor correcto.</li>
+<li><strong>Confundir two pointers con sliding window.</strong> La diferencia: en sliding window los punteros mantienen un <strong>rango contiguo</strong> que representa una &ldquo;ventana&rdquo; del input; en two pointers los punteros pueden estar lejos y no representan una ventana, sino dos posiciones independientes que comparás.</li>
+<li><strong>Olvidar dedup en problemas con duplicados.</strong> Triplet sum requiere skip explícito de valores repetidos para evitar triplets duplicados en la salida.</li>
+<li><strong>No considerar arrays vacíos / de 1 elemento.</strong> Always test: <code>[]</code>, <code>[x]</code>, <code>[x, x]</code> antes de submitter.</li>
+</ul>
+<hr />
+<h2 id="references">References<a class="headerlink" href="#references" title="anchor">&para;</a></h2>
+<ul>
+<li>Coding Interview Patterns — Capítulo &ldquo;Two Pointers&rdquo;</li>
+<li>LeetCode tag <a href="https://leetcode.com/tag/two-pointers/">two-pointers</a></li>
+<li>Capítulos relacionados:</li>
+<li><a href="../04-fast-and-slow-pointers/">Fast and Slow Pointers</a> — variante con velocidades distintas</li>
+<li><a href="../05-sliding-windows/">Sliding Windows</a> — variante con rango contiguo</li>
+</ul>
+<hr />
+<blockquote>
+<p>📍 <strong>Cap. 1 / Book III</strong> — Two Pointers · <a href="./pair-sum-sorted.html">Primer problema: Pair Sum ➡</a> · <a href="../../../../index.html">📚 KB Index</a></p>
+</blockquote>
+      <nav class="prev-next"><a class="prev" href="../../ood/design-restaurant-management.html"><div class="label">← Anterior</div><div class="title">Design a Restaurant Management System</div></a><a class="next" href="pair-sum-sorted.html"><div class="label">Siguiente →</div><div class="title">Pair Sum - Sorted</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="introduction.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

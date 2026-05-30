@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design Consistent Hashing · Personal KB</title>
+<link rel="stylesheet" href="../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book I — System Design</span><span class="sep">/</span><span class="current">Design Consistent Hashing</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <ul class="toc">
+<li class="toc-h2"><a href="#in-this-chapter">📖 In this chapter</a></li>
+<li class="toc-h2"><a href="#for-dummies-empeza-por-aca">🎓 For Dummies — empezá por acá</a></li>
+<li class="toc-h3"><a href="#el-problema-en-una-frase">El problema en una frase</a></li>
+<li class="toc-h3"><a href="#la-solucion-en-una-frase">La solución en una frase</a></li>
+<li class="toc-h3"><a href="#por-que-importa">¿Por qué importa?</a></li>
+<li class="toc-h3"><a href="#los-pasos-del-algoritmo-super-resumido">Los pasos del algoritmo (super resumido)</a></li>
+<li class="toc-h3"><a href="#el-problema-del-ring-basico-y-la-solucion">El problema del ring básico (y la solución)</a></li>
+<li class="toc-h3"><a href="#quien-lo-usa">¿Quién lo usa?</a></li>
+<li class="toc-h3"><a href="#en-palabras-simples">En palabras simples</a></li>
+<li class="toc-h3"><a href="#listo-para-la-version-completa">¿Listo para la versión completa?</a></li>
+<li class="toc-h2"><a href="#the-rehashing-problem">The rehashing problem</a></li>
+<li class="toc-h3"><a href="#table-1-keys-distributed-via-hash-4">Table 1 — keys distributed via hash % 4</a></li>
+<li class="toc-h3"><a href="#figure-1-initial-distribution-4-servers">Figure 1 — Initial distribution (4 servers)</a></li>
+<li class="toc-h3"><a href="#table-2-keys-redistributed-via-hash-3">Table 2 — keys redistributed via hash % 3</a></li>
+<li class="toc-h3"><a href="#figure-2-after-server-1-removal-7-of-8-keys-moved">Figure 2 — After server 1 removal — 7 of 8 keys moved!</a></li>
+<li class="toc-h3"><a href="#amplification-why-this-is-catastrophic-in-production">⭐ Amplification — why this is catastrophic in production</a></li>
+<li class="toc-h2"><a href="#consistent-hashing">Consistent hashing</a></li>
+<li class="toc-h3"><a href="#hash-space-and-hash-ring">Hash space and hash ring</a></li>
+<li class="toc-h3"><a href="#figure-4-the-hash-ring">Figure 4 — The hash ring</a></li>
+<li class="toc-h3"><a href="#hash-servers">Hash servers</a></li>
+<li class="toc-h3"><a href="#figure-5-servers-placed-on-the-ring">Figure 5 — Servers placed on the ring</a></li>
+<li class="toc-h3"><a href="#hash-keys">Hash keys</a></li>
+<li class="toc-h3"><a href="#figure-6-keys-placed-on-the-ring">Figure 6 — Keys placed on the ring</a></li>
+<li class="toc-h3"><a href="#server-lookup">Server lookup</a></li>
+<li class="toc-h3"><a href="#figure-7-clockwise-server-lookup">Figure 7 — Clockwise server lookup</a></li>
+<li class="toc-h3"><a href="#add-a-server">Add a server</a></li>
+<li class="toc-h3"><a href="#figure-8-adding-s4-only-k0-moves">Figure 8 — Adding s4 — only k0 moves</a></li>
+<li class="toc-h3"><a href="#remove-a-server">Remove a server</a></li>
+<li class="toc-h3"><a href="#figure-9-removing-s1-only-k1-moves">Figure 9 — Removing s1 — only k1 moves</a></li>
+<li class="toc-h2"><a href="#two-issues-in-the-basic-approach">Two issues in the basic approach</a></li>
+<li class="toc-h3"><a href="#figure-10-uneven-partitions-after-server-removal">Figure 10 — Uneven partitions after server removal</a></li>
+<li class="toc-h3"><a href="#figure-11-non-uniform-key-distribution">Figure 11 — Non-uniform key distribution</a></li>
+<li class="toc-h2"><a href="#virtual-nodes">Virtual nodes</a></li>
+<li class="toc-h3"><a href="#figure-12-virtual-nodes-3-vnodes-per-server">Figure 12 — Virtual nodes (3 vnodes per server)</a></li>
+<li class="toc-h3"><a href="#figure-13-vnode-lookup-k0-s1_1-server-1">Figure 13 — Vnode lookup (k0 → s1_1 → server 1)</a></li>
+<li class="toc-h3"><a href="#amplification-choosing-how-many-vnodes">⭐ Amplification — choosing how many vnodes</a></li>
+<li class="toc-h2"><a href="#find-affected-keys">Find affected keys</a></li>
+<li class="toc-h3"><a href="#figure-14-affected-range-when-adding-s4">Figure 14 — Affected range when adding s4</a></li>
+<li class="toc-h3"><a href="#figure-15-affected-range-when-removing-s1">Figure 15 — Affected range when removing s1</a></li>
+<li class="toc-h2"><a href="#wrap-up">Wrap up</a></li>
+<li class="toc-h2"><a href="#amplification-real-world-implementations-pitfalls-added">⭐ Amplification — Real-world implementations &amp; pitfalls (added)</a></li>
+<li class="toc-h3"><a href="#pseudo-code-minimal-consistent-hashing">🧪 Pseudo-code — minimal consistent hashing</a></li>
+<li class="toc-h3"><a href="#the-4-trade-offs-to-know">🚦 The 4 trade-offs to know</a></li>
+<li class="toc-h3"><a href="#consistent-hashing-vs-alternatives">🆚 Consistent hashing vs alternatives</a></li>
+<li class="toc-h3"><a href="#production-pitfalls">⚠️ Production pitfalls</a></li>
+<li class="toc-h3"><a href="#what-a-real-cassandra-ring-looks-like">📊 What a real Cassandra ring looks like</a></li>
+<li class="toc-h3"><a href="#common-interview-follow-ups">🎯 Common interview follow-ups</a></li>
+<li class="toc-h2"><a href="#reference-materials">Reference materials</a></li>
+</ul>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Design Consistent Hashing</h1>
+  <div class="meta-row">
+    <span class="status-badge active">✓ active</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-01</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">system-design</span><span class="meta-tag">consistent-hashing</span><span class="meta-tag">distributed-systems</span><span class="meta-tag">sharding</span><span class="meta-tag">algorithms</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      
+      <p><a href="../../index.html">⬅ Back to KB index</a></p>
+<blockquote>
+<p><strong>TL;DR (added)</strong> — Consistent hashing es una técnica para distribuir keys entre N servers de forma que <strong>al agregar o quitar un server, solo k/n keys se mueven</strong> (no todas). Funciona ubicando servers y keys en un &ldquo;ring&rdquo; virtual; cada key se asigna al primer server clockwise. Para distribuir mejor la carga se usan <strong>virtual nodes</strong> (cada server aparece en varias posiciones del ring). Lo usan Dynamo, Cassandra, Discord, Akamai, Maglev.</p>
+</blockquote>
+<hr />
+<h2 id="in-this-chapter">📖 In this chapter<a class="headerlink" href="#in-this-chapter" title="anchor">&para;</a></h2>
+<ol>
+<li><a href="#-for-dummies--empezá-por-acá">🎓 For Dummies — empezá por acá</a> ← <strong>el concepto explicado simple</strong></li>
+<li><a href="#the-rehashing-problem">The rehashing problem</a></li>
+<li><a href="#consistent-hashing">Consistent hashing</a></li>
+<li><a href="#hash-space-and-hash-ring">Hash space and hash ring</a></li>
+<li><a href="#hash-servers">Hash servers</a></li>
+<li><a href="#hash-keys">Hash keys</a></li>
+<li><a href="#server-lookup">Server lookup</a></li>
+<li><a href="#add-a-server">Add a server</a></li>
+<li><a href="#remove-a-server">Remove a server</a></li>
+<li><a href="#two-issues-in-the-basic-approach">Two issues in the basic approach</a></li>
+<li><a href="#virtual-nodes">Virtual nodes</a></li>
+<li><a href="#find-affected-keys">Find affected keys</a></li>
+<li><a href="#wrap-up">Wrap up</a></li>
+<li><a href="#-amplification--real-world-implementations--pitfalls-added">⭐ Amplification — Real-world implementations &amp; pitfalls (added)</a></li>
+<li><a href="#reference-materials">Reference materials</a></li>
+</ol>
+<hr />
+<h2 id="for-dummies-empeza-por-aca">🎓 For Dummies — empezá por acá<a class="headerlink" href="#for-dummies-empeza-por-aca" title="anchor">&para;</a></h2>
+<h3 id="el-problema-en-una-frase">El problema en una frase<a class="headerlink" href="#el-problema-en-una-frase" title="anchor">&para;</a></h3>
+<p>Cuando tenés N servers y distribuís keys con <code>hash(key) % N</code>, <strong>agregar o quitar un server desordena casi todo</strong>.</p>
+<p>🪑 <strong>Analogía — sillas musicales</strong>: 4 amigos sentados en 4 sillas numeradas (servers). Cada uno tiene su lugar fijo. Si sacás 1 silla y volvés a calcular <code>posición % 3</code>, <strong>todos</strong> se tienen que cambiar de silla. En sistemas, &ldquo;cambiar de silla&rdquo; significa que tu cache se invalida y tenés que ir a buscar todo a la DB. <strong>Storm de cache misses</strong>.</p>
+<h3 id="la-solucion-en-una-frase">La solución en una frase<a class="headerlink" href="#la-solucion-en-una-frase" title="anchor">&para;</a></h3>
+<p>Imaginate un <strong>reloj circular</strong> (el &ldquo;hash ring&rdquo;). Tanto servers como keys ocupan posiciones en el reloj según su hash. Para saber qué server tiene una key, <strong>caminás clockwise</strong> desde la key hasta el primer server que encuentres.</p>
+<p>🍕 <strong>Analogía — pizza con porteros</strong>: una pizza redonda dividida entre 4 mozos. Cada mozo se para en su punto del círculo. Cuando llega un cliente (key) en cualquier posición, lo atiende <strong>el primer mozo que esté a su derecha</strong> (clockwise). Si agregás un mozo nuevo, <strong>solo le robás clientes al mozo de al lado</strong> — los otros 3 siguen con sus mismos clientes.</p>
+<h3 id="por-que-importa">¿Por qué importa?<a class="headerlink" href="#por-que-importa" title="anchor">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Con <code>hash % N</code></th>
+<th>Con consistent hashing</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sacar un server → <strong>~todas</strong> las keys cambian de lugar</td>
+<td>Sacar un server → <strong>solo 1/N</strong> de las keys cambian</td>
+</tr>
+<tr>
+<td>Cache se invalida → DB explota</td>
+<td>Cache sigue funcionando para 1-1/N</td>
+</tr>
+<tr>
+<td>No se puede escalar dinámicamente</td>
+<td>Podés agregar/quitar servers sin drama</td>
+</tr>
+</tbody>
+</table>
+<h3 id="los-pasos-del-algoritmo-super-resumido">Los pasos del algoritmo (super resumido)<a class="headerlink" href="#los-pasos-del-algoritmo-super-resumido" title="anchor">&para;</a></h3>
+<ol>
+<li><strong>El ring</strong>: pensalo como un reloj que va de 0 a 2¹⁶⁰ (el output de SHA-1).</li>
+<li><strong>Ubicá servers</strong>: hasheá la IP o nombre de cada server → te da una posición en el ring.</li>
+<li><strong>Ubicá keys</strong>: hasheá la key → te da una posición en el ring.</li>
+<li><strong>Lookup</strong>: para cada key, <strong>caminá clockwise</strong> hasta el primer server que encuentres. Ese server tiene la key.</li>
+<li><strong>Agregar server</strong>: lo ponés en su posición y solo se mueven las keys que caen entre el server anterior y el nuevo.</li>
+<li><strong>Sacar server</strong>: las keys que tenía pasan al <strong>siguiente server clockwise</strong>. Las demás keys no se enteran.</li>
+</ol>
+<h3 id="el-problema-del-ring-basico-y-la-solucion">El problema del ring básico (y la solución)<a class="headerlink" href="#el-problema-del-ring-basico-y-la-solucion" title="anchor">&para;</a></h3>
+<p>🚨 <strong>Problema 1</strong>: si los servers caen mal distribuidos en el ring, uno puede terminar con muchísimas keys y otros con casi nada.</p>
+<p>🚨 <strong>Problema 2</strong>: cuando sacás un server, su vecino clockwise duplica su carga. Cuando agregás uno, le robás todo a un solo vecino.</p>
+<p>✅ <strong>Solución — virtual nodes (vnodes)</strong>: cada server real aparece <strong>en varias posiciones del ring</strong> (digamos 100-200 puntos cada uno). En vez de <code>s0</code>, tenés <code>s0_0</code>, <code>s0_1</code>, &hellip;, <code>s0_99</code>. Esto hace que la distribución sea mucho más uniforme y que al sacar/agregar un server, las keys se redistribuyan entre <strong>muchos</strong> vecinos, no uno solo.</p>
+<p>🍕 <strong>Analogía vnodes</strong>: cada mozo no se para en 1 punto fijo de la pizza — se para en 100 puntos distintos. Si un mozo se va, los clientes de sus 100 puntos se reparten entre todos los demás mozos (no caen sobre uno solo).</p>
+<h3 id="quien-lo-usa">¿Quién lo usa?<a class="headerlink" href="#quien-lo-usa" title="anchor">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Sistema</th>
+<th>Para qué</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>DynamoDB</strong> (Amazon)</td>
+<td>Particionar datos entre nodos</td>
+</tr>
+<tr>
+<td><strong>Cassandra</strong></td>
+<td>Partition key → token range</td>
+</tr>
+<tr>
+<td><strong>Discord</strong></td>
+<td>Routing de chat (5M usuarios concurrentes)</td>
+</tr>
+<tr>
+<td><strong>Akamai</strong></td>
+<td>CDN: qué edge server cachea qué URL</td>
+</tr>
+<tr>
+<td><strong>Maglev</strong> (Google)</td>
+<td>Network load balancer</td>
+</tr>
+</tbody>
+</table>
+<h3 id="en-palabras-simples">En palabras simples<a class="headerlink" href="#en-palabras-simples" title="anchor">&para;</a></h3>
+<blockquote>
+<p><strong>Sin consistent hashing</strong>: agregar 1 server = &ldquo;perdón a todos, vuelvan a empezar&rdquo;.
+<strong>Con consistent hashing</strong>: agregar 1 server = &ldquo;perdón vecinos, les saco un cachito de carga, los demás sigan tranquilos&rdquo;.</p>
+</blockquote>
+<h3 id="listo-para-la-version-completa">¿Listo para la versión completa?<a class="headerlink" href="#listo-para-la-version-completa" title="anchor">&para;</a></h3>
+<p>Con esto deberías entender el resto del capítulo. ⬇️</p>
+<hr />
+<p>To achieve horizontal scaling, it is important to distribute requests/data efficiently and evenly across servers. Consistent hashing is a commonly used technique to achieve this goal. But first, let us take an in-depth look at the problem.</p>
+<h2 id="the-rehashing-problem">The rehashing problem<a class="headerlink" href="#the-rehashing-problem" title="anchor">&para;</a></h2>
+<p>If you have n cache servers, a common way to balance the load is to use the following hash method:</p>
+<div class="highlight"><pre><span></span><code>serverIndex = hash(key) % N
+</code></pre></div>
+<p>where N is the size of the server pool.</p>
+<p>Let us use an example to illustrate how it works. As shown in Table 1, we have 4 servers and 8 string keys with their hashes.</p>
+<h3 id="table-1-keys-distributed-via-hash-4">Table 1 — keys distributed via hash % 4<a class="headerlink" href="#table-1-keys-distributed-via-hash-4" title="anchor">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>key</th>
+<th>hash</th>
+<th>hash % 4</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>key0</td>
+<td>18358617</td>
+<td>1</td>
+</tr>
+<tr>
+<td>key1</td>
+<td>26143584</td>
+<td>0</td>
+</tr>
+<tr>
+<td>key2</td>
+<td>18131146</td>
+<td>2</td>
+</tr>
+<tr>
+<td>key3</td>
+<td>35863496</td>
+<td>0</td>
+</tr>
+<tr>
+<td>key4</td>
+<td>34085809</td>
+<td>1</td>
+</tr>
+<tr>
+<td>key5</td>
+<td>27581703</td>
+<td>3</td>
+</tr>
+<tr>
+<td>key6</td>
+<td>38164978</td>
+<td>2</td>
+</tr>
+<tr>
+<td>key7</td>
+<td>22530351</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<p>To fetch the server where a key is stored, we perform the modular operation <code>f(key) % 4</code>. For instance, <code>hash(key0) % 4 = 1</code> means a client must contact server 1 to fetch the cached data. Figure 1 shows the distribution of keys based on Table 1.</p>
+<h3 id="figure-1-initial-distribution-4-servers">Figure 1 — Initial distribution (4 servers)<a class="headerlink" href="#figure-1-initial-distribution-4-servers" title="anchor">&para;</a></h3>
+<p><img alt="Figure 1 — Rehashing before" src="img/ch-fig01-rehashing-before.png" /></p>
+<p>This approach works well when the size of the server pool is fixed, and the data distribution is even. However, problems arise when new servers are added, or existing servers are removed. For example, if server 1 goes offline, the size of the server pool becomes 3. Using the same hash function, we get the same hash value for a key. But applying modular operation gives us different server indexes because the number of servers is reduced by 1. We get the results as shown in Table 2 by applying <code>hash % 3</code>:</p>
+<h3 id="table-2-keys-redistributed-via-hash-3">Table 2 — keys redistributed via hash % 3<a class="headerlink" href="#table-2-keys-redistributed-via-hash-3" title="anchor">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>key</th>
+<th>hash</th>
+<th>hash % 3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>key0</td>
+<td>18358617</td>
+<td>0</td>
+</tr>
+<tr>
+<td>key1</td>
+<td>26143584</td>
+<td>0</td>
+</tr>
+<tr>
+<td>key2</td>
+<td>18131146</td>
+<td>1</td>
+</tr>
+<tr>
+<td>key3</td>
+<td>35863496</td>
+<td>2</td>
+</tr>
+<tr>
+<td>key4</td>
+<td>34085809</td>
+<td>1</td>
+</tr>
+<tr>
+<td>key5</td>
+<td>27581703</td>
+<td>0</td>
+</tr>
+<tr>
+<td>key6</td>
+<td>38164978</td>
+<td>1</td>
+</tr>
+<tr>
+<td>key7</td>
+<td>22530351</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p>Figure 2 shows the new distribution of keys based on Table 2.</p>
+<h3 id="figure-2-after-server-1-removal-7-of-8-keys-moved">Figure 2 — After server 1 removal — 7 of 8 keys moved!<a class="headerlink" href="#figure-2-after-server-1-removal-7-of-8-keys-moved" title="anchor">&para;</a></h3>
+<p><img alt="Figure 2 — Rehashing after" src="img/ch-fig02-rehashing-after.png" /></p>
+<p>As shown in Figure 2, <strong>most keys are redistributed</strong>, not just the ones originally stored in the offline server (server 1). This means that when server 1 goes offline, most cache clients will connect to the wrong servers to fetch data. <strong>This causes a storm of cache misses.</strong> Consistent hashing is an effective technique to mitigate this problem.</p>
+<blockquote>
+<h3 id="amplification-why-this-is-catastrophic-in-production">⭐ Amplification — why this is catastrophic in production<a class="headerlink" href="#amplification-why-this-is-catastrophic-in-production" title="anchor">&para;</a></h3>
+<p>When a single cache server dies and <code>% N</code> reshuffles, you can take down your entire data tier:</p>
+<ol>
+<li><strong>Cache miss storm</strong> → all those keys now miss → all those requests slam the DB.</li>
+<li><strong>DB connection pool saturates</strong> → other queries time out.</li>
+<li><strong>App threads block</strong> waiting for DB → request queue grows.</li>
+<li><strong>Healthy upstream services time out</strong> waiting for your app → cascading failure.</li>
+</ol>
+<p>This is why consistent hashing isn&rsquo;t an optimization — it&rsquo;s table stakes for any cache or sharded store at scale.</p>
+</blockquote>
+<hr />
+<h2 id="consistent-hashing">Consistent hashing<a class="headerlink" href="#consistent-hashing" title="anchor">&para;</a></h2>
+<p>Quoted from Wikipedia: <em>&ldquo;Consistent hashing is a special kind of hashing such that when a hash table is re-sized and consistent hashing is used, only </em><em>k/n keys need to be remapped on average</em><em>, where k is the number of keys, and n is the number of slots. In contrast, in most traditional hash tables, a change in the number of array slots causes nearly all keys to be remapped&rdquo;</em> [1].</p>
+<h3 id="hash-space-and-hash-ring">Hash space and hash ring<a class="headerlink" href="#hash-space-and-hash-ring" title="anchor">&para;</a></h3>
+<p>Now we understand the definition of consistent hashing, let us find out how it works. Assume <strong>SHA-1</strong> is used as the hash function f, and the output range of the hash function is: x0, x1, x2, x3, …, xn. In cryptography, SHA-1&rsquo;s hash space goes from 0 to 2¹⁶⁰ - 1. That means x0 corresponds to 0, xn corresponds to 2¹⁶⁰ – 1, and all the other hash values in the middle fall between 0 and 2¹⁶⁰ - 1.</p>
+<p>Figure 3 shows the hash space (a linear range from x0 to xn). By collecting both ends, we get a hash ring as shown in Figure 4:</p>
+<h3 id="figure-4-the-hash-ring">Figure 4 — The hash ring<a class="headerlink" href="#figure-4-the-hash-ring" title="anchor">&para;</a></h3>
+<p><img alt="Figure 4 — Hash ring" src="img/ch-fig04-hash-ring.png" /></p>
+<h3 id="hash-servers">Hash servers<a class="headerlink" href="#hash-servers" title="anchor">&para;</a></h3>
+<p>Using the same hash function f, we map servers based on server IP or name onto the ring. Figure 5 shows that 4 servers are mapped on the hash ring.</p>
+<h3 id="figure-5-servers-placed-on-the-ring">Figure 5 — Servers placed on the ring<a class="headerlink" href="#figure-5-servers-placed-on-the-ring" title="anchor">&para;</a></h3>
+<p><img alt="Figure 5 — Servers on ring" src="img/ch-fig05-servers-on-ring.png" /></p>
+<h3 id="hash-keys">Hash keys<a class="headerlink" href="#hash-keys" title="anchor">&para;</a></h3>
+<p>One thing worth mentioning is that hash function used here is different from the one in &ldquo;the rehashing problem,&rdquo; and there is <strong>no modular operation</strong>. As shown in Figure 6, 4 cache keys (key0, key1, key2, and key3) are hashed onto the hash ring.</p>
+<h3 id="figure-6-keys-placed-on-the-ring">Figure 6 — Keys placed on the ring<a class="headerlink" href="#figure-6-keys-placed-on-the-ring" title="anchor">&para;</a></h3>
+<p><img alt="Figure 6 — Keys on ring" src="img/ch-fig06-keys-on-ring.png" /></p>
+<h3 id="server-lookup">Server lookup<a class="headerlink" href="#server-lookup" title="anchor">&para;</a></h3>
+<p>To determine which server a key is stored on, <strong>we go clockwise from the key position on the ring until a server is found</strong>. Figure 7 explains this process. Going clockwise, key0 is stored on server 0; key1 is stored on server 1; key2 is stored on server 2 and key3 is stored on server 3.</p>
+<h3 id="figure-7-clockwise-server-lookup">Figure 7 — Clockwise server lookup<a class="headerlink" href="#figure-7-clockwise-server-lookup" title="anchor">&para;</a></h3>
+<p><img alt="Figure 7 — Server lookup" src="img/ch-fig07-server-lookup.png" /></p>
+<h3 id="add-a-server">Add a server<a class="headerlink" href="#add-a-server" title="anchor">&para;</a></h3>
+<p>Using the logic described above, <strong>adding a new server will only require redistribution of a fraction of keys</strong>.</p>
+<p>In Figure 8, after a new server 4 is added, only key0 needs to be redistributed. k1, k2, and k3 remain on the same servers. Let us take a close look at the logic. Before server 4 is added, key0 is stored on server 0. Now, key0 will be stored on server 4 because server 4 is the first server it encounters by going clockwise from key0&rsquo;s position on the ring. The other keys are not redistributed based on consistent hashing algorithm.</p>
+<h3 id="figure-8-adding-s4-only-k0-moves">Figure 8 — Adding s4 — only k0 moves<a class="headerlink" href="#figure-8-adding-s4-only-k0-moves" title="anchor">&para;</a></h3>
+<p><img alt="Figure 8 — Add server" src="img/ch-fig08-add-server.png" /></p>
+<h3 id="remove-a-server">Remove a server<a class="headerlink" href="#remove-a-server" title="anchor">&para;</a></h3>
+<p>When a server is removed, only a small fraction of keys require redistribution with consistent hashing. In Figure 9, when server 1 is removed, only key1 must be remapped to server 2. The rest of the keys are unaffected.</p>
+<h3 id="figure-9-removing-s1-only-k1-moves">Figure 9 — Removing s1 — only k1 moves<a class="headerlink" href="#figure-9-removing-s1-only-k1-moves" title="anchor">&para;</a></h3>
+<p><img alt="Figure 9 — Remove server" src="img/ch-fig09-remove-server.png" /></p>
+<hr />
+<h2 id="two-issues-in-the-basic-approach">Two issues in the basic approach<a class="headerlink" href="#two-issues-in-the-basic-approach" title="anchor">&para;</a></h2>
+<p>The consistent hashing algorithm was introduced by Karger et al. at MIT [1]. The basic steps are:</p>
+<ul>
+<li>Map servers and keys on to the ring using a uniformly distributed hash function.</li>
+<li>To find out which server a key is mapped to, go clockwise from the key position until the first server on the ring is found.</li>
+</ul>
+<p>Two problems are identified with this approach.</p>
+<p><strong>First</strong>, it is impossible to keep the same size of partitions on the ring for all servers considering a server can be added or removed. A partition is the hash space between adjacent servers. It is possible that the size of the partitions on the ring assigned to each server is very small or fairly large. In Figure 10, if s1 is removed, s2&rsquo;s partition (highlighted) is twice as large as s0 and s3&rsquo;s partition.</p>
+<h3 id="figure-10-uneven-partitions-after-server-removal">Figure 10 — Uneven partitions after server removal<a class="headerlink" href="#figure-10-uneven-partitions-after-server-removal" title="anchor">&para;</a></h3>
+<p><img alt="Figure 10 — Uneven partitions" src="img/ch-fig10-uneven-partitions.png" /></p>
+<p><strong>Second</strong>, it is possible to have a non-uniform key distribution on the ring. For instance, if servers are mapped to positions listed in Figure 11, most of the keys are stored on server 2. However, server 1 and server 3 have no data.</p>
+<h3 id="figure-11-non-uniform-key-distribution">Figure 11 — Non-uniform key distribution<a class="headerlink" href="#figure-11-non-uniform-key-distribution" title="anchor">&para;</a></h3>
+<p><img alt="Figure 11 — Non-uniform distribution" src="img/ch-fig11-non-uniform-distribution.png" /></p>
+<p>A technique called <strong>virtual nodes</strong> or <strong>replicas</strong> is used to solve these problems.</p>
+<hr />
+<h2 id="virtual-nodes">Virtual nodes<a class="headerlink" href="#virtual-nodes" title="anchor">&para;</a></h2>
+<p>A virtual node refers to the real node, and <strong>each server is represented by multiple virtual nodes on the ring</strong>. In Figure 12, both server 0 and server 1 have 3 virtual nodes. The 3 is arbitrarily chosen; and in real-world systems, the number of virtual nodes is much larger. Instead of using s0, we have s0_0, s0_1, and s0_2 to represent server 0 on the ring. Similarly, s1_0, s1_1, and s1_2 represent server 1 on the ring. With virtual nodes, each server is responsible for multiple partitions. Partitions (edges) with label s0 are managed by server 0. On the other hand, partitions with label s1 are managed by server 1.</p>
+<h3 id="figure-12-virtual-nodes-3-vnodes-per-server">Figure 12 — Virtual nodes (3 vnodes per server)<a class="headerlink" href="#figure-12-virtual-nodes-3-vnodes-per-server" title="anchor">&para;</a></h3>
+<p><img alt="Figure 12 — Virtual nodes" src="img/ch-fig12-virtual-nodes.png" /></p>
+<p>To find which server a key is stored on, we go clockwise from the key&rsquo;s location and find the first virtual node encountered on the ring. In Figure 13, to find out which server k0 is stored on, we go clockwise from k0&rsquo;s location and find virtual node s1_1, which refers to server 1.</p>
+<h3 id="figure-13-vnode-lookup-k0-s1_1-server-1">Figure 13 — Vnode lookup (k0 → s1_1 → server 1)<a class="headerlink" href="#figure-13-vnode-lookup-k0-s1_1-server-1" title="anchor">&para;</a></h3>
+<p><img alt="Figure 13 — Vnode lookup" src="img/ch-fig13-vnode-lookup.png" /></p>
+<p>As the number of virtual nodes increases, the distribution of keys becomes more balanced. This is because the standard deviation gets smaller with more virtual nodes, leading to balanced data distribution. Standard deviation measures how data are spread out. The outcome of an experiment carried out by online research [2] shows that with one or two hundred virtual nodes, the standard deviation is between <strong>5% (200 virtual nodes) and 10% (100 virtual nodes)</strong> of the mean. The standard deviation will be smaller when we increase the number of virtual nodes. However, more spaces are needed to store data about virtual nodes. <strong>This is a tradeoff</strong>, and we can tune the number of virtual nodes to fit our system requirements.</p>
+<blockquote>
+<h3 id="amplification-choosing-how-many-vnodes">⭐ Amplification — choosing how many vnodes<a class="headerlink" href="#amplification-choosing-how-many-vnodes" title="anchor">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th># of vnodes per server</th>
+<th>Std deviation of load</th>
+<th>Memory cost</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>~30%+</td>
+<td>tiny</td>
+</tr>
+<tr>
+<td>10</td>
+<td>~30%</td>
+<td>low</td>
+</tr>
+<tr>
+<td>100</td>
+<td>~10%</td>
+<td>medium</td>
+</tr>
+<tr>
+<td>200</td>
+<td>~5%</td>
+<td>medium</td>
+</tr>
+<tr>
+<td>1000</td>
+<td>~3%</td>
+<td>higher</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Real-world choices</strong>:
+- <strong>Cassandra</strong> default: 256 vnodes per node (<code>num_tokens: 256</code>).
+- <strong>DynamoDB</strong>: hidden, but ~hundreds per partition.
+- <strong>Discord</strong>: experimented with thousands.</p>
+<p>💡 <strong>Rule of thumb</strong>: 100–200 vnodes is the sweet spot for most workloads. More than that gives diminishing returns and costs memory.</p>
+</blockquote>
+<hr />
+<h2 id="find-affected-keys">Find affected keys<a class="headerlink" href="#find-affected-keys" title="anchor">&para;</a></h2>
+<p>When a server is added or removed, a fraction of data needs to be redistributed. How can we find the affected range to redistribute the keys?</p>
+<p>In Figure 14, server 4 is added onto the ring. The affected range starts from s4 (newly added node) and <strong>moves anticlockwise</strong> around the ring until a server is found (s3). Thus, keys located between s3 and s4 need to be redistributed to s4.</p>
+<h3 id="figure-14-affected-range-when-adding-s4">Figure 14 — Affected range when adding s4<a class="headerlink" href="#figure-14-affected-range-when-adding-s4" title="anchor">&para;</a></h3>
+<p><img alt="Figure 14 — Find affected (add)" src="img/ch-fig14-find-affected-add.png" /></p>
+<p>When a server (s1) is removed as shown in Figure 15, the affected range starts from s1 (removed node) and moves anticlockwise around the ring until a server is found (s0). Thus, keys located between s0 and s1 must be redistributed to s2.</p>
+<h3 id="figure-15-affected-range-when-removing-s1">Figure 15 — Affected range when removing s1<a class="headerlink" href="#figure-15-affected-range-when-removing-s1" title="anchor">&para;</a></h3>
+<p><img alt="Figure 15 — Find affected (remove)" src="img/ch-fig15-find-affected-remove.png" /></p>
+<hr />
+<h2 id="wrap-up">Wrap up<a class="headerlink" href="#wrap-up" title="anchor">&para;</a></h2>
+<p>In this chapter, we had an in-depth discussion about consistent hashing, including why it is needed and how it works. The benefits of consistent hashing include:</p>
+<ul>
+<li><strong>Minimized keys are redistributed when servers are added or removed.</strong></li>
+<li><strong>It is easy to scale horizontally</strong> because data are more evenly distributed.</li>
+<li><strong>Mitigate hotspot key problem.</strong> Excessive access to a specific shard could cause server overload. Imagine data for Katy Perry, Justin Bieber, and Lady Gaga all end up on the same shard. Consistent hashing helps to mitigate the problem by distributing the data more evenly.</li>
+</ul>
+<p>Consistent hashing is widely used in real-world systems, including some notable ones:</p>
+<ul>
+<li><strong>Partitioning component of Amazon&rsquo;s Dynamo database</strong> [3]</li>
+<li><strong>Data partitioning across the cluster in Apache Cassandra</strong> [4]</li>
+<li><strong>Discord chat application</strong> [5]</li>
+<li><strong>Akamai content delivery network</strong> [6]</li>
+<li><strong>Maglev network load balancer</strong> [7]</li>
+</ul>
+<p>Congratulations on getting this far! Now give yourself a pat on the back. Good job!</p>
+<hr />
+<h2 id="amplification-real-world-implementations-pitfalls-added">⭐ Amplification — Real-world implementations &amp; pitfalls (added)<a class="headerlink" href="#amplification-real-world-implementations-pitfalls-added" title="anchor">&para;</a></h2>
+<h3 id="pseudo-code-minimal-consistent-hashing">🧪 Pseudo-code — minimal consistent hashing<a class="headerlink" href="#pseudo-code-minimal-consistent-hashing" title="anchor">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sortedcontainers</span><span class="w"> </span><span class="kn">import</span> <span class="n">SortedDict</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ConsistentHash</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vnodes_per_server</span><span class="o">=</span><span class="mi">200</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ring</span> <span class="o">=</span> <span class="n">SortedDict</span><span class="p">()</span>  <span class="c1"># angle → server</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vnodes</span> <span class="o">=</span> <span class="n">vnodes_per_server</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="c1"># 64-bit hash for shorter ring positions (real systems use SHA-1/MD5)</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">(),</span> <span class="mi">16</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_server</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">server</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vnodes</span><span class="p">):</span>
+            <span class="n">position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hash</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">server</span><span class="si">}</span><span class="s2">#</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ring</span><span class="p">[</span><span class="n">position</span><span class="p">]</span> <span class="o">=</span> <span class="n">server</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">remove_server</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">server</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vnodes</span><span class="p">):</span>
+            <span class="n">position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hash</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">server</span><span class="si">}</span><span class="s2">#</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">ring</span><span class="p">[</span><span class="n">position</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_server</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ring</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hash</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="c1"># Find first server clockwise (next bigger position, wrap around)</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ring</span><span class="o">.</span><span class="n">bisect_right</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">idx</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ring</span><span class="p">):</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># wrap around</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ring</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="n">idx</span><span class="p">]</span>
+</code></pre></div>
+<h3 id="the-4-trade-offs-to-know">🚦 The 4 trade-offs to know<a class="headerlink" href="#the-4-trade-offs-to-know" title="anchor">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Trade-off</th>
+<th>Question</th>
+<th>Practical answer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Vnode count</strong></td>
+<td>More balance vs more memory?</td>
+<td>100-200 default</td>
+</tr>
+<tr>
+<td><strong>Hash function</strong></td>
+<td>Quality vs speed?</td>
+<td>MD5 / xxHash / Murmur3 — avoid SHA-1 if speed matters</td>
+</tr>
+<tr>
+<td><strong>Ring storage</strong></td>
+<td>Sorted array vs tree?</td>
+<td>TreeMap / SortedDict for O(log N) lookup</td>
+</tr>
+<tr>
+<td><strong>Replication</strong></td>
+<td>Where to put replicas?</td>
+<td>Next K successors clockwise (Dynamo-style)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="consistent-hashing-vs-alternatives">🆚 Consistent hashing vs alternatives<a class="headerlink" href="#consistent-hashing-vs-alternatives" title="anchor">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>When to use</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>hash % N</code></strong></td>
+<td>N is fixed forever (it never is)</td>
+<td>Simple but breaks on resize</td>
+</tr>
+<tr>
+<td><strong>Consistent hashing</strong></td>
+<td>Default for distributed cache / sharding</td>
+<td>The &ldquo;vanilla&rdquo; choice</td>
+</tr>
+<tr>
+<td><strong>Jump consistent hash</strong> (Google)</td>
+<td>Very fast, no per-server state</td>
+<td>But no easy way to remove arbitrary servers</td>
+</tr>
+<tr>
+<td><strong>Rendezvous hashing (HRW)</strong></td>
+<td>Few servers, simple</td>
+<td>O(N) per lookup but no ring needed</td>
+</tr>
+<tr>
+<td><strong>Maglev hashing</strong> (Google)</td>
+<td>Load balancers, even distribution required</td>
+<td>Used in Google&rsquo;s frontend LB</td>
+</tr>
+</tbody>
+</table>
+<h3 id="production-pitfalls">⚠️ Production pitfalls<a class="headerlink" href="#production-pitfalls" title="anchor">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Pitfall</th>
+<th>Symptom</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Hot key</strong></td>
+<td>One key getting massive traffic, vnodes don&rsquo;t help</td>
+<td>Add per-key cache, replicate hot key across N servers</td>
+</tr>
+<tr>
+<td><strong>Server crashes during rebalance</strong></td>
+<td>Partial replication, inconsistent state</td>
+<td>Quorum reads (R + W &gt; N), gossip protocol for membership</td>
+</tr>
+<tr>
+<td><strong>Replication factor &lt; 3</strong></td>
+<td>Lose data when 2 servers fail simultaneously</td>
+<td>Use RF=3 minimum; spread replicas across availability zones</td>
+</tr>
+<tr>
+<td><strong>Skewed vnode hashing</strong></td>
+<td>Some vnodes still cluster, uneven load</td>
+<td>Use a high-quality hash; <code>vnode_id = hash(server + vnode_index)</code></td>
+</tr>
+<tr>
+<td><strong>Stale ring view across clients</strong></td>
+<td>Different clients route to different servers for same key</td>
+<td>Centralize ring state in metadata service or use gossip</td>
+</tr>
+<tr>
+<td><strong>Cold cache after server add</strong></td>
+<td>New server has empty cache → misses pile up</td>
+<td>Preload from neighbors, or accept gradual warmup</td>
+</tr>
+</tbody>
+</table>
+<h3 id="what-a-real-cassandra-ring-looks-like">📊 What a real Cassandra ring looks like<a class="headerlink" href="#what-a-real-cassandra-ring-looks-like" title="anchor">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>nodetool ring   # output excerpt
+
+Datacenter: us-east-1
+==========
+Address       Rack  Status  Load        Owns    Token
+10.0.1.10     1a    UP      482.3 GB    33.3%   -9223372036854775808
+10.0.1.11     1b    UP      481.7 GB    33.3%   -3074457345618258602
+10.0.1.12     1c    UP      485.1 GB    33.3%    3074457345618258602
+... (256 token entries per node when num_tokens=256)
+</code></pre></div>
+<p>Each node owns 256 ranges (vnodes). The token is the hash position; &ldquo;Owns&rdquo; is the % of total keyspace.</p>
+<h3 id="common-interview-follow-ups">🎯 Common interview follow-ups<a class="headerlink" href="#common-interview-follow-ups" title="anchor">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Question</th>
+<th>Key idea to mention</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&ldquo;How would you handle a hot key?&rdquo;</td>
+<td>Vnodes don&rsquo;t fix this — replicate the key itself across multiple servers, or fronting cache (CDN-style)</td>
+</tr>
+<tr>
+<td>&ldquo;What if 2 nodes go down at once?&rdquo;</td>
+<td>Replication factor + quorum (Dynamo R+W&gt;N); spread across AZs</td>
+</tr>
+<tr>
+<td>&ldquo;How do clients learn the ring?&rdquo;</td>
+<td>Coordinator node + gossip, or central metadata service (ZooKeeper / etcd)</td>
+</tr>
+<tr>
+<td>&ldquo;Why use SHA-1 vs MD5?&rdquo;</td>
+<td>For consistent hashing, <strong>distribution quality</strong> matters, not crypto strength. Murmur3 / xxHash are faster and good enough</td>
+</tr>
+<tr>
+<td>&ldquo;What happens during a rolling restart?&rdquo;</td>
+<td>Each node leaves the ring → its vnodes&rsquo; keys move to neighbors → comes back → reclaims them. Brief unavailability per range</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="reference-materials">Reference materials<a class="headerlink" href="#reference-materials" title="anchor">&para;</a></h2>
+<ul>
+<li>[1] Consistent hashing (Wikipedia): https://en.wikipedia.org/wiki/Consistent_hashing</li>
+<li>[2] Tom White, Consistent Hashing: https://tom-e-white.com/2007/11/consistent-hashing.html</li>
+<li>[3] Dynamo: Amazon&rsquo;s Highly Available Key-value Store: https://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf</li>
+<li>[4] Cassandra — A Decentralized Structured Storage System: http://www.cs.cornell.edu/Projects/ladis2009/papers/Lakshman-ladis2009.PDF</li>
+<li>[5] How Discord Scaled Elixir to 5,000,000 Concurrent Users: https://discord.com/blog/how-discord-scaled-elixir-to-5-000-000-concurrent-users</li>
+<li>[6] CS168: The Modern Algorithmic Toolbox — Lecture #1: Introduction and Consistent Hashing: http://theory.stanford.edu/~tim/s16/l/l1.pdf</li>
+<li>[7] Maglev: A Fast and Reliable Software Network Load Balancer: https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/44824.pdf</li>
+<li>Original chapter source: <em>System Design Interview – An Insider&rsquo;s Guide</em> (Alex Xu), Chapter 5.</li>
+</ul>
+      <nav class="prev-next"><a class="prev" href="design-rate-limiter.html"><div class="label">← Anterior</div><div class="title">Design A Rate Limiter</div></a><a class="next" href="design-key-value-store.html"><div class="label">Siguiente →</div><div class="title">Design a Key-Value Store</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="design-consistent-hashing.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

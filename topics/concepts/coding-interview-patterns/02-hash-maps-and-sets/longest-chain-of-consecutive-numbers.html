@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Longest Chain of Consecutive Numbers · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 2 — Hash Maps and Sets</span><span class="sep">/</span><span class="current">Longest Chain of Consecutive Numbers</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Longest Chain of Consecutive Numbers</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">hash-maps-sets</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Longest Chain of Consecutive Numbers
+Find the longest chain of consecutive numbers in an array. Two numbers are consecutive if they have a difference of 1.</p>
+<p>Example:
+Input: nums = [1, 6, 2, 5, 8, 7, 10, 3]
+Output: 4
+Explanation: The longest chain of consecutive numbers is 5, 6, 7, 8.</p>
+<p>Intuition
+A naive approach to this problem is to sort the array. When all numbers are arranged in ascending order, consecutive numbers will be placed next to each other. This allows us to iterate through the array to identify the longest sequence of consecutive numbers.</p>
+<p>Image represents a visual depiction of a sorting algorithm&rsquo;s effect on an array of numbers.  The diagram begins with an unsorted array <code>[1 6 2 5 8 7 10 3]</code> enclosed in square brackets.  A right-pointing arrow labeled &lsquo;sort&rsquo; indicates a transformation.  The result of the sorting operation is shown as two sub-arrays. The first, a peach-colored sub-array <code>[1 2 3]</code>, contains the smallest three numbers from the original array. The second, a light-green sub-array <code>[5 6 7 8 10]</code>, contains the remaining numbers, which are larger than those in the first sub-array. The label &lsquo;longest&rsquo; is placed above the second sub-array, indicating that this sub-array represents the longest increasing subsequence within the original unsorted array.  The entire output is presented as a sequence of numbers within square brackets.
+This approach requires sorting, which takes 
+O
+(
+n
+log
+⁡
+(
+n
+)
+)
+O(nlog(n)) time, where 
+n
+n denotes the length of the array. Let’s see how we could do better.</p>
+<p>It’s important to understand that every number in the array can represent the start of some consecutive chain. One approach is to treat each number as the start of a chain and search through the array to identify the rest of its chain.</p>
+<p>To do this, we can leverage the fact that for any number num, its next consecutive number will be num + 1. This means we’ll always know which number to look for when trying to find the next number in a sequence. The code snippet for this approach is provided below:</p>
+<p>Python
+JavaScript
+Java
+from typing import List
+     
+def longest_chain_of_consecutive_numbers_brute_force(nums: List[int]) -&gt; int:
+    if not nums:
+        return 0
+    longest_chain = 0
+    # Look for chains of consecutive numbers that start from each number.
+    for num in nums:
+        current_num = num
+        current_chain = 1
+        # Continue to find the next consecutive numbers in the chain.
+        while (current_num + 1) in nums:
+            current_num += 1
+            current_chain += 1
+        longest_chain = max(longest_chain, current_chain)
+    return longest_chain
+This brute force approach takes 
+O
+(
+n
+3
+)
+O(n 
+3
+ ) time because of the nested operations involved:</p>
+<p>The outer for-loop iterates through each element, which takes 
+O
+(
+n
+)
+O(n) time.</p>
+<p>For each element, the inner while-loop can potentially run up to n iterations if there is a long consecutive sequence starting from the current number.</p>
+<p>For each, while-loop iteration, an 
+O
+(
+n
+)
+O(n) check is performed to see if the next consecutive number exists in the array.</p>
+<p>This is slower than the sorting approach, but we can make a couple of optimizations to improve the time complexity. Let’s discuss these.</p>
+<p>Optimization - hash set
+To find the next number in a sequence, we perform a linear search through the array. However, by storing all the numbers in a hash set, we can instead query this hash set in constant time to check if a number exists.</p>
+<p>This reduces the time complexity from 
+O
+(
+n
+3
+)
+O(n 
+3
+ ) to 
+O
+(
+n
+2
+)
+O(n 
+2
+ ).</p>
+<p>Optimization - identifying the start of each chain
+In the brute force approach, we treat each number as the start of a chain. This becomes quite expensive because we perform a linear search for every number to find the rest of its chain:</p>
+<p>Image represents a diagram illustrating a search for a consecutive chain of numbers.  The top of the diagram contains the text &lsquo;find the rest of a consecutive chain starting at:&rsquo;.  From this text, eight orange arrows point downwards to a set of single-digit numbers enclosed in square brackets: [1, 6, 2, 5, 8, 7, 10, 3].  The arrows visually represent the exploration of potential consecutive chains starting from an unspecified initial number (implied by the phrase &lsquo;starting at:&rsquo;).  The numbers at the bottom are potential candidates or elements within the search space for completing the consecutive chain.  The diagram suggests a branching or fan-out search strategy, where multiple possibilities are explored simultaneously to find the rest of the consecutive chain.
+The key observation here is that we don’t need to perform this search for every number in a chain. Instead, we only need to perform it for the smallest number in each chain since this number identifies the start of its chain:</p>
+<p>Image represents a diagram illustrating the concept of finding a consecutive chain within a sequence of numbers.  The top of the diagram displays the text &lsquo;find the rest of a consecutive chain starting at:&rsquo;.  Three orange arrows emanate downwards from this text, pointing to three distinct subsequences of numbers: &lsquo;[1 6 2]&rsquo;, &lsquo;[5 8 7]&rsquo;, and &lsquo;[10 3]&rsquo;. Below each subsequence, grey arrows indicate potential consecutive chains.  Specifically, under &lsquo;[1 6 2]&rsquo;, a grey arrow points to &lsquo;1 2 3&rsquo;, suggesting a possible consecutive chain starting with 1. Similarly, under &lsquo;[5 8 7]&rsquo;, a grey arrow points to &lsquo;5 6 7 8&rsquo;, indicating a potential consecutive chain starting with 5. Finally, under &lsquo;[10 3]&rsquo;, a grey arrow points to &lsquo;10&rsquo;, showing a single-element consecutive chain starting at 10. The diagram visually represents the challenge of identifying consecutive number sequences from a larger, unordered set.
+We can determine if a number is the smallest number in its chain by checking the array doesn’t contain the number that precedes it (curr_num - 1). We can also use the hash set for this check.</p>
+<p>Image represents a step-by-step illustration of an algorithm, likely searching within an array.  The top section shows an array <code>[1, 6, 2, 5, 8, 7, 10, 3]</code>.  The number 5 is highlighted in a grey circle. Above it, text states &lsquo;not the smallest in its chain: 6 - 1 = 5 exists,&rsquo; indicating a check for whether 5 is the smallest element in a sub-array derived by subtracting 1 from a larger element (in this case, 6). A downward-pointing arrow connects this text to the array, visually indicating the element being processed. The bottom section shows the same array, but now the number 5 is no longer highlighted. Above it, the text reads &lsquo;smallest in its chain: 5 - 1 = 4 doesn&rsquo;t exist,&rsquo; implying that a search for 4 (5-1) within the array failed.  A downward-pointing arrow again connects the text to the array, showing that the algorithm continues its search after finding that 5 is not the smallest in its chain. The overall image demonstrates a process of iterating through an array and checking for the existence of specific values derived from calculations on other array elements.
+This reduces the time complexity from 
+O
+(
+n
+2
+)
+O(n 
+2
+ ) to 
+O
+(
+n
+)
+O(n), as now every chain is searched through only once. This is explained in more detail in the complexity analysis.</p>
+<p>Try it yourself
+Write your solution to the problem before checking the reference implementation.
+Implementation
+Python
+JavaScript
+Java
+from typing import List</p>
+<p>def longest_chain_of_consecutive_numbers(nums: List[int]) -&gt; int:
+    if not nums:
+        return 0
+    num_set = set(nums)
+    longest_chain = 0
+    for num in num_set:
+        # If the current number is the smallest number in its chain, search for
+        # the length of its chain.
+        if num - 1 not in num_set:
+            current_num = num
+            current_chain = 1
+            # Continue to find the next consecutive numbers in the chain.
+            while current_num + 1 in num_set:
+                current_num += 1
+                current_chain += 1
+            longest_chain = max(longest_chain, current_chain)
+    return longest_chain
+Complexity Analysis
+Time complexity: The time complexity of longest_chain_of_consecutive_numbers is 
+O
+(
+n
+)
+O(n) because, although there are two loops, the inner loop is only executed when the current number is the start of a chain. This ensures that each chain is iterated through only once in the inner while-loop. Thus, the total number of iterations for both loops combined is 
+O
+(
+n
+)
+O(n): the outer for-loop runs 
+n
+n times, and the inner while-loop runs a total of 
+n
+n times across all iterations, resulting in a combined time complexity of 
+O
+(
+n
++
+n
+)
+=
+O
+(
+n
+)
+O(n+n)=O(n).</p>
+<p>Space complexity: The space complexity is 
+O
+(
+n
+)
+O(n) since the hash set stores each unique number from the array.</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="zero-striping.html"><div class="label">← Anterior</div><div class="title">Zero Striping</div></a><a class="next" href="geometric-sequence-triplets.html"><div class="label">Siguiente →</div><div class="title">Geometric Sequence Triplets</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="longest-chain-of-consecutive-numbers.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

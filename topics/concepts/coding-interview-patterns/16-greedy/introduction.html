@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Introduction to Greedy Algorithms · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 16 — Greedy</span><span class="sep">/</span><span class="current">Introduction to Greedy Algorithms</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Introduction to Greedy Algorithms</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">greedy</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Introduction to Greedy Algorithms
+Intuition
+Greedy algorithms are a class of algorithms that make a series of decisions, where each decision is the best immediate choice given the options available. To understand this, let’s dive into an analogy.</p>
+<p>Imagine you&rsquo;re planning a road trip from city A to city E, and you want to visit cities B, C, and D along the way:</p>
+<p>Image represents a weighted graph, a network diagram showing five nodes (A, B, C, D, E) labeled in orange, interconnected by edges representing travel times in minutes.  Node A connects to node B with three edges showing travel times of 40, 30, and 20 minutes respectively, and another edge to B with a travel time of 30 minutes. Node B connects to node C with edges of 15 and 20 minutes. Node C connects to node D with edges of 30 and 50 minutes. Node D connects to node E with edges of 30 and 35 minutes.  Node D also has an edge to node C with a travel time of 25 minutes.  All edges are unidirectional, implying travel time may vary in the opposite direction (not shown).  The numbers on the edges represent the time taken to traverse that specific connection between the nodes.
+You want the fastest route for this journey, so you aim to optimize the route. One option is to check every possible route to see which one takes the least amount of time to drive through, but this approach is quite time consuming.</p>
+<p>Instead, you decide to take the route with the shortest duration at each leg of the trip, understanding that it will result in the quickest journey:</p>
+<p>Image represents a weighted directed graph illustrating a network of nodes (A, B, C, D, E) connected by edges representing time durations.  Each node is labeled with a capital letter in orange.  The edges are depicted as lines; thicker black lines indicate the shortest path between nodes, while thinner light-grey lines represent alternative, longer paths.  Numerical values along the edges denote the time (in minutes) it takes to traverse that connection. For example, the shortest path from A to B takes 20 minutes, while an alternative path takes 30 minutes.  The shortest path from A to E is A-B-C-D-E, with individual leg times of 20, 15, 25, and 30 minutes respectively.  Other paths exist between nodes with varying durations, such as the 35-minute connection between B and E, or the 50-minute connection between C and D. The overall diagram visualizes different routes and their associated travel times between the five locations.
+This is effectively a greedy approach to the problem, where you choose the best option at each step, aiming to find the best solution overall.</p>
+<p>How does a greedy algorithm work?
+More formally, a greedy algorithm follows the greedy choice property, which states that the best overall solution to a problem (global optimum) can be arrived at by making the best possible decision at each step (local optimum).</p>
+<p>Each decision is made based only on the current context, and ignores its impact on future steps. This process continues until the algorithm reaches a final solution.</p>
+<p>How to tell if a problem can be solved using a greedy approach
+Greedy approaches are generally used for optimization problems, similar to DP. This means we check if the problem has an optimal substructure which can be broken down and solved by smaller subproblems.</p>
+<p>The key difference between DP and greedy approaches is their decision-making strategies. Greedy algorithms follow the greedy choice property, while DP considers all possible solutions to find the global optimum. It’s generally the case that all greedy problems can be solved using DP, but not all DP problems can be solved using a greedy approach.</p>
+<p>Real-world Example
+Huffman coding in data compression: Huffman coding is an algorithm that assigns variable-length codes to input characters based on their frequencies, with the most frequent characters getting the shortest codes. The goal is to minimize the overall size of the encoded data. The greedy approach works by always combining the two least frequent characters first (local optimum), ensuring that each step reduces the size of the overall encoding (global optimum). This method is widely used in file compression formats like ZIP, and media compression standards like JPEG.</p>
+<p>Chapter Outline
+Image represents a hierarchical diagram illustrating applications of the &lsquo;Greedy&rsquo; coding pattern.  A rounded rectangle at the top, labeled &lsquo;Greedy,&rsquo; acts as the root node.  From this node, two dashed lines descend, each pointing to a separate rounded rectangle representing a specific application. The left rectangle is labeled &lsquo;Reaching a Destination&rsquo; and lists two sub-points: &lsquo;Jump to the End&rsquo; and &lsquo;Gas Stations,&rsquo; suggesting examples of problems solved using a greedy approach in this context. The right rectangle is labeled &lsquo;Resource Allocation&rsquo; and lists &lsquo;Candies&rsquo; as an example problem.  The overall structure shows that &lsquo;Reaching a Destination&rsquo; and &lsquo;Resource Allocation&rsquo; are both considered applications or examples of the broader &lsquo;Greedy&rsquo; algorithmic pattern. The dashed lines indicate a hierarchical relationship, showing that the lower-level boxes are specific instances of the upper-level concept.
+It’s impractical to provide a one-size-fits-all framework for solving greedy problems because each one is unique. Instead, this chapter explores a variety of unique situations in which a problem can be solved using the greedy choice property to provide a general understanding of how this property works.</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="../15-dynamic-programming/largest-square-in-a-matrix.html"><div class="label">← Anterior</div><div class="title">Largest Square in a Matrix</div></a><a class="next" href="jump-to-the-end.html"><div class="label">Siguiente →</div><div class="title">Jump to the End</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="introduction.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Introduction to Binary Search · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 6 — Binary Search</span><span class="sep">/</span><span class="current">Introduction to Binary Search</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Introduction to Binary Search</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">binary-search</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Introduction to Binary Search
+Intuition
+Let&rsquo;s say you have a standard, hard-copy English dictionary, and you want to find the definition of the word &ldquo;inheritance.&rdquo; How could we do this?</p>
+<p>One approach is to flick through it page by page, until reaching the page with &ldquo;inheritance.&rdquo; But this is inefficient, and realistically, you&rsquo;re more likely to immediately open a page somewhere in the middle.</p>
+<p>Let&rsquo;s say you do this and land on a page of words beginning with &ldquo;M.&rdquo; Realizing that &ldquo;inheritance&rdquo; is somewhere to the left of &ldquo;M&rdquo; in the alphabet, you open a page somewhere between the letters &ldquo;A&rdquo; and &ldquo;M.&rdquo; You continue this process of checking if &ldquo;inheritance&rdquo; is to the right or left of the current page, and narrowing the search down until you find the correct page. With this method, you&rsquo;ve significantly reduced the number of pages to be searched, in contrast to linearly turning every page in order. This is the fundamental concept of binary search.</p>
+<p>Image represents a sequential process depicted using three open book icons connected by arrows and a final book with a bookmark. The first book shows multiple lines starting with &lsquo;M&hellip;&rsquo;, suggesting entries related to &lsquo;M&rsquo;.  An arrow points from this book to the second, with the text &lsquo;turn to a page between A and M.&rsquo; indicating a search or transition. The second book displays lines beginning with &lsquo;F&hellip;&rsquo;, representing entries related to &lsquo;F&rsquo;. Another arrow, labeled &lsquo;turn to a page between F and M.&rsquo;, connects this book to the third. The third book contains lines starting with &lsquo;I&hellip;&rsquo;, with one line specifically labeled &lsquo;Internet&rsquo; in green, suggesting a search result. Finally, a vertical orange bookmark labeled &lsquo;Found it!&rsquo; is inserted into the third book, signifying the successful completion of the search.  The overall diagram illustrates a search process where the user iteratively narrows down the search space (&lsquo;M&rsquo; then &lsquo;F&rsquo;) until finding the desired information (&lsquo;Internet&rsquo;) within a larger dataset represented by the books.
+Implementing Binary Search
+Binary search is an algorithm that searches for a value in a sorted data set.</p>
+<p>Even experienced developers can find it quite tricky to implement binary search correctly because &ldquo;the devil&rsquo;s in the detail.&rdquo;</p>
+<p>How should the boundary variables left and right be initialized?
+Should we use left &lt; right or left ≤ right as the exit condition in our while-loop?
+How should the boundary variables be updated? Should we choose left = mid, left = mid + 1, right = mid, or right = mid - 1?
+This chapter offers clear, intuitive guidance on how to master these challenges, and confidently handle even the trickiest edge case.</p>
+<p>To begin any binary search implementation, do the following:</p>
+<p>Define the search space.
+Define the behavior inside the loop for narrowing the search space.
+Choose an exit condition for the while-loop.
+Return the correct value.
+Let&rsquo;s break down these steps.</p>
+<ol>
+<li>Defining the search space
+The search space encompasses all possible values that may include the value we&rsquo;re searching for. For instance, when searching for a target in a sorted array, the search space should cover the entire array, as the target could be anywhere within it. This is illustrated in the array below, where the left and right pointers define the search space:</li>
+</ol>
+<p>Image represents a visual depiction of a search space within a binary search algorithm.  Two orange rectangular boxes labeled &lsquo;left&rsquo; and &lsquo;right&rsquo; are positioned above a horizontal line representing the &lsquo;search space&rsquo;.  This space contains a sorted array of integers: [1, 3, 4, 9, 10, 12, 14, 17, 20].  Arrows descend from &lsquo;left&rsquo; and &lsquo;right&rsquo; pointing to the beginning and end of the array, respectively.  An orange line underneath the array is labeled &lsquo;search space,&rsquo; indicating the range of values currently being considered during the search.  The diagram illustrates the initial state of a binary search, where the algorithm is about to begin its search for a target value within the defined &lsquo;search space&rsquo;.</p>
+<ol>
+<li>Narrowing the search space
+Narrowing the search space involves progressively moving the left or right pointer inward until the search space is reduced to one element or none.</li>
+</ol>
+<p>At each point in the binary search, we need to decide how we narrow our search space. We can either:</p>
+<p>Narrow the search space toward the left (by moving the right pointer inward):
+Image represents a diagram illustrating a data structure concept, possibly related to merging or combining data from two sources.  Two orange rectangular boxes labeled &lsquo;left&rsquo; and &lsquo;right&rsquo; are positioned at the top, each pointing downwards with an arrow towards a series of black dots enclosed in square brackets.  The &lsquo;left&rsquo; box points to three black dots, while the &lsquo;right&rsquo; box points to one black dot.  To the right of the &lsquo;right&rsquo; box&rsquo;s black dot, a sequence of three grey dots connected by light grey lines is shown, also enclosed in square brackets. A dashed orange curved arrow originates from the rightmost grey dot and points back towards the black dot associated with the &lsquo;right&rsquo; box, suggesting a connection or data flow from the right-hand sequence back to the initial point. This implies a potential merging or interaction between the data represented by the black dots and the grey dots.
+Narrow the search space toward the right (by moving the left pointer inward):
+Image represents a diagram illustrating a coding pattern, possibly related to data structures or algorithms.  The diagram shows two rectangular boxes labeled &lsquo;left&rsquo; and &lsquo;right&rsquo; in orange, positioned above a horizontal line of elements.  Three grey circles connected by a light grey line represent a sequence on the left side.  To the right of this sequence are three black circles, representing another sequence. An orange dashed curved arrow originates from the leftmost grey circle and extends to the first black circle, indicating a connection or data transfer from the &lsquo;left&rsquo; sequence to the rightmost element of the left sequence. A solid orange arrow points downwards from the &lsquo;left&rsquo; box to the first black circle, suggesting that the &lsquo;left&rsquo; element influences or acts upon this point. Similarly, a solid orange arrow points downwards from the &lsquo;right&rsquo; box to the last black circle, implying an action or influence from the &lsquo;right&rsquo; element on the last black circle.  The entire sequence of circles is enclosed within square brackets, suggesting a defined array or list.
+Using the midpoint
+We decide whether to move the left or right pointer based on the value in the middle of the search space, indicated by the midpoint variable (mid).</p>
+<p>Image represents a visual depiction of a data structure, likely an array or list, being accessed by three pointers labeled &lsquo;left,&rsquo; &lsquo;mid,&rsquo; and &lsquo;right.&rsquo;  The pointers are represented by rectangular boxes with their respective labels in orange (&lsquo;left,&rsquo; &lsquo;right&rsquo;) and light blue (&lsquo;mid&rsquo;).  Arrows descend from each pointer, indicating their position within the data structure. The data structure itself is shown as a horizontal row of black dots enclosed in square brackets, representing individual elements. The &lsquo;left&rsquo; pointer points to the first element, the &lsquo;right&rsquo; pointer points to the last element, and the &lsquo;mid&rsquo; pointer points to an element somewhere in the middle.  The arrangement suggests a scenario where these pointers might be used in algorithms like binary search or other operations requiring access to specific array positions.
+The main question to ask at each iteration of binary search is: is the value being searched for to the left or the right of the midpoint?</p>
+<p>Here&rsquo;s the general idea: if the value we&rsquo;re looking for is to the right of the midpoint, narrow the search space toward the right. Otherwise, narrow the search space toward the left.</p>
+<p>To narrow the search space towards the right, there are two options:</p>
+<p>left = mid + 1
+Image represents a visual depiction of an algorithm, likely a binary search or a similar divide-and-conquer approach.  The diagram shows two phases. The first phase displays three rectangular boxes labeled &lsquo;left&rsquo; (orange), &lsquo;mid&rsquo; (light blue), and &lsquo;right&rsquo; (orange), each pointing downwards with an arrow to a corresponding position within a sequence of dots representing an array.  The &lsquo;left&rsquo; box points to the beginning of the array, &lsquo;mid&rsquo; to the middle, and &lsquo;right&rsquo; to the end. The second phase shows a transformation.  The initial array is partially redrawn, and a solid arrow with the label &lsquo;left = mid + 1&rsquo; connects the rightmost dot of the left half of the array to the leftmost dot of the right half.  This indicates an update to the &lsquo;left&rsquo; index.  Above the second phase, a light gray &lsquo;mid&rsquo; box and orange &lsquo;left&rsquo; and &lsquo;right&rsquo; boxes are shown, pointing down to a smaller section of the array.  A dashed orange line connects the &lsquo;mid&rsquo; box from the first phase to the &lsquo;left&rsquo; box in the second phase, suggesting a relationship between the midpoint of the initial array and the new starting point of the search in the second phase.  The overall illustration demonstrates how an algorithm iteratively narrows down a search space by updating index pointers based on the midpoint.
+We do this if the midpoint value is definitively not the value we&rsquo;re looking for and should excluded from the search space.</p>
+<p>left = mid
+Image represents a visual depiction of a coding pattern, likely illustrating a divide-and-conquer algorithm or a similar approach to processing data.  The image is divided into two parts. The left part shows three rectangular boxes labeled &lsquo;left&rsquo; (orange), &lsquo;mid&rsquo; (light blue), and &lsquo;right&rsquo; (orange), each pointing downwards with an arrow to a representation of a data array shown as a sequence of black dots within square brackets. The &lsquo;left&rsquo; box points to the beginning of the array, &lsquo;mid&rsquo; to the middle, and &lsquo;right&rsquo; to the end. The right part of the image shows a similar arrangement of &lsquo;left&rsquo;, &lsquo;mid&rsquo;, and &lsquo;right&rsquo; boxes, but this time the &lsquo;left&rsquo; and &lsquo;mid&rsquo; boxes are connected with arrows to a smaller, processed array (represented by fewer black dots and grey lines connecting them). A solid black arrow connects the initial array (from the left part) to the processed array (in the right part), with the label &lsquo;left = mid&rsquo; written above it.  A dashed orange line connects the &lsquo;left&rsquo; box in the right part to the beginning of the processed array, suggesting a potential recursive call or iterative step.  The &lsquo;mid&rsquo; box in the right part points directly to a point within the processed array, indicating the new midpoint. The &lsquo;right&rsquo; box in the right part points to the end of the processed array. The overall diagram illustrates a process where an array is divided into sub-arrays, processed, and then recombined, possibly to find a specific element or perform a similar operation.
+We do this if the midpoint value itself could potentially be the value we&rsquo;re looking for and should still be included in the search space.
+The exclude/include logic applies when narrowing the search space towards the left, as well (i.e., between right = mid - 1 and right = mid).</p>
+<p>Calculating the midpoint
+In most cases, the midpoint is calculated using mid = (left + right) // 2 in Python.1 To lower the risk of integer overflow, mid = left + (right - left) // 2 is preferred in many other languages.</p>
+<ol>
+<li>Choosing an exit condition
+Choosing an exit condition for when the while-loop should terminate can be tricky. Our choices are primarily between left &lt; right and left ≤ right. Both conditions are applicable in different situations.</li>
+</ol>
+<p>When the exit condition is left &lt; right, the while-loop will break when left and right meet.2</p>
+<p>On the other hand, left ≤ right ends once left has surpassed right.</p>
+<p>Image represents two diagrams illustrating different loop termination conditions in a search algorithm, likely binary search.  The left diagram shows a loop continuing &lsquo;while left &lt; right&rsquo;, terminating &lsquo;once left == right&rsquo;.  Two orange rectangular boxes labeled &lsquo;left&rsquo; and &lsquo;right&rsquo; are positioned above a series of dots within square brackets [&hellip;], representing an array or list. Arrows descend from &lsquo;left&rsquo; and &lsquo;right&rsquo; pointing to separate dots within the array, suggesting the pointers are converging. The right diagram shows a loop continuing &lsquo;while left ≤ right&rsquo;, terminating &lsquo;once left &gt; right&rsquo;.  Similarly, two orange boxes labeled &lsquo;right&rsquo; and &lsquo;left&rsquo; (note the order change) are above a series of dots within square brackets [&hellip;]. Arrows descend from &lsquo;right&rsquo; and &lsquo;left&rsquo;, again pointing to separate dots within the array, but this time illustrating the pointers potentially crossing each other before termination.  Both diagrams visually represent the iterative process of narrowing down a search space until a condition is met, highlighting the subtle difference in loop conditions and their impact on the final pointer positions.
+When the left and right pointers meet after exiting the left &lt; right condition, both converge to a single value. This is the final value in the search space after the binary search process is complete. This will be the exit condition we use throughout this chapter.</p>
+<ol>
+<li>Returning the correct value
+As previously mentioned, the while-loop terminates once we&rsquo;ve narrowed the search space down to a final value (assuming no value was returned during earlier iterations), pointed at by both left and right:</li>
+</ol>
+<p>Image represents a visual depiction of a data structure, possibly illustrating a binary search or a similar algorithm.  The diagram shows a horizontal line representing a sorted sequence, with several small, grey circles evenly spaced along it, symbolizing data elements.  At the center of the line is a larger, black dot, indicating a pivot or search point. Above this central point are two rectangular boxes, colored orange, labeled &lsquo;left&rsquo; and &lsquo;right,&rsquo; respectively. Arrows point downwards from these boxes to the central black dot, suggesting that the &lsquo;left&rsquo; box represents the portion of the sequence to the left of the pivot, and the &lsquo;right&rsquo; box represents the portion to the right. The entire sequence is bounded by vertical brackets at either end, indicating the limits of the data set.  The arrangement visually communicates the partitioning of a sorted sequence around a pivot point, a common step in divide-and-conquer algorithms.
+This final value is the answer we&rsquo;re looking for, assuming a valid answer exists.</p>
+<p>Time Complexity
+The time complexity of the binary search is 
+O
+(
+log
+⁡
+(
+n
+)
+)
+O(log(n)), where 
+n
+n is the number of values in the search space. The algorithm is logarithmic because, in each iteration of the algorithm, it divides the search space in half until a single value is located, or no value is found. This reduction by half in each step is characteristic of logarithmic behavior.</p>
+<p>Real-world Example
+Transaction search in financial systems: In financial systems, a binary search can be used to quickly find a transaction or record by narrowing down the search range, as the data is typically stored in order. This makes it efficient to retrieve specific entries without searching through the entire database.</p>
+<p>Chapter Outline
+Binary search has many applications, and we explore a range of problems covering various uses.</p>
+<p>Image represents a flowchart illustrating applications of the Binary Search algorithm.  The topmost box, &lsquo;Binary Search,&rsquo; acts as the root, branching down into two main categories: &lsquo;Sorted Arrays&rsquo; and &lsquo;Non-intuitive Search Space.&rsquo;  The &lsquo;Sorted Arrays&rsquo; box details finding the first and last occurrences of a number and determining the insertion index within a sorted array. This further leads to &lsquo;Partially Sorted Arrays,&rsquo; focusing on finding a target within a rotated sorted array.  The &lsquo;Non-intuitive Search Space&rsquo; box encompasses problems like &lsquo;Cutting Wood,&rsquo; finding &lsquo;Local Maxima in Array,&rsquo; and &lsquo;Weighted Random Selection.&rsquo; This branch connects to &lsquo;Multiple Arrays,&rsquo; which involves finding the median from two sorted arrays. Finally, all paths converge at the bottom to &lsquo;Matrix,&rsquo; which describes the application of binary search to &lsquo;Matrix Search.&rsquo;  The connections between boxes are represented by dashed arrows indicating the flow of problem types stemming from the core Binary Search algorithm.
+Footnotes
+In rare cases, we calculate the midpoint differently, such as when doing an upper-bound binary search. The details are explained in the First and Last Occurrences of a Number problem. ↩</p>
+<p>There are some rare situations where left and right will cross, which is also explored in the First and Last Occurrences of a Number problem. ↩</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="../05-sliding-windows/longest-uniform-substring-after-replacements.html"><div class="label">← Anterior</div><div class="title">Longest Uniform Substring After Replacements</div></a><a class="next" href="find-the-insertion-index.html"><div class="label">Siguiente →</div><div class="title">Find the Insertion Index</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="introduction.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design Ad Click Event Aggregation · Personal KB</title>
+<link rel="stylesheet" href="../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book I — System Design</span><span class="sep">/</span><span class="current">Design Ad Click Event Aggregation</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Design Ad Click Event Aggregation</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-04</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">system-design</span><span class="meta-tag">streaming</span><span class="meta-tag">aggregation</span><span class="meta-tag">big-data</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Ad Click Event Aggregation
+With the rise of Facebook, YouTube, TikTok, and the online media economy, digital advertising is taking an ever-bigger share of the total advertising spending. As a result, tracking ad click events is very important. In this chapter, we explore how to design an ad click event aggregation system at Facebook or Google scale.</p>
+<p>Before we dive into technical design, let’s learn about the core concepts of online advertising to better understand this topic. One core benefit of online advertising is its measurability, as quantified by real-time data.</p>
+<p>Digital advertising has a core process called Real-Time Bidding (RTB), in which digital advertising inventory is bought and sold. Figure 1 shows how the online advertising process works.</p>
+<p>Image represents a simplified diagram of the programmatic advertising ecosystem, showing the flow of information between key players on the demand and supply sides.  On the left, labeled &lsquo;Demand Side,&rsquo; an Advertiser initiates the process.  The Advertiser interacts with a Demand-Side Platform (DSP), labeled &lsquo;(Demand Side Platform),&rsquo; which facilitates the buying of ad inventory.  The DSP then sends ad requests to an Ad Exchange, a central marketplace where ad inventory is traded.  On the right, labeled &lsquo;Supply Side,&rsquo; a Publisher offers ad inventory.  The Publisher connects to a Supply-Side Platform (SSP), labeled &lsquo;(Supply Side Platform),&rsquo; which manages the selling of this inventory.  The SSP sends ad inventory offers to the Ad Exchange.  The Ad Exchange acts as the central hub, matching ad requests from the DSP with ad inventory offers from the SSP, ultimately determining which ads are displayed to users.  Arrows indicate the direction of information flow, showing the communication between each component.
+Figure 1 RTB process
+The speed of the RTB process is important as it usually occurs in less than a second.</p>
+<p>Data accuracy is also very important. Ad click event aggregation plays a critical role in measuring the effectiveness of online advertising, which essentially impacts how much money advertisers pay. Based on the click aggregation results, campaign managers can control the budget or adjust bidding strategies, such as changing targeted audience groups, keywords, etc. The key metrics used in online advertising, including click-through rate (CTR) [1] and conversion rate (CVR) [2], depend on aggregated ad click data.</p>
+<p>Step 1 - Understand the Problem and Establish Design Scope
+The following set of questions helps to clarify requirements and narrow down the scope.</p>
+<p>Candidate: What is the format of the input data?
+Interviewer: It’s a log file located in different servers and the latest click events are appended to the end of the log file. The event has the following attributes: ad_id, click_timestamp, user_id, ip, and country.</p>
+<p>Candidate: What’s the data volume?
+Interviewer: 1 billion ad clicks per day and 2 million ads in total. The number of ad click events grows 30% year-over-year.</p>
+<p>Candidate: What are some of the most important queries to support?
+Interviewer: The system needs to support the following 3 queries:</p>
+<p>Return the number of click events for a particular ad in the last M minutes.</p>
+<p>Return the top 100 most clicked ads in the past 1 minute. Both parameters should be configurable. Aggregation occurs every minute.</p>
+<p>Support data filtering by ip, user_id, or country for the above two queries.</p>
+<p>Candidate: Do we need to worry about edge cases? I can think of the following:</p>
+<p>There might be events that arrive later than expected.
+There might be duplicated events.
+Different parts of the system might be down at any time, so we need to consider system recovery.
+Interviewer: That’s a good list. Yes, take these into consideration.</p>
+<p>Candidate: What is the latency requirement?
+Interviewer: A few minutes of end-to-end latency. Note that latency requirements for RTB and ad click aggregation are very different. While latency for RTB is usually less than one second due to the responsiveness requirement, a few minutes of latency is acceptable for ad click event aggregation because it is primarily used for ad billing and reporting.</p>
+<p>With the information gathered above, we have both functional and non-functional requirements.</p>
+<p>Functional requirements
+Aggregate the number of clicks of ad_id in the last M minutes.</p>
+<p>Return the top 100 most clicked ad_id every minute.</p>
+<p>Support aggregation filtering by different attributes.</p>
+<p>Dataset volume is at Facebook or Google scale (see the back-of-envelope estimation section below for detailed system scale requirements).</p>
+<p>Non-functional requirements
+Correctness of the aggregation result is important as the data is used for RTB and ads billing.</p>
+<p>Properly handle delayed or duplicate events.</p>
+<p>Robustness. The system should be resilient to partial failures.</p>
+<p>Latency requirement. End-to-end latency should be a few minutes, at most.</p>
+<p>Back-of-the-envelope estimation
+Let’s do an estimation to understand the scale of the system and the potential challenges we will need to address.</p>
+<p>1 billion DAU.</p>
+<p>Assume on average each user clicks 1 ad per day. That’s 1 billion ad click events per day.</p>
+<p>Ad click QPS = 10^9 events / 10^5 seconds in a day = 10,000</p>
+<p>Assume peak ad click QPS is 5 times the average number. Peak QPS = 50,000 QPS.</p>
+<p>Assume a single ad click event occupies 0.1 KB storage. Daily storage requirement is: 0.1 KB * 1 billion = 100 GB. The monthly storage requirement is about 3 TB.</p>
+<p>Step 2 - Propose High-Level Design and Get Buy-In
+In this section, we discuss query API design, data model, and high-level design.</p>
+<p>Query API design
+The purpose of the API design is to have an agreement between the client and the server. In a consumer app, a client is usually the end-user who uses the product. In our case, however, a client is the dashboard user (data scientist, product manager, advertiser, etc.) who runs queries against the aggregation service.</p>
+<p>Let’s review the functional requirements so we can better design the APIs:</p>
+<p>Aggregate the number of clicks of ad_id in the last M minutes.</p>
+<p>Return the top N most clicked ad_ids in the last M minute.</p>
+<p>Support aggregation filtering by different attributes.</p>
+<p>We only need two APIs to support those three use cases because filtering (the last requirement) can be supported by adding query parameters to the requests.</p>
+<p>API 1: Aggregate the number of clicks of ad_id in the last M minutes.</p>
+<p>API Detail
+GET /v1/ads/{:ad_id}/aggregated_count   Return aggregated event count for a given ad_id
+Table 1 API for aggregating the number of clicks</p>
+<p>Request parameters are:</p>
+<p>Field   Description Type
+from    Start minute (default is now minus 1 minute)    long
+to  End minute (default is now) long
+filter  An identifier for different filtering strategies. For example, filter = 001 filters out non-US clicks   long
+Table 2 Request parameters for /v1/ads/{:ad_id}/aggregated_count</p>
+<p>Response:</p>
+<p>Field   Description Type
+ad_id   The identifier of the ad    string
+count   The aggregated count between the start and end minutes  long
+Table 3 Response for /v1/ads/{:ad_id}/aggregated_count</p>
+<p>API 2: Return top N most clicked ad_ids in the last M minutes</p>
+<p>API Detail
+GET /v1/ads/popular_ads Return top N most clicked ads in the last M minutes
+Table 4 API for /v1/ads/popular_ads</p>
+<p>Request parameters are:</p>
+<p>Field   Description Type
+count   Top N most clicked ads  integer
+window  The aggregation window size (M) in minutes  integer
+filter  An identifier for different filtering strategies    long
+Table 5 Request parameters for /v1/ads/popular_ads</p>
+<p>Response:</p>
+<p>Field   Description Type
+ad_ids  A list of the most clicked ads  array
+Table 6 Response for /v1/ads/popular_ads</p>
+<p>Data model
+There are two types of data in the system: raw data and aggregated data.</p>
+<p>Raw data
+Below shows what the raw data looks like in log files:</p>
+<p>[AdClickEvent] ad001, 2021-01-01 00:00:01, user 1, 207.148.22.22, USA
+Table 7 lists what the data fields look like in a structured way. Data is scattered on different application servers.</p>
+<p>ad_id   click_timestamp user    ip  country
+ad001   2021-01-01 00:00:01 user1   207.148.22.22   USA
+ad001   2021-01-01 00:00:02 user1   207.148.22.22   USA
+ad002   2021-01-01 00:00:02 user2   209.153.56.11   USA
+Table 7 Raw data</p>
+<p>Aggregated data
+Assume that ad click events are aggregated every minute. Table 8 shows the aggregated result.</p>
+<p>ad_id   click_minute    count
+ad001   202101010000    5
+ad001   202101010001    7
+Table 8 Aggregated data</p>
+<p>To support ad filtering, we add an additional field called filter_id to the table. Records with the same ad_id and click_minute are grouped by filter_id as shown in Table 9, and filters are defined in Table 10.</p>
+<p>ad_id   click_minute    filter_id   count
+ad001   202101010000    0012    2
+ad001   202101010000    0023    3
+ad001   202101010001    0012    1
+ad001   202101010001    0023    6
+Table 9 Aggregated data with filters</p>
+<p>filter_id   region  IP  user_id
+0012    US  *   *
+0013    *   123.1.2.3   *
+Table 10 Filter table</p>
+<p>To support the query to return the top N most clicked ads in the last M minutes, the following structure is used.</p>
+<p>most_clicked_ads      <br />
+window_size integer The aggregation window size (M) in minutes
+update_time_minute  timestamp   Last updated timestamp (in 1-minute granularity)
+most_clicked_ads    array   List of ad IDs in JSON format.
+Table 11 Support top N most clicked ads in the last M minutes</p>
+<p>Comparison
+The comparison between storing raw data and aggregated data is shown below:</p>
+<p>Raw data only   Aggregated data only
+Pros  <br />
+Full data set</p>
+<p>Support data filter and recalculation</p>
+<p>Smaller data set</p>
+<p>Fast query</p>
+<p>Cons  <br />
+Huge data storage</p>
+<p>Slow query</p>
+<p>Data loss. This is derived data. For example, 10 entries might be aggregated to 1 entry</p>
+<p>Table 12 Raw data vs aggregated data</p>
+<p>Should we store raw data or aggregated data? Our recommendation is to store both. Let’s take a look at why.</p>
+<p>It’s a good idea to keep the raw data. If something goes wrong, we could use the raw data for debugging. If the aggregated data is corrupted due to a bad bug, we can recalculate the aggregated data from the raw data, after the bug is fixed.</p>
+<p>Aggregated data should be stored as well. The data size of the raw data is huge. The large size makes querying raw data directly very inefficient. To mitigate this problem, we run read queries on aggregated data.</p>
+<p>Raw data serves as backup data. We usually don’t need to query raw data unless recalculation is needed. Old raw data could be moved to cold storage to reduce costs.</p>
+<p>Aggregated data serves as active data. It is tuned for query performance.</p>
+<p>Choose the right database
+When it comes to choosing the right database, we need to evaluate the following:</p>
+<p>What does the data look like? Is the data relational? Is it a document or a blob?</p>
+<p>Is the workflow read-heavy, write-heavy, or both?</p>
+<p>Is transaction support needed?</p>
+<p>Do the queries rely on many online analytical processing (OLAP) functions [3] like SUM, COUNT?</p>
+<p>Let’s examine the raw data first. Even though we don’t need to query the raw data during normal operations, it is useful for data scientists or machine learning engineers to study user response prediction, behavioral targeting, relevance feedback, etc. [4].</p>
+<p>As shown in the back of the envelope estimation, the average write QPS is 10,000, and the peak QPS can be 50,000, so the system is write-heavy. On the read side, raw data is used as backup and a source for recalculation, so in theory, the read volume is low.</p>
+<p>Relational databases can do the job, but scaling the write can be challenging. NoSQL databases like Cassandra and InfluxDB are more suitable because they are optimized for write and time-range queries.</p>
+<p>Another option is to store the data in Amazon S3 using one of the columnar data formats like ORC [5], Parquet [6], or AVRO [7]. We could put a cap on the size of each file (say, 10GB) and the stream processor responsible for writing the raw data could handle the file rotation when the size cap is reached. Since this setup may be unfamiliar for many, in this design we use Cassandra as an example.</p>
+<p>For aggregated data, it is time-series in nature and the workflow is both read and write heavy. This is because, for each ad, we need to query the database every minute to display the latest aggregation count for customers. This feature is useful for auto-refreshing the dashboard or triggering alerts in a timely manner. Since there are two million ads in total, the workflow is read-heavy. Data is aggregated and written every minute by the aggregation service, so it’s write-heavy as well. We could use the same type of database to store both raw data and aggregated data.</p>
+<p>Now we have discussed query API design and data model, let’s put together the high-level design.</p>
+<p>High-level design
+In real-time big data [8] processing, data usually flows into and out of the processing system as unbounded data streams. The aggregation service works in the same way; the input is the raw data (unbounded data streams), and the output is the aggregated results (see Figure 2).</p>
+<p>Image represents a data processing pipeline.  The pipeline begins with an &lsquo;Input&rsquo; stage containing a &lsquo;Log Watcher&rsquo; component that pushes data to a &lsquo;Data Aggregation Service&rsquo; in the &lsquo;Process&rsquo; stage. This service aggregates data, calculating and outputting two metrics: &lsquo;Ad count&rsquo; (aggregated every minute) and &lsquo;Top 100 most clicked Ads&rsquo; (also aggregated every minute). These aggregated metrics are then written to a &lsquo;Database&rsquo; in the &lsquo;Output&rsquo; stage. Finally, a &lsquo;Query Service&rsquo; in the &lsquo;Display&rsquo; stage queries the database to retrieve and display the aggregated data.  The flow of data is unidirectional, moving from left to right through the stages, with dashed lines separating the distinct stages of Input, Process, Output, and Display.
+Figure 2 Aggregation workflow
+Asynchronous processing
+The design we currently have is synchronous. This is not good because the capacity of producers and consumers is not always equal. Consider the following case; if there is a sudden increase in traffic and the number of events produced is far beyond what consumers can handle, consumers might get out-of-memory errors or experience an unexpected shutdown. If one component in the synchronous link is down, the whole system stops working.</p>
+<p>A common solution is to adopt a message queue (Kafka) to decouple producers and consumers. This makes the whole process asynchronous and producers/consumers can be scaled independently.</p>
+<p>Putting everything we have discussed together, we come up with the high-level design as shown in Figure 3. Log watcher, aggregation service, and database are decoupled by two message queues. The database writer polls data from the message queue, transforms the data into the database format, and writes it to the database.</p>
+<p>Image represents a data processing pipeline for ad click data.  A <code>Log Watcher</code> feeds data into a <code>Message Queue</code>. This queue is consumed by a <code>Data Aggregation Service</code>, which performs two aggregations:  &lsquo;Ad count (Aggregate every min)&rsquo; and &lsquo;Top 100 most clicked Ads (Aggregate every min)&rsquo;.  The results of these aggregations are then sent to a second <code>Message Queue</code>.  A <code>Database Writer</code> consumes this second queue and writes the aggregated data into an <code>Aggregation database</code>.  Separately, the initial <code>Message Queue</code> is also consumed by a <code>Database Writer</code> that stores raw data in a <code>Raw data database</code>. Finally, a <code>Query Service (Dashboard)</code> queries the <code>Aggregation database</code> to retrieve and display aggregated results.  The arrows indicate the flow of data between components.
+Figure 3 High-level design
+What is stored in the first message queue? It contains ad click event data as shown in Table 13.</p>
+<p>ad_id   click_timestamp user_id ip  country
+Table 13 Data in the first message queue</p>
+<p>What is stored in the second message queue? The second message queue contains two types of data:</p>
+<p>Ad click counts aggregated at per-minute granularity.
+ad_id   click_minute    count
+Table 14 Data in the second message queue</p>
+<p>Top N most clicked ads aggregated at per-minute granularity.
+update_time_minute  most_clicked_ads
+Table 15 Data in the second message queue</p>
+<p>You might be wondering why we don’t write the aggregated results to the database directly. The short answer is that we need the second message queue like Kafka to achieve end-to-end exactly-once semantics (atomic commit).</p>
+<p>Image represents a system for data aggregation and reporting.  A <code>Log Watcher</code> feeds data into a <code>Message Queue</code>. This queue is then processed by a <code>Data Aggregation Service</code>, which performs two aggregations:  &lsquo;Ad count&rsquo; (aggregated every minute) and &lsquo;Top 100 most clicked Ads&rsquo; (also aggregated every minute).  These aggregated results are then sent to a second <code>Message Queue</code>.  The first <code>Message Queue</code>&rsquo;s data is also written to a <code>Raw data database</code> via a <code>Database Writer</code>. The second <code>Message Queue</code>&rsquo;s data is written to an <code>Aggregation database</code> via another <code>Database Writer</code>. Finally, a <code>Query Service</code> (labeled as a Dashboard) queries the <code>Aggregation database</code> to retrieve and display the aggregated data. The entire process within the dashed box is described as an &lsquo;Atomic commit&rsquo;, implying that all operations within this section are treated as a single, indivisible transaction.
+Figure 4: End-to-end exactly once
+Next, let’s dig into the details of the aggregation service.</p>
+<p>Aggregation service
+The MapReduce framework is a good option to aggregate ad click events. The directed acyclic graph (DAG) is a good model for it [9]. The key to the DAG model is to break down the system into small computing units, like the Map/Aggregate/Reduce nodes, as shown in Figure 5.</p>
+<p>Image represents two distinct data aggregation service architectures.  The top architecture, labeled &lsquo;Aggregate every minute,&rsquo; depicts a simple pipeline.  Data Input feeds into a &lsquo;Map&rsquo; component, which then sends its output to two separate &lsquo;Aggregate&rsquo; components. Each &lsquo;Aggregate&rsquo; component outputs an &lsquo;Ad count.&rsquo;  The entire process is enclosed within a dashed box labeled &lsquo;Aggregation Service.&rsquo; The bottom architecture, labeled &lsquo;Top 100 aggregation,&rsquo; shows a more complex MapReduce-like structure.  Data Input flows into a &lsquo;Map&rsquo; component, which then feeds into two &lsquo;Aggregate&rsquo; components. These &lsquo;Aggregate&rsquo; components, in turn, feed into a &lsquo;Reduce&rsquo; component, which outputs &lsquo;Top 100 Ads.&rsquo;  Similar to the top architecture, this is also contained within a dashed box labeled &lsquo;Aggregation Service.&rsquo;  Both diagrams illustrate different approaches to aggregating data, with the top focusing on simple per-minute counts and the bottom aiming to identify the top 100 ads.
+Figure 5 Aggregation service
+Each node is responsible for one single task and it sends the processing result to its downstream nodes.</p>
+<p>Map node</p>
+<p>A Map node reads data from a data source, and then filters and transforms the data. For example, a Map node sends ads with ad_id % 2 = 0 to node 1, and the other ads go to node 2, as shown in Figure 6.</p>
+<p>Image represents a simplified data processing pipeline.  Data Input feeds into a central &lsquo;Map&rsquo; node.  The Map node then routes the data to two different &lsquo;Aggregate&rsquo; nodes based on a condition:  if the modulo 2 of the &lsquo;ad_id&rsquo; field is 0, the data is sent to &lsquo;Aggregate Node 1&rsquo;; otherwise (if the modulo 2 of &lsquo;ad_id&rsquo; is 1), the data is sent to &lsquo;Aggregate Node 2&rsquo;.  The arrows indicate the direction of data flow, with labels specifying the routing condition (&lsquo;ad_id %2 = 0&rsquo; and &lsquo;ad_id %2 = 1&rsquo;).  This suggests a system that partitions data based on a specific field (&lsquo;ad_id&rsquo;) and then performs separate aggregation operations on each partition.
+Figure 6 Map operation
+You might be wondering why we need the Map node. An alternative option is to set up Kafka partitions or tags and let the aggregate nodes subscribe to Kafka directly. This works, but the input data may need to be cleaned or normalized, and these operations can be done by the Map node. Another reason is that we may not have control over how data is produced and therefore events with the same ad_id might land in different Kafka partitions.</p>
+<p>Aggregate node</p>
+<p>An Aggregate node counts ad click events by ad_id in memory every minute. In the MapReduce paradigm, the Aggregate node is part of the Reduce. So the map-aggregate-reduce process really means map-reduce-reduce.</p>
+<p>Reduce node</p>
+<p>A Reduce node reduces aggregated results from all “Aggregate” nodes to the final result. For example, as shown in Figure 7, there are three aggregation nodes and each contains the top 3 most clicked ads within the node. The Reduce node reduces the total number of most clicked ads to 3.</p>
+<p>Image represents a data processing pipeline for finding the top 3 most clicked ads in the last minute.  The pipeline begins with an &lsquo;Aggregate&rsquo; stage showing three boxes, each containing ad IDs and their click counts. The first box contains &lsquo;ad1: 12&rsquo;, &lsquo;ad3: 5&rsquo;, &lsquo;ad2: 3&rsquo;; the second box contains &lsquo;ad7: 9&rsquo;, &lsquo;ad10: 4&rsquo;, &lsquo;ad8: 3&rsquo;; and the third box contains &lsquo;ad13: 8&rsquo;, &lsquo;ad11: 4&rsquo;, &lsquo;ad15: 3&rsquo;.  Arrows connect these boxes to a &lsquo;Reduce&rsquo; stage, which combines the data. The &lsquo;Reduce&rsquo; stage shows a single box containing &lsquo;ad1: 12&rsquo;, &lsquo;ad7: 9&rsquo;, &lsquo;ad13: 8&rsquo;, representing the aggregation of the top click counts. Finally, an arrow points from the &lsquo;Reduce&rsquo; stage to an &lsquo;Output&rsquo; stage, which displays the text: &lsquo;Top 3 most clicked ads from the last minute are ad1, ad7 and ad13&rsquo;.  The task is explicitly stated as &lsquo;Task: get top 3&rsquo; to the left of the Aggregate stage.
+Figure 7 Reduce node
+The DAG model represents the well-known MapReduce paradigm. It is designed to take big data and use parallel distributed computing to turn big data into little- or regular-sized data.</p>
+<p>In the DAG model, intermediate data can be stored in memory and different nodes communicate with each other through either TCP (nodes running in different processes) or shared memory (nodes running in different threads).</p>
+<p>Main use cases
+Now that we understand how MapReduce works at the high level, let’s take a look at how it can be utilized to support the main use cases:</p>
+<p>Aggregate the number of clicks of adid in the last _M mins.</p>
+<p>Return top N most clicked adids in the last _M minutes.</p>
+<p>Data filtering.</p>
+<p>Use case 1: aggregate the number of clicks
+As shown in Figure 8, input events are partitioned by ad_id (ad_id % 3) in Map nodes and are then aggregated by Aggregation nodes.</p>
+<p>Image represents a data processing pipeline for clickstream analysis.  A rectangular box labeled &lsquo;All Events&rsquo; on the left represents the input stream of all ad clicks.  This stream is fed into a &lsquo;Map&rsquo; stage, depicted as a larger rectangle, which separates events based on <code>ad_id</code>. A legend shows diamonds representing <code>ad_id = 3</code>, circles for <code>ad_id = 1</code>, and squares for <code>ad_id = 2</code>. The Map stage sorts these events into three separate streams, each containing only one <code>ad_id</code>. These streams then flow into an &lsquo;Aggregate&rsquo; stage, another larger rectangle, where events are grouped by <code>ad_id</code> and counted. The output, labeled &lsquo;Outputs,&rsquo; shows the aggregated results: &lsquo;ad3 was clicked 4 times in the past 1 minute,&rsquo; &lsquo;ad1 was clicked 3 times in the past 1 minute,&rsquo; and &lsquo;ad2 was clicked 5 times in the past 1 minute,&rsquo; indicating a one-minute aggregation interval.  The entire process is depicted as a flow from left to right, with dashed lines separating the &lsquo;Inputs,&rsquo; &lsquo;Map,&rsquo; &lsquo;Aggregate,&rsquo; and &lsquo;Outputs&rsquo; stages.
+Figure 8 Aggregate the number of clicks
+Use case 2: return top N most clicked ads
+Figure 9 shows a simplified design of getting the top 3 most clicked ads, which can be extended to top N. Input events are mapped using ad_id and each Aggregate node maintains a heap data structure to get the top 3 ads within the node efficiently. In the last step, the Reduce node reduces 9 ads (top 3 from each aggregate node) to the top 3 most clicked ads every minute.</p>
+<p>Image represents a data processing pipeline for determining the top 3 most clicked ads within a one-minute interval.  The pipeline begins with &lsquo;Inputs,&rsquo; specifically a box labeled &lsquo;Top 3 most clicked ads (Minute interval aggregation)&rsquo; representing the desired output.  &lsquo;All Events,&rsquo; a central box, feeds into three separate &lsquo;Map&rsquo; stages.  Each &lsquo;Map&rsquo; stage receives a subset of events: one receives &lsquo;Events: ad3, ad6, ad9, ad12, ad15&rsquo;; another receives &lsquo;Events: ad1, ad4, ad7, ad10, ad13&rsquo;; and the last receives &lsquo;Events: ad2, ad5, ad8, ad11, ad14.&rsquo; These subsets are then processed through individual &lsquo;Aggregate&rsquo; stages, each counting the occurrences of each ad ID.  The &lsquo;Aggregate&rsquo; stages output lists like &lsquo;ad3: 12, ad6: 5, ad9: 3, ad12: 1, ad15: 1,&rsquo; showing ad IDs and their counts.  These aggregated counts are then fed into a single &lsquo;Reduce&rsquo; stage, which combines the counts from all ads across the three &lsquo;Aggregate&rsquo; stages. The &lsquo;Reduce&rsquo; stage outputs a consolidated list like &lsquo;ad3: 12, ad1: 9, ad2: 8, ad6: 5, ad4: 4, ad5: 4, ad9: 3, ad7: 3, ad8: 3,&rsquo; showing all ads and their total counts. Finally, the &lsquo;Outputs&rsquo; section displays the result: &lsquo;Top 3 most clicked ads in the past 1 minute are ad3, ad1 and ad2,&rsquo; derived from the top three counts in the &lsquo;Reduce&rsquo; stage&rsquo;s output.  The entire process illustrates a MapReduce-like approach to real-time ad click aggregation.
+Figure 9 Return top N most clicked ads
+Use case 3: data filtering
+To support data filtering like “show me the aggregated click count for ad001 within the USA only”, we can pre-define filtering criteria and aggregate based on them. For example, the aggregation results look like this for ad001 and ad002:</p>
+<p>ad_id   click_minute    country count
+ad001   202101010001    USA 100
+ad001   202101010001    GPB 200
+ad001   202101010001    others  3000
+ad002   202101010001    USA 10
+ad002   202101010001    GPB 25
+ad002   202101010001    others  12
+Table 16 Aggregation results (filter by country)</p>
+<p>This technique is called the star schema [11], which is widely used in data warehouses. The filtering fields are called dimensions. This approach has the following benefits:</p>
+<p>It is simple to understand and build.</p>
+<p>The current aggregation service can be reused to create more dimensions in the star schema. No additional component is needed.</p>
+<p>Accessing data based on filtering criteria is fast because the result is pre-calculated.</p>
+<p>A limitation with this approach is that it creates many more buckets and records, especially when we have a lot of filtering criteria.</p>
+<p>Step 3 - Design Deep Dive
+In this section, we will dive deep into the following:</p>
+<p>Streaming vs batching</p>
+<p>Time and aggregation window</p>
+<p>Delivery guarantees</p>
+<p>Scale the system</p>
+<p>Data monitoring and correctness</p>
+<p>Final design diagram</p>
+<p>Fault tolerance</p>
+<p>Streaming vs batching
+The high-level architecture we proposed in Figure 3 is a type of stream processing system. Table 17 shows the comparison of three types of systems [12]:</p>
+<p>Services (Online system)    Batch system (offline system)   Streaming system (near real-time system)
+Responsiveness  Respond to the client quickly   No response to the client needed    No response to the client needed
+Input   User requests   Bounded input with finite size. A large amount of data  Input has no boundary (infinite streams)
+Output  Responses to clients    Materialized views, aggregated metrics, etc.    Materialized views, aggregated metrics, etc.
+Performance measurement 
+Availability,</p>
+<p>latency</p>
+<p>Throughput  Throughput, latency
+Example Online shopping MapReduce   Flink [13]
+Table 17 Comparison of three types of systems</p>
+<p>In our design, both stream processing and batch processing are used. We utilized stream processing to process data as it arrives and generates aggregated results in a near real-time fashion. We utilized batch processing for historical data backup.</p>
+<p>For a system that contains two processing paths (batch and streaming) simultaneously, this architecture is called lambda [14]. A disadvantage of lambda architecture is that you have two processing paths, meaning there are two codebases to maintain. Kappa architecture [15], which combines the batch and streaming in one processing path, solves the problem. The key idea is to handle both real-time data processing and continuous data reprocessing using a single stream processing engine. Figure 10 shows a comparison of lambda and kappa architecture.</p>
+<p>Image represents two distinct data processing architectures, Lambda and Kappa, depicted side-by-side.  The top section illustrates the Lambda Architecture, showing raw data ingested from a file, processed through a large cylinder representing an ingestion layer, and then split into two parallel processing paths. One path feeds into a &lsquo;Batch Engine&rsquo; within a &lsquo;Batch Layer,&rsquo; while the other feeds into a &lsquo;Real-time Engine&rsquo; within a &lsquo;Streaming Layer.&rsquo; Both paths ultimately contribute to a &lsquo;Serving Backend&rsquo; within a &lsquo;Serving Layer,&rsquo; which responds to &lsquo;Query&rsquo; requests.  The processed data from both paths is stored in a &lsquo;Results&rsquo; database, alongside the original &lsquo;Raw Data.&rsquo; The bottom section shows the Kappa Architecture, which is simpler, using only the streaming layer. Raw data is ingested, processed by a &lsquo;Real-time Engine&rsquo; in the &lsquo;Streaming Layer,&rsquo; and then directly fed into the &lsquo;Serving Backend&rsquo; within the &lsquo;Serving Layer&rsquo; to respond to &lsquo;Query&rsquo; requests.  The processed data is stored in a &lsquo;Results&rsquo; database, with the original &lsquo;Raw Data&rsquo; also stored separately. Both architectures utilize a &lsquo;Data Storage&rsquo; component to hold raw and processed data.  The key difference is that Lambda uses both batch and real-time processing for improved latency and fault tolerance, while Kappa relies solely on real-time processing for speed and simplicity.
+Figure 10 Lambda and Kappa architectures
+Our high-level design uses Kappa architecture, where the reprocessing of historical data also goes through the real-time aggregation service. See the “Data recalculation” section below for details.</p>
+<p>Data recalculation</p>
+<p>Sometimes we have to recalculate the aggregated data, also called historical data replay. For example, if we discover a major bug in the aggregation service, we would need to recalculate the aggregated data from raw data starting at the point where the bug was introduced. Figure 11 shows the data recalculation flow:</p>
+<p>The recalculation service retrieves data from raw data storage. This is a batched job.</p>
+<p>Retrieved data is sent to a dedicated aggregation service so that the real-time processing is not impacted by historical data replay.</p>
+<p>Aggregated results are sent to the second message queue, then updated in the aggregation database.</p>
+<p>Image represents a data processing pipeline for ad click aggregation.  A <code>Log Watcher</code> feeds data into a <code>Message Queue</code>. This queue distributes data to two destinations: a <code>Data Aggregation Service</code>, which calculates ad counts and top 100 clicked ads (aggregated every minute) and sends the results to a <code>Message Queue</code>; and a <code>Database Writer</code>, which stores raw data in a <code>Raw data database</code>.  The <code>Message Queue</code> also receives aggregation results from a <code>Data Aggregation Service</code> (labeled as &lsquo;Poll aggregation result&rsquo;). A separate <code>Data Aggregation Service</code> (marked as &lsquo;Recalculation only&rsquo;) processes data from the <code>Raw data database</code> (labeled &lsquo;1&rsquo;) via a <code>Recalculation Service</code> (labeled &lsquo;2&rsquo;). This recalculated data is then sent to a <code>Database Writer</code>, which populates an <code>Aggregation database</code>. Finally, a <code>Query Service</code> (Dashboard) retrieves data from the <code>Aggregation database</code> (labeled &lsquo;Query aggregation result&rsquo;) to display aggregated ad click information.  The numbers &lsquo;1&rsquo;, &lsquo;2&rsquo;, and &lsquo;3&rsquo; indicate the flow of data between components.
+Figure 11 Recalculation service
+The recalculation process reuses the data aggregation service but uses a different data source (the raw data).</p>
+<p>Time
+We need a timestamp to perform aggregation. The timestamp can be generated in two different places:</p>
+<p>Event time: when an ad click happens.</p>
+<p>Processing time: refers to the system time of the aggregation server that processes the click event.</p>
+<p>Due to network delays and asynchronous environments (data go through a message queue), the gap between event time and processing time can be large. As shown in Figure 12, event 1 arrives at the aggregation service very late (5 hours later).</p>
+<p>Image represents a comparison of event time and processing time in a system.  Two horizontal timelines are shown, one labeled &lsquo;Event Time&rsquo; and the other &lsquo;Processing Time.&rsquo;  The Event Time line shows a sequence of events numbered 1, 2, and 3 occurring at 30, 60, and 90 seconds respectively.  The Processing Time line shows the same events, but with a delay. Event 1 is processed at the same time as the event occurs, event 2 is processed starting at 60 seconds, and event 3 is processed starting at 90 seconds.  Vertical dashed lines mark the 30, 60, and 90-second intervals on both timelines. A solid arrow indicates the progression of time on both timelines.  A separate, light-pink-filled circle labeled &lsquo;1&rsquo; appears 5 hours after the end of the main timeline, connected by a dashed arrow, indicating that a processing event, likely a batch process, occurs much later after the initial events.
+Figure 12 Late events
+If event time is used for aggregation, we have to deal with delayed events. If processing time is used for aggregation, the aggregation result may not be accurate. There is no perfect solution, so we need to consider the trade-offs.</p>
+<p>Pros    Cons
+Event time  Aggregation results are more accurate because the client knows exactly when an ad is clicked    It depends on the timestamp generated on the client-side. Clients might have the wrong time, or the timestamp might be generated by malicious users
+Processing time Server timestamp is more reliable   The timestamp is not accurate if an event reaches the system at a much later time
+Table 18: Event time vs processing time</p>
+<p>Since data accuracy is very important, we recommend using event time for aggregation. How do we properly process delayed events in this case? A technique called “watermark” is commonly utilized to handle slightly delayed events.</p>
+<p>In Figure 13, ad click events are aggregated in the one-minute tumbling window (see the “Aggregation window” section for more details). If event time is used to decide whether the event is in the window, window 1 misses event 2, and window 3 misses event 5 because they arrive slightly later than the end of their aggregation windows.</p>
+<p>Image represents a Gantt chart illustrating the processing of events over time using a windowed approach.  The top line, labeled &lsquo;Event Time,&rsquo; shows a sequence of events occurring at 30-second intervals (0, 30, 60, 90, 120, 150, 180 seconds).  Each event is numbered sequentially (1 through 5). The second line, &lsquo;Processing Time,&rsquo; depicts the actual processing time of these events, which is not necessarily instantaneous.  The processing also follows a sequential order (1 through 5), but the duration of each processing step is variable. Below, three &lsquo;Windows&rsquo; (1, 2, and 3) represent processing units or stages.  Each window processes events sequentially, but with a delay. Window 1 processes event 1 from 0 to 60 seconds. Window 2 processes event 3 from 60 to 120 seconds. Window 3 processes event 4 from 120 to 180 seconds.  The numbers within each window indicate the event being processed.  Dashed vertical lines mark the 30-second intervals, aligning the event occurrences with their processing times across the different windows, showing the temporal relationship between event arrival, processing start, and completion within each window.
+Figure 13 Miss events in an aggregation window
+One way to mitigate this problem is to use “watermark” (the extended rectangles in Figure 14), which is regarded as an extension of an aggregation window. This improves the accuracy of the aggregation result. By extending an extra 15-second (adjustable) aggregation window, window 1 is able to include event 2, and window 3 is able to include event 5.</p>
+<p>The value set for the watermark depends on the business requirement. A long watermark could catch events that arrive very late, but it adds more latency to the system. A short watermark means data is less accurate, but it adds less latency to the system.</p>
+<p>Image represents a Gantt chart illustrating the processing of events within a system using a windowed approach.  The top line, labeled &lsquo;Event Time,&rsquo; shows a timeline marked in 30-second intervals from 0 to 180 seconds, with numbered events (1 through 5) occurring at specific points. The second line, &lsquo;Processing Time,&rsquo; depicts the actual processing time of each event, showing a delay between event occurrence and processing start.  Below, three &lsquo;Windows&rsquo; (1, 2, and 3) represent processing units or stages. Each window processes events sequentially.  Events are represented by numbered circles within each window, indicating the order of processing.  Pink-shaded rectangles within each window highlight the processing time for a specific event within that window.  The chart demonstrates that events are processed in windows, with later windows potentially processing events that have already occurred but are still within their processing window.  The arrangement shows that events are processed sequentially within each window, but different windows may process events concurrently.
+Figure 14 Watermark
+Notice that the watermark technique does not handle events that have long delays. We can argue that it is not worth the return on investment (ROI) to have a complicated design for low probability events. We can always correct the tiny bit of inaccuracy with end-of-day reconciliation (see Reconciliation section). One trade-off to consider is that using watermark improves data accuracy but increases overall latency, due to extended wait time.</p>
+<p>Aggregation window
+According to the “Designing data-intensive applications” book by Martin Kleppmann [16], there are four types of window functions: tumbling (also called fixed) window, hopping window, sliding window, and session window. We will discuss the tumbling window and sliding window as they are most relevant to our system.</p>
+<p>In the tumbling window (highlighted in Figure 15), time is partitioned into same-length, non-overlapping chunks. The tumbling window is a good fit for aggregating ad click events every minute (use case 1).</p>
+<p>Image represents a tumbling window aggregation process.  A horizontal time axis labeled &lsquo;Minute&rsquo; is divided into five one-minute intervals, numbered 1 through 5.  Below the time axis is a rectangular box labeled &lsquo;Tumbling Window (1 minute window)&rsquo; representing the aggregation window. This box is further divided into five equal segments, each aligned with a one-minute interval on the time axis. Each segment within the box contains the text &lsquo;Aggregate click count,&rsquo; indicating that within each one-minute window, the system aggregates the number of clicks. Dashed vertical lines separate the one-minute intervals, visually demonstrating the non-overlapping nature of the tumbling window.  The diagram illustrates how data is processed in consecutive, non-overlapping one-minute windows, with click counts aggregated separately for each window.
+Figure 15 Tumbling window
+In the sliding window (highlighted in Figure 16), events are grouped within a window that slides across the data stream, according to a specified interval. A sliding window can be an overlapping one. This is a good strategy to satisfy our second use case; to get the top N most clicked ads during the last M minutes.</p>
+<p>Image represents a sliding window mechanism for processing top ads.  A horizontal time axis labeled &lsquo;Minute&rsquo; is marked from 1 to 5, representing minutes. Two rectangular boxes, labeled &lsquo;Top ads from last 3 minutes,&rsquo; represent data windows.  The top box starts at minute 1 and ends at minute 4, while the bottom box starts at minute 2 and ends at minute 5.  These boxes overlap, illustrating a 3-minute sliding window.  A description to the left explains that this is a &lsquo;Sliding window (3 minute window, Run every minute),&rsquo; indicating that the process of identifying and presenting &lsquo;Top ads from last 3 minutes&rsquo; runs every minute, creating a continuous stream of updated top ads based on the last three minutes of data.  The dashed vertical lines at each minute mark delineate the time intervals.
+Figure 16 Sliding window
+Delivery guarantees
+Since the aggregation result is utilized for billing, data accuracy and completeness are very important. The system needs to be able to answer questions such as:</p>
+<p>How to avoid processing duplicate events?</p>
+<p>How to ensure all events are processed?</p>
+<p>Message queues such as Kafka usually provide three delivery semantics: at-most once, at-least once, and exactly once.</p>
+<p>Which delivery method should we choose?</p>
+<p>In most circumstances, at-least once processing is good enough if a small percentage of duplicates are acceptable.</p>
+<p>However, this is not the case for our system. Differences of a few percent in data points could result in discrepancies of millions of dollars. Therefore, we recommend exactly-once delivery for the system. If you are interested in learning more about a real-life ad aggregation system, take a look at how Yelp implements it [17].</p>
+<p>Data deduplication
+One of the most common data quality issues is duplicated data. Duplicated data can come from a wide range of sources and in this section, we discuss two common sources.</p>
+<p>Client-side. For example, a client might resend the same event multiple times. Duplicated events sent with malicious intent are best handled by ad fraud/risk control components. If this is of interest, please refer to the reference material [18].</p>
+<p>Server outage. If an aggregation service node goes down in the middle of aggregation and the upstream service hasn’t yet received an acknowledgment, the same events might be sent and aggregated again. Let’s take a closer look.</p>
+<p>Figure 17 shows how the aggregation service node (Aggregator) outage introduces duplicate data. The Aggregator manages the status of data consumption by storing the offset in upstream Kafka.</p>
+<p>Image represents a sequence diagram illustrating a data aggregation system.  Three main components are shown: &lsquo;Upstream&hellip;&rsquo;, &lsquo;Aggregator,&rsquo; and &lsquo;Downstream&hellip;&rsquo;.  The &lsquo;Upstream&hellip;&rsquo; component initiates the process by sending a &lsquo;1. Poll events&rsquo; message to the &lsquo;Aggregator.&rsquo; The &lsquo;Aggregator&rsquo; then requests data with a &lsquo;2. Consume from&hellip;&rsquo; message to the &lsquo;Upstream&hellip;&rsquo; component.  Internally, the &lsquo;Aggregator&rsquo; processes this data, indicated by &lsquo;3. Aggregate events&hellip;&rsquo;, potentially involving internal looping.  Once aggregated, the &lsquo;Aggregator&rsquo; sends the results to &lsquo;Downstream&hellip;&rsquo; via &lsquo;4. Send aggregated&hellip;&rsquo;. The &lsquo;Downstream&hellip;&rsquo; component acknowledges receipt with &lsquo;5. Ack back&rsquo; to the &lsquo;Aggregator,&rsquo; which in turn acknowledges the upstream data consumption with &lsquo;6. Ack upstream&hellip;&rsquo; to the &lsquo;Upstream&hellip;&rsquo; component.  A cross symbol (x) next to &lsquo;6. Ack upstream&hellip;&rsquo; suggests potential data loss or error handling.  The text &lsquo;Data duplication&hellip;&rsquo; at the bottom indicates a potential issue or consideration related to data redundancy within the system. Dashed lines connect each component to represent asynchronous communication.
+Figure 17 Duplicate data
+If step 6 fails, perhaps due to Aggregator outage, events from 100 to 110 are already sent to the downstream, but the new offset 110 is not persisted in upstream Kafka. In this case, a new Aggregator would consume again from offset 100, even if those events are already processed, causing duplicate data.</p>
+<p>The most straightforward solution (Figure 18) is to use external file storage, such as HDFS or S3, to record the offset. However, this solution has issues as well.</p>
+<p>Image represents a sequence diagram illustrating the data flow and interaction between four components: &lsquo;Upstream&hellip;&rsquo;, &lsquo;Aggregator&rsquo;, &lsquo;HDFS / S3&rsquo;, and &lsquo;Downstream&hellip;&rsquo;.  The &lsquo;Upstream&hellip;&rsquo; component initiates the process by sending a &lsquo;1. Poll events&rsquo; message to the &lsquo;Aggregator&rsquo;. The &lsquo;Aggregator&rsquo; responds with &lsquo;2. Consume from&hellip;&rsquo; to acknowledge the request and receive data.  Next, the &lsquo;Aggregator&rsquo; interacts with &lsquo;HDFS / S3&rsquo; to &lsquo;3.1 Verify offset&rsquo;, ensuring data consistency.  Then, it &lsquo;3. Aggregate events&hellip;&rsquo;, potentially looping internally before &lsquo;3.2 Save offset&rsquo; to &lsquo;HDFS / S3&rsquo;, which is highlighted as potentially causing messages.  Following aggregation, the &lsquo;Aggregator&rsquo; sends &lsquo;4. Send aggregated result&rsquo; to &lsquo;Downstream&hellip;&rsquo;, receiving a &lsquo;5. Ack back&rsquo; confirmation. Finally, the &lsquo;Aggregator&rsquo; sends &lsquo;6. Ack upstream&hellip;&rsquo; to complete the cycle.  The dashed lines represent asynchronous communication, while solid lines with arrowheads indicate message flow direction.  The red text highlights critical steps, particularly the potential for messages during offset saving.
+Figure 18 Record the offset
+In step 3, the aggregator will process events from offset 100 to 110, only if the last offset stored in external storage is 100. If the offset stored in the storage is 110, the aggregator ignores events before offset 110.</p>
+<p>But this design has a major problem: the offset is saved to HDFS / S3 (step 3.2) before the aggregation result is sent downstream. If step 4 fails due to Aggregator outage, events from 100 to 110 will never be processed by a newly brought up aggregator node, since the offset stored in external storage is 110.</p>
+<p>To avoid data loss, we need to save the offset once we get an acknowledgment back from downstream. The updated design is shown in Figure 19.</p>
+<p>Image represents a sequence diagram illustrating the data flow between four components: &lsquo;Upstream&hellip;&rsquo;, &lsquo;Aggregator&rsquo;, &lsquo;HDFS / S3&rsquo;, and &lsquo;Downstream&hellip;&rsquo;.  The interaction begins with &lsquo;Upstream&hellip;&rsquo; sending a &lsquo;1. Poll events&rsquo; message to the &lsquo;Aggregator&rsquo;. The &lsquo;Aggregator&rsquo; responds with &lsquo;2. Consume from&hellip;&rsquo; to receive data.  Next, the &lsquo;Aggregator&rsquo; verifies an offset (&lsquo;3.1 Verify offset&rsquo;) by interacting with &lsquo;HDFS / S3&rsquo;, a data storage system.  After this verification, the &lsquo;Aggregator&rsquo; processes the data (&lsquo;3. Aggregate events&hellip;&rsquo;), potentially involving internal operations represented by a loop.  The aggregated result is then sent to &lsquo;Downstream&hellip;&rsquo; (&lsquo;4. Send aggregated result&rsquo;), which acknowledges receipt (&lsquo;5. Ack back&rsquo;). Finally, the &lsquo;Aggregator&rsquo; saves the updated offset in &lsquo;HDFS / S3&rsquo; (&lsquo;5.1 Save offset&rsquo;) and acknowledges the completion of the process to &lsquo;Upstream&hellip;&rsquo; (&lsquo;6. Ack upstream&hellip;&rsquo;).  The dashed lines represent asynchronous communication, while solid arrows indicate message flow and their direction.
+Figure 19 Save offset after receiving ack
+In this design, if the Aggregator is down before step 5.1 is executed, events from 100 to 110 will be sent downstream again. To achieve “exactly-once” processing, we need to put operations between step 4 to step 6 in one distributed transaction. A distributed transaction is a transaction that works across several nodes. If any of the operations fails, the whole transaction is rolled back.</p>
+<p>Image represents a sequence diagram illustrating the data flow in a system processing events.  Four main components are shown: &lsquo;Upstream&hellip;&rsquo;, &lsquo;Aggregator&rsquo;, &lsquo;HDFS / S3&rsquo;, and &lsquo;Downstream&hellip;&rsquo;.  The process begins with &lsquo;Upstream&hellip;&rsquo; sending a &lsquo;Poll events&rsquo; request to the &lsquo;Aggregator&rsquo;. The &lsquo;Aggregator&rsquo; then requests data via &lsquo;Consume from&hellip;&rsquo; from &lsquo;Upstream&hellip;&rsquo;.  Next, the &lsquo;Aggregator&rsquo; verifies an offset (3.1 Verify offset) with &lsquo;HDFS / S3&rsquo;, a distributed storage system.  After aggregating events (3. Aggregate events&hellip;), the &lsquo;Aggregator&rsquo; sends the aggregated result to &lsquo;Downstream&hellip;&rsquo; within a distributed transaction.  The &lsquo;Aggregator&rsquo; then saves the offset to &lsquo;HDFS / S3&rsquo; (5. Save offset).  &lsquo;Downstream&hellip;&rsquo; sends an acknowledgment (&lsquo;Ack back&rsquo;) to the &lsquo;Aggregator&rsquo;, which finally acknowledges &lsquo;Upstream&hellip;&rsquo; (&lsquo;Ack upstream&hellip;&rsquo;).  The dashed lines represent asynchronous communication, while solid lines indicate synchronous interactions.  The diagram details the steps involved in event processing, highlighting the roles of each component and the data flow between them.
+Figure 20 Distributed transaction
+As you can see, it’s not easy to dedupe data in large-scale systems. How to achieve exactly-once processing is an advanced topic. If you are interested in the details, please refer to reference material [19].</p>
+<p>Scale the system
+From the back-of-the-envelope estimation, we know the business grows 30% per year, which doubles traffic every 3 years. How do we handle this growth? Let’s take a look.</p>
+<p>Our system consists of three independent components: message queue, aggregation service, and database. Since these components are decoupled, we can scale each one independently.</p>
+<p>Scale the message queue
+We have already discussed how to scale the message queue extensively in the “Distributed Message Queue” chapter, so we’ll only briefly touch on a few points.</p>
+<p>Producers. We don’t limit the number of producer instances, so the scalability of producers can be easily achieved.</p>
+<p>Consumers. Inside a consumer group, the rebalancing mechanism helps to scale the consumers by adding or removing nodes. As shown in Figure 21, by adding two more consumers, each consumer only processes events from one partition.</p>
+<p>Image represents a before-and-after scenario of consumer group rebalancing in a message queue system.  The left side shows an initial state where a single topic, labeled &lsquo;Topic,&rsquo; is partitioned into four parts (Partition 0, Partition 1, Partition 2, Partition 3).  Two consumers, &lsquo;Consumer 0&rsquo; and &lsquo;Consumer 1,&rsquo; are each consuming data from multiple partitions.  Specifically, Consumer 0 consumes Partitions 0 and 1, while Consumer 1 consumes Partitions 2 and 3. A large arrow labeled &lsquo;Rebalance&rsquo; separates the before and after states. The right side depicts the state after rebalancing.  The same topic with its four partitions remains, but now each consumer (&lsquo;Consumer 0,&rsquo; &lsquo;Consumer 1,&rsquo; &lsquo;Consumer 2,&rsquo; and &lsquo;Consumer 3&rsquo;) consumes exactly one partition.  The consumers are highlighted in pink to emphasize the addition of two new consumers.  The connections between partitions and consumers are represented by arrows indicating the flow of data from each partition to its assigned consumer.
+Figure 21 Add consumers
+When there are hundreds of Kafka consumers in the system, consumer rebalance can be quite slow and could take a few minutes or even more. Therefore, if more consumers need to be added, try to do it during off-peak hours to minimize the impact.</p>
+<p>Brokers</p>
+<p>Hashing key</p>
+<p>Using ad_id as hashing key for Kafka partition to store events from the same ad_id in the same Kafka partition. In this case, an aggregation service can subscribe to all events of the same ad_id from one single partition.</p>
+<p>The number of partitions</p>
+<p>If the number of partitions changes, events of the same ad_id might be mapped to a different partition. Therefore, it’s recommended to pre-allocate enough partitions in advance, to avoid dynamically increasing the number of partitions in production.</p>
+<p>Topic physical sharding</p>
+<p>One single topic is usually not enough. We can split the data by geography (topic_north_america, topic_europe, topic_asia, etc.,) or by business type (topic_web_ads, topic_mobile_ads, etc).</p>
+<p>Pros: Slicing data to different topics can help increase the system throughput. With fewer consumers for a single topic, the time to rebalance consumer groups is reduced.</p>
+<p>Cons: It introduces extra complexity and increases maintenance costs.</p>
+<p>Scale the aggregation service
+In the high-level design, we talked about the aggregation service being a map/reduce operation. Figure 22 shows how things are wired together.</p>
+<p>Image represents a distributed MapReduce system architecture.  Three Kafka instances serve as input sources, each feeding data to three Aggregation Servers (labeled 1, 2, and 3). Each Aggregation Server performs a &lsquo;Map process&rsquo; on the received data, generating multiple intermediate results represented as small boxes. These intermediate results are then distributed across all three Aggregation Servers, which each perform a &lsquo;Reduce process&rsquo; to aggregate the data received from the Map processes.  The &lsquo;Reduce process&rsquo; in each Aggregation Server receives input from all three Map processes. Finally, each Aggregation Server outputs a single result, representing the final output of the Reduce process for that server.  The diagram shows data flowing from Kafka to the Map processes, then from the Map processes to the Reduce processes, and finally from the Reduce processes to the final output boxes.  The labels clearly delineate the stages: &lsquo;Map Calculation,&rsquo; &lsquo;Map Output,&rsquo; &lsquo;Reduce Input,&rsquo; &lsquo;Reduce Calculation,&rsquo; and &lsquo;Reduce Output.&rsquo;
+Figure 22 Aggregation service
+If you are interested in the details, please refer to reference material [20]. Aggregation service is horizontally scalable by adding or removing nodes. Here is an interesting question; how do we increase the throughput of the aggregation service? There are two options.</p>
+<p>Option 1: Allocate events with different ad_ids to different threads, as shown in Figure 23.</p>
+<p>Image represents a data processing pipeline.  A central Kafka instance, labeled &lsquo;All Events,&rsquo; acts as a source, containing all events.  These events are then distributed to two separate &lsquo;Aggregation Service Node&rsquo; instances.  The first node receives events for ad_ids 1 through 3, as indicated by the label &lsquo;Events of ad_id From 1 to 3.&rsquo;  This node then processes these events, distributing them across three threads, each handling a unique ad_id (thread_id = 1 handles ad_id = 1, thread_id = 2 handles ad_id = 2, and thread_id = 3 handles ad_id = 3).  Similarly, the second Aggregation Service Node receives events for ad_ids 4 through 6 (&lsquo;Events of ad_id From 4 to 6&rsquo;), distributing them across three threads in the same manner (thread_id = 1 handles ad_id = 4, thread_id = 2 handles ad_id = 5, and thread_id = 3 handles ad_id = 6).  The diagram illustrates a partitioning scheme where events are grouped by ad_id and processed concurrently by different threads within each aggregation service node.  The dashed boxes visually separate the &lsquo;Aggregation Service Node&rsquo; and &lsquo;Threads&rsquo; components for each processing branch.
+Figure 23 Multi-threading
+Option 2: Deploy aggregation service nodes on resource providers like Apache Hadoop YARN [21]. You can think of this approach as utilizing multi-processing.</p>
+<p>Option 1 is easier to implement and doesn’t depend on resource providers. In reality, however, option 2 is more widely used because we can scale the system by adding more computing resources.</p>
+<p>Scale the database
+Cassandra natively supports horizontal scaling, in a way similar to consistent hashing.</p>
+<p>Image represents a visual comparison of two data distribution methods across six nodes.  The top half shows a ring structure labeled &lsquo;Ring without virtual nodes&rsquo; with six nodes (A-F) arranged in a circle.  Each node holds a single data element. Below this, the same six nodes are shown, but each node now contains two data elements, illustrating a simple data distribution. The bottom half depicts a similar scenario, but with a &lsquo;Ring with virtual nodes&rsquo; structure. This ring contains more data elements (A-P) distributed across the same six nodes.  Each node in the bottom section now holds four data elements, demonstrating a more complex data distribution using virtual nodes.  The arrangement in both halves is consistent: three nodes are shown in the top row and three in the bottom row, labeled &lsquo;Node 1,&rsquo; &lsquo;Node 2,&rsquo; &lsquo;Node 3,&rsquo; &lsquo;Node 4,&rsquo; &lsquo;Node 5,&rsquo; and &lsquo;Node 6&rsquo; respectively.  The data elements (letters A-F or A-P) are distributed across the nodes in both scenarios, showing how the virtual nodes in the second example allow for a more even distribution of a larger dataset across the same number of physical nodes.
+Figure 24 Virtual nodes [22]
+Data is evenly distributed to every node with a proper replication factor. Each node saves its own part of the ring based on hashed value and also saves copies from other virtual nodes.</p>
+<p>If we add a new node to the cluster, it automatically rebalances the virtual nodes among all nodes. No manual resharding is required. See Cassandra’s official documentation for more details [22].</p>
+<p>Hotspot issue
+A shard or service that receives much more data than the others is called a hotspot. This occurs because major companies have advertising budgets in the millions of dollars and their ads are clicked more often. Since events are partitioned by ad_id, some aggregation service nodes might receive many more ad click events than others, potentially causing server overload.</p>
+<p>This problem can be mitigated by allocating more aggregation nodes to process popular ads. Let’s take a look at an example as shown in Figure 25. Assume each aggregation node can handle only 100 events.</p>
+<p>Since there are 300 events in the aggregation node (beyond the capacity of a node can handle), it applies for extra resources through the resource manager.</p>
+<p>The resource manager allocates more resources (for example, add two more aggregation nodes) so the original aggregation node isn’t overloaded.</p>
+<p>The original aggregation node split events into 3 groups and each aggregation node handles 100 events.</p>
+<p>The result is written back to the original aggregate node.</p>
+<p>Image represents a data processing pipeline employing a MapReduce-like architecture.  Data Input feeds into a &lsquo;Map&rsquo; component, which outputs &lsquo;ad1, 300 events&rsquo; to an &lsquo;Aggregate&rsquo; component. This &lsquo;Aggregate&rsquo; then, needing more resources, requests them via step (1) from a &lsquo;Resource Manager&rsquo;, receiving them in step (2) as &lsquo;Extra resource allocated&rsquo;.  The 300 events are then split (3) and processed by three separate &lsquo;Aggregate&rsquo; components, each handling 100 events. These three &lsquo;Aggregate&rsquo; components feed into a &lsquo;Reduce&rsquo; component, which outputs the &lsquo;Reduced result&rsquo; (4) back to the initial &lsquo;Aggregate&rsquo; component. Finally, the initial &lsquo;Aggregate&rsquo; component feeds into another &lsquo;Reduce&rsquo; component, producing the &lsquo;Aggregated Output&rsquo;. The dashed box highlights the parallel processing of the three &lsquo;Aggregate&rsquo; components before the final reduction.  The entire system demonstrates a scalable approach to data processing, handling a large input dataset by distributing the workload across multiple &lsquo;Aggregate&rsquo; components.
+Figure 25 Allocate more aggregation nodes
+There are more sophisticated ways to handle this problem, such as Global-Local Aggregation or Split Distinct Aggregation. For more information, please refer to [23].</p>
+<p>Fault tolerance
+Let’s discuss the fault tolerance of the aggregation service. Since aggregation happens in memory, when an aggregation node goes down, the aggregated result is lost as well. We can rebuild the count by replaying events from upstream Kafka brokers.</p>
+<p>Replaying data from the beginning of Kafka is slow. A good practice is to save the “system status” like upstream offset to a snapshot and recover from the last saved status. In our design, the “system status” is more than just the upstream offset because we need to store data like top N most clicked ads in the past M minutes.</p>
+<p>Figure 26 shows a simple example of what the data looks like in a snapshot.</p>
+<p>Image represents a data processing pipeline showing how click data for advertisements is aggregated and visualized.  A cylindrical &lsquo;Message Queue&rsquo; feeds data into a &lsquo;Data Aggregation Service.&rsquo; This service receives click counts for ads (ad1, ad2, ad3) over a 5-minute period.  The aggregated counts from the Data Aggregation Service (ad1: 12, ad3: 5, ad2: 3) are then passed to a visualization component, represented by a dashed-line box labeled &lsquo;Snapshot for top 3 most clicked ads from last 5 minutes.&rsquo; Inside this box, each ad&rsquo;s total click count is shown alongside a breakdown of clicks per minute (minute 1 to 5).  For example, ad1 shows a total of 12 clicks, distributed as 1, 3, 2, 3, and 3 clicks across the five minutes.  A horizontal time axis below the visualization indicates the minutes (1-5).  The arrows indicate the flow of data from the queue, through the aggregation service, and finally to the visualization.
+Figure 26 Data in a snapshot
+With a snapshot, the failover process of the aggregation service is quite simple. If one aggregation service node fails, we bring up a new node and recover data from the latest snapshot (Figure 27). If there are new events that arrive after the last snapshot was taken, the new aggregation node will pull those data from the Kafka broker for replay.</p>
+<p>Image represents a system architecture for data aggregation.  At the top, a box labeled &lsquo;External Nodes&rsquo; represents the source of incoming data.  This box has two solid lines pointing downwards, connecting to two rectangular boxes at the bottom. The left box is labeled &lsquo;Primary aggregation node,&rsquo; and the right box is labeled &lsquo;New aggregation node.&rsquo;  A dashed line connects the &lsquo;External Nodes&rsquo; box to the &lsquo;Primary aggregation node&rsquo; box, indicating a less direct or potentially intermittent connection, marked with a red &lsquo;X&rsquo; suggesting a point of failure or potential interruption.  A cylindrical shape labeled &lsquo;Snapshot Storage&rsquo; sits centrally between the two bottom boxes.  A dashed arrow points from the &lsquo;Primary aggregation node&rsquo; to the &lsquo;Snapshot Storage,&rsquo; labeled &lsquo;Incremental Snapshot,&rsquo; showing that incremental data updates are sent to the storage.  Another dashed arrow connects the &lsquo;Snapshot Storage&rsquo; to the &lsquo;New aggregation node,&rsquo; indicating that data is also retrieved from the storage by the new node.  The solid line from &lsquo;External Nodes&rsquo; to &lsquo;New aggregation node&rsquo; suggests a direct data stream to the new node.  The overall diagram illustrates a system where data from external sources is aggregated by a primary node, stored incrementally, and potentially also directly fed to a new aggregation node for redundancy or scalability.
+Figure 27 Aggregation node failover
+Data monitoring and correctness
+As mentioned earlier, aggregation results can be used for RTB and billing purposes. It’s critical to monitor the system’s health and to ensure correctness.</p>
+<p>Continuous monitoring
+Here are some metrics we might want to monitor:</p>
+<p>Latency. Since latency can be introduced at each stage, it’s invaluable to track timestamps as events flow through different parts of the system. The differences between those timestamps can be exposed as latency metrics.</p>
+<p>Message queue size. If there is a sudden increase in queue size, we may need to add more aggregation nodes. Notice that Kafka is a message queue implemented as a distributed commit log, so we need to monitor the records-lag metrics instead.</p>
+<p>System resources on aggregation nodes: CPU, disk, JVM, etc.</p>
+<p>Reconciliation
+Reconciliation means comparing different sets of data in order to ensure data integrity. Unlike reconciliation in the banking industry, where you can compare your records with the bank’s records, the result of ad click aggregation has no third-party result to reconcile with.</p>
+<p>What we can do is to sort the ad click events by event time in every partition at the end of the day, by using a batch job and reconciling with the real-time aggregation result. If we have higher accuracy requirements, we can use a smaller aggregation window; for example, one hour. Please note, no matter which aggregation window is used, the result from the batch job might not match exactly with the real-time aggregation result, since some events might arrive late (see Time section).</p>
+<p>Figure 28 shows the final design diagram with reconciliation support.</p>
+<p>Image represents a system architecture diagram for data aggregation and reporting.  A <code>Log Watcher</code> feeds data into a <code>Message Queue</code>. This queue is consumed by a <code>Data Aggregation Service</code>, which aggregates ad counts and top 100 clicked ads every minute, writing the results to a <code>Database Writer</code>. This writer populates a <code>Raw data database</code>.  Separately, the <code>Message Queue</code> also feeds a second <code>Data Aggregation Service</code> responsible for recalculations only. This service interacts with a <code>Recalculation Service</code>, which in turn, along with the <code>Raw data database</code>, feeds into a <code>Reconciliation</code> component.  Finally, an <code>Aggregation database</code> stores the aggregated data, which is queried by a <code>Query Service (Dashboard)</code> for reporting purposes.  The <code>Aggregation database</code> receives data from both the initial <code>Database Writer</code> and the <code>Recalculation Service</code>, ensuring data consistency and accuracy.
+Figure 28 Final design
+Alternative design
+In a generalist system design interview, you are not expected to know the internals of different pieces of specialized software used in a big data pipeline. Explaining your thought process and discussing trade-offs is very important, which is why we propose a generic solution. Another option is to store ad click data in Hive, with an ElasticSearch layer built for faster queries. Aggregation is usually done in OLAP databases such as ClickHouse [24] or Druid [25]. Figure 29 shows the architecture.</p>
+<p>Image represents a data processing pipeline.  It begins with a <code>Log Watcher</code> that feeds data into a <code>Message Queue</code>.  This queue acts as a buffer, sending data to a <code>Risk Control Engine</code>. The engine processes the data and then sends it to two separate data storage systems: <code>Hive</code> and <code>ClickHouse</code>.  <code>Hive</code> data is then further processed and sent to <code>ElasticSearch</code>.  <code>ClickHouse</code> receives data from the <code>Risk Control Engine</code> and its aggregated query results are fed into <code>Merchant Facing Analytics</code>.  Separately, <code>ElasticSearch</code> receives queries from <code>Data Scientist Queries</code>, forming a two-way interaction where data scientists can query the data stored in <code>ElasticSearch</code>.  The overall flow is unidirectional, except for the feedback loop between <code>ElasticSearch</code> and <code>Data Scientist Queries</code>.
+Figure 29 Alternative design
+For more detail on this, please refer to reference material [26].</p>
+<p>Step 4 - Wrap Up
+In this chapter, we went through the process of designing an ad click event aggregation system at the scale of Facebook or Google. We covered:</p>
+<p>Data model and API design.</p>
+<p>Use MapReduce paradigm to aggregate ad click events.</p>
+<p>Scale the message queue, aggregation service, and database.</p>
+<p>Mitigate hotspot issue.</p>
+<p>Monitor the system continuously.</p>
+<p>Use reconciliation to ensure correctness.</p>
+<p>Fault tolerance.</p>
+<p>The ad click event aggregation system is a typical big data processing system. It will be easier to understand and design if you have prior knowledge or experience with industry-standard solutions such as Apache Kafka, Apache Flink, or Apache Spark.</p>
+<p>Congratulations on getting this far! Now give yourself a pat on the back. Good job!</p>
+<p>Chapter Summary
+Image represents a mind map outlining the steps involved in designing an Ads Aggregation system.  The central node is &lsquo;Ads Aggregation,&rsquo; branching into four main steps: Step 1 focuses on defining requirements, splitting into &lsquo;functional req&rsquo; (covering aggregate count, return top 100, aggregation filtering, and correctness) and &lsquo;non-functional req&rsquo; (addressing handle delayed events, robustness, and minutes latency). Step 2 delves into design, encompassing estimation (considering 1 billion ads click, 50K peak QPS, and 100GB daily storage), query API design, data model (handling raw and aggregated data, requiring comparison and database selection), and high-level design (exploring async processing using MapReduce and supporting 3 use cases). Step 3 addresses operational aspects, including streaming vs. batching, time considerations, aggregation window, delivery guarantees, system scalability, fault tolerance, and data monitoring and correctness. Finally, Step 4 concludes with a wrap-up, suggesting an alternative solution if needed.  The entire diagram uses a tree-like structure, with each step branching into more specific considerations and design choices.
+<a href="../../index.html">⬅ Back to KB index</a></p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+      <nav class="prev-next"><a class="prev" href="design-metrics-monitoring-alerting.html"><div class="label">← Anterior</div><div class="title">Design a Metrics Monitoring and Alerting System</div></a><a class="next" href="design-hotel-reservation-system.html"><div class="label">Siguiente →</div><div class="title">Design a Hotel Reservation System</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="design-ad-click-event-aggregation.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Substring Anagrams · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 5 — Sliding Windows</span><span class="sep">/</span><span class="current">Substring Anagrams</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Substring Anagrams</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">sliding-window</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Substring Anagrams
+Given two strings, s and t , both consisting of lowercase English letters, return the number of substrings in s that are anagrams of t.</p>
+<p>An anagram is a word or phrase formed by rearranging the letters of another word or phrase, using all the original letters exactly once.</p>
+<p>Example:
+Input: s = &lsquo;caabab&rsquo;, t = &lsquo;aba&rsquo;
+Output: 2
+Explanation: There is an anagram of t starting at index 1 (&ldquo;caabab&rdquo;) and another starting at index 2 (&ldquo;caabab&rdquo;)</p>
+<p>Intuition
+We can reframe how we think about an anagram by altering the provided definition. A substring of s qualifies as an anagram of t if it contains exactly the same characters as t in any order.</p>
+<p>For a substring in s to be an anagram of t, it must have the same length as t (denoted as len_t). This means we only need to consider substrings of s that match the length len_t, which saves us from examining every possible substring.</p>
+<p>To examine all substrings of a fixed length, len_t, we can use the fixed sliding window technique because a window of len_t is guaranteed to slide through every substring of this length. We can see this in the example below:</p>
+<p>Image represents a visual depiction of a sliding window algorithm, likely for string manipulation or pattern matching, where <code>len_t = 3</code> defines the window size.  The diagram shows four stages. Each stage features two orange rectangular boxes labeled &lsquo;left&rsquo; and &lsquo;right,&rsquo; representing pointers or indices at the beginning and end of a sliding window, respectively.  Arrows descend from these boxes to a light-blue rectangular box containing a sequence of characters (&lsquo;c&rsquo;, &lsquo;a&rsquo;, &lsquo;a&rsquo;, &lsquo;b&rsquo;, &lsquo;a&rsquo;, &lsquo;b&rsquo;).  The sequence represents the input string.  In each stage, the window, indicated by the light-blue box, slides one position to the right. The first stage shows the window encompassing &lsquo;c&rsquo;, &lsquo;a&rsquo;, &lsquo;a&rsquo;. The second stage shows the window shifted to &lsquo;a&rsquo;, &lsquo;a&rsquo;, &lsquo;b&rsquo;. The third stage shows &lsquo;a&rsquo;, &lsquo;b&rsquo;, &lsquo;a&rsquo;. The fourth stage shows &lsquo;b&rsquo;, &lsquo;a&rsquo;, &lsquo;b&rsquo;.  Gray arrows separate the stages, indicating the progression of the sliding window across the input string.  The algorithm appears to be processing the string in a left-to-right manner, with the window size remaining constant at 3.
+Now, we just need a way to check if a window is an anagram of t. Remember that in an anagram, the order of the letters doesn’t matter; only the frequency of each letter does. By comparing the frequency of each character in a window against the frequencies of characters in string t, we can determine if that window is an anagram of t.</p>
+<p>Let&rsquo;s explore this reasoning with an example. Before starting the sliding window algorithm, we need a way to store the frequencies of the characters in string t. We could use a hash map for this, or an array, expected_freqs, to store the frequencies of each character in string t.</p>
+<p>expected_freqs is an integer array of size 26, with each index representing one of the lowercase English letters (0 for &lsquo;a&rsquo;, 1 for &lsquo;b&rsquo;, and so on, up to 25 for &lsquo;z&rsquo;).</p>
+<p>Image represents a diagram illustrating the concept of frequency counting in a string.  The diagram shows a string <code>s = 'caababb'</code> and a target string <code>t = 'aba'</code>.  Curved arrows connect the characters of <code>t</code> to a frequency array labeled <code>expected_freqs</code>. This array represents the expected frequencies of characters in <code>t</code>.  Specifically, the array <code>expected_freqs</code> shows that &lsquo;a&rsquo; appears twice (2), &lsquo;b&rsquo; appears once (1), &lsquo;c&rsquo; appears zero times (0), and all other characters from &lsquo;d&rsquo; to &lsquo;z&rsquo; also appear zero times (represented by <code>... 0</code>). The arrangement visually demonstrates how the characters in the target string <code>t</code> are mapped to their corresponding counts within the <code>expected_freqs</code> array, which is used to determine the frequency of each character in the target string.
+To set up the sliding window algorithm, let’s define the following components:</p>
+<p>Left and right pointers: Initialize both at the start of the string to define the window&rsquo;s boundaries.</p>
+<p>window_freqs: Use an array of size 26 to keep track of the frequencies of characters within the window.</p>
+<p>count: Maintain a variable to count the number of anagrams detected.</p>
+<p>Before we slide the window, we first need to expand it to a fixed length of len_t. This can be done by advancing the right pointer until the window length is equal to len_t. As we expand, ensure to keep window_freqs updated to reflect the frequencies of the characters in the window:</p>
+<p>Image represents a diagram illustrating a data structure or algorithm related to character frequency counting within a sliding window.  Two rectangular boxes labeled &lsquo;left&rsquo; and &lsquo;right&rsquo; are positioned above a light-blue square labeled &lsquo;C&rsquo;. Arrows descend from &lsquo;left&rsquo; and &lsquo;right&rsquo; pointing to &lsquo;C&rsquo;, suggesting that &lsquo;left&rsquo; and &lsquo;right&rsquo; might represent boundaries of a sliding window.  To the right of the &lsquo;C&rsquo; square, a sequence of characters &lsquo;caabab&rsquo; is shown.  Adjacent to this character sequence, a variable named &lsquo;window_freqs&rsquo; is defined and assigned a list or array. This array appears to represent the frequency of each character within the window, indicated by the numbers 0, 0, 1, followed by an ellipsis (&hellip;) and ending with 0.  Subscripts beneath the numbers in the array &lsquo;window_freqs&rsquo; show that the values correspond to characters &lsquo;a&rsquo;, &lsquo;b&rsquo;, &lsquo;c&rsquo;, &hellip;, &lsquo;z&rsquo;, implying that the array tracks the frequency of each character from &lsquo;a&rsquo; to &lsquo;z&rsquo; within the defined window.  The diagram likely depicts a step in a process where the window moves across a larger sequence of characters, updating the &lsquo;window_freqs&rsquo; array at each step.
+Image represents a sliding window mechanism demonstrating character frequency counting.  Two rectangular boxes labeled &lsquo;left&rsquo; and &lsquo;right&rsquo; (in gray and orange respectively) point downwards with arrows towards a light-blue box containing the character &lsquo;c&rsquo; and followed by the character sequence &lsquo;aabab&rsquo;.  The arrows indicate the movement of a sliding window of size one character. The &lsquo;left&rsquo; box indicates the leftmost position of the window, and the &lsquo;right&rsquo; box indicates the rightmost position.  To the right of the character sequence, a variable named <code>window_freqs</code> is defined and assigned a list representing character frequencies within the window.  The list shows &lsquo;1&rsquo; for &lsquo;a&rsquo;, &lsquo;0&rsquo; for &lsquo;b&rsquo;, &lsquo;1&rsquo; for &lsquo;c&rsquo;, and ellipses (&hellip;) indicating continuation, ending with &lsquo;0&rsquo; for &lsquo;z&rsquo;.  The numbers in the list represent the count of each character within the current window, with the characters &lsquo;a&rsquo; to &lsquo;z&rsquo; listed below the corresponding frequency values.  The diagram illustrates how the window moves across the sequence, updating the <code>window_freqs</code> list to reflect the character frequencies in each position.
+Image represents a sliding window over a sequence of characters (&lsquo;c&rsquo;, &lsquo;a&rsquo;, &lsquo;a&rsquo;, &lsquo;b&rsquo;, &lsquo;a&rsquo;, &lsquo;b&rsquo;).  A rectangular box highlights the current window, labeled &lsquo;len_t&rsquo; indicating its length.  Above the window, two rectangular boxes labeled &lsquo;left&rsquo; and &lsquo;right&rsquo; show the direction of window movement.  An arrow points from &lsquo;left&rsquo; to the leftmost character of the window, and a dashed arrow points from &lsquo;right&rsquo; to the second &lsquo;a&rsquo; in the window, suggesting the window&rsquo;s movement. To the right, a variable named <code>window_freqs</code> is defined as an array; this array represents the frequency of each character within the current window.  The array shows &lsquo;2&rsquo; for &lsquo;a&rsquo;, &lsquo;0&rsquo; for &lsquo;b&rsquo;, &lsquo;1&rsquo; for &lsquo;c&rsquo;, and ellipses (&hellip;) indicating other characters, finally showing &lsquo;0&rsquo; for &lsquo;z&rsquo;.  The characters &lsquo;a&rsquo;, &lsquo;b&rsquo;, &lsquo;c&rsquo;, and &lsquo;z&rsquo; are subscripted under their corresponding frequencies in the array, clarifying which character each frequency represents.
+Once the window is at the fixed length of len_t, we can check if it’s an anagram of t by checking if the expected_freqs and window_freqs arrays are the same. This can be done in constant time since it requires only 26 comparisons, one for each lowercase English letter.</p>
+<p>To slide this window across the string, advance both the left and right pointers one step in each iteration. Ensure to keep window_freqs updated by incrementing the frequency of each new character at the right pointer and decrementing the frequency of the character at the left pointer as we move past this left character:</p>
+<p>Image represents a Python-like array assignment statement.  The statement <code>expected_freqs = [...]</code> assigns a numerical array to the variable <code>expected_freqs</code>. The array is enclosed in square brackets <code>[]</code> and contains numerical values representing frequencies.  Specifically, the first element is 2, associated with the character &lsquo;a&rsquo;; the second is 1, associated with &lsquo;b&rsquo;; the third is 0, associated with &lsquo;c&rsquo;; and the remaining elements (indicated by an ellipsis &lsquo;&hellip;&rsquo;) are all 0, extending up to and including the element associated with the character &lsquo;z&rsquo;.  The characters &lsquo;a&rsquo; through &lsquo;z&rsquo; are shown below the corresponding frequency values, indicating that the array likely represents the expected frequencies of each letter in the alphabet.  There are no URLs or parameters present.
+Image represents a data flow diagram illustrating a comparison process.  On the left, two labeled boxes, &lsquo;left&rsquo; and &lsquo;right,&rsquo; point downwards with arrows to a light-blue rectangular box containing the character sequence &lsquo;c a a b a b&rsquo;. This sequence appears to be a data window. To the right, the variable <code>window_freqs</code> is defined and assigned an array-like value <code>[2 0 1 ... 0]</code>, where the subscripts &lsquo;a&rsquo;, &lsquo;b&rsquo;, &lsquo;c&rsquo;, and &lsquo;z&rsquo; indicate that the array represents the frequencies of characters &lsquo;a&rsquo;, &lsquo;b&rsquo;, &lsquo;c&rsquo;, and so on, up to &lsquo;z&rsquo; within the window.  The ellipsis (&hellip;) denotes that the array continues with frequencies for characters not explicitly shown.  Below, a dashed-line box shows a comparison: <code>window_freqs != expected_freqs</code>, indicating that the calculated frequencies (<code>window_freqs</code>) are being checked against some pre-defined <code>expected_freqs</code>. An arrow labeled &lsquo;continue&rsquo; emerges from this box, suggesting that the process continues if the comparison is true (i.e., the frequencies do not match the expected values).
+Image represents a sliding window algorithm visualization.  Two orange rectangular boxes labeled &lsquo;left&rsquo; and &lsquo;right&rsquo; point downwards with arrows to a light-blue rectangular box containing a sequence of characters &lsquo;c a a b a b&rsquo;.  Dashed lines extend from the arrows to indicate the window&rsquo;s boundaries. The &lsquo;left&rsquo; pointer is positioned at the &lsquo;a&rsquo; and the &lsquo;right&rsquo; pointer at the &lsquo;b&rsquo;, defining the current window. Above, a list <code>window_freqs = [2 1 0 ... 0]</code> shows the frequency count of characters within the window (2 &lsquo;a&rsquo;s, 1 &lsquo;b&rsquo;, 0 &lsquo;c&rsquo;, etc., up to &lsquo;z&rsquo;).  To the right, a light-grey box depicts a conditional check: <code>window_freqs == expected_freqs</code>, implying a comparison with a pre-defined frequency array (<code>expected_freqs</code>). If the condition is true, a counter <code>count</code> is incremented (<code>count += 1</code>).  The diagram illustrates how the window moves across the character sequence, updating <code>window_freqs</code> and checking for matches against <code>expected_freqs</code> at each step.
+Image represents a sliding window algorithm segment.  Two orange rectangular boxes labeled &lsquo;left&rsquo; and &lsquo;right&rsquo; point downwards with arrows to a light-blue rectangular box containing the character sequence &lsquo;a b a&rsquo;.  Dashed arrows indicate the window&rsquo;s movement.  The character &lsquo;c&rsquo; precedes the window, and &lsquo;b&rsquo; follows it. To the right,  &lsquo;window_freqs = [2<sub>a</sub> 1<sub>b</sub> 0<sub>c</sub> &hellip; 0<sub>z</sub>]&rsquo; shows a frequency array;  &lsquo;2&rsquo; indicates two occurrences of &lsquo;a&rsquo; within the window, &lsquo;1&rsquo; shows one &lsquo;b&rsquo;, and &lsquo;0&rsquo; represents zero occurrences of &lsquo;c&rsquo; and all other characters (represented by &lsquo;&hellip;&rsquo;). A light-grey dashed-line box displays the condition &lsquo;window_freqs == expected_freqs&rsquo; which, if true, increments a counter: &lsquo;count += 1&rsquo;.  The diagram illustrates how the algorithm checks character frequencies within a sliding window against an expected frequency distribution (&lsquo;expected_freqs&rsquo;), updating a counter when a match is found.
+Image represents a sliding window algorithm visualization.  Two orange rectangular boxes labeled &lsquo;left&rsquo; and &lsquo;right&rsquo; point downwards via orange arrows to a light-blue rectangular box containing the character sequence &lsquo;c a a b&rsquo;.  Dotted orange lines indicate the window&rsquo;s movement. Above, &lsquo;window_freqs = [1 2 0 &hellip; 0]&rsquo; shows an array representing the frequency of characters (&lsquo;a&rsquo;, &lsquo;b&rsquo;, &lsquo;c&rsquo;, &hellip;, &lsquo;z&rsquo;) within the current window, with &lsquo;a&rsquo; having frequency 1, &lsquo;b&rsquo; having frequency 2, and others having frequency 0.  A light-grey dashed-line box displays the condition &lsquo;window_freqs != expected_freqs&rsquo; and an arrow pointing right labeled &lsquo;continue,&rsquo; indicating that if the window&rsquo;s character frequencies do not match the &lsquo;expected_freqs&rsquo; (not shown), the algorithm continues processing.  The overall diagram illustrates a step in a character frequency-based algorithm where a sliding window is used to compare observed frequencies against expected frequencies.
+Once we’ve finished processing all substrings of length len_t, we can return count, which represents the number of anagrams found.</p>
+<p>A small optimization we can make is returning 0 if t&rsquo;s length exceeds the length of s because forming an anagram of t from the substrings of s is impossible if t is longer.</p>
+<p>Try it yourself
+Write your solution to the problem before checking the reference implementation.
+Implementation
+In Python, we can use ord(character) - ord(&lsquo;a&rsquo;) to find the index of a lowercase English letter in an array of size 26. The ord function takes an integer and returns its ASCII value. This formula calculates the distance of this character from &lsquo;a&rsquo;, resulting in an index between 0 and 25.</p>
+<p>Python
+JavaScript
+Java
+def substring_anagrams(s: str, t: str) -&gt; int:
+    len_s, len_t = len(s), len(t)
+    if len_t &gt; len_s:
+        return 0
+    count = 0
+    expected_freqs, window_freqs = [0] * 26, [0] * 26
+    # Populate &lsquo;expected_freqs&rsquo; with the characters in string &lsquo;t&rsquo;.
+    for c in t:
+        expected_freqs[ord(c) - ord(&lsquo;a&rsquo;)] += 1
+    left = right = 0
+    while right &lt; len_s:
+        # Add the character at the right pointer to &lsquo;window_freqs&rsquo; before sliding the
+        # window.
+        window_freqs[ord(s[right]) - ord(&lsquo;a&rsquo;)] += 1
+        # If the window has reached the expected fixed length, we advance the left
+        # pointer as well as the right pointer to slide the window.
+        if right - left + 1 == len_t:
+            if window_freqs == expected_freqs:
+                count += 1
+            # Remove the character at the left pointer from &lsquo;window_freqs&rsquo; before
+            # advancing the left pointer.
+            window_freqs[ord(s[left]) - ord(&lsquo;a&rsquo;)] -= 1
+            left += 1
+        right += 1
+    return count
+Complexity Analysis
+Time complexity: The time complexity of substring_anagrams is 
+O
+(
+n
+)
+O(n), where 
+n
+n denotes the length of s. Here’s why:</p>
+<p>Populating the expected_freqs array takes 
+O
+(
+m
+)
+O(m) time, where m denotes the length of t. Since 
+m
+m is guaranteed to be less than or equal to 
+n
+n at this point, it’s not a dominant term in the time complexity.
+Then, we traverse string s linearly with two pointers, which takes 
+O
+(
+n
+)
+O(n) time.
+Note that at each iteration, the comparison performed between the two frequency arrays (expected_freqs and window_freqs) takes 
+O
+(
+1
+)
+O(1) time because each array contains only 26 elements.
+Space complexity: The space complexity is 
+O
+(
+1
+)
+O(1) because each frequency array contains only 26 elements.</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="introduction.html"><div class="label">← Anterior</div><div class="title">Introduction to Sliding Windows</div></a><a class="next" href="longest-substring-with-unique-characters.html"><div class="label">Siguiente →</div><div class="title">Longest Substring With Unique Characters</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="substring-anagrams.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

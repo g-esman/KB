@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Balanced Binary Tree Validation · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 11 — Trees</span><span class="sep">/</span><span class="current">Balanced Binary Tree Validation</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Balanced Binary Tree Validation</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">trees</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Balanced Binary Tree Validation
+Determine if a binary tree is height-balanced, meaning no node&rsquo;s left subtree and right subtree have a height difference greater than 1.</p>
+<p>Example:
+Image represents a binary tree structure illustrating an imbalance condition. The main tree consists of nodes labeled 5, 2, 7, 1, 4, 9, 3, and 6, connected by branches to represent parent-child relationships. Node 5 is the root, with node 2 as its left child and node 7 as its right child. Node 2 has children 1 (left) and 4 (right), while node 4 has a child 3. Node 7 has children 9 (right) and 6 (left).  A shaded rectangular area highlights the subtree rooted at node 7. A horizontal arrow points from this highlighted subtree to the text &lsquo;imbalanced:&rsquo;, followed by descriptions of the subtree&rsquo;s height imbalance: &lsquo;left subtree height = 0&rsquo; and &lsquo;right subtree height = 2&rsquo;, indicating a height difference of 2 between the left and right subtrees of node 7, thus signifying an imbalance in the tree.
+Output: False
+Intuition
+For a binary tree to be balanced, all its subtrees would need to be balanced too. This implies that the height difference between the left and right subtrees of each node should be at most 1. A difference greater than 1 indicates a height imbalance.</p>
+<p>This suggests we need a way to determine the heights of the left and right subtrees at each node in order to evaluate if the subtree rooting from that node is balanced or not.</p>
+<p>A key insight is that the height of a tree is equal to the depth of its deepest subtree, plus 1, to include the tree’s root node.</p>
+<p>Image represents a binary tree structure with a root node and three levels.  A rectangular box labeled &lsquo;node&rsquo; points down to the root node, which is a circle connected to two child nodes. One of these child nodes is further connected to two leaf nodes.  Orange brackets labeled &lsquo;1&rsquo; and &lsquo;2&rsquo; indicate the height of the right and left subtrees respectively.  To the right, a light gray box with dashed borders shows a calculation of the tree&rsquo;s height. The calculation uses the formula <code>height = 1 + max(left_height, right_height)</code>, substituting <code>left_height</code> as 2 and <code>right_height</code> as 1, resulting in a final height of 3.  The formula demonstrates how the height of a binary tree is determined recursively based on the maximum height of its subtrees plus one for the current node.
+The above formula reveals a recursive relationship, where we can recursively determine the heights of the left and right subtrees to calculate the height of the current subtree. The base case of the recursion would be returning 0 upon encountering a null node, since they have a height of 0.</p>
+<p>The diagram below displays the heights returned from the left and right children of each node, and shows how we determine if a subtree is imbalanced. This highlights the recursive process, where values bubble up from the bottom and make their way up to the root node. At each node, we also evaluate whether that node represents a height-balanced subtree. This reveals an imbalance at node 7:</p>
+<p>Image represents a binary tree where nodes are labeled with numbers.  The root node is &lsquo;5&rsquo;.  Node &lsquo;5&rsquo; has a left child &lsquo;2&rsquo; and a right child &lsquo;7&rsquo;. Node &lsquo;2&rsquo; has a left child &lsquo;1&rsquo; and a right child &lsquo;4&rsquo;. Node &lsquo;4&rsquo; has a left child &lsquo;3&rsquo;. Node &lsquo;7&rsquo; has a right child &lsquo;9&rsquo;, which in turn has a right child &lsquo;6&rsquo;.  Orange dashed lines and numbers indicate the height of each subtree, with the numbers representing the height.  For example, the subtree rooted at node &lsquo;2&rsquo; has a height of 2, and the subtree rooted at node &lsquo;7&rsquo; has a height of 2. Node &lsquo;7&rsquo; is highlighted in red.  To the right of the tree, the text &lsquo;left_height = 0, right_height = 2&rsquo; indicates the heights of the left and right subtrees of node &lsquo;5&rsquo;.  The text &lsquo;height difference = 2 &gt; 1 → imbalanced&rsquo; shows the calculation of the height difference (2 - 0 = 2) and concludes that the tree is imbalanced because the difference is greater than 1. A red arrow points from the height difference calculation to the word &lsquo;imbalanced&rsquo;, emphasizing the conclusion.
+However, there&rsquo;s a flaw in only returning the subtree’s height at each node: upon detecting node 7 is imbalanced, all we did about this was return its height to its parent node. This consequently means its parent node (node 5) could be mistakenly considered balanced.</p>
+<p>An important thing to remember is that if one subtree is imbalanced, the entire tree is considered imbalanced. This means node 5 should also be marked as imbalanced. We can fix this by returning -1 upon encountering an imbalanced node, essentially informing parent nodes of this imbalance:</p>
+<p>Image represents a binary tree illustrating an imbalance.  The tree&rsquo;s nodes contain numerical values (1, 2, 3, 4, 5, 6, 7, 9). Nodes 5 and 7 are highlighted in pink, indicating they are key nodes in the imbalance analysis.  Solid lines represent the parent-child relationships within the tree&rsquo;s structure. Dashed orange lines with orange numerical values (1, 2, 3) represent the balance factor of each node, showing the difference in height between the left and right subtrees.  A red arrow points from the node 7 to the word &lsquo;imbalanced&rsquo; (in red text), explicitly labeling the imbalance. The balance factors indicate that the right subtree rooted at node 5 is significantly deeper than its left subtree, causing the imbalance.  Specifically, node 5 has a balance factor of -1 (right subtree is one level deeper), node 2 has a balance factor of 2 (left subtree is two levels deeper), and node 7 has a balance factor of -2 (right subtree is two levels deeper), contributing to the overall imbalance highlighted by the diagram.
+To finalize our answer, we return false if the root node of the binary tree returns -1, and true otherwise.</p>
+<p>Try it yourself
+Write your solution to the problem before checking the reference implementation.
+Implementation
+Python
+JavaScript
+Java
+from ds import TreeNode
+    
+def balanced_binary_tree_validation(root: TreeNode) -&gt; bool:
+    return get_height_imbalance(root) != -1
+    
+def get_height_imbalance(node: TreeNode) -&gt; int:
+    # Base case: if the node is null, its height is 0.
+    if not node:
+        return 0
+    # Recursively get the height of the left and right subtrees. If either subtree
+    # is imbalanced, propagate -1 up the tree.
+    left_height = get_height_imbalance(node.left)
+    right_height = get_height_imbalance(node.right)
+    if left_height == -1 or right_height == -1:
+        return -1
+    # If the current node&rsquo;s subtree is imbalanced (height difference &gt; 1), return -1.
+    if abs(left_height - right_height) &gt; 1:
+        return -1
+    # Return the height of the current subtree.
+    return 1 + max(left_height, right_height)
+Complexity Analysis
+Time complexity: The time complexity of balanced_binary_tree_validation is 
+O
+(
+n
+)
+O(n), where 
+n
+n denotes the number of nodes in the tree. This is because it recursively traverses each node of the tree once.</p>
+<p>Space complexity: The space complexity is 
+O
+(
+n
+)
+O(n) due to the space taken up by the recursive call stack, which can grow as large as the height of the binary tree. The largest possible height of a binary tree is 
+n
+n.</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="invert-binary-tree.html"><div class="label">← Anterior</div><div class="title">Invert Binary Tree</div></a><a class="next" href="rightmost-nodes-of-a-binary-tree.html"><div class="label">Siguiente →</div><div class="title">Rightmost Nodes of a Binary Tree</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="balanced-binary-tree-validation.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

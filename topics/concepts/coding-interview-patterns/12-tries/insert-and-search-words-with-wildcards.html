@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Insert and Search Words with Wildcards · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 12 — Tries</span><span class="sep">/</span><span class="current">Insert and Search Words with Wildcards</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Insert and Search Words with Wildcards</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">tries</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Insert and Search Words with Wildcards
+Design and implement a data structure that supports the following operations:</p>
+<p>insert(word: str) -&gt; None: Inserts a word into the data structure.
+search(word: str) -&gt; bool: Returns true if a word exists in the data structure and false if not. The word may contain wildcards (&lsquo;.&rsquo;) that can represent any letter.
+Example:
+Input: [
+  insert(&lsquo;band&rsquo;),
+  insert(&lsquo;rat&rsquo;),
+  search(&lsquo;ra.&rsquo;),
+  search(&lsquo;b..&rsquo;),
+  insert(&lsquo;ran&rsquo;),
+  search(&lsquo;.an&rsquo;)
+]
+Output: [True, False, True]
+Explanation:</p>
+<p>insert(&ldquo;band&rdquo;) # data structure has: &ldquo;band&rdquo;
+insert(&ldquo;rat&rdquo;)   # data structure has: &ldquo;band&rdquo; and &ldquo;rat&rdquo;
+search(&ldquo;ra.&rdquo;)   # &ldquo;ra.&rdquo; matches &ldquo;rat&rdquo;: return True
+search(&ldquo;b..&rdquo;)   # no three-letter word starting with ‘b&rsquo; in the
+               # data structure: return False
+insert(&ldquo;ran&rdquo;)  # data structure has: &ldquo;band&rdquo;, &ldquo;rat&rdquo;, and &ldquo;ran&rdquo;
+search(&ldquo;.an&rdquo;)  # &ldquo;.an&rdquo; matches &ldquo;ran&rdquo;: return True
+Constraints:
+Words will only contain lowercase English letters and &lsquo;.&rsquo; characters.
+Intuition
+The requirements of this data structure closely resemble those of a trie, as it needs to facilitate the insertion and search of words. What makes this problem unique is the requirement to support wildcards (&lsquo;.&rsquo;) in searches. Let’s learn how we would need to modify our trie functions to support wildcards.</p>
+<p>Inserting a word into the trie
+The requirements for insertion in this problem match the requirements in a traditional trie. So, let’s use the same implementation of insert as in the Design a Trie problem.</p>
+<p>Searching with wildcards
+What does it mean to encounter a wildcard? Consider the following trie:</p>
+<p>Image represents a Trie data structure, a tree-like data structure used for storing strings.  The topmost node is labeled &lsquo;root&rsquo; in light gray, representing the root of the Trie.  From the root, two branches extend downwards. The left branch connects to a node labeled &lsquo;b&rsquo;, which connects to &lsquo;a&rsquo;, which further connects to &lsquo;n&rsquo;, and finally to &lsquo;d&rsquo;.  A dashed line and the text &lsquo;is_word = True&rsquo; are associated with the &lsquo;d&rsquo; node, indicating that &lsquo;band&rsquo; is a valid word in the Trie. The right branch from the root connects to a node labeled &lsquo;r&rsquo;, which connects to &lsquo;a&rsquo;.  From &lsquo;a&rsquo;, two branches extend to nodes labeled &lsquo;t&rsquo; and &lsquo;n&rsquo;.  Both &lsquo;t&rsquo; and &lsquo;n&rsquo; have dashed lines and the text &lsquo;is_word = True&rsquo; associated with them, indicating that &lsquo;rant&rsquo; and &lsquo;ran&rsquo; are valid words.  The connections between nodes represent prefixes of words, with each node representing a character.  The &lsquo;is_word&rsquo; flag indicates whether a path from the root to that node forms a complete valid word.
+If we perform a search for &ldquo;ra.&rdquo;, we know we can traverse down nodes &lsquo;r&rsquo; and &lsquo;a&rsquo; until we reach the wildcard character. Since the last letter is a wildcard, it could represent any letter. So, as long as there exists a node branching out from &lsquo;a&rsquo; that represents the end of a word (i.e., has is_word == True), the word &ldquo;ra.&rdquo; exists in the trie. In this case, both nodes &lsquo;t&rsquo; and &lsquo;n&rsquo; meet the requirements of this wildcard:</p>
+<p>Image represents a Trie data structure illustrating a search operation for the string &lsquo;ra.&rsquo;.  The topmost node is labeled &lsquo;root&rsquo; (in gray) and serves as the starting point.  A gray arrow points from the root to a green node labeled &lsquo;r&rsquo;, indicating the search begins with &lsquo;r&rsquo;.  From &lsquo;r&rsquo;, a downward gray arrow points to another green node &lsquo;a&rsquo;, showing the search progresses to &lsquo;a&rsquo;.  The node &lsquo;a&rsquo; has two children: green nodes &lsquo;t&rsquo; and &lsquo;n&rsquo;.  Dashed lines connect &lsquo;t&rsquo; and &lsquo;n&rsquo; to labels &lsquo;is_word = True&rsquo;, indicating that both &lsquo;t&rsquo; and &lsquo;n&rsquo; are valid words in the Trie.  Separately, a branch from the root node leads to a chain of nodes labeled &lsquo;b&rsquo;, &lsquo;a&rsquo;, &lsquo;n&rsquo;, and &lsquo;d&rsquo;.  A dashed line connects &lsquo;d&rsquo; to the label &lsquo;is_word = True&rsquo;, signifying &lsquo;d&rsquo; as a valid word. The search for &lsquo;ra.&rsquo; stops at the &lsquo;a&rsquo; node because there is no subsequent &lsquo;.&rsquo; node.  The overall structure shows how the Trie efficiently searches for prefixes and words.
+Now, let’s say we perform a search for “.an”. Since the first character is a wildcard, we need to cover all branches starting from every node representing the first character in the trie. This means starting a search from each child node of the root. We can do this by recursively calling the search function on these nodes, passing in the substring “an” because this substring contains the remaining characters to be searched for.</p>
+<p>Image represents a Trie data structure visualizing a search for the string &lsquo;.an&rsquo;.  A grey circle labeled &lsquo;root&rsquo; sits at the top, branching down with two grey arrows to green circles labeled &lsquo;b&rsquo; and &lsquo;r&rsquo;.  The &lsquo;b&rsquo; branch further descends with a downward arrow to a green &lsquo;a&rsquo;, then to a yellow &lsquo;n&rsquo;, and finally to a black &lsquo;d&rsquo;.  The &lsquo;r&rsquo; branch leads to a green &lsquo;a&rsquo;, which then branches to a red &lsquo;t&rsquo; (marked with an &lsquo;x&rsquo; indicating failure) and a green &lsquo;n&rsquo;.  Dashed lines connect the leaf nodes (&lsquo;d&rsquo;, &lsquo;t&rsquo;, and &lsquo;n&rsquo;) to text indicating whether they represent complete words: &lsquo;d&rsquo; shows &lsquo;is_word = True&rsquo;, &lsquo;t&rsquo; shows &lsquo;is_word = True&rsquo;, and &lsquo;n&rsquo; shows &lsquo;is_word = True&rsquo; for the rightmost &lsquo;n&rsquo; and &lsquo;is_word = False&rsquo; for the &lsquo;n&rsquo; under &lsquo;a&rsquo; and &lsquo;b&rsquo;.  The arrows depict the traversal path during the search for &lsquo;.an&rsquo;, showing the algorithm&rsquo;s progression through the Trie to find matching words.
+Notice the nodes forming the string &ldquo;ban&rdquo; will not satisfy the search term because node &lsquo;n&rsquo; does not mark the end of a word.</p>
+<p>So, at any point in the search, we need to handle two scenarios:</p>
+<p>When we encounter a letter, we proceed to the child of the current node that corresponds with this letter in the trie.</p>
+<p>When we encounter a wildcard, we explore all child nodes, as the &lsquo;.&rsquo; may match any character. We can perform a recursive call for each child node to search for the remainder of the word.</p>
+<p>This strategy for handling wildcards allows us to search every possible branch for a word that matches the search term. As soon as we find one branch that represents a word matching the search term, we return true.</p>
+<p>Try it yourself
+Write your solution to the problem before checking the reference implementation.
+Implementation
+In this implementation, we use a helper function (search_helper) for searching because we need to pass in two extra parameters at each recursive call:</p>
+<p>An index that defines the start of the remaining substring that needs to be searched. We pass in an index instead because passing in the substring itself would necessitate creating that substring, which would take linear time for each recursive call.</p>
+<p>The TrieNode we’re starting the search from. This ensures we don’t restart each recursive call from the root node.</p>
+<p>Python
+JavaScript
+Java
+class InsertAndSearchWordsWithWildcards:
+   def <strong>init</strong>(self):
+       self.root = TrieNode()
+    
+   def insert(self, word: str) -&gt; None:
+       node = self.root
+       for c in word:
+           if c not in node.children:
+               node.children[c] = TrieNode()
+           node = node.children[c]
+       node.is_word = True
+    
+   def search(self, word: str) -&gt; bool:
+       # Start searching from the root of the trie.
+       return self.search_helper(0, word, self.root)
+    
+   def search_helper(self, word_index: int, word: str, node: TrieNode) -&gt; bool:
+       for i in range(word_index, len(word)):
+           c = word[i]
+           # If a wildcard character is encountered, recursively search for the rest
+           # of the word from each child node.
+           if c == &lsquo;.&rsquo;:
+               for child in node.children.values():
+                   # If a match is found, return true.
+                   if self.search_helper(i + 1, word, child):
+                       return True
+               return False
+           elif c in node.children:
+               node = node.children[c]
+           else:
+               return False
+       # After processing the last character, return true if we&rsquo;ve reached the end
+       # of a word.
+       return node.is_word
+Complexity Analysis
+Time complexity:</p>
+<p>The time complexity of insert is 
+O
+(
+k
+)
+O(k), where 
+k
+k denotes the length of the word being inserted. This is because we traverse through or insert up to 
+k
+k nodes into the trie in each iteration.
+The time complexity of search is:
+O
+(
+k
+)
+O(k) when word contains no wildcards because we search through at most 
+k
+k characters in the trie.
+O
+(
+26
+k
+)
+O(26k) in the worst case, when word contains only wildcards. For each wildcard, we potentially need to explore up to 26 different characters (one for each lowercase English letter). With 
+k
+k wildcards, approximately 
+26
+k
+26k recursive calls are made.
+Space complexity:</p>
+<p>The space complexity of insert is 
+O
+(
+k
+)
+O(k) because in the worst case, the inserted word doesn’t share a prefix with words already in the trie. In this case, 
+k
+k new nodes are created.
+The space complexity of search is:
+O
+(
+1
+)
+O(1) when word contains no wildcards.
+O
+(
+k
+)
+O(k) in the worst case when word contains only wildcards due to the space taken up by the recursive call stack, which can grow up to 
+k
+k in size.</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="design-a-trie.html"><div class="label">← Anterior</div><div class="title">Design a Trie</div></a><a class="next" href="find-all-words-on-a-board.html"><div class="label">Siguiente →</div><div class="title">Find All Words on a Board</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="insert-and-search-words-with-wildcards.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

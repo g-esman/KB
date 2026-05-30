@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A Framework for System Design Interviews · Personal KB</title>
+<link rel="stylesheet" href="../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book I — System Design</span><span class="sep">/</span><span class="current">A Framework for System Design Interviews</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <ul class="toc">
+<li class="toc-h2"><a href="#in-this-chapter">📖 In this chapter</a></li>
+<li class="toc-h2"><a href="#for-dummies-empeza-por-aca">🎓 For Dummies — empezá por acá</a></li>
+<li class="toc-h3"><a href="#que-es-una-system-design-interview">¿Qué es una System Design Interview?</a></li>
+<li class="toc-h3"><a href="#que-busca-el-entrevistador">¿Qué busca el entrevistador?</a></li>
+<li class="toc-h3"><a href="#los-4-pasos-la-formula-a-memorizar">Los 4 pasos (la fórmula a memorizar)</a></li>
+<li class="toc-h3"><a href="#las-3-trampas-mas-comunes">Las 3 trampas más comunes</a></li>
+<li class="toc-h3"><a href="#las-preguntas-magicas-para-el-paso-1">Las preguntas mágicas para el Paso 1</a></li>
+<li class="toc-h3"><a href="#listo-para-la-version-completa">¿Listo para la versión completa?</a></li>
+<li class="toc-h2"><a href="#why-system-design-interviews-exist">Why system design interviews exist</a></li>
+<li class="toc-h2"><a href="#what-interviewers-look-for">What interviewers look for</a></li>
+<li class="toc-h2"><a href="#a-4-step-process-for-effective-system-design-interview">A 4-step process for effective system design interview</a></li>
+<li class="toc-h3"><a href="#step-1-understand-the-problem-and-establish-design-scope">Step 1 — Understand the problem and establish design scope</a></li>
+<li class="toc-h4"><a href="#what-kind-of-questions-to-ask">What kind of questions to ask?</a></li>
+<li class="toc-h4"><a href="#example-designing-a-news-feed-system">Example — designing a news feed system</a></li>
+<li class="toc-h3"><a href="#step-2-propose-high-level-design-and-get-buy-in">Step 2 — Propose high-level design and get buy-in</a></li>
+<li class="toc-h4"><a href="#example-high-level-design-for-the-news-feed">Example — high-level design for the news feed</a></li>
+<li class="toc-h3"><a href="#step-3-design-deep-dive">Step 3 — Design deep dive</a></li>
+<li class="toc-h4"><a href="#example-deep-dive-on-the-news-feed">Example — deep dive on the news feed</a></li>
+<li class="toc-h3"><a href="#step-4-wrap-up">Step 4 — Wrap up</a></li>
+<li class="toc-h2"><a href="#time-allocation-on-each-step">Time allocation on each step</a></li>
+<li class="toc-h2"><a href="#dos-and-donts-summary">Dos and Don’ts (summary)</a></li>
+<li class="toc-h3"><a href="#dos">✅ Dos</a></li>
+<li class="toc-h3"><a href="#donts">❌ Don’ts</a></li>
+<li class="toc-h2"><a href="#amplification-cheat-sheets-and-templates-added">⭐ Amplification — Cheat sheets and templates (added)</a></li>
+<li class="toc-h3"><a href="#step-1-clarifying-questions-cheat-sheet">📋 Step 1 — clarifying questions cheat sheet</a></li>
+<li class="toc-h3"><a href="#step-2-common-high-level-components">🧰 Step 2 — common high-level components</a></li>
+<li class="toc-h3"><a href="#step-3-common-deep-dive-topics-by-problem-type">🎯 Step 3 — common deep-dive topics by problem type</a></li>
+<li class="toc-h3"><a href="#step-4-wrap-up-checklist">🔁 Step 4 — wrap-up checklist</a></li>
+<li class="toc-h3"><a href="#red-flags-to-avoid">⚠️ Red flags to avoid</a></li>
+<li class="toc-h3"><a href="#practice-routine">🧪 Practice routine</a></li>
+<li class="toc-h2"><a href="#reference-materials">Reference materials</a></li>
+</ul>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>A Framework for System Design Interviews</h1>
+  <div class="meta-row">
+    <span class="status-badge active">✓ active</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-01</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">system-design</span><span class="meta-tag">interview-prep</span><span class="meta-tag">framework</span><span class="meta-tag">methodology</span></div>
+</header>
+      
+      <p><a href="../../index.html">⬅ Back to KB index</a></p>
+<blockquote>
+<p><strong>TL;DR (added)</strong> — System design interviews are not trivia contests. The interviewer wants to see <strong>how you think</strong>, how you collaborate, and how you handle ambiguity — not whether you can rebuild Google in 60 minutes. The recipe is a <strong>4-step framework</strong>: understand → high-level design → deep dive → wrap up. Stick to it, ask questions, think out loud, and avoid over-engineering.</p>
+</blockquote>
+<hr />
+<h2 id="in-this-chapter">📖 In this chapter<a class="headerlink" href="#in-this-chapter" title="anchor">&para;</a></h2>
+<ol>
+<li><a href="#-for-dummies--empezá-por-acá">🎓 For Dummies — empezá por acá</a></li>
+<li><a href="#why-system-design-interviews-exist">Why system design interviews exist</a></li>
+<li><a href="#what-interviewers-look-for">What interviewers look for</a></li>
+<li><a href="#a-4-step-process-for-effective-system-design-interview">A 4-step process for effective system design interview</a></li>
+<li><a href="#step-1---understand-the-problem-and-establish-design-scope">Step 1 — Understand the problem and establish design scope</a></li>
+<li><a href="#step-2---propose-high-level-design-and-get-buy-in">Step 2 — Propose high-level design and get buy-in</a></li>
+<li><a href="#step-3---design-deep-dive">Step 3 — Design deep dive</a></li>
+<li><a href="#step-4---wrap-up">Step 4 — Wrap up</a></li>
+<li><a href="#time-allocation-on-each-step">Time allocation on each step</a></li>
+<li><a href="#dos-and-donts-summary">Dos and Don&rsquo;ts (summary)</a></li>
+<li><a href="#-amplification--cheat-sheets-and-templates-added">⭐ Amplification — Cheat sheets and templates (added)</a></li>
+</ol>
+<hr />
+<h2 id="for-dummies-empeza-por-aca">🎓 For Dummies — empezá por acá<a class="headerlink" href="#for-dummies-empeza-por-aca" title="anchor">&para;</a></h2>
+<h3 id="que-es-una-system-design-interview">¿Qué es una System Design Interview?<a class="headerlink" href="#que-es-una-system-design-interview" title="anchor">&para;</a></h3>
+<p>Es una entrevista donde te dicen <strong>&ldquo;diseñá Twitter&rdquo;</strong> o <strong>&ldquo;diseñá Uber&rdquo;</strong> en una hora.</p>
+<p>🍕 <strong>Analogía</strong>: imaginate que en una entrevista para chef te dicen <em>&ldquo;preparame el menú para un restaurante de 200 personas&rdquo;</em>. No esperan que cocines en una hora — quieren ver:</p>
+<ul>
+<li>¿Hacés preguntas? (¿qué tipo de comida? ¿alérgenos? ¿presupuesto?)</li>
+<li>¿Pensás organizado? (entradas → principales → postres)</li>
+<li>¿Sabés del oficio? (para 200 personas necesito 4 cocineros, no 1)</li>
+</ul>
+<p>En system design es igual. <strong>No quieren la respuesta — quieren ver cómo pensás.</strong></p>
+<h3 id="que-busca-el-entrevistador">¿Qué busca el entrevistador?<a class="headerlink" href="#que-busca-el-entrevistador" title="anchor">&para;</a></h3>
+<p>NO busca:</p>
+<ul>
+<li>❌ Que sepas la respuesta exacta</li>
+<li>❌ Que escupas un diseño perfecto en 5 minutos</li>
+<li>❌ Que uses todas las tecnologías más nuevas (over-engineering = red flag)</li>
+</ul>
+<p>SÍ busca:</p>
+<ul>
+<li>✅ Que <strong>hagas preguntas</strong> antes de diseñar</li>
+<li>✅ Que <strong>pienses en voz alta</strong> (silent thinking = invisible)</li>
+<li>✅ Que <strong>colabores</strong> (el entrevistador es tu compañero, no juez)</li>
+<li>✅ Que <strong>manejes ambigüedad</strong> sin frustrarte</li>
+<li>✅ Que <strong>identifiques tradeoffs</strong> (no hay diseño perfecto)</li>
+</ul>
+<h3 id="los-4-pasos-la-formula-a-memorizar">Los 4 pasos (la fórmula a memorizar)<a class="headerlink" href="#los-4-pasos-la-formula-a-memorizar" title="anchor">&para;</a></h3>
+<p><img alt="The 4-step framework" src="img/fwk-process-4-steps.png" /></p>
+<table>
+<thead>
+<tr>
+<th>Paso</th>
+<th>Tiempo</th>
+<th>Qué hacés</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1. Entender</strong></td>
+<td>3-10 min</td>
+<td>Hacé preguntas. ¿Qué features? ¿Cuántos usuarios? ¿Mobile o web?</td>
+</tr>
+<tr>
+<td><strong>2. Diseño alto nivel</strong></td>
+<td>10-15 min</td>
+<td>Dibujá cajas y flechas. Validá con el entrevistador.</td>
+</tr>
+<tr>
+<td><strong>3. Deep dive</strong></td>
+<td>10-25 min</td>
+<td>Profundizá en 1-2 componentes críticos.</td>
+</tr>
+<tr>
+<td><strong>4. Wrap up</strong></td>
+<td>3-5 min</td>
+<td>Bottlenecks, mejoras, cómo escalarías a 10×.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="las-3-trampas-mas-comunes">Las 3 trampas más comunes<a class="headerlink" href="#las-3-trampas-mas-comunes" title="anchor">&para;</a></h3>
+<p>⚠️ <strong>Saltar a la respuesta</strong> — Si te preguntan &ldquo;diseñá YouTube&rdquo; y arrancás tirando tecnologías sin preguntar nada, perdiste. Calmate. Hacé preguntas primero.</p>
+<p>⚠️ <strong>Over-engineering</strong> — Agregar microservicios, message queues, sharding, multi-region a una app que tiene 100 usuarios. Es un red flag gigante. Diseñá para el escenario que te dieron, no para uno hipotético.</p>
+<p>⚠️ <strong>Pensar en silencio</strong> — El entrevistador no es vidente. Si pensás callado, no ve nada. Hablá todo el tiempo, aunque dudes.</p>
+<h3 id="las-preguntas-magicas-para-el-paso-1">Las preguntas mágicas para el Paso 1<a class="headerlink" href="#las-preguntas-magicas-para-el-paso-1" title="anchor">&para;</a></h3>
+<p>Aprendételas y disparalas en cualquier entrevista:</p>
+<ol>
+<li>¿Qué features son prioritarios? ¿Cuáles son MVP vs nice-to-have?</li>
+<li>¿Cuántos usuarios? ¿Crecimiento esperado en 3, 6, 12 meses?</li>
+<li>¿Mobile, web, ambos?</li>
+<li>¿Dominan las lecturas o las escrituras? (típicamente 10:1 en favor de lecturas)</li>
+<li>¿Tiempo real o se banca delay?</li>
+<li>¿Qué stack/servicios existentes puedo usar?</li>
+<li>¿Necesitamos auth, rate limiting, multi-region?</li>
+</ol>
+<h3 id="listo-para-la-version-completa">¿Listo para la versión completa?<a class="headerlink" href="#listo-para-la-version-completa" title="anchor">&para;</a></h3>
+<p>Con esto en la cabeza, lo que sigue es ampliar cada paso con detalles. ⬇️</p>
+<hr />
+<h2 id="why-system-design-interviews-exist">Why system design interviews exist<a class="headerlink" href="#why-system-design-interviews-exist" title="anchor">&para;</a></h2>
+<p>System design interviews can feel intimidating. They&rsquo;re often phrased vaguely — <em>&ldquo;design a well-known product X?&rdquo;</em> — and the questions can seem ambiguous and unreasonably broad. That reaction is understandable. After all, how could anyone design a popular product in an hour that has taken hundreds (if not thousands) of engineers to build?</p>
+<p>The good news: <strong>no one expects you to.</strong> Real-world system design is extremely complicated. Google search, for example, is deceptively simple on the surface, but the technology underneath is astonishing. So if no one expects you to design a real system in an hour, what is the point of the interview?</p>
+<p>The system design interview simulates <strong>real-life problem solving</strong>, where two co-workers collaborate on an ambiguous problem and produce a solution that meets a set of goals. The problem is open-ended, and there is no perfect answer. <strong>The final design matters less than the process you go through.</strong> This format lets you demonstrate your design skill, defend your choices, and respond to feedback constructively.</p>
+<h2 id="what-interviewers-look-for">What interviewers look for<a class="headerlink" href="#what-interviewers-look-for" title="anchor">&para;</a></h2>
+<p>It helps to flip the perspective and consider what the interviewer is thinking about as the session begins. The interviewer&rsquo;s primary goal is to <strong>accurately assess your abilities</strong>. The worst outcome for the interviewer is an inconclusive evaluation — a session that produced no clear signal one way or the other.</p>
+<p>A common misconception is that system design interviews are only about technical design skill. They are much more than that. An effective system design interview reveals strong signals about a candidate&rsquo;s ability to:</p>
+<ul>
+<li><strong>Collaborate</strong> with another engineer on a fuzzy problem</li>
+<li><strong>Work under pressure</strong> without freezing up</li>
+<li><strong>Resolve ambiguity</strong> constructively, by asking and proposing</li>
+<li><strong>Ask good questions</strong> — many interviewers specifically watch for this</li>
+</ul>
+<p>A good interviewer also looks for <strong>red flags</strong>:</p>
+<ul>
+<li><strong>Over-engineering</strong> — many engineers love design purity and ignore tradeoffs. They are often unaware of the compounding costs of over-engineered systems, and many companies pay a high price for that ignorance. You don&rsquo;t want to come across as someone who builds for purity rather than business outcomes.</li>
+<li><strong>Narrow-mindedness</strong> — refusing to consider alternative approaches.</li>
+<li><strong>Stubbornness</strong> — sticking with a bad idea after the interviewer has hinted at problems.</li>
+</ul>
+<p>In this chapter, we go over useful tips and introduce a simple, effective framework for solving system design interview problems.</p>
+<hr />
+<h2 id="a-4-step-process-for-effective-system-design-interview">A 4-step process for effective system design interview<a class="headerlink" href="#a-4-step-process-for-effective-system-design-interview" title="anchor">&para;</a></h2>
+<p>Every system design interview is different. A great one is open-ended and has no one-size-fits-all solution. Even so, <strong>there are predictable steps and common ground</strong> to cover in every session.</p>
+<h3 id="step-1-understand-the-problem-and-establish-design-scope">Step 1 — Understand the problem and establish design scope<a class="headerlink" href="#step-1-understand-the-problem-and-establish-design-scope" title="anchor">&para;</a></h3>
+<p>There&rsquo;s a stereotype of the eager student who blurts out the first answer that comes to mind. In school that earns gold stars. <strong>In a system design interview, it does the opposite.</strong></p>
+<p>Giving a fast answer without thinking earns you no bonus points. Answering before you understand the requirements is a major red flag — the interview is not a trivia contest, and there is no single right answer.</p>
+<p>So: <strong>don&rsquo;t jump in with a solution. Slow down. Think deeply. Ask questions</strong> to clarify requirements and assumptions. This is extremely important.</p>
+<p>As engineers, we love solving hard problems and racing to a final design. But that approach often produces the wrong system. One of the most important engineering skills is <strong>asking the right questions, making the proper assumptions, and gathering the information you need</strong> before building. Don&rsquo;t be afraid to ask.</p>
+<p>When you ask, the interviewer will either answer directly or ask you to make an assumption. If they push assumptions back to you, <strong>write them down</strong> on the whiteboard or paper — you&rsquo;ll need them later.</p>
+<h4 id="what-kind-of-questions-to-ask">What kind of questions to ask?<a class="headerlink" href="#what-kind-of-questions-to-ask" title="anchor">&para;</a></h4>
+<p>Ask anything that helps you nail down the actual requirements. Starter list:</p>
+<ul>
+<li><strong>What specific features are we building?</strong></li>
+<li><strong>How many users does the product have?</strong></li>
+<li><strong>How fast does the company expect to scale?</strong> What&rsquo;s anticipated in 3, 6, and 12 months?</li>
+<li><strong>What&rsquo;s the company&rsquo;s technology stack?</strong> What existing services can I leverage to simplify the design?</li>
+</ul>
+<h4 id="example-designing-a-news-feed-system">Example — designing a news feed system<a class="headerlink" href="#example-designing-a-news-feed-system" title="anchor">&para;</a></h4>
+<p>If asked to design a news feed, your dialogue might look like this:</p>
+<blockquote>
+<p><strong>Candidate</strong>: Is this a mobile app, web app, or both?
+<strong>Interviewer</strong>: Both.</p>
+<p><strong>Candidate</strong>: What are the most important features?
+<strong>Interviewer</strong>: Ability to make a post and see friends&rsquo; news feed.</p>
+<p><strong>Candidate</strong>: Is the feed sorted in reverse chronological order, or with custom weighting (e.g., posts from close friends ranked higher)?
+<strong>Interviewer</strong>: Keep it simple — reverse chronological order.</p>
+<p><strong>Candidate</strong>: How many friends can a user have?
+<strong>Interviewer</strong>: 5,000.</p>
+<p><strong>Candidate</strong>: What&rsquo;s the traffic volume?
+<strong>Interviewer</strong>: 10 million daily active users (DAU).</p>
+<p><strong>Candidate</strong>: Can the feed contain images, videos, or just text?
+<strong>Interviewer</strong>: Media files — images and videos.</p>
+</blockquote>
+<p>Those are sample questions. The point: <strong>understand the requirements and clarify ambiguities before drawing anything.</strong></p>
+<h3 id="step-2-propose-high-level-design-and-get-buy-in">Step 2 — Propose high-level design and get buy-in<a class="headerlink" href="#step-2-propose-high-level-design-and-get-buy-in" title="anchor">&para;</a></h3>
+<p>In this step, the goal is to develop a high-level design and <strong>reach agreement with the interviewer</strong> on it. Collaborate during the process — don&rsquo;t go silent.</p>
+<ul>
+<li>Come up with an initial blueprint. <strong>Ask for feedback.</strong> Treat the interviewer as a teammate. Many good interviewers love to get involved.</li>
+<li>Draw box diagrams with key components on the whiteboard or paper. This might include clients (mobile/web), APIs, web servers, data stores, cache, CDN, message queue, etc.</li>
+<li>Do <strong>back-of-the-envelope calculations</strong> to evaluate if your blueprint fits the scale constraints. Think out loud. Communicate with the interviewer about whether back-of-the-envelope is needed before diving in.</li>
+<li>If possible, walk through a few <strong>concrete use cases</strong>. This helps frame the high-level design, and often surfaces edge cases you hadn&rsquo;t considered.</li>
+<li>Should you include API endpoints and database schema here? <strong>It depends.</strong> For &ldquo;Design Google search engine,&rdquo; that&rsquo;s too low-level. For &ldquo;Design the backend for a multiplayer poker game,&rdquo; it&rsquo;s fair game. Communicate.</li>
+</ul>
+<h4 id="example-high-level-design-for-the-news-feed">Example — high-level design for the news feed<a class="headerlink" href="#example-high-level-design-for-the-news-feed" title="anchor">&para;</a></h4>
+<p>Take &ldquo;Design a news feed system&rdquo; as an example. (Detail covered in the <em>Design A News Feed System</em> chapter.)</p>
+<p>At the high level, the design splits into two flows:</p>
+<ul>
+<li><strong>Feed publishing</strong> — when a user publishes a post, the data is written to cache/database, and the post propagates into friends&rsquo; news feeds.</li>
+<li><strong>News feed building</strong> — the news feed is built by aggregating friends&rsquo; posts in reverse chronological order.</li>
+</ul>
+<h5 id="figure-1-feed-publishing-high-level">Figure 1 — Feed publishing (high-level)<a class="headerlink" href="#figure-1-feed-publishing-high-level" title="anchor">&para;</a></h5>
+<p><img alt="Figure 1 — Feed publishing" src="img/fwk-fig01-feed-publish.png" /></p>
+<h5 id="figure-2-news-feed-retrieval-high-level">Figure 2 — News feed retrieval (high-level)<a class="headerlink" href="#figure-2-news-feed-retrieval-high-level" title="anchor">&para;</a></h5>
+<p><img alt="Figure 2 — Feed retrieval" src="img/fwk-fig02-feed-retrieve.png" /></p>
+<h3 id="step-3-design-deep-dive">Step 3 — Design deep dive<a class="headerlink" href="#step-3-design-deep-dive" title="anchor">&para;</a></h3>
+<p>By this point, you and the interviewer should have:</p>
+<ul>
+<li>Agreed on the overall goals and feature scope</li>
+<li>Sketched out a high-level blueprint</li>
+<li>Gotten feedback from the interviewer on that blueprint</li>
+<li>Identified initial areas to focus on in the deep dive</li>
+</ul>
+<p>You&rsquo;ll work together to <strong>identify and prioritize components</strong> in the architecture. Every interview is different. Sometimes the interviewer signals interest in high-level design. For senior candidates, the discussion may shift to system performance characteristics, bottlenecks, and resource estimation. Most often, the interviewer wants you to dig into specific components:</p>
+<ul>
+<li>For a <strong>URL shortener</strong>, the hash function design is interesting.</li>
+<li>For a <strong>chat system</strong>, latency reduction and online/offline status handling are good topics.</li>
+</ul>
+<p><strong>Time management is essential</strong> — it&rsquo;s easy to get carried away on minute details that don&rsquo;t show your abilities. You need to give the interviewer signals. Avoid unnecessary depth: explaining Facebook&rsquo;s EdgeRank algorithm in detail wastes precious time and doesn&rsquo;t prove you can design a scalable system.</p>
+<h4 id="example-deep-dive-on-the-news-feed">Example — deep dive on the news feed<a class="headerlink" href="#example-deep-dive-on-the-news-feed" title="anchor">&para;</a></h4>
+<p>We have agreed on the high-level design and the interviewer is satisfied. Now we investigate two key use cases:</p>
+<ol>
+<li>Feed publishing</li>
+<li>News feed retrieval</li>
+</ol>
+<h5 id="figure-3-feed-publishing-deep-dive-with-numbered-flow">Figure 3 — Feed publishing (deep dive, with numbered flow)<a class="headerlink" href="#figure-3-feed-publishing-deep-dive-with-numbered-flow" title="anchor">&para;</a></h5>
+<p><img alt="Figure 3 — Feed publishing deep" src="img/fwk-fig03-feed-publish-deep.png" /></p>
+<h5 id="figure-4-news-feed-retrieval-deep-dive-with-numbered-flow">Figure 4 — News feed retrieval (deep dive, with numbered flow)<a class="headerlink" href="#figure-4-news-feed-retrieval-deep-dive-with-numbered-flow" title="anchor">&para;</a></h5>
+<p><img alt="Figure 4 — Feed retrieval deep" src="img/fwk-fig04-feed-retrieve-deep.png" /></p>
+<h3 id="step-4-wrap-up">Step 4 — Wrap up<a class="headerlink" href="#step-4-wrap-up" title="anchor">&para;</a></h3>
+<p>In this final step, the interviewer might ask follow-up questions or give you space to discuss other points. Useful directions:</p>
+<ul>
+<li>The interviewer might want you to <strong>identify system bottlenecks</strong> and discuss potential improvements. Never claim your design is perfect — there&rsquo;s always something to improve. This is a great opportunity to show critical thinking and leave a strong final impression.</li>
+<li>It can be useful to <strong>recap your design</strong>, especially if you proposed multiple solutions. Refreshing the interviewer&rsquo;s memory after a long session helps.</li>
+<li><strong>Error cases</strong> (server failure, network loss, etc.) are interesting to talk about.</li>
+<li><strong>Operational issues</strong> are worth mentioning. How do you monitor metrics and error logs? How do you roll the system out?</li>
+<li><strong>The next scale curve</strong> is also interesting. If your current design supports 1 million users, what changes do you need to support 10 million?</li>
+<li>Propose other <strong>refinements</strong> you would do if you had more time.</li>
+</ul>
+<hr />
+<h2 id="time-allocation-on-each-step">Time allocation on each step<a class="headerlink" href="#time-allocation-on-each-step" title="anchor">&para;</a></h2>
+<p>System design questions are usually very broad, and 45 minutes or an hour isn&rsquo;t enough to cover the entire design. Time management is essential. The following is a rough guide for distributing your time in a 45-minute session — actual distribution depends on the problem scope and the interviewer&rsquo;s signals.</p>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Step 1 — Understand the problem and establish design scope</td>
+<td><strong>3 – 10 minutes</strong></td>
+</tr>
+<tr>
+<td>Step 2 — Propose high-level design and get buy-in</td>
+<td><strong>10 – 15 minutes</strong></td>
+</tr>
+<tr>
+<td>Step 3 — Design deep dive</td>
+<td><strong>10 – 25 minutes</strong></td>
+</tr>
+<tr>
+<td>Step 4 — Wrap up</td>
+<td><strong>3 – 5 minutes</strong></td>
+</tr>
+</tbody>
+</table>
+<p><img alt="Time allocation pie" src="img/fwk-time-allocation.png" /></p>
+<hr />
+<h2 id="dos-and-donts-summary">Dos and Don&rsquo;ts (summary)<a class="headerlink" href="#dos-and-donts-summary" title="anchor">&para;</a></h2>
+<h3 id="dos">✅ Dos<a class="headerlink" href="#dos" title="anchor">&para;</a></h3>
+<ul>
+<li><strong>Always ask for clarification.</strong> Do not assume your assumption is correct.</li>
+<li><strong>Understand the requirements</strong> of the problem.</li>
+<li>There is neither a right answer nor a best answer. A solution for a young startup differs from one for an established company with millions of users. <strong>Make sure you understand the requirements.</strong></li>
+<li><strong>Let the interviewer know what you&rsquo;re thinking.</strong> Communicate constantly.</li>
+<li><strong>Suggest multiple approaches</strong> when possible.</li>
+<li>Once you agree with the interviewer on the blueprint, <strong>go into details on each component. Design the most critical components first.</strong></li>
+<li><strong>Bounce ideas off the interviewer.</strong> A good interviewer works with you as a teammate.</li>
+<li><strong>Never give up.</strong></li>
+</ul>
+<h3 id="donts">❌ Don&rsquo;ts<a class="headerlink" href="#donts" title="anchor">&para;</a></h3>
+<ul>
+<li>Don&rsquo;t be unprepared for typical interview questions.</li>
+<li>Don&rsquo;t jump into a solution without clarifying the requirements and assumptions.</li>
+<li>Don&rsquo;t go into too much detail on a single component too early. Give the high-level design first, then drill down.</li>
+<li>If you get stuck, don&rsquo;t hesitate to <strong>ask for hints</strong>.</li>
+<li>Communicate. Don&rsquo;t think in silence.</li>
+<li>Don&rsquo;t think your interview is done once you&rsquo;ve given the design. <strong>You&rsquo;re not done until the interviewer says you&rsquo;re done.</strong> Ask for feedback early and often.</li>
+</ul>
+<hr />
+<h2 id="amplification-cheat-sheets-and-templates-added">⭐ Amplification — Cheat sheets and templates (added)<a class="headerlink" href="#amplification-cheat-sheets-and-templates-added" title="anchor">&para;</a></h2>
+<h3 id="step-1-clarifying-questions-cheat-sheet">📋 Step 1 — clarifying questions cheat sheet<a class="headerlink" href="#step-1-clarifying-questions-cheat-sheet" title="anchor">&para;</a></h3>
+<p>Memorize this list. Adapt to the question, but always ask at least 5–7 of these:</p>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Question</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Scope</strong></td>
+<td>What features are in scope? Which are MVP vs nice-to-have?</td>
+</tr>
+<tr>
+<td><strong>Users</strong></td>
+<td>How many DAU / MAU? Expected growth?</td>
+</tr>
+<tr>
+<td><strong>Platforms</strong></td>
+<td>Mobile, web, both? Native or responsive?</td>
+</tr>
+<tr>
+<td><strong>Geography</strong></td>
+<td>Single region or global? Latency requirements?</td>
+</tr>
+<tr>
+<td><strong>Read/write ratio</strong></td>
+<td>Read-heavy, write-heavy, or balanced?</td>
+</tr>
+<tr>
+<td><strong>Latency</strong></td>
+<td>Real-time, near-real-time, or batch?</td>
+</tr>
+<tr>
+<td><strong>Consistency</strong></td>
+<td>Strong, eventual, or read-your-writes acceptable?</td>
+</tr>
+<tr>
+<td><strong>Data size</strong></td>
+<td>Average payload size? Retention period?</td>
+</tr>
+<tr>
+<td><strong>Auth</strong></td>
+<td>Required? OAuth, SSO, internal-only?</td>
+</tr>
+<tr>
+<td><strong>Rate limiting</strong></td>
+<td>Per user, per IP, per API key?</td>
+</tr>
+<tr>
+<td><strong>Existing stack</strong></td>
+<td>What can I leverage (DBs, queues, services)?</td>
+</tr>
+<tr>
+<td><strong>SLA</strong></td>
+<td>What uptime target?</td>
+</tr>
+</tbody>
+</table>
+<h3 id="step-2-common-high-level-components">🧰 Step 2 — common high-level components<a class="headerlink" href="#step-2-common-high-level-components" title="anchor">&para;</a></h3>
+<p>When drawing the box diagram, you&rsquo;ll typically pick from these building blocks:</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Components</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Edge</strong></td>
+<td>DNS, CDN, WAF, anycast</td>
+</tr>
+<tr>
+<td><strong>Entry</strong></td>
+<td>Load balancer (L4/L7), API gateway</td>
+</tr>
+<tr>
+<td><strong>Web tier</strong></td>
+<td>Stateless app servers (auto-scaled)</td>
+</tr>
+<tr>
+<td><strong>Caching</strong></td>
+<td>Redis, Memcached, in-memory L1, CDN cache</td>
+</tr>
+<tr>
+<td><strong>Data tier</strong></td>
+<td>Relational DB (Postgres, MySQL), NoSQL (Dynamo, Cassandra), object store (S3)</td>
+</tr>
+<tr>
+<td><strong>Async / decouple</strong></td>
+<td>Message queue (Kafka, SQS, RabbitMQ), Pub/Sub</td>
+</tr>
+<tr>
+<td><strong>Search/analytics</strong></td>
+<td>Elasticsearch, OpenSearch, Druid, Snowflake</td>
+</tr>
+<tr>
+<td><strong>Batch / streaming</strong></td>
+<td>Spark, Flink, Kinesis, Dataflow</td>
+</tr>
+<tr>
+<td><strong>Observability</strong></td>
+<td>Logs (ELK), metrics (Prometheus), tracing (Jaeger)</td>
+</tr>
+<tr>
+<td><strong>Auth</strong></td>
+<td>OAuth provider, identity service, token cache</td>
+</tr>
+</tbody>
+</table>
+<h3 id="step-3-common-deep-dive-topics-by-problem-type">🎯 Step 3 — common deep-dive topics by problem type<a class="headerlink" href="#step-3-common-deep-dive-topics-by-problem-type" title="anchor">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>Likely deep-dive</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>URL shortener</strong></td>
+<td>Hash function, collision handling, base62 encoding</td>
+</tr>
+<tr>
+<td><strong>Chat system</strong></td>
+<td>WebSocket vs long polling, online/offline state, message ordering</td>
+</tr>
+<tr>
+<td><strong>News feed</strong></td>
+<td>Push vs pull fanout, hybrid for celebrities</td>
+</tr>
+<tr>
+<td><strong>Search</strong></td>
+<td>Inverted index, ranking, query parsing, autocomplete</td>
+</tr>
+<tr>
+<td><strong>Video streaming</strong></td>
+<td>CDN strategy, adaptive bitrate, transcoding pipeline</td>
+</tr>
+<tr>
+<td><strong>Ride-sharing</strong></td>
+<td>Geo-spatial index (S2/H3), matching algorithm, ETA service</td>
+</tr>
+<tr>
+<td><strong>Notifications</strong></td>
+<td>Fanout, retry/backoff, dedup, delivery receipts</td>
+</tr>
+<tr>
+<td><strong>Payments</strong></td>
+<td>Idempotency keys, double-entry ledger, reconciliation</td>
+</tr>
+<tr>
+<td><strong>Rate limiter</strong></td>
+<td>Token bucket vs sliding window, distributed counters in Redis</td>
+</tr>
+</tbody>
+</table>
+<h3 id="step-4-wrap-up-checklist">🔁 Step 4 — wrap-up checklist<a class="headerlink" href="#step-4-wrap-up-checklist" title="anchor">&para;</a></h3>
+<p>Before the interview ends, hit these points:</p>
+<ul class="task-list">
+<li class="task-list-item"><input type="checkbox" disabled/> <strong>Bottlenecks</strong> — what would break first under 10× load?</li>
+<li class="task-list-item"><input type="checkbox" disabled/> <strong>Recap</strong> — quick summary if the design has many moving parts</li>
+<li class="task-list-item"><input type="checkbox" disabled/> <strong>Failure modes</strong> — server down, network partition, data corruption</li>
+<li class="task-list-item"><input type="checkbox" disabled/> <strong>Monitoring</strong> — how do you know it&rsquo;s working? Key metrics?</li>
+<li class="task-list-item"><input type="checkbox" disabled/> <strong>Deployment</strong> — rollout strategy, canary, rollback plan</li>
+<li class="task-list-item"><input type="checkbox" disabled/> <strong>Next scale curve</strong> — what changes from 1M → 10M users?</li>
+<li class="task-list-item"><input type="checkbox" disabled/> <strong>Things you&rsquo;d do with more time</strong> — show self-awareness</li>
+</ul>
+<h3 id="red-flags-to-avoid">⚠️ Red flags to avoid<a class="headerlink" href="#red-flags-to-avoid" title="anchor">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Behavior</th>
+<th>Why it&rsquo;s bad</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Diving into code/schema in the first 5 min</td>
+<td>Skipped scope clarification</td>
+</tr>
+<tr>
+<td>Adding microservices for a 100-user app</td>
+<td>Over-engineering signal</td>
+</tr>
+<tr>
+<td>Defending a bad choice after a hint</td>
+<td>Stubborn / coachability concern</td>
+</tr>
+<tr>
+<td>Going silent for &gt;30 sec</td>
+<td>Invisible thinking — interviewer can&rsquo;t grade</td>
+</tr>
+<tr>
+<td>Saying &ldquo;this design is perfect&rdquo;</td>
+<td>Lack of self-critique</td>
+</tr>
+<tr>
+<td>Quoting specific algorithms by name in too much detail</td>
+<td>Time-wasting / signaling over substance</td>
+</tr>
+<tr>
+<td>Ignoring tradeoffs</td>
+<td>Doesn&rsquo;t recognize the discipline of engineering</td>
+</tr>
+</tbody>
+</table>
+<h3 id="practice-routine">🧪 Practice routine<a class="headerlink" href="#practice-routine" title="anchor">&para;</a></h3>
+<p>A solid weekly practice plan:</p>
+<ol>
+<li>Pick a system (Twitter, Uber, YouTube, WhatsApp, etc.)</li>
+<li>Set a 45-minute timer</li>
+<li>Walk through all 4 steps <strong>out loud</strong> (or whiteboard with a friend)</li>
+<li>Compare your solution to a reference (e.g., this book&rsquo;s later chapters)</li>
+<li>Note what you missed; iterate next week</li>
+</ol>
+<p>Common practice problems to cycle through:</p>
+<ul>
+<li>Design Twitter / Instagram / TikTok feed</li>
+<li>Design WhatsApp / Slack chat</li>
+<li>Design Uber / Lyft / DoorDash</li>
+<li>Design Google Drive / Dropbox</li>
+<li>Design YouTube / Netflix</li>
+<li>Design URL shortener / TinyURL</li>
+<li>Design web crawler</li>
+<li>Design notification system</li>
+<li>Design distributed key-value store</li>
+<li>Design proximity service / Yelp</li>
+</ul>
+<hr />
+<h2 id="reference-materials">Reference materials<a class="headerlink" href="#reference-materials" title="anchor">&para;</a></h2>
+<ul>
+<li>Original chapter source: <em>System Design Interview – An Insider&rsquo;s Guide</em> (Alex Xu), Chapter 3.</li>
+<li>Companion chapters in this KB: <a href="scaling-from-zero-to-millions.html">Ch. 1 — Scaling from Zero to Millions</a>, <a href="back-of-the-envelope-estimation.html">Ch. 2 — Back-of-the-envelope Estimation</a>.</li>
+</ul>
+      <nav class="prev-next"><a class="prev" href="back-of-the-envelope-estimation.html"><div class="label">← Anterior</div><div class="title">Back-of-the-envelope Estimation</div></a><a class="next" href="design-rate-limiter.html"><div class="label">Siguiente →</div><div class="title">Design A Rate Limiter</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="framework-system-design-interviews.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design a Distributed Message Queue · Personal KB</title>
+<link rel="stylesheet" href="../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book I — System Design</span><span class="sep">/</span><span class="current">Design a Distributed Message Queue</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Design a Distributed Message Queue</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-04</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">system-design</span><span class="meta-tag">message-queue</span><span class="meta-tag">kafka</span><span class="meta-tag">distributed-systems</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Distributed Message Queue
+In this chapter, we explore a popular question in system design interviews: design a distributed message queue. In modern architecture, systems are broken up into small and independent building blocks with well-defined interfaces between them. Message queues provide communication and coordination for those building blocks. What benefits do message queues bring?</p>
+<p>Decoupling. Message queues eliminate the tight coupling between components so they can be updated independently.</p>
+<p>Improved scalability. We can scale producers and consumers independently based on traffic load. For example, during peak hours, more consumers can be added to handle the increased traffic.</p>
+<p>Increased availability. If one part of the system goes offline, the other components can continue to interact with the queue.</p>
+<p>Better performance. Message queues make asynchronous communication easy. Producers can add messages to a queue without waiting for the response and consumers consume messages whenever they are available. They don’t need to wait for each other.</p>
+<p>Figure 1 shows some of the most popular distributed message queues on the market.</p>
+<p>Image represents a collection of logos, seemingly representing different technologies or services relevant to system design, arranged in a two-row, five-column grid.  The top row features, from left to right: a blue logo resembling interconnected circles (possibly representing a network or distributed system), an orange rocket logo with a skull and crossbones inside (potentially symbolizing a fast, potentially risky, deployment or process), and an orange logo resembling a stylized rabbit or similar creature (possibly representing a messaging queue or a fast processing system). The bottom row displays, from left to right: a light blue wave-like logo (possibly representing a database or data flow), and a cluster of interconnected hexagons in various colors (likely representing microservices or a modular system architecture), and a red circle with a diagonal slash through it (representing a stop or cancellation).  There are no explicit connections or information flow lines drawn between the logos; their arrangement suggests a conceptual relationship rather than a direct technical interaction.
+Figure 1 Popular distributed message queues
+Message queues vs event streaming platforms</p>
+<p>Strictly speaking, Apache Kafka and Pulsar are not message queues as they are event streaming platforms. However, there is a convergence of features that starts to blur the distinction between message queues (RocketMQ, ActiveMQ, RabbitMQ, ZeroMQ, etc.) and event streaming platforms (Kafka, Pulsar). For example, RabbitMQ, which is a typical message queue, added an optional streaming feature to allow repeated message consumption and long message retention, and its implementation uses an append-only log, much like an event streaming platform would. Apache Pulsar is primarily a Kafka competitor, but it is also flexible and performant enough to be used as a typical distributed message queue.</p>
+<p>In this chapter, we will design a distributed message queue with additional features, such as long data retention, repeated consumption of messages, etc., that are typically only available on event streaming platforms. These additional features make the design more complicated. Throughout the chapter, we will highlight places where the design could be simplified if the focus of your interview centers around the more traditional distributed message queues.</p>
+<p>Step 1 - Understand the Problem and Establish Design Scope
+In a nutshell, the basic functionality of a message queue is straightforward: producers send messages to a queue, and consumers consume messages from it. Beyond this basic functionality, there are other considerations including performance, message delivery semantics, data retention, etc. The following set of questions will help clarify requirements and narrow down the scope.</p>
+<p>Candidate: What’s the format and average size of messages? Is it text only? Is multimedia allowed?
+Interviewer: Text messages only. Messages are generally measured in the range of kilobytes (KBs).</p>
+<p>Candidate: Can messages be repeatedly consumed?
+Interviewer: Yes, messages can be repeatedly consumed by different consumers. Note that this is an added feature. A traditional distributed message queue does not retain a message once it has been successfully delivered to a consumer. Therefore, a message cannot be repeatedly consumed in a traditional message queue.</p>
+<p>Candidate: Are messages consumed in the same order they were produced?
+Interviewer: Yes, messages should be consumed in the same order they were produced. Note that this is an added feature. A traditional distributed message queue does not usually guarantee delivery orders.</p>
+<p>Candidate: Does data need to be persisted and what is the data retention?
+Interviewer: Yes, let’s assume data retention is two weeks. This is an added feature. A traditional distributed message queue does not retain messages.</p>
+<p>Candidate: How many producers and consumers are we going to support?
+Interviewer: The more the better.</p>
+<p>Candidate: What’s the data delivery semantic we need to support? For example, at-most-once, at-least-once, and exactly once.
+Interviewer: We definitely want to support at-least-once. Ideally, we should support all of them and make them configurable.</p>
+<p>Candidate: What’s the target throughput and end-to-end latency?
+Interviewer: It should support high throughput for use cases like log aggregation. It should also support low latency delivery for more traditional message queue use cases.</p>
+<p>With the above conversation, let’s assume we have the following functional requirements:</p>
+<p>Producers send messages to a message queue.</p>
+<p>Consumers consume messages from a message queue.</p>
+<p>Messages can be consumed repeatedly or only once.</p>
+<p>Historical data can be truncated.</p>
+<p>Message size is in the kilobyte range.</p>
+<p>Ability to deliver messages to consumers in the order they were added to the queue.</p>
+<p>Data delivery semantics (at-least-once, at-most-once, or exactly-once) can be configured by users.</p>
+<p>Non-functional requirements
+High throughput or low latency, configurable based on use cases.</p>
+<p>Scalable. The system should be distributed in nature. It should be able to support a sudden surge in message volume.</p>
+<p>Persistent and durable. Data should be persisted on disk and replicated across multiple nodes.</p>
+<p>Adjustments for traditional message queues
+Traditional message queues like RabbitMQ do not have as strong a retention requirement as event streaming platforms. Traditional queues retain messages in memory just long enough for them to be consumed. They provide on-disk overflow capacity [1] which is several orders of magnitude smaller than the capacity required for event streaming platforms. Traditional message queues do not typically maintain message ordering. The messages can be consumed in a different order than they were produced. These differences greatly simplify the design which we will discuss where appropriate.</p>
+<p>Step 2 - Propose High-Level Design and Get Buy-In
+First, let’s discuss the basic functionalities of a message queue.</p>
+<p>Figure 2 shows the key components of a message queue and the simplified interactions between these components.</p>
+<p>Image represents a simplified producer-consumer architecture using a message queue.  A rectangular box labeled &lsquo;Producer&rsquo; is connected via a solid arrow labeled &lsquo;a. produce&rsquo; to a central rectangular box labeled &lsquo;Message queue,&rsquo; which is depicted as a series of smaller, equally-sized rectangles representing individual message slots.  From the &lsquo;Message queue,&rsquo; a solid arrow labeled &lsquo;b2. consume&rsquo; points to a rectangular box labeled &lsquo;Consumer,&rsquo; indicating the consumption of messages.  Additionally, a dashed arrow labeled &lsquo;b1. subscribe&rsquo; points from the &lsquo;Consumer&rsquo; box to the &lsquo;Message queue,&rsquo; illustrating the Consumer&rsquo;s subscription to the queue to receive messages.  The overall flow shows the Producer adding messages (&lsquo;produce&rsquo;) to the queue, and the Consumer subscribing to and consuming (&lsquo;consume&rsquo;) messages from the queue.
+Figure 2 Key components in a message queue
+Producer sends messages to a message queue.</p>
+<p>Consumer subscribes to a queue and consumes the subscribed messages.</p>
+<p>Message queue is a service in the middle that decouples the producers from the consumers, allowing each of them to operate and scale independently.</p>
+<p>Both producer and consumer are clients in the client/server model, while the message queue is the server. The clients and servers communicate over the network.</p>
+<p>Messaging models
+The most popular messaging models are point-to-point and publish-subscribe.</p>
+<p>Point-to-point
+This model is commonly found in traditional message queues. In a point-to-point model, a message is sent to a queue and consumed by one and only one consumer. There can be multiple consumers waiting to consume messages in the queue, but each message can only be consumed by a single consumer. In Figure 3, message A is only consumed by consumer 1.</p>
+<p>Image represents a simple message queue system.  A rectangular box labeled &lsquo;Producer&rsquo; sends a message, denoted as &lsquo;Message A&rsquo; (represented by a vertical rectangle), to a central rectangular box labeled &lsquo;Message Queue&rsquo;. This queue is depicted as containing multiple vertical rectangles, symbolizing multiple message slots.  From the Message Queue, two arrows point to rectangular boxes labeled &lsquo;Consumer 1&rsquo; and &lsquo;Consumer 2&rsquo;, indicating that both consumers receive copies of &lsquo;Message A&rsquo;.  The arrows represent the flow of the message from the producer, through the queue, and to the consumers.  The diagram illustrates a publish-subscribe or message-broker architecture where a single producer publishes a message that is then consumed by multiple consumers independently.
+Figure 3 Point-to-point model
+Once the consumer acknowledges that a message is consumed, it is removed from the queue. There is no data retention in the point-to-point model. In contrast, our design includes a persistence layer that keeps the messages for two weeks, which allows messages to be repeatedly consumed.</p>
+<p>While our design could simulate a point-to-point model, its capabilities map more naturally to the publish-subscribe model.</p>
+<p>Publish-subscribe
+First, let’s introduce a new concept, the topic. Topics are the categories used to organize messages. Each topic has a name that is unique across the entire message queue service. Messages are sent to and read from a specific topic.</p>
+<p>In the publish-subscribe model, a message is sent to a topic and received by the consumers subscribing to this topic. As shown in Figure 4, message A is consumed by both consumer 1 and consumer 2.</p>
+<p>Image represents a simple message queue system.  A rectangular box labeled &lsquo;Producer&rsquo; sends a message, denoted by a vertical rectangle labeled &lsquo;Message A,&rsquo; to a central rectangular box labeled &lsquo;Message Queue.&rsquo; This queue is depicted as containing multiple vertical rectangles representing individual message slots.  From the message queue, two arrows extend to separate rectangular boxes labeled &lsquo;Consumer 1&rsquo; and &lsquo;Consumer 2,&rsquo; respectively. Each arrow carries a copy of &lsquo;Message A,&rsquo; indicating that both consumers receive the same message.  The overall architecture illustrates a publish-subscribe pattern where a producer publishes a message to a queue, and multiple consumers subscribe to the queue to receive the message.  The diagram shows a one-to-many message delivery pattern, with the producer sending one message that is then consumed by multiple consumers independently.
+Figure 4 Publish-subscribe model
+Our distributed message queue supports both models. The publish-subscribe model is implemented by topics, and the point-to-point model can be simulated by the concept of the consumer group, which will be introduced in the consumer group section.</p>
+<p>Topics, partitions, and brokers
+As mentioned earlier, messages are persisted by topics. What if the data volume in a topic is too large for a single server to handle?</p>
+<p>One approach to solve this problem is called partition (sharding). As Figure 5 shows, we divide a topic into partitions and deliver messages evenly across partitions. Think of a partition as a small subset of the messages for a topic. Partitions are evenly distributed across the servers in the message queue cluster. These servers that hold partitions are called brokers. The distribution of partitions among brokers is the key element to support high scalability. We can scale the topic capacity by expanding the number of partitions.</p>
+<p>Image represents a schematic illustrating message partitioning in a message queue system.  On the left, a single entity labeled &lsquo;Topic-A&rsquo; is depicted as a rectangular box containing eight smaller, equally sized rectangular boxes representing individual messages. A large right-pointing arrow indicates the transformation of this single topic into a partitioned structure. On the right, &lsquo;Topic-A&rsquo; is again labeled, but this time it&rsquo;s represented as a larger rectangle divided into two sections labeled &lsquo;Partition-1&rsquo; and &lsquo;Partition-2&rsquo;.  Each partition contains several smaller rectangular boxes, representing messages, distributed across the partitions.  Partition-1 contains three messages, and Partition-2 contains three messages. The overall diagram shows how a single topic&rsquo;s messages (&lsquo;Topic-A&rsquo;) are distributed across multiple partitions (&lsquo;Partition-1&rsquo; and &lsquo;Partition-2&rsquo;) for improved scalability and parallel processing within a message queue or similar system.
+Figure 5 Partitions
+Each topic partition operates in the form of a queue with the FIFO (first in, first out) mechanism. This means we can keep the order of messages inside a partition. The position of a message in the partition is called an offset.</p>
+<p>When a message is sent by a producer, it is actually sent to one of the partitions for the topic. Each message has an optional message key (for example, a user’s ID), and all messages for the same message key are sent to the same partition. If the message key is absent, the message is randomly sent to one of the partitions.</p>
+<p>When a consumer subscribes to a topic, it pulls data from one or more of these partitions. When there are multiple consumers subscribing to a topic, each consumer is responsible for a subset of the partitions for the topic. The consumers form a consumer group for a topic.</p>
+<p>The message queue cluster with brokers and partitions is represented in Figure 6.</p>
+<p>Image represents a simplified architecture of a message broker system.  On the left, a stack of rectangles labeled &lsquo;Producers&rsquo; represents multiple producer entities.  A single arrow labeled &lsquo;a. produce&rsquo; extends from the Producers to a central stack of rectangles labeled &lsquo;Brokers.&rsquo; The Brokers are depicted as a cluster of smaller rectangles arranged in a grid, symbolizing multiple broker instances.  Data flows from the Producers to the Brokers via the &lsquo;produce&rsquo; action. On the right, another stack of rectangles labeled &lsquo;Consumers&rsquo; represents multiple consumer entities.  Two arrows connect the Brokers to the Consumers.  The top arrow, labeled &lsquo;b1. subscribe&rsquo;, indicates that Consumers subscribe to topics or queues within the Brokers. The bottom arrow, labeled &lsquo;b2. consume&rsquo;, shows Consumers retrieving messages from the Brokers through a &lsquo;consume&rsquo; action.  The overall diagram illustrates a publish-subscribe pattern where Producers publish messages to the Brokers, and Consumers subscribe to and consume these messages.
+Figure 6 Message queue cluster
+Consumer group
+As mentioned earlier, we need to support both point-to-point and publish-subscribe models. A consumer group is a set of consumers, working together to consume messages from topics.</p>
+<p>Consumers can be organized into groups. Each consumer group can subscribe to multiple topics and maintain its own consuming offsets. For example, we can group consumers by use cases, one group for billing and the other for accounting.</p>
+<p>The instances in the same group can consume traffic in parallel, as in Figure 7.</p>
+<p>Consumer group 1 subscribes to topic A.</p>
+<p>Consumer group 2 subscribes to both topics A and B.</p>
+<p>Topic A is subscribed by both consumer groups 1 and 2, which means the same message is consumed by multiple consumers. This pattern supports the subscribe/publish model.</p>
+<p>Image represents a simplified depiction of a message queue system, likely Apache Kafka, illustrating the concept of topics, partitions, and consumer groups.  Two topics, &lsquo;Topic-A&rsquo; and &lsquo;Topic-B,&rsquo; are shown, each divided into partitions. Topic-A has two partitions (&lsquo;Partition-1&rsquo; and &lsquo;Partition-2&rsquo;), while Topic-B has one (&lsquo;Partition-1&rsquo;). Each partition is represented by a series of rectangles, suggesting multiple messages within each.  These partitions are connected via curved lines to two consumer groups: &lsquo;Consumer group-1&rsquo; containing &lsquo;Consumer-1&rsquo; and &lsquo;Consumer-2,&rsquo; and &lsquo;Consumer group-2&rsquo; containing &lsquo;Consumer-3&rsquo; and &lsquo;Consumer-4.&rsquo;  The lines indicate that messages from the partitions are consumed by the consumers.  Crucially, the diagram shows that consumers within the same group do not receive duplicate messages from the same partition; instead, partitions are distributed among consumers within a group.  Different consumer groups can consume messages from the same topic and partitions concurrently.
+Figure 7 Consumer groups
+However, there is one problem. Reading data in parallel improves the throughput, but the consumption order of messages in the same partition cannot be guaranteed. For example, if consumer 1 and consumer 2 both read from partition 1, we will not be able to guarantee the message consumption order in partition 1.</p>
+<p>The good news is we can fix this by adding a constraint, that a single partition can only be consumed by one consumer in the same group. If the number of consumers of a group is larger than the number of partitions of a topic, some consumers will not get data from this topic. For example, in Figure 7, consumer 3 in group 2 cannot consume messages from topic B because it is consumed by Consumer-4 in the same consumer group, already.</p>
+<p>With this constraint, if we put all consumers in the same consumer group, then messages in the same partition are consumed by only one consumer, which is equivalent to the point-to-point model. Since a partition is the smallest storage unit, we can allocate enough partitions in advance to avoid the need to dynamically increase the number of partitions. To handle high scale, we just need to add consumers.</p>
+<p>High-Level architecture
+Figure 8 shows the updated high-level design.</p>
+<p>Image represents a simplified architecture diagram of a message broker system.  The diagram shows multiple &lsquo;Producers&rsquo; sending messages to a central &lsquo;Brokers&rsquo; component.  The Brokers component is depicted as a stack of layers, with the top layer labeled &lsquo;Data storage&rsquo; represented as a series of vertical rectangles suggesting multiple partitions or topics for storing messages. Below the data storage is a &lsquo;State storage&rsquo; layer, shown as a single document icon, likely representing broker&rsquo;s internal state or metadata. The Brokers component interacts with a &lsquo;Metadata storage,&rsquo; depicted as a database icon, which likely stores information about topics, partitions, and consumer groups.  A &lsquo;Coordination service&rsquo; component is also shown, receiving information from the Brokers, suggesting a role in managing and coordinating the overall system. Finally, multiple &lsquo;Consumers (Consumer groups)&rsquo; receive messages from the Brokers.  Arrows indicate the flow of data and control information between components; Producers send data to Brokers, Brokers send data to Consumers, Brokers interact with both Metadata storage and Coordination service, and Metadata storage interacts with Brokers.
+Figure 8 High-level design
+Clients</p>
+<p>Producer: pushes messages to specific topics.</p>
+<p>Consumer group: subscribes to topics and consumes messages.</p>
+<p>Core service and storage</p>
+<p>Broker: holds multiple partitions. A partition holds a subset of messages for a topic.</p>
+<p>Storage:</p>
+<p>Data storage: messages are persisted in data storage in partitions.</p>
+<p>State storage: consumer states are managed by state storage.</p>
+<p>Metadata storage: configuration and properties of topics are persisted in metadata storage.</p>
+<p>Coordination service:</p>
+<p>Service discovery: which brokers are alive.</p>
+<p>Leader election: one of the brokers is selected as the active controller. There is only one active controller in the cluster. The active controller is responsible for assigning partitions.</p>
+<p>Apache Zookeeper [2] or etcd [3] are commonly used to elect a controller.</p>
+<p>Step 3 - Design Deep Dive
+To achieve high throughput while satisfying the high data retention requirement, we made three important design choices, which we explain in detail now.</p>
+<p>We chose an on-disk data structure that takes advantage of the great sequential access performance of rotational disks and the aggressive disk caching strategy of modern operating systems.</p>
+<p>We designed the message data structure to allow a message to be passed from the producer to the queue and finally to the consumer, with no modifications. This minimizes the need for copying which is very expensive in a high volume and high traffic system.</p>
+<p>We designed the system to favor batching. Small I/O is an enemy of high throughput. So, wherever possible, our design encourages batching. The producers send messages in batches. The message queue persists messages in even larger batches. The consumers fetch messages in batches when possible, too.</p>
+<p>Data storage
+Now let’s explore the options to persist messages in more detail. In order to find the best choice, let’s consider the traffic pattern of a message queue.</p>
+<p>Write-heavy, read-heavy.</p>
+<p>No update or delete operations. As a side note, a traditional message queue does not persist messages unless the queue falls behind, in which case there will be “delete” operations when the queue catches up. What we are talking about here is the persistence of a data streaming platform.</p>
+<p>Predominantly sequential read/write access.</p>
+<p>Option 1: Database</p>
+<p>The first option is to use a database.</p>
+<p>Relational database: create a topic table and write messages to the table as rows.</p>
+<p>NoSQL database: create a collection as a topic and write messages as documents.</p>
+<p>Databases can handle the storage requirement, but they are not ideal because it is hard to design a database that supports both write-heavy and read-heavy access patterns at a large scale. The database solution does not fit our specific data usage patterns very well.</p>
+<p>This means a database is not the best choice and could become a bottleneck of the system.</p>
+<p>Option 2: Write-ahead log (WAL)</p>
+<p>The second option is write-ahead log (WAL). WAL is just a plain file where new entries are appended to an append-only log. WAL is used in many systems, such as the redo log in MySQL and the WAL in ZooKeeper.</p>
+<p>We recommend persisting messages as WAL log files on disk. WAL has a pure sequential read/write access pattern. The disk performance of sequential access is very good [4]. Also, rotational disks have large capacity and they are pretty affordable.</p>
+<p>As shown in Figure 9, a new message is appended to the tail of a partition, with a monotonically increasing offset. The easiest option is to use the line number of the log file as the offset. However, a file cannot grow infinitely, so it is a good idea to divide it into segments.</p>
+<p>With segments, new messages are appended only to the active segment file. When the active segment reaches a certain size, a new active segment is created to receive new messages, and the currently active segment becomes inactive, like the rest of the non-active segments. Non-active segments only serve read requests. Old non-active segment files can be truncated if they exceed the retention or capacity limit.</p>
+<p>Image represents a single partition (Partition-1) of a topic (Topic-A) in a message queue system, likely Kafka.  The partition is depicted as a linear sequence of 16 numbered segments (0-15), visually representing storage locations for records.  A downward-pointing arrow labeled &lsquo;1st record&rsquo; indicates the initial record&rsquo;s insertion into segment 0.  A second downward-pointing arrow labeled &lsquo;Next record written&rsquo; shows the subsequent record being written into segment 15.  Dashed lines labeled &lsquo;segment-1&rsquo; and &lsquo;segment-2&rsquo; delineate two logical segments within the partition, suggesting a potential mechanism for managing data within the partition, perhaps for compaction or other optimization strategies.  The numbers within each segment represent their sequential order within the partition.  The overall structure illustrates the sequential writing of records into a partitioned topic, with the potential for logical segmentation within the partition for efficient management.
+Figure 9 Append new messages
+Segment files of the same partition are organized in a folder named “Partition-{:partition_id}”. The structure is shown in Figure 10.</p>
+<p>Image represents a conceptual diagram illustrating data partitioning within a system labeled &lsquo;Topic-A&rsquo;.  The diagram shows Topic-A divided into two partitions, &lsquo;Partition-1&rsquo; and &lsquo;Partition-2&rsquo;. Each partition contains multiple data segments represented as rectangular boxes with curled corners, suggesting files or data chunks.  Partition-1 includes segments labeled &lsquo;segment-1&rsquo;, &lsquo;segment-3&rsquo;, and an ellipsis (&hellip;) indicating additional, unspecified segments.  Similarly, Partition-2 contains &lsquo;segment-1&rsquo;, &lsquo;segment-2&rsquo;, and an ellipsis (&hellip;) representing further segments.  The arrangement visually depicts a data distribution strategy where similar segments (&lsquo;segment-1&rsquo;, &lsquo;segment-2&rsquo;, &lsquo;segment-3&rsquo;) are present in both partitions, implying potential redundancy or replication for fault tolerance or performance reasons.  There are no explicit connections or data flows shown between the partitions; the diagram focuses solely on the structure of the data partitioning itself.
+Figure 10 Data segment file distribution in topic partitions
+A note on disk performance</p>
+<p>To meet the high data retention requirement, our design relies heavily on disk drives to hold a large amount of data. There is a common misconception that rotational disks are slow, but this is really only the case for random access. For our workload, as long as we design our on-disk data structure to take advantage of the sequential access pattern, the modern disk drives in a RAID configuration (i.e., with disks striped together for higher performance) could comfortably achieve several hundred MB/sec of read and write speed. This is more than enough for our needs, and the cost structure is favorable.</p>
+<p>Also, a modern operating system caches disk data in main memory very aggressively, so much so that it would happily use all available free memory to cache disk data. The WAL takes advantage of the heavy OS disk caching, too, as we described above.</p>
+<p>Message data structure
+The data structure of a message is key to high throughput. It defines the contract between the producers, message queue, and consumers. Our design achieves high performance by eliminating unnecessary data copying while the messages are in transit from the producers to the queue and finally to the consumers. If any parts of the system disagree on this contract, messages will need to be mutated which involves expensive copying. It could seriously hurt the performance of the system.</p>
+<p>Below is a sample schema of the message data structure:</p>
+<p>Field Name  Data Type
+key byte[]
+value   byte[]
+topic   string
+partition   integer
+offset  long
+timestamp   long
+size    integer
+crc [5] integer
+Table 1 Data schema of a message</p>
+<p>Message key
+The key of the message is used to determine the partition of the message. If the key is not defined, the partition is randomly chosen. Otherwise, the partition is chosen by hash(key) % numPartitions. If we need more flexibility, the producer can define its own mapping algorithm to choose partitions. Please note that the key is not equivalent to the partition number.</p>
+<p>The key can be a string or a number. It usually carries some business information. The partition number is a concept in the message queue, which should not be explicitly exposed to clients.</p>
+<p>With a proper mapping algorithm, if the number of partitions changes, messages can still be evenly sent to all the partitions.</p>
+<p>Message value
+The message value is the payload of a message. It can be plain text or a compressed binary block.</p>
+<p>Reminder
+The key and value of a message are different from the key-value pair in a key-value (KV) store. In the KV store, keys are unique, and we can find the value by key. In a message, keys do not need to be unique. Sometimes they are not even mandatory, and we don’t need to find a value by key.
+Other fields of a message
+Topic: the name of the topic that the message belongs to.</p>
+<p>Partition: the ID of the partition that the message belongs to.</p>
+<p>Offset: the position of the message in the partition. We can find a message via the combination of three fields: topic, partition, offset.</p>
+<p>Timestamp: the timestamp of when this message is stored.</p>
+<p>Size: the size of this message.</p>
+<p>CRC: Cyclic redundancy check (CRC) is used to ensure the integrity of raw data.</p>
+<p>To support additional features, some optional fields can be added on demand. For example, messages can be filtered by tags, if tags are part of the optional fields.</p>
+<p>Batching
+Batching is pervasive in this design. We batch messages in the producer, the consumer, and the message queue itself. Batching is critical to the performance of the system. In this section, we focus primarily on batching in the message queue. We discuss batching for producer and consumer in more detail, shortly.</p>
+<p>Batching is critical to improving performance because:</p>
+<p>It allows the operating system to group messages together in a single network request and amortizes the cost of expensive network round trips.</p>
+<p>The broker writes messages to the append logs in large chunks, which leads to larger blocks of sequential writes and larger contiguous blocks of disk cache, maintained by the operating system. Both lead to much greater sequential disk access throughput.</p>
+<p>There is a tradeoff between throughput and latency. If the system is deployed as a traditional message queue where latency might be more important, the system could be tuned to use a smaller batch size. Disk performance will suffer a little bit in this use case. If tuned for throughput, there might need to be a higher number of partitions per topic, to make up for the slower sequential disk write throughput.</p>
+<p>So far, we’ve covered the main disk storage subsystem and its associated on-disk data structure. Now, let’s switch gears and discuss the producer and consumer flows. Then we will come back and finish the deep dive into the rest of the message queue.</p>
+<p>Producer flow
+If a producer wants to send messages to a partition, which broker should it connect to? The first option is to introduce a routing layer. All messages sent to the routing layer are routed to the “correct” broker. If the brokers are replicated, the “correct” broker is the leader replica. We will cover replication later.</p>
+<p>Image represents a simplified architecture of a message queue system, likely Apache Kafka.  A &lsquo;Producer&rsquo; component generates messages. These messages are then sent to a &lsquo;Routing&rsquo; component, which determines their destination based on a topic and partitioning strategy.  The routing component uses solid and dashed arrows to indicate message flow, suggesting different routing mechanisms or potential message ordering guarantees. The messages are then distributed across two &lsquo;Broker&rsquo; instances (Broker-1 and Broker-2). Each broker stores a partition of &lsquo;Topic-A&rsquo;, indicated by the vertical bars representing individual partitions within each broker.  The solid arrows show the primary routing path, while the dashed arrows might represent alternative paths or acknowledgements.  The text labels clearly identify each component and the topic and partition information.  The system demonstrates message distribution across multiple brokers for scalability and fault tolerance.
+Figure 11 Routing layer
+As shown in Figure 11, the producer tries to send messages to partition 1 of topic A.</p>
+<p>The producer sends messages to the routing layer.</p>
+<p>The routing layer reads the replica distribution plan1 from the metadata storage and caches it locally. When a message arrives, it routes the message to the leader replica of partition 1, which is stored in broker 1.</p>
+<p>The leader replica receives the message and follower replicas pull data from the leader.</p>
+<p>When “enough” replicas have synchronized the message, the leader commits the data (persisted on disk), which means the data can be consumed. Then it responds to the producer.</p>
+<p>You might be wondering why we need both leader and follower replicas. The reason is fault tolerance. We dive deep into this process in the “In-sync replicas” section.</p>
+<p>This approach works, but it has a few drawbacks:</p>
+<p>A new routing layer means additional network latency caused by overhead and additional network hops.</p>
+<p>Request batching is one of the big drivers of efficiency. This design doesn’t take that into consideration.</p>
+<p>Figure 12 shows the improved design.</p>
+<p>Image represents a simplified producer-consumer architecture within a message queue system, likely Apache Kafka.  A single &lsquo;Producer&rsquo; component contains an internal &lsquo;Buffer&rsquo; and &lsquo;Routing&rsquo; logic. Data flows from the Buffer to the Routing component. The Routing component then directs messages to one of two &lsquo;Broker&rsquo; instances (Broker-1 and Broker-2).  Both brokers store data for &lsquo;Topic-A&rsquo;, specifically &lsquo;Partition-1&rsquo;.  Solid arrows indicate the primary data flow, while dashed arrows represent feedback or acknowledgement mechanisms.  The visual representation of partitions within each broker suggests data is distributed across multiple partitions for scalability and parallelism.  The light green shading on Broker-1&rsquo;s partitions implies that data is currently being written to those partitions.
+Figure 12 Producer with buffer and routing
+The routing layer is wrapped into the producer and a buffer component is added to the producer. Both can be installed in the producer as part of the producer client library. This change brings several benefits:</p>
+<p>Fewer network hops mean lower latency.</p>
+<p>Producers can have their own logic to determine which partition the message should be sent to.</p>
+<p>Batching buffers messages in memory and sends out larger batches in a single request. This increases throughput.</p>
+<p>The choice of the batch size is a classic tradeoff between throughput and latency (Figure 13). With a large batch size, the throughput increases but latency is higher, due to a longer wait time to accumulate the batch. With a small batch size, requests are sent sooner so the latency is lower, but throughput suffers. Producers can tune the batch size based on use cases.</p>
+<p>Image represents a 2D graph illustrating the relationship between batch size, throughput, and latency. The horizontal axis represents throughput, labeled &lsquo;Low&rsquo; on the left and &lsquo;High&rsquo; on the right, indicating the rate of processing. The vertical axis represents latency, labeled &lsquo;Low&rsquo; at the bottom and &lsquo;High&rsquo; at the top, indicating the time delay in processing.  A dashed diagonal line ascends from the bottom-left (&lsquo;Low&rsquo; throughput, &lsquo;Low&rsquo; latency) to the top-right (&lsquo;High&rsquo; throughput, &lsquo;High&rsquo; latency).  The line is annotated with an arrowhead at its upper end, labeled &lsquo;Batch size,&rsquo; suggesting that increasing batch size leads to both increased throughput and increased latency.  The graph visually demonstrates a trade-off: larger batch sizes improve throughput but at the cost of higher latency.
+Figure 13 The choice of the batch size
+Consumer flow
+The consumer specifies its offset in a partition and receives back a chunk of events beginning from that position. An example is shown in Figure 14.</p>
+<p>Image represents a diagram illustrating message consumption from a message queue or log by two consumers.  A horizontal rectangular area is divided into sixteen numbered cells (0-15) representing individual messages.  A solid line connects the first seven cells (0-6) to a box labeled &lsquo;Consumer 1,&rsquo; indicating that Consumer 1 has consumed messages up to offset 6 (inclusive).  Above this line, the text &lsquo;Consumer 1 consumed&rsquo; clarifies the consumed range.  Similarly, a dashed line connects the first fourteen cells (0-13) to a box labeled &lsquo;Consumer 2,&rsquo; showing that Consumer 2 has consumed messages up to offset 13 (inclusive).  Above this line, the text &lsquo;Consumer 2 consumed&rsquo; clarifies the consumed range.  The text &lsquo;consumer 1: last consumed offset = 6&rsquo; and &lsquo;consumer 2: last consumed offset = 13&rsquo; explicitly state the last consumed message offset for each consumer.  The cells from 14-15 are unclaimed, represented by a dashed-line box, indicating unconsumed messages.
+Figure 14 Consumer flow
+Push vs pull
+An important question to answer is whether brokers should push data to consumers, or if consumers should pull data from the brokers.</p>
+<p>Push model</p>
+<p>Pros:</p>
+<p>Low latency. The broker can push messages to the consumer immediately upon receiving them.
+Cons:</p>
+<p>If the rate of consumption falls below the rate of production, consumers could be overwhelmed.</p>
+<p>It is difficult to deal with consumers with diverse processing power because the brokers control the rate at which data is transferred.</p>
+<p>Pull model</p>
+<p>Pros:</p>
+<p>Consumers control the consumption rate. We can have one set of consumers process messages in real-time and another set of consumers process messages in batch mode.</p>
+<p>If the rate of consumption falls below the rate of production, we can scale out the consumers, or simply catch up when it can.</p>
+<p>The pull model is more suitable for batch processing. In the push model, the broker has no knowledge of whether consumers will be able to process messages immediately. If the broker sends one message at a time to the consumer and the consumer is backed up, new messages will end up waiting in the buffer. A pull model pulls all available messages after the consumer’s current position in the log (or up to the configurable max size). It is suitable for aggressive batching of data.</p>
+<p>Cons:</p>
+<p>When there is no message in the broker, a consumer might still keep pulling data, wasting resources. To overcome this issue, many message queues support long polling mode, which allows pulls to wait a specified amount of time for new messages [6].
+Based on these considerations, most message queues choose the pull model.</p>
+<p>Figure 15 shows the workflow of the consumer pull model.</p>
+<p>Image represents a simplified Kafka consumer group architecture.  A &lsquo;Consumer&rsquo; joins &lsquo;consumer group-1&rsquo; and subscribes to &lsquo;topic-A&rsquo; (step 1), interacting with &lsquo;Broker-1&rsquo; which acts as the &lsquo;Coordinator of group-1&rsquo;.  The coordinator assigns &lsquo;partition-2&rsquo; of &lsquo;topic-A&rsquo; to the consumer (step 2). The consumer then fetches messages from &lsquo;partition-2&rsquo; residing on &lsquo;Broker-2&rsquo; (step 3). After processing the data, the consumer commits the offset to acknowledge message consumption (step 4), indicating successful processing to the coordinator.  The diagram shows data flow from &lsquo;Broker-2&rsquo; (containing &lsquo;Topic-A&rsquo;, specifically &lsquo;Partition-2&rsquo;) to the &lsquo;Consumer&rsquo;, and control flow between the &lsquo;Consumer&rsquo; and &lsquo;Broker-1&rsquo; (the coordinator) for group management and offset commits.  The light green rectangles within &lsquo;Broker-2&rsquo; visually represent the partitions of &lsquo;Topic-A&rsquo;.
+Figure 15 Pull model
+A new consumer wants to join group 1 and subscribes to topic A. It finds the corresponding broker node by hashing the group name. By doing so, all the consumers in the same group connect to the same broker, which is also called the coordinator of this consumer group. Despite the naming similarity, the consumer group coordinator is different from the coordination service mentioned in Figure 8. This coordinator coordinates the consumer group, while the coordination service mentioned earlier coordinates the broker cluster.</p>
+<p>The coordinator confirms that the consumer has joined the group and assigns partition 2 to the consumer. There are different partition assignment strategies including round-robin, range, etc. [7]</p>
+<p>Consumer fetches messages from the last consumed offset, which is managed by the state storage.</p>
+<p>Consumer processes messages and commits the offset to the broker. The order of data processing and offset committing affects the message delivery semantics, which will be discussed shortly.</p>
+<p>Consumer rebalancing
+Consumer rebalancing decides which consumer is responsible for which subset of partitions. The process could occur when a consumer joins, when a consumer leaves, when a consumer crashes, or when partitions are adjusted.</p>
+<p>When consumer rebalancing occurs, the coordinator plays an important role. Let’s first take a look at what a coordinator is. The coordinator is one of the brokers responsible for communicating with consumers to achieve consumer rebalancing. The coordinator receives heartbeat from consumers and manages their offset on the partitions.</p>
+<p>Let’s use an example to understand how the coordinator and the consumers work together.</p>
+<p>Image represents a system architecture diagram illustrating consumer groups and brokers in a message queue system, likely Kafka.  Four consumers are depicted, labeled &lsquo;Consumer-1,&rsquo; &lsquo;Consumer-2,&rsquo; &lsquo;Consumer-3,&rsquo; and &lsquo;Consumer-4,&rsquo; each belonging to a group indicated by &lsquo;Group-1&rsquo; or &lsquo;Group-2.&rsquo;  Consumers &lsquo;Consumer-1,&rsquo; &lsquo;Consumer-2,&rsquo; and &lsquo;Consumer-3&rsquo; are all members of &lsquo;Group-1&rsquo; and connect to a single &lsquo;Broker-1,&rsquo; which is labeled as the &lsquo;(Coordinator of Group-1).&rsquo;  Similarly, &lsquo;Consumer-4&rsquo; belongs to &lsquo;Group-2&rsquo; and connects to a separate &lsquo;Broker-2,&rsquo; labeled &lsquo;(Coordinator of Group-2).&rsquo;  Arrows indicate the unidirectional flow of messages from each consumer to its respective broker.  The diagram showcases a scenario where multiple consumers within the same group share the workload from a broker, demonstrating the concept of consumer groups and their coordination within a message broker system.
+Figure 16 Coordinator of consumer groups
+As shown in Figure 16, each consumer belongs to a group. It finds the dedicated coordinator by hashing the group name. All consumers from the same group are connected to the same coordinator.</p>
+<p>The coordinator maintains a joined consumer list. When the list changes, the coordinator elects a new leader of the group.</p>
+<p>As the new leader of the consumer group, it generates a new partition dispatch plan and reports it back to the coordinator. The coordinator will broadcast the plan to the other consumers in the group.</p>
+<p>In a distributed system, consumers might encounter all sorts of issues including network issues, crashes, restarts, etc. From the coordinator&rsquo;s perspective, they will no longer have heartbeats. When this happens, the coordinator will trigger a rebalance process to re-dispatch the partitions as illustrated in Figure 17.</p>
+<p>Image represents a before-and-after diagram illustrating message consumption in a message queue system.  On the left, a message queue (represented as a grid of messages) is shown with multiple consumers (Consumer-1 through Consumer-4) within a single consumer group.  Each consumer receives messages directly from the queue, with some consumers receiving multiple messages.  A large arrow indicates a transformation. On the right, the same message queue is depicted, but now the consumers are distributed differently.  The consumers are still within the same consumer group, but the message distribution is more balanced.  Each consumer receives a subset of the messages, suggesting a load balancing mechanism or a change in the message consumption strategy within the consumer group.  The dashed lines around the consumer groups highlight that they are logical groupings, not physical entities.  The overall diagram shows how a message queue can distribute messages to multiple consumers, and how the distribution can be optimized for better load balancing.
+Figure 17 Consumer rebalance
+Let’s simulate a few rebalance scenarios. Assume there are 2 consumers in the group, and 4 partitions in the subscribed topic. Figure 18 shows the flow when a new consumer B joins the group.</p>
+<p>Image represents a sequence diagram illustrating a consumer group rebalancing process in a distributed system.  Three entities are involved: Consumer A, Consumer B, and a Coordinator.  The interaction begins with Consumer A sending a heartbeat (1a) to the Coordinator, which acknowledges it (1b).  Consumer B then joins the group (2).  Consumer A sends another heartbeat (3a), but the Coordinator responds with a rebalance request (3b), prompting Consumer A to rejoin (4a).  Consumer A successfully rejoins as a follower (4b).  Simultaneously, Consumer B joins and becomes the leader (4b).  Consumer A then waits for the leader to dispatch partitions (5), after which the Coordinator sends partition assignments: partitions 1 and 3 to Consumer A (6), and partitions 2 and 4 to Consumer B (6).  The diagram shows the message flow between the consumers and the coordinator, highlighting the steps involved in group membership and partition assignment, including error handling and rebalancing.
+Figure 18 New consumer joins
+Initially, only consumer A is in the group. It consumes all the partitions and keeps the heartbeat with the coordinator.</p>
+<p>Consumer B sends a request to join the group.</p>
+<p>The coordinator knows it’s time to rebalance, so it notifies all the consumers in the group in a passive way. When A’s heartbeat is received by the coordinator, it asks A to rejoin the group.</p>
+<p>Once all the consumers have rejoined the group, the coordinator chooses one of them as the leader and informs all the consumers about the election result.</p>
+<p>The leader consumer generates the partition dispatch plan and sends it to the coordinator. Follower consumers ask the coordinator about the partition dispatch plan.</p>
+<p>Consumers start consuming messages from newly assigned partitions.</p>
+<p>Figure 19 shows the flow when an existing consumer A leaves the group.</p>
+<p>Image represents a sequence diagram illustrating a consumer group rebalancing scenario in a distributed system.  Three entities are involved: Consumer A, Consumer B, and a Coordinator.  The diagram shows a series of message exchanges. Initially, both Consumer A and Consumer B send heartbeat messages (1a) to the Coordinator, which acknowledges them (1b).  Consumer A then initiates a <code>LeaveGroup</code> operation (2a), receiving a goodbye message (2b) from the Coordinator.  The Coordinator detects this and sends a message to Consumer B (3b), informing it of the need to rebalance due to Consumer A&rsquo;s departure.  Consumer B then requests to join the group (4a), receiving confirmation and leadership status (4b) from the Coordinator. Finally, the Coordinator sends a <code>SyncGroup</code> message (5) to Consumer B, assigning it partitions 1, 2, 3, and 4 (6) for consumption.  The dashed lines represent lifelines for each entity, and the arrows indicate the direction of message flow.  The messages are labeled with numbers and descriptive text, including the content of the messages themselves.  The yellow highlighted messages (2a and 3b) emphasize key events in the rebalancing process.
+Figure 19 Existing consumer leaves
+Consumer A and B are in the same consumer group.</p>
+<p>Consumer A needs to be shut down, so it requests to leave the group.</p>
+<p>The coordinator knows it’s time to rebalance. When B’s heartbeat is received by the coordinator, it asks B to rejoin the group.</p>
+<p>The remaining steps are the same as the ones shown in Figure 18.</p>
+<p>Figure 20 shows the flow when an existing consumer A crashes.</p>
+<p>Image represents a sequence diagram illustrating a consumer group rebalancing process in a distributed system.  Three entities are involved: Consumer A, Consumer B, and a Coordinator.  Initially, both Consumer A and Consumer B send heartbeat messages (1a) to the Coordinator, which acknowledges them (1b).  However, Consumer A fails to send further heartbeats, triggering a rebalance (2). The Coordinator detects this absence and informs Consumer B (3b) that a rebalance is needed. Consumer B then initiates a <code>JoinGroup</code> request (4a), successfully joining the group and becoming the leader (4b). Finally, the Coordinator sends a <code>SyncGroup</code> message (5) to Consumer B, assigning it partitions 1, 2, 3, and 4 (6) for consumption.  The dashed lines represent asynchronous communication, while solid lines indicate synchronous message passing.  The numbered steps clearly delineate the sequence of events.  The yellow boxes highlight significant events: the detection of Consumer A&rsquo;s failure and the notification to Consumer B about the rebalance.
+Figure 20 Existing consumer crashes
+Consumer A and B keep heartbeats with the coordinator.</p>
+<p>Consumer A crashes, so there is no heartbeat sent from consumer A to the coordinator. Since the coordinator doesn’t get any heartbeat signal within a specified amount of time from consumer A, it marks the consumer as dead.</p>
+<p>The coordinator triggers the rebalance process.</p>
+<p>The following steps are the same as the ones in the previous scenario.</p>
+<p>Now that we finished the detour on producer and consumer flows, let’s come back and finish the deep dive on the rest of the message queue broker.</p>
+<p>State storage
+In the message queue broker, the state storage stores:</p>
+<p>The mapping between partitions and consumers.</p>
+<p>The last consumed offsets of consumer groups for each partition. As shown in Figure 21, the last consumed offset for consumer group 1 is 6 and the offset for consumer group 2 is 13.</p>
+<p>Image represents a single partition (Partition-1) of a topic (Topic-A) in a message queue system, likely Kafka.  The partition is depicted as a sequence of 16 numbered message offsets (0-15), each representing a single message. Two consumer groups, &lsquo;group-1&rsquo; and &lsquo;group-2&rsquo;, are consuming messages from this partition.  Group-1 has consumed messages up to offset 6 (inclusive), indicated by a dashed arrow pointing to offset 6 and labeled &lsquo;group-1 consumed&rsquo;.  Similarly, group-2 has consumed messages up to offset 13 (inclusive), shown by a dashed arrow pointing to offset 13 and labeled &lsquo;group-2 consumed&rsquo;.  The text &lsquo;consumer group-1: last consumed offset = 6&rsquo; and &lsquo;consumer group-2: last consumed offset = 13&rsquo; explicitly state the last consumed offset for each group.  The diagram visually illustrates the concept of consumer group offset management within a partitioned topic, showing how different consumer groups can independently track their consumption progress within the same partition.
+Figure 21 Last consumed offset of consumer groups
+For example, as shown in Figure 21, a consumer in group 1 consumes messages from the partition in sequence and commits the consumed offset 6. This means all the messages before and at offset 6 are already consumed. If the consumer crashes, another new consumer in the same group will resume consumption by reading the last consumed offset from the state storage.</p>
+<p>The data access patterns for consumer states are:</p>
+<p>Frequent read and write operations but the volume is not high.</p>
+<p>Data is updated frequently and is rarely deleted.</p>
+<p>Random read and write operations.</p>
+<p>Data consistency is important.</p>
+<p>Lots of storage solutions can be used for storing the consumer state data. Considering the data consistency and fast read/write requirements, a KV store like Zookeeper is a great choice. Kafka has moved the offset storage from Zookeeper to Kafka brokers. Interested readers can read the reference material [8] to learn more.</p>
+<p>Metadata storage
+The metadata storage stores the configuration and properties of topics, including a number of partitions, retention period, and distribution of replicas.</p>
+<p>Metadata does not change frequently and the data volume is small, but it has a high consistency requirement. Zookeeper is a good choice for storing metadata.</p>
+<p>ZooKeeper
+By reading previous sections, you probably have already sensed that Zookeeper is very helpful for designing a distributed message queue. If you are not familiar with it, Zookeeper is an essential service for distributed systems offering a hierarchical key-value store. It is commonly used to provide a distributed configuration service, synchronization service, and naming registry [2].</p>
+<p>ZooKeeper is used to simplify our design as shown in Figure 22.</p>
+<p>Image represents a simplified architecture diagram of a message broker system, likely Kafka, utilizing ZooKeeper for coordination.  The diagram shows three main components:  &lsquo;Producers,&rsquo; represented as a stack of rectangles, send messages to &lsquo;Brokers,&rsquo; also depicted as a stack of rectangles containing a dashed-line box labeled &lsquo;Data Storage&rsquo; with several smaller rectangles inside, symbolizing partitions.  The Brokers then forward messages to &lsquo;Consumers (Consumer Groups),&rsquo; another stack of rectangles.  Above the Brokers is &lsquo;ZooKeeper,&rsquo; a rectangular box divided into three sections: &lsquo;Metadata Storage&rsquo; (containing a database symbol), &lsquo;State Storage&rsquo; (containing a document symbol), and &lsquo;Coordination service.&rsquo;  Double-headed arrows connect the Brokers and ZooKeeper, indicating bidirectional communication for metadata and state management.  Single-headed arrows connect Producers to Brokers and Brokers to Consumers, showing the unidirectional flow of messages.
+Figure 22 Zookeeper
+Let’s briefly go over the change.</p>
+<p>Metadata and state storage are moved to Zookeeper.</p>
+<p>The broker now only needs to maintain the data storage for messages.</p>
+<p>Zookeeper helps with the leader election of the broker cluster.</p>
+<p>Replication
+In distributed systems, hardware issues are common and cannot be ignored. Data gets lost when a disk is damaged or fails permanently. Replication is the classic solution to achieve high availability.</p>
+<p>As in Figure 23, each partition has 3 replicas, distributed across different broker nodes.</p>
+<p>For each partition, the highlighted replicas are the leaders and the others are followers. Producers only send messages to the leader replica. The follower replicas keep pulling new messages from the leader. Once messages are synchronized to enough replicas, the leader returns an acknowledgment to the producer. We will go into detail about how to define “enough” in the In-sync Replicas section below.</p>
+<p>Image represents a simplified depiction of a message broker system, likely Apache Kafka, showing data distribution across multiple brokers.  Four brokers (Broker-1, Broker-2, Broker-3, Broker-4) are displayed, each containing partitions of two topics: Topic-A and Topic-B. Each topic is further divided into partitions (Partition-1 and Partition-2).  A producer is shown sending messages, indicated by curved arrows, to specific partitions.  The light green shading highlights the partitions receiving messages from the producer in this instance.  The producer sends data to Topic-A Partition-1 on Broker-1, Topic-A Partition-2 on Broker-2, and Topic-A Partition-1 on Broker-3.  The remaining partitions are shown empty, implying they haven&rsquo;t received data from this producer.  The arrangement demonstrates the distribution of data across multiple brokers for fault tolerance and scalability, with each broker holding a subset of the overall data.
+Figure 23 Replication
+The distribution of replicas for each partition is called a replica distribution plan. For example, the replica distribution plan in Figure 23 can be described as:</p>
+<p>Partition 1 of topic A: 3 replicas, leader in broker 1, followers in broker 2 and 3;</p>
+<p>Partition 2 of topic A: 3 replicas, leader in broker 2, followers in broker 3 and 4;</p>
+<p>Partition 1 of topic B: 3 replicas, leader in broker 3, followers in broker 4 and 1.</p>
+<p>Who makes the replica distribution plan? It works as follows; with the help of the coordination service, one of the broker nodes is elected as the leader. It generates the replica distribution plan and persists the plan in metadata storage. All the brokers now can work according to the plan.</p>
+<p>If you are interested in knowing more about replications, check out “Chapter 5. Replication” of the book “Design Data-Intensive Applications” [9].</p>
+<p>In-sync replicas
+We mentioned that messages are persisted in multiple partitions to avoid single node failure, and each partition has multiple replicas. Messages are only written to the leader, and followers synchronize data from the leader. One problem we need to solve is keeping them in sync.</p>
+<p>In-sync replicas (ISR) refer to replicas that are “in-sync” with the leader. The definition of “in-sync” depends on the topic configuration. For example, if the value of replica.lag.max.messages is 4, it means that as long as the follower is behind the leader by no more than 3 messages, it will not be removed from ISR [10]. The leader is an ISR by default.</p>
+<p>Let’s use an example as shown in Figure 24 to show how ISR works.</p>
+<p>The committed offset in the leader replica is 13. Two new messages are written to the leader, but not committed yet. Committed offset means that all messages before and at this offset are already synchronized to all the replicas in ISR.</p>
+<p>Replica-2 and replica-3 have fully caught up with the leader, so they are in ISR and can fetch new messages.</p>
+<p>Replica-4 did not fully catch up with the leader within the configured lag time, so it is not in ISR. When it catches up again, it can be added to ISR.</p>
+<p>Image represents a system of four replicas in a distributed log architecture.  Replica-1 is designated as the leader and contains log entries numbered 10 through 15, with entries 14 and 15 highlighted in yellow to indicate they are the latest entries.  The committed offset is labeled as 13, signifying that entries up to 13 have been durably stored.  Replica-1 sends log entries to followers via &lsquo;fetch&rsquo; operations.  Replica-2 and Replica-3 are followers that have received entries up to 14 and 13 respectively, shown by the numbers within their respective boxes.  A dashed line indicates that Replica-4 is lagging behind, having only received entries up to 11, labeled as &lsquo;not caught up&rsquo;.  The In-Sync Replicas (ISR) set, listed at the bottom, includes replica-1, replica-2, and replica-3, indicating these are the followers considered up-to-date and actively participating in the consensus process.  The arrows show the direction of data flow from the leader to the followers.
+Figure 24 How ISR works
+Why do we need ISR? The reason is that ISR reflects the trade-off between performance and durability. If producers don’t want to lose any messages, the safest way to do that is to ensure all replicas are already in sync before sending an acknowledgment. But a slow replica will cause the whole partition to become slow or unavailable.</p>
+<p>Now that we’ve discussed ISR, let’s take a look at acknowledgment settings. Producers can choose to receive acknowledgments until the K number of ISRs has received the message, where K is configurable.</p>
+<p>ACK=all</p>
+<p>Figure 25 illustrates the case with ACK=all. With ACK=all, the producer gets an ACK when all ISRs have received the message. This means it takes a longer time to send a message because we need to wait for the slowest ISR, but it gives the strongest message durability.</p>
+<p>Image represents a simplified Kafka architecture illustrating a producer writing data to a replicated topic.  A &lsquo;Producer&rsquo; sends data (labeled &lsquo;1. produce&rsquo;) to a &lsquo;leader&rsquo; replica (replica-2) residing on &lsquo;Broker-2&rsquo;. This leader replica is highlighted in light green to indicate its active role.  The leader then replicates the data to a follower replica (replica-1) on &lsquo;Broker-1&rsquo; (labeled &lsquo;2. fetch&rsquo; and &lsquo;3. synced&rsquo;).  A dashed line indicates that the data is also sent to the leader, but an acknowledgement (&lsquo;4. ack&rsquo;) is returned to the producer only after successful replication to the ISR (In-Sync Replicas), which in this case includes replica-1 and replica-2, as specified by &lsquo;ISR: {replica-1, replica-2}, ack=all&rsquo;.  A third replica (replica-3) on &lsquo;Broker-3&rsquo; is shown as a follower but is labeled &lsquo;not caught up&rsquo;, indicating it hasn&rsquo;t yet received the data.  The diagram visually depicts the data flow and synchronization process within a Kafka cluster, highlighting the roles of producers, brokers, and replicas in ensuring data durability and availability.
+Figure 25 ack=all
+ACK=1</p>
+<p>With ACK=1, the producer receives an ACK once the leader persists the message. The latency is improved by not waiting for data synchronization. If the leader fails immediately after a message is acknowledged but before it is replicated by follower nodes, then the message is lost. This setting is suitable for low latency systems where occasional data loss is acceptable.</p>
+<p>Image represents a simplified Kafka architecture depicting data replication and acknowledgement.  A &lsquo;Producer&rsquo; sends data (labeled &lsquo;1. produce&rsquo;) to a &lsquo;replica-2&rsquo; which acts as the &lsquo;leader&rsquo; on &lsquo;Broker-2&rsquo;. This leader is highlighted in light green to indicate its active role.  The data is then replicated to &lsquo;replica-1&rsquo; on &lsquo;Broker-1&rsquo; (indicated by a solid arrow labeled &lsquo;fetch&rsquo;).  A dashed arrow labeled &lsquo;synced&rsquo; shows the synchronization between &lsquo;replica-1&rsquo; and &lsquo;replica-2&rsquo;.  The Producer receives an acknowledgement (&lsquo;2. ack&rsquo;) after the leader replica has successfully written the data and it has been replicated to at least one follower (as indicated by ISR: {replica-1, replica-2}, ack=1).  &lsquo;replica-3&rsquo; on &lsquo;Broker-3&rsquo; is labeled &lsquo;not caught up&rsquo;, signifying it hasn&rsquo;t yet received the replicated data.  The diagram illustrates a basic Kafka setup with a producer, multiple brokers hosting replicas, and the process of data replication and acknowledgement, highlighting the concept of a leader and follower replicas within an In-Sync Replica set (ISR).
+Figure 26 ack=1
+ACK=0</p>
+<p>The producer keeps sending messages to the leader without waiting for any acknowledgment, and it never retries. This method provides the lowest latency at the cost of potential message loss. This setting might be good for use cases like collecting metrics or logging data since data volume is high and occasional data loss is acceptable.</p>
+<p>Image represents a simplified Kafka architecture depicting a producer sending messages and three brokers (Broker-1, Broker-2, Broker-3) hosting replicas of partitions.  A producer sends a message with <code>produce without ack</code>, meaning it doesn&rsquo;t wait for confirmation. The message is directed to <code>replica-2</code>, which is designated as the leader.  <code>replica-1</code> on <code>Broker-1</code> is a follower and receives data from <code>replica-2</code> via a <code>synced</code> connection.  <code>replica-3</code> on <code>Broker-3</code> is also a follower, but it&rsquo;s labeled &lsquo;not caught up,&rsquo; indicating it hasn&rsquo;t yet received the message. The <code>ISR</code> (In-Sync Replica set) is defined as <code>{replica-1, replica-2}</code> with <code>ack=0</code>, signifying that only the leader needs to receive the message for successful production.  The diagram shows the data flow from the producer to the leader replica and the subsequent replication to the follower replicas within the ISR.
+Figure 27 ack=0
+Configurable ACK allows us to trade durability for performance.</p>
+<p>Now let’s look at the consumer side. The easiest setup is to let consumers connect to a leader replica to consume messages.</p>
+<p>You might be wondering if the leader replica would be overwhelmed by this design and why messages are not read from ISRs. The reasons are:</p>
+<p>Design and operational simplicity.</p>
+<p>Since messages in one partition are dispatched to only one consumer within a consumer group, this limits the number of connections to the lead replica.</p>
+<p>The number of connections to the leader replicas is usually not large as long as a topic is not super hot.</p>
+<p>If a topic is hot, we can scale by expanding the number of partitions and consumers.</p>
+<p>In some scenarios, reading from the leader replica might not be the best option. For example, if a consumer is located in a different data center from the leader replica, the read performance suffers. In this case, it is worthwhile to enable consumers to read from the closest ISRs. Interested readers can check out the reference material about this [11].</p>
+<p>ISR is very important. How does it determine if a replica is ISR or not? Usually, the leader for every partition tracks the ISR list by computing the lag of every replica from itself. If you are interested in detailed algorithms, you can find the implementations in reference materials [12] [13].</p>
+<p>Scalability
+By now we have made great progress designing the distributed message queue system. In the next step, let’s evaluate the scalability of different system components:</p>
+<p>Producers</p>
+<p>Consumers</p>
+<p>Brokers</p>
+<p>Partitions</p>
+<p>Producer</p>
+<p>The producer is conceptually much simpler than the consumer because it doesn’t need group coordination. The scalability of producers can easily be achieved by adding or removing producer instances.</p>
+<p>Consumer</p>
+<p>Consumer groups are isolated from each other, so it is easy to add or remove a consumer group. Inside a consumer group, the rebalancing mechanism helps to handle the cases where a consumer gets added or removed, or when it crashes. With consumer groups and the rebalance mechanism, the scalability and fault tolerance of consumers can be achieved.</p>
+<p>Broker</p>
+<p>Before discussing scalability on the broker side, let’s first consider the failure recovery of brokers.</p>
+<p>Image represents a system demonstrating partition reassignment in a distributed message broker system, likely Kafka.  Initially, four brokers (Broker-1 through Broker-4) host partitions of two topics, Topic-A and Topic-B.  Topic-A is partitioned into two partitions (Partition-1 and Partition-2), and Topic-B has one partition (Partition-1).  The initial distribution shows Broker-1 hosting Topic-A Partition-1 and Topic-B Partition-1; Broker-2 hosting Topic-A Partition-2; Broker-3 hosting Topic-A Partition-1, Topic-A Partition-2, and Topic-B Partition-1; and Broker-4 hosting Topic-A Partition-2 and Topic-B Partition-1.  A downward-pointing arrow indicates a reassignment process.  After the first reassignment, Broker-3 is marked with a red &lsquo;X&rsquo;, suggesting a failure.  The subsequent reassignment shows Broker-3&rsquo;s partitions redistributed among the remaining brokers.  Specifically, Broker-1 now hosts Topic-A Partition-1 and Topic-B Partition-1, Broker-2 hosts Topic-A Partition-2, and Broker-4 now hosts Topic-A Partition-1, Topic-A Partition-2, and Topic-B Partition-1.  The partitions are visually represented by rectangles, with the topic and partition number labeled above each.  The brokers are labeled below their respective partitions.  The color-coding (light green and yellow) in the final state likely indicates the movement of partitions during the rebalancing process.
+Figure 28 Broker node crashes
+Let’s use an example in Figure 28 to explain how failure recovery works.</p>
+<p>Assume there are 4 brokers and the partition (replica) distribution plan is shown below:</p>
+<p>Partition 1 of topic A: replicas in broker 1 (leader), 2, and 3.</p>
+<p>Partition 2 of topic A: replicas in broker 2 (leader), 3, and 4.</p>
+<p>Partition 1 of topic B: replicas in broker 3 (leader), 4, and 1.</p>
+<p>Broker 3 crashes, which means all the partitions on the node are lost. The partition distribution plan is changed to:</p>
+<p>Partition 1 of topic A: replicas in broker 1 (leader) and 2.</p>
+<p>Partition 2 of topic A: replicas in broker 2 (leader) and 4.</p>
+<p>Partition 1 of topic B: replicas in broker 4 and 1.</p>
+<p>The broker controller detects broker 3 is down and generates a new partition distribution plan for the remaining broker nodes:</p>
+<p>Partition 1 of topic A: replicas in broker 1 (leader), 2, and 4 (new).</p>
+<p>Partition 2 of topic A: replicas in broker 2 (leader), 4, and 1 (new).</p>
+<p>Partition 1 of topic B: replicas in broker 4 (leader), 1, and 2 (new).</p>
+<p>The new replicas work as followers and catch up with the leader.</p>
+<p>To make the broker fault-tolerant, here are additional considerations:</p>
+<p>The minimum number of ISRs specifies how many replicas the producer must receive before a message is considered to be successfully committed. The higher the number, the safer. But on the other hand, we need to balance latency and safety.</p>
+<p>If all replicas of a partition are in the same broker node, then we cannot tolerate the failure of this node. It is also a waste of resources to replicate data in the same node. Therefore, replicas should not be in the same node.</p>
+<p>If all the replicas of a partition crash, the data for that partition is lost forever. When choosing the number of replicas and replica locations, there’s a trade-off between data safety, resource cost, and latency. It is safer to distribute replicas across data centers, but this will incur much more latency and cost, to synchronize data between replicas. As a workaround, data mirroring can help to copy data across data centers, but this is out of scope. The reference material [14] covers this topic.</p>
+<p>Now let’s get back to discussing the scalability of brokers. The simplest solution would be to redistribute the replicas when broker nodes are added or removed.</p>
+<p>However, there is a better approach. The broker controller can temporarily allow more replicas in the system than the number of replicas in the config file. When the newly added broker catches up, we can remove the ones that are no longer needed. Let’s use an example as shown in Figure 29 to understand the approach.</p>
+<p>Image represents a three-stage process illustrating data partitioning and replication in a distributed system, specifically focusing on a topic named &lsquo;Topic-A&rsquo; divided into two partitions (&lsquo;Partition-1&rsquo; and &lsquo;Partition-2&rsquo;).  Initially, three brokers (Broker-1, Broker-2, Broker-3) each hold a portion of the data. Broker-1 holds &lsquo;Partition-2&rsquo; of Topic-A, while Broker-2 and Broker-3 each hold &lsquo;Partition-1&rsquo; and &lsquo;Partition-2&rsquo;.  A fourth broker (Broker-4) is then added, and &lsquo;Partition-2&rsquo; is redistributed across Brokers 2, 3, and 4 for redundancy.  Finally, after Broker-4&rsquo;s replica catches up, the redundant copy of &lsquo;Partition-2&rsquo; on Broker-1 is removed, resulting in a balanced distribution of &lsquo;Topic-A&rsquo; across the four brokers.  Each broker is depicted as a box containing the partitions it holds, represented by rows of rectangles; shaded rectangles indicate the presence of data.  Arrows indicate the progression through the stages.
+Figure 29 Add new broker node
+The initial setup: 3 brokers, 2 partitions, and 3 replicas for each partition.</p>
+<p>New broker 4 is added. Assume the broker controller changes the replica distribution of partition 2 to the broker (2, 3, 4). The new replica in broker 4 starts to copy data from leader broker 2. Now the number of replicas for partition 2 is temporarily more than 3.</p>
+<p>After the replica in broker 4 catches up, the redundant partition in broker 1 is gracefully removed.</p>
+<p>By following this process, data loss while adding brokers can be avoided. A similar process can be applied to remove brokers safely.</p>
+<p>Partition</p>
+<p>For various operational reasons, such as scaling the topic, throughput tuning, balancing availability/ throughput, etc., we may change the number of partitions. When the number of partitions changes, the producer will be notified after it communicates with any broker, and the consumer will trigger consumer rebalancing. Therefore, it is safe for both the producer and consumer.</p>
+<p>Now let’s consider the data storage layer when the number of partitions changes. As in Figure 30, we have added a partition to the topic.</p>
+<p>Image represents a simplified depiction of message distribution across partitions in a message queue system before and after the arrival of new messages.  Before the arrival, two partitions (partition-1 and partition-2) are shown, each containing several light-green rectangles representing persisted messages. A legend at the top indicates that these light-green rectangles represent &lsquo;Persisted messages&rsquo;.  After the arrival of new messages (indicated by a large right-pointing arrow), the same two partitions (partition-1 and partition-2) now contain the original persisted messages (light-green rectangles) plus additional light-yellow rectangles representing &lsquo;New messages&rsquo; as defined in the legend.  A new partition (partition-3) has also appeared, containing only new messages (light-yellow rectangles).  The arrangement visually demonstrates how new messages are added to existing partitions and may also lead to the creation of new partitions to handle the increased message load.
+Figure 30 Partition increase
+Persisted messages are still in the old partitions, so there’s no data migration.</p>
+<p>After the new partition (partition-3) is added, new messages will be persisted in all 3 partitions.</p>
+<p>So it is straightforward to scale the topic by increasing partitions.</p>
+<p>Decrease the number of partitions</p>
+<p>Decreasing partitions is more complicated, as illustrated in Figure 31.</p>
+<p>Image represents a simplified depiction of message partitioning and appending in a distributed system.  The diagram shows three partitions (partition-1, partition-2, partition-3) before and after the addition of new messages.  Before the addition, each partition contains several light-green rectangles representing &lsquo;Persisted messages&rsquo;. A legend at the top clarifies that light-green rectangles represent persisted messages and light-yellow rectangles represent &lsquo;New messages&rsquo;. After a rightward-pointing arrow indicating the passage of time or a processing step, each partition now includes the original persisted messages (light-green rectangles) plus one or more new messages (light-yellow rectangles). Notably, partition-3 only receives one new message, while partitions-1 and -2 receive multiple new messages.  The dashed lines around the new messages in partition-3 suggest that these messages might be in a different state or undergoing a different process than the messages in partitions 1 and 2. The overall diagram illustrates how new messages are appended to existing partitions in a distributed message system.
+Figure 31 Partition decrease
+Partition-3 is decommissioned so new messages are only received by the remaining partitions (partition-1 and partition-2).</p>
+<p>The decommissioned partition (partition-3) cannot be removed immediately because data might be currently consumed by consumers for a certain amount of time. Only after the configured retention period passes, data can be truncated and storage space is freed up. Reducing partitions is not a shortcut to reclaiming data space.</p>
+<p>During this transitional period (while partition-3 is decommissioned), producers only send messages to the remaining 2 partitions, but consumers can still consume from all 3 partitions. After the retention period of the decommissioned partition expires, consumer groups need rebalancing.</p>
+<p>Data delivery semantics
+Now that we understand the different components of a distributed message queue, let’s discuss different delivery semantics: at-most once, at-least once, and exactly once.</p>
+<p>At-most once
+As the name suggests, at-most once means a message will be delivered not more than once. Messages may be lost but are not redelivered. This is how at-most once delivery works at the high level.</p>
+<p>The producer sends a message asynchronously to a topic without waiting for an acknowledgment (ack=0). If message delivery fails, there is no retry.</p>
+<p>Consumer fetches the message and commits the offset before the data is processed. If the consumer crashes just after offset commit, the message will not be re-consumed.</p>
+<p>Image represents a simplified producer-consumer architecture using a message queue.  The diagram shows three rectangular boxes representing a &lsquo;Producer&rsquo;, a &lsquo;Message queue&rsquo;, and a &lsquo;Consumer&rsquo;.  The &lsquo;Producer&rsquo; box is connected to the &lsquo;Message queue&rsquo; box by a directed arrow labeled &lsquo;may lose msg&rsquo;, indicating that messages sent from the producer might be lost during transmission. The &lsquo;Message queue&rsquo; is depicted as a series of seven small, vertically aligned rectangles, symbolizing individual messages stored within the queue.  The &lsquo;Message queue&rsquo; is then connected to the &lsquo;Consumer&rsquo; box by another directed arrow, also labeled &lsquo;may lose msg&rsquo;, signifying the possibility of message loss during retrieval from the queue by the consumer.  The overall flow is unidirectional, from the Producer, through the Message queue, to the Consumer, with the potential for message loss at both the production and consumption stages.
+Figure 32 At-most once
+It is suitable for use cases like monitoring metrics, where a small amount of data loss is acceptable.</p>
+<p>At-least once
+With this data delivery semantic, it’s acceptable to deliver a message more than once, but no message should be lost. Here is how it works at a high level.</p>
+<p>Producer sends a message synchronously or asynchronously with a response callback, setting ack=1 or ack=all, to make sure messages are delivered to the broker. If the message delivery fails or timeouts, the producer will keep retrying.</p>
+<p>Consumer fetches the message and commits the offset only after the data is successfully processed. If the consumer fails to process the message, it will re-consume the message so there won’t be data loss. On the other hand, if a consumer processes the message but fails to commit the offset to the broker, the message will be re-consumed when the consumer restarts, resulting in duplicates.</p>
+<p>A message might be delivered more than once to the brokers and consumers.</p>
+<p>Image represents a simplified architecture diagram illustrating a message queue system.  Three rectangular boxes are arranged horizontally. The leftmost box is labeled &lsquo;Producer,&rsquo; the central box is labeled &lsquo;Message queue&rsquo; and contains seven smaller, equally-spaced rectangles representing individual messages within the queue, and the rightmost box is labeled &lsquo;Consumer.&rsquo;  Arrows indicate the flow of information.  Two arrows connect the &lsquo;Producer&rsquo; to the &lsquo;Message queue,&rsquo; signifying that the Producer sends messages to the queue.  Below these arrows, the text &lsquo;may have duplicate&rsquo; indicates that the Producer might send duplicate messages. Similarly, three arrows connect the &lsquo;Message queue&rsquo; to the &lsquo;Consumer,&rsquo; showing that the Consumer receives messages from the queue.  The text &lsquo;may have duplicate&rsquo; below these arrows signifies that the Consumer might receive duplicate messages.  The overall diagram depicts a common producer-consumer pattern using a message queue as an intermediary, highlighting the possibility of message duplication.
+Figure 33 At-least once
+Use cases: With at-least once, messages won’t be lost but the same message might be delivered multiple times. While not ideal from a user perspective, at-least once delivery semantics are usually good enough for use cases where data duplication is not a big issue or deduplication is possible on the consumer side. For example, with a unique key in each message, a message can be rejected when writing duplicate data to the database.</p>
+<p>Exactly once
+Exactly once is the most difficult delivery semantic to implement. It is friendly to users, but it has a high cost for the system’s performance and complexity.</p>
+<p>Image represents a simplified architecture diagram illustrating a message queue system.  The diagram shows three main components arranged linearly: a &lsquo;Producer&rsquo; on the left, a &lsquo;Message queue&rsquo; in the center, and a &lsquo;Consumer&rsquo; on the right.  The Producer is connected to the Message queue with a directed arrow labeled &lsquo;guaranteed once,&rsquo; indicating that messages are sent from the Producer to the queue with a single delivery guarantee. The Message queue is depicted as a series of seven boxes representing message slots. The Message queue is then connected to the Consumer with another directed arrow also labeled &lsquo;guaranteed once,&rsquo; signifying that messages are delivered from the queue to the Consumer with the same single delivery guarantee.  The overall flow shows data moving from the Producer, through the Message queue, and finally to the Consumer, ensuring at least one delivery of each message.
+Figure 34 Exactly once
+Use cases: Financial-related use cases (payment, trading, accounting, etc.). Exactly once is especially important when duplication is not acceptable and the downstream service or third party doesn’t support idempotency.</p>
+<p>Advanced features
+In this section, we talk briefly about some advanced features, such as message filtering, delayed messages, and scheduled messages.</p>
+<p>Message filtering
+A topic is a logical abstraction that contains messages of the same type. However, some consumer groups may only want to consume messages of certain subtypes. For example, the ordering system sends all the activities about the order to a topic, but the payment system only cares about messages related to checkout and refund.</p>
+<p>One option is to build a dedicated topic for the payment system and another topic for the ordering system. This method is simple, but it might raise some concerns.</p>
+<p>What if other systems ask for different subtypes of messages? Do we need to build dedicated topics for every single consumer request?</p>
+<p>It is a waste of resources to save the same messages on different topics.</p>
+<p>The producer needs to change every time a new consumer requirement comes, as the producer and consumer are now tightly coupled.</p>
+<p>Therefore, we need to resolve this requirement using a different approach. Luckily, message filtering comes to the rescue.</p>
+<p>A naive solution for message filtering is that the consumer fetches the full set of messages and filters out unnecessary messages during processing time. This approach is flexible but introduces unnecessary traffic that will affect system performance.</p>
+<p>A better solution is to filter messages on the broker side so that consumers will only get messages they care about. Implementing this requires some careful consideration. If data filtering requires data decryption or deserialization, it will degrade the performance of the brokers. Additionally, if messages contain sensitive data, they should not be readable in the message queue.</p>
+<p>Therefore, the filtering logic in the broker should not extract the message payload. It is better to put data used for filtering into the metadata of a message, which can be efficiently read by the broker. For example, we can attach a tag to each message. With a message tag, a broker can filter messages in that dimension. If more tags are attached, the messages can be filtered in multiple dimensions. Therefore, a list of tags can support most of the filtering requirements. To support more complex logic such as mathematical formulae, the broker will need a grammar parser or a script executor, which might be too heavyweight for the message queue.</p>
+<p>With tags attached to each message, a consumer can subscribe to messages based on the specified tag, as shown in Figure 35. Interested readers can refer to the reference material [15].</p>
+<p>Image represents a simplified message queue system.  A &lsquo;Broker&rsquo; component is depicted as a horizontal array of eight numbered message queues (1-8). Each queue contains colored rectangular shapes representing messages, with different colors likely indicating different message tags or categories.  The Broker outputs messages to a &lsquo;Tag filter&rsquo; component, a dashed-line box indicating a filtering process.  A &lsquo;Consumer&rsquo; component is shown receiving messages.  The Consumer initiates communication by sending a &lsquo;subscribe with tags&rsquo; request to the Broker, specifying the tags of interest.  The Tag filter processes the messages from the Broker, selecting only those matching the tags specified by the Consumer&rsquo;s subscription. Finally, the filtered messages are sent from the Tag filter to the Consumer via a &lsquo;fetch messages&rsquo; connection.
+Figure 35 Message filtering by tags
+Delayed messages &amp; Scheduled messages
+Sometimes you want to delay the delivery of messages to a consumer for a specified period of time. For example, an order should be closed if not paid within 30 minutes after the order is created. A delayed verification message (check if the payment is completed) is sent immediately but is delivered to the consumer 30 minutes later. When the consumer receives the message, it checks the payment status. If the payment is not completed, the order will be closed. Otherwise, the message will be ignored.</p>
+<p>Different from sending instant messages, we can send delayed messages to temporary storage on the broker side instead of to the topics immediately, and then deliver them to the topics when time’s up. The high-level design for this is shown in Figure 36.</p>
+<p>The image represents a simplified message queue system.  A &lsquo;Producer&rsquo; component sends messages.  These messages are categorized into two types: &lsquo;instant messages&rsquo; and &lsquo;delayed messages&rsquo;.  &lsquo;Instant messages&rsquo; are directly sent to a &lsquo;Broker&rsquo; component, represented as a light green rectangle containing several vertical bars symbolizing individual messages.  &lsquo;Delayed messages&rsquo; are first sent to a &lsquo;Temporary storage&rsquo; component, depicted as a pale yellow rectangle with a dashed border, where they are held until a specified time.  The text &lsquo;deliver when time&rsquo;s up&rsquo; indicates the condition for transferring messages from &lsquo;Temporary storage&rsquo; to the &lsquo;Broker&rsquo;.  The entire &lsquo;Temporary storage&rsquo; and &lsquo;Broker&rsquo; components are contained within a larger box labeled &lsquo;Broker&rsquo;, suggesting that the temporary storage is a part of the broker&rsquo;s functionality.  The arrows indicate the direction of message flow.
+Figure 36 Delayed messages
+Core components of the system include the temporary storage and the timing function.</p>
+<p>The temporary storage can be one or more special message topics.</p>
+<p>The timing function is out of scope, but here are 2 popular solutions:</p>
+<p>Dedicated delay queues with predefined delay levels [16]. For example, RocketMQ doesn’t support delayed messages with arbitrary time precision, but delayed messages with specific levels are supported. Message delay levels are 1s, 5s, 10s, 30s, 1m, 2m, 3m, 4m, 6m, 8m, 9m, 10m, 20m, 30m, 1h, and 2h.</p>
+<p>Hierarchical time wheel [17].</p>
+<p>A scheduled message means a message should be delivered to the consumer at the scheduled time. The overall design is very similar to delayed messages.</p>
+<p>Step 4 - Wrap Up
+In this chapter, we have presented the design of a distributed message queue with some advanced features commonly found in data streaming platforms. If there is extra time at the end of the interview, here are some additional talking points:</p>
+<p>Protocol: it defines rules, syntax, and APIs on how to exchange information and transfer data between different nodes. In a distributed message queue, the protocol should be able to:</p>
+<p>Cover all the activities such as production, consumption, heartbeat, etc.</p>
+<p>Effectively transport data with large volumes.</p>
+<p>Verify the integrity and correctness of the data.</p>
+<p>Some popular protocols include Advanced Message Queuing Protocol (AMQP) [18] and Kafka protocol [19].</p>
+<p>Retry consumption. If some messages cannot be consumed successfully, we need to retry the operation. In order not to block incoming messages, how can we retry the operation after a certain time period? One idea is to send failed messages to a dedicated retry topic, so they can be consumed later.</p>
+<p>Historical data archive. Assume there is a time-based or capacity-based log retention mechanism. If a consumer needs to replay some historical messages that are already truncated, how can we do it? One possible solution is to use storage systems with large capacities, such as HDFS or object storage, to store historical data.</p>
+<p>Congratulations on getting this far! Now give yourself a pat on the back. Good job!</p>
+<p><a href="../../index.html">⬅ Back to KB index</a></p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+      <nav class="prev-next"><a class="prev" href="design-google-maps.html"><div class="label">← Anterior</div><div class="title">Design Google Maps</div></a><a class="next" href="design-metrics-monitoring-alerting.html"><div class="label">Siguiente →</div><div class="title">Design a Metrics Monitoring and Alerting System</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="design-distributed-message-queue.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linked List Reversal · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 3 — Linked Lists</span><span class="sep">/</span><span class="current">Linked List Reversal</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Linked List Reversal</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">linked-lists</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Linked List Reversal
+Reverse a singly linked list.</p>
+<p>Example:
+Image represents two directed acyclic graphs (DAGs) arranged vertically.  The top DAG consists of five nodes labeled 1, 2, 4, 7, and 3, connected sequentially by directed edges (arrows) in that order.  The bottom DAG also has five nodes, labeled 3, 7, 4, 2, and 1, connected sequentially by directed edges in that order. A thick, downward-pointing arrow connects the node labeled &lsquo;4&rsquo; in the top DAG to the node labeled &lsquo;4&rsquo; in the bottom DAG, indicating a transition or transformation between the two graphs.  The overall structure suggests a before-and-after representation, possibly illustrating a process or algorithm that rearranges the sequence of nodes.
+Intuition - Iterative
+A naive strategy is to store the values of the linked list in an array and reconstruct the linked list by traversing the array in reverse order. However, this solution does not reverse the original linked list; it just creates a new one. Could we try performing the reversal in place?</p>
+<p>Let’s think about the problem in terms of pointer manipulation. The key observation here is that if we &ldquo;flip&rdquo; the direction of the pointers, we&rsquo;re effectively reversing the linked list:</p>
+<p>Image represents a visual illustration of a sequence reversal. The top row, labeled &lsquo;original:&rsquo;, shows a directed acyclic graph (DAG) with nodes numbered 1, 2, 4, 7, and 3, connected by black arrows indicating a unidirectional flow from 1 to 2, 2 to 4, 4 to 7, and 7 to 3.  The second row, labeled &lsquo;reversed:&rsquo;, displays the same nodes but with orange arrows reversing the direction of flow, pointing from 3 to 7, 7 to 4, 4 to 2, and 2 to 1. The third row shows an equals sign followed by a sequence of nodes (3, 7, 4, 2, 1) connected by orange arrows, representing the reversed sequence in a forward direction, effectively demonstrating the reversed order of the original sequence.
+Now, we just need to figure out how to perform this pointer manipulation. Consider the example below:</p>
+<p>Image represents a simple directed acyclic graph (DAG) illustrating a sequential process or workflow.  The graph consists of three circular nodes, labeled &lsquo;1,&rsquo; &lsquo;2,&rsquo; and &lsquo;3,&rsquo; respectively, arranged linearly from left to right.  Each node likely represents a stage or step in a process.  Thick, unidirectional arrows connect the nodes, indicating the flow of information or execution.  Specifically, an arrow points from node &lsquo;1&rsquo; to node &lsquo;2,&rsquo; signifying that stage &lsquo;2&rsquo; follows stage &lsquo;1,&rsquo; and another arrow points from node &lsquo;2&rsquo; to node &lsquo;3,&rsquo; indicating that stage &lsquo;3&rsquo; follows stage &lsquo;2.&rsquo;  The overall structure depicts a linear progression where the output of one stage becomes the input for the subsequent stage.
+To reverse the direction of all pointers, we iterate through the nodes one by one. In this process, we need access to the current node (curr_node) and the previous node (prev_node) to adjust the current node&rsquo;s next pointer to the previous node. Note that prev_node will initially point at null since the first node has no previous node:</p>
+<p>Image represents a diagram illustrating a coding pattern, possibly related to linked lists or similar data structures.  Two rectangular boxes labeled &lsquo;prev_node&rsquo; (in orange) and &lsquo;curr_node&rsquo; (also in orange) are positioned above a sequence of three circles representing nodes numbered 1, 2, and 3.  Arrows descend from &lsquo;prev_node&rsquo; and &lsquo;curr_node&rsquo; pointing to &lsquo;null&rsquo; and node 1 respectively.  Nodes 1, 2, and 3 are connected by unidirectional arrows indicating the next node in the sequence.  To the right, a dashed-line rectangle contains the code snippet &lsquo;curr_node.next = prev_node&rsquo;, suggesting an operation to modify the linked list structure by changing the &lsquo;next&rsquo; pointer of the current node to point to the previous node.  The overall diagram depicts a step in an algorithm that manipulates a linked list, possibly involving reversing a portion of the list or inserting a node.
+Image represents a linked list data structure illustrating a node deletion operation.  Two rectangular boxes labeled &lsquo;prev_node&rsquo; and &lsquo;curr_node&rsquo; are positioned above a sequence of circular nodes representing the list&rsquo;s elements. A downward arrow from &lsquo;prev_node&rsquo; points to &lsquo;null1&rsquo;, indicating that the previous node is currently pointing to null.  A downward arrow from &lsquo;curr_node&rsquo; points to a circular node containing the number &lsquo;1&rsquo;. This node &lsquo;1&rsquo; is connected to a node containing &lsquo;2&rsquo; by a light gray arrow crossed out with a large red &lsquo;X&rsquo;, signifying the deletion of the link between nodes 1 and 2. A solid black arrow connects node &lsquo;2&rsquo; to node &lsquo;3&rsquo;, showing the remaining connection in the list. A light blue arrow points from node &lsquo;1&rsquo; to &lsquo;null1&rsquo;, indicating that the node &lsquo;1&rsquo; is now being removed from the list and its previous pointer is being updated to point to null.  The overall diagram visually depicts the steps involved in removing a node from a linked list, specifically updating the pointers to bypass the deleted node.
+To reverse the next pointer, we&rsquo;ll need a way to shift the curr_node and prev_node pointers one node over. To shift prev_node, we can set it to the position of curr_node. However, we can&rsquo;t move curr_node to node 2 because we lost our reference to node 2:</p>
+<p>Image represents a linked list data structure undergoing a deletion operation.  At the top, two orange rectangular boxes labeled <code>prev_node</code> and <code>curr_node</code> represent pointers.  A dashed orange line connects them, indicating a relationship between these pointers. A red &lsquo;X&rsquo; is positioned to the right of <code>curr_node</code>, signifying the node to be deleted. Below, a linked list is depicted with three circular nodes containing the numbers 1, 2, and 3, respectively.  A solid black arrow points from node 1 to <code>null</code>, indicating the beginning of the list.  Another solid black arrow connects node 2 to node 3.  A red curved arrow points from node 1 to node 2, labeled &lsquo;no reference to node 2,&rsquo; illustrating that after the deletion, node 1 no longer points to node 2, effectively removing node 2 from the list. The orange arrow from <code>prev_node</code> points to <code>null</code>, and the orange arrow from <code>curr_node</code> points to node 1, showing the pointers&rsquo; positions before the deletion of node 2.
+This suggests we should have preserved a reference to node 2 before reversing the curr_node. This can be done by creating a variable next_node and setting it to curr_node.next. Let’s assume we did this. Now, we can advance prev_node and curr_node forward by one:</p>
+<p>Image represents a linked list data structure illustration.  Three orange rectangular boxes labeled &lsquo;prev_node&rsquo;, &lsquo;curr_node&rsquo;, and &lsquo;next_node&rsquo; point downwards with arrows to three circular nodes numbered 1, 2, and 3 respectively.  Node 1 is connected to a &lsquo;null1&rsquo; label on its left, indicating the beginning of the list.  Nodes 1, 2, and 3 are sequentially connected with arrows, showing the flow of the list.  A dashed-line rectangle to the right displays assignment statements: &lsquo;prev_node = curr_node&rsquo; and &lsquo;curr_node = next_node&rsquo;, representing the iterative process of traversing the linked list, where the previous node becomes the current node, and the current node becomes the next node in each step.  The overall diagram visually depicts the concept of iterating through a linked list using pointers (prev_node, curr_node, next_node) and updating them during traversal.
+Image represents a linked list data structure illustrating a traversal process.  Three circular nodes, labeled &lsquo;1&rsquo;, &lsquo;2&rsquo;, and &lsquo;3&rsquo;, represent data elements within the list.  A solid arrow points from node &lsquo;1&rsquo; to node &lsquo;2&rsquo;, and another from node &lsquo;2&rsquo; to node &lsquo;3&rsquo;, indicating the sequential linking of elements.  The label &lsquo;null&rsquo; precedes node &lsquo;1&rsquo;, signifying the beginning of the list. Two rectangular boxes, labeled &lsquo;prev_node&rsquo; and &lsquo;curr_node&rsquo; in orange, are positioned above the nodes.  Dashed orange arrows connect &lsquo;prev_node&rsquo; to node &lsquo;1&rsquo; and &lsquo;curr_node&rsquo; to node &lsquo;2&rsquo;, showing that &lsquo;prev_node&rsquo; currently points to node &lsquo;1&rsquo; and &lsquo;curr_node&rsquo; points to node &lsquo;2&rsquo;, representing the current state during list traversal.  The dashed arrows illustrate the movement of these pointers during iteration through the list.
+Note, we don&rsquo;t need to shift next_node, as it can be set by curr_node.next in the next iteration.</p>
+<p>We can summarize this logic in three steps. At each node in the linked list:</p>
+<p>Save a reference to the next node (next_node = curr_node.next).</p>
+<p>Change the current node’s next pointer to link to the previous node (curr_node.next = prev_node).</p>
+<p>Move both prev_node and curr_node forward by one (prev_node = curr_node,curr_node = next_node).</p>
+<p>Let&rsquo;s repeat these steps for the rest of the linked list:</p>
+<p>Image represents a diagram illustrating a linked list reversal algorithm.  The left side shows a linked list with three nodes numbered 1, 2, and 3, connected by arrows indicating the direction of traversal.  Node 1 is pointed to by a label &lsquo;null&rsquo;, signifying the beginning of the list.  Above the nodes are two rectangular boxes labeled &lsquo;prev_node&rsquo; and &lsquo;curr_node&rsquo;, with arrows pointing downwards to nodes 1 and 2 respectively. This indicates that these variables are currently referencing nodes 1 and 2 during the reversal process. Node 2 points to node 3. The right side contains a dashed-line box outlining two lines of pseudocode: &lsquo;1) next_node = curr_node.next&rsquo; and &lsquo;2) curr_node.next = prev_node&rsquo;. These lines describe the steps involved in reversing the links: the first line assigns the next node in the sequence to a temporary variable, and the second line reverses the link from the current node to point to the previous node, effectively reversing the list&rsquo;s direction.
+Image represents a singly linked list data structure, illustrating the concept of traversing it in reverse. Three circular nodes, numbered 1, 2, and 3, represent data elements within the list.  A black arrow points from node 1 to <code>null</code>, indicating the beginning of the list. A light-blue arrow points from node 2 to node 1, showing the reverse traversal direction.  Black arrows descend from rectangular boxes labeled &lsquo;prev_node&rsquo; (grey), &lsquo;curr_node&rsquo; (grey), and &lsquo;next_node&rsquo; (orange) to nodes 1, 2, and 3 respectively. These boxes represent pointers, indicating the current position and the previous and next nodes during the reverse traversal. The arrangement visually demonstrates how the pointers are updated to move backward through the list.
+Image represents a linked list data structure illustrating a traversal algorithm.  Three circular nodes labeled &lsquo;1&rsquo;, &lsquo;2&rsquo;, and &lsquo;3&rsquo; are connected sequentially by arrows, representing the links between nodes in the list.  A left-pointing arrow connects the first node (&lsquo;1&rsquo;) to &lsquo;null&rsquo;, indicating the beginning of the list. Above the nodes are three rectangular boxes labeled &lsquo;prev_node&rsquo;, &lsquo;curr_node&rsquo;, and &lsquo;next_node&rsquo;, respectively.  Arrows point downwards from these boxes to nodes &lsquo;1&rsquo;, &lsquo;2&rsquo;, and &lsquo;3&rsquo;, respectively, showing how these variables might point to different nodes during traversal.  To the right, a dashed-line box contains pseudocode: &lsquo;3) prev_node = curr_node; curr_node = next_node;&rsquo;, representing a step in an iterative algorithm that updates the &lsquo;prev_node&rsquo; and &lsquo;curr_node&rsquo; pointers to move through the list.  The numbered &lsquo;3)&rsquo; suggests this is the third step of a multi-step process.
+Image represents a singly linked list data structure with three nodes labeled 1, 2, and 3.  The nodes are connected by solid arrows indicating the direction of the links, with node 1 pointing to node 2, and node 2 pointing to node 3.  A solid arrow points from node 1 to the left, labeled &lsquo;null&rsquo;, signifying the beginning of the list.  Above the nodes, two orange rectangular boxes are labeled &lsquo;prev_node&rsquo; and &lsquo;curr_node&rsquo;.  Dashed orange arrows connect these boxes to nodes 2 and 3 respectively, illustrating the pointers &lsquo;prev_node&rsquo; and &lsquo;curr_node&rsquo; that might be used in an algorithm iterating through the list.  The dashed arrow from &lsquo;prev_node&rsquo; to node 2 shows that &lsquo;prev_node&rsquo; currently points to node 2, and the dashed arrow from &lsquo;curr_node&rsquo; to node 3 indicates that &lsquo;curr_node&rsquo; points to node 3.  This visualization likely depicts a step in an algorithm, such as reversing a linked list or performing an insertion/deletion operation, where &lsquo;prev_node&rsquo; and &lsquo;curr_node&rsquo; track the current and previous nodes being processed.
+Image represents a diagram illustrating a linked list reversal algorithm.  Three circular nodes labeled &lsquo;1,&rsquo; &lsquo;2,&rsquo; and &lsquo;3&rsquo; are depicted, connected sequentially by arrows representing links.  The first node (&lsquo;1&rsquo;) is connected to the left by an arrow pointing to &lsquo;null,&rsquo; indicating the beginning of the list.  Arrows from rectangular boxes labeled &lsquo;prev_node&rsquo; and &lsquo;curr_node&rsquo; point downwards to nodes &lsquo;2&rsquo; and &lsquo;3&rsquo; respectively, highlighting these nodes&rsquo; roles in the algorithm. A dashed-line box to the right contains two numbered steps describing the algorithm: &lsquo;1) next_node = curr_node.next&rsquo; and &lsquo;2) curr_node.next = prev_node,&rsquo; which represent the core logic for reversing the links in the list.  The diagram visually shows the state of the list during a step in the reversal process, with &lsquo;prev_node&rsquo; and &lsquo;curr_node&rsquo; pointing to the nodes being manipulated to reverse the links.
+The image represents a singly linked list data structure with three nodes, labeled 1, 2, and 3, visually depicted as circles containing their respective values.  Node 1 is connected to node 2 by a solid black arrow pointing from 1 to 2, indicating the direction of traversal. Node 2 is connected to node 3 by a light blue arrow pointing from 3 to 2, suggesting a reverse traversal or manipulation. Node 3 is connected to &lsquo;null&rsquo; by a downward-pointing orange arrow, signifying the end of the list. Above the nodes, three rectangular boxes represent pointers: &lsquo;prev_node&rsquo; (gray) points to node 2, &lsquo;curr_node&rsquo; (gray) points to node 3, and &lsquo;next_node&rsquo; (orange) points to &lsquo;null&rsquo;.  The &lsquo;null&rsquo; label appears at both the beginning and end of the list, indicating the absence of a node before the first and after the last. The arrangement shows the structure and potential manipulation of a linked list, highlighting the pointers used to navigate and modify the list.
+Image represents a singly linked list with three nodes labeled 1, 2, and 3, respectively.  The list is depicted visually with circles representing nodes and arrows indicating the direction of links.  The first node (1) is pointed to by &lsquo;null&rsquo;, signifying the beginning of the list.  Each node points to the next node in the sequence; node 1 points to node 2, and node 2 points to node 3.  Node 3 points to &lsquo;null&rsquo;, indicating the end of the list. Above the list, three rectangular boxes labeled &lsquo;prev_node&rsquo;, &lsquo;curr_node&rsquo;, and &lsquo;next_node&rsquo; are shown.  Arrows descend from these boxes to nodes 2, 3, and the &lsquo;null&rsquo; after node 3, respectively, suggesting these labels represent pointers to nodes within the list during an iterative process. To the right, a dashed-line box contains pseudocode:  &lsquo;3) prev_node = curr_node; curr_node = next_node&rsquo;, illustrating an algorithm step likely involved in traversing or manipulating the linked list, where the pointers are updated to move through the list.
+Image represents a singly linked list with three nodes containing the values 1, 2, and 3, respectively.  The list is depicted visually with circles representing nodes and arrows indicating the direction of links.  The leftmost node (1) points to <code>null</code>, signifying the beginning of the list.  Each subsequent node points to the next node in the sequence, with node 2 pointing to node 3, and node 3 pointing to <code>null</code>, indicating the end of the list. Above the list, two orange rectangular boxes labeled &lsquo;prev_node&rsquo; and &lsquo;curr_node&rsquo; are shown.  Dashed orange arrows point from &lsquo;prev_node&rsquo; to node 2 and from &lsquo;curr_node&rsquo; to node 3, suggesting these variables are pointing to specific nodes within the list during some operation, likely a traversal or reversal.  The solid arrows represent the actual links within the linked list structure itself, while the dashed arrows represent pointers to nodes within the list from variables outside the list structure.
+We can stop the reversal when curr_node becomes null, indicating there are no more nodes to reverse.</p>
+<p>The final step is to return the head of the reversed linked list, which is pointed to by prev_node once curr_node becomes null.</p>
+<p>Try it yourself
+Write your solution to the problem before checking the reference implementation.
+Implementation - Iterative
+Python
+JavaScript
+Java
+from ds import ListNode
+   
+def linked_list_reversal(head: ListNode) -&gt; ListNode:
+    curr_node, prev_node = head, None
+    # Reverse the direction of each node&rsquo;s pointer until &lsquo;curr_node&rsquo; is null.
+    while curr_node:
+        next_node = curr_node.next
+        curr_node.next = prev_node
+        prev_node = curr_node
+curr_node = next_node # &lsquo;prev_node&rsquo; will be pointing at the head of the reversed linked list.
+return prev_node
+Complexity Analysis
+Time complexity: The time complexity of linked_list_reversal is 
+O
+(
+n
+)
+O(n), where 
+n
+n denotes the length of the linked list. This is because we perform constant-time pointer manipulation at each node of the linked list.</p>
+<p>Space complexity: The space complexity is 
+O
+(
+1
+)
+O(1).</p>
+<p>Intuition - Recursive
+Sometimes, the interviewer may want the problem solved using recursion. Let’s see what a recursive solution to this problem would look like.</p>
+<p>In a recursive solution, the problem is solved by solving smaller instances of the same problem. To solve these smaller subproblems, we would need to use the linked list reversal function (linked_list_reversal) in its own implementation. The process of solving smaller problems using recursive calls continues until the smallest version of the problem is solved.</p>
+<p>The smallest version of this problem involves reversing a linked list of size 0 or 1. These are linked lists which are inherently the same as their reverse. So, these can be our base cases.</p>
+<p>With this in mind, let&rsquo;s try crafting the logic of the recursive function using the example below:</p>
+<p>Image represents a linked list data structure.  A rectangular box labeled &lsquo;head&rsquo; points downwards to a circle containing the number &lsquo;1,&rsquo; representing the first node in the list.  This node is connected by a unidirectional arrow to a circle containing &lsquo;2,&rsquo; which is similarly connected to a circle containing &lsquo;3,&rsquo; and finally &lsquo;3&rsquo; is connected to a circle containing &lsquo;4,&rsquo; the last node.  The arrows indicate the direction of traversal through the list, starting from the head node and progressing sequentially through each node to the end.  Each circle represents a node in the list, and the numbers within the circles could represent data stored within each node.  The structure visually demonstrates the linear, sequential nature of a singly linked list.
+Think about which subproblem we should solve. To reverse the entire linked list, we can use our linked_list_reversal function to reverse the sublist after the current node. This way, we only need to focus on reversing the pointer of the current node. Let’s see how this works.</p>
+<p>As mentioned, let’s first recursively call linked_list_reversal on the sublist starting at head.next. Let’s assume this recursive call reverses this sublist and returns its head as intended.</p>
+<p>When designing a recursive function, assume any recursive call to that function will behave as intended, even if the function hasn’t been fully implemented.</p>
+<p>Image represents a singly linked list data structure undergoing reversal.  A rectangular box encloses nodes numbered 2, 3, and 4, representing the linked list&rsquo;s initial state.  Arrows indicate the direction of links between these nodes, starting from node 2 and proceeding sequentially to node 4.  A separate node, labeled &lsquo;1&rsquo;, is positioned to the left of the box, connected to node 2 via an arrow, indicating it&rsquo;s the head of the list.  Above node 1, a rectangular box labeled &lsquo;head&rsquo; points downwards with an arrow towards node 1, showing the initial head pointer. Below the rectangular box containing nodes 2, 3, and 4, a dashed-line box contains the code snippet <code>new_head = linked_list_reversal(head.next)</code>. This line suggests that a function called <code>linked_list_reversal</code> is being called with the <code>next</code> pointer of the initial <code>head</code> (node 1) as an argument, and the result is assigned to <code>new_head</code>, implying the reversal operation is performed on the sublist starting from node 2.
+Image represents a linked list data structure before and after an insertion operation.  A gray rectangular box labeled &lsquo;head&rsquo; points to a circular node containing the number &lsquo;1&rsquo;. This node is connected via a black arrow to a node containing &lsquo;2&rsquo;, which in turn is connected to a node containing &lsquo;3&rsquo; via a black arrow. Node &lsquo;3&rsquo; is connected to node &lsquo;4&rsquo; via a light-blue arrow, indicating the direction of the connection.  An orange rectangular box labeled &lsquo;new_head&rsquo; points to node &lsquo;4&rsquo;, showing that node &lsquo;4&rsquo; has become the new head of the linked list after an insertion operation. The light-blue arrow from node &lsquo;4&rsquo; to node &lsquo;3&rsquo; represents the newly created link, effectively inserting node &lsquo;4&rsquo; at the beginning of the list. The original list&rsquo;s head pointer has been updated to point to the newly inserted node &lsquo;4&rsquo;.
+Next, we need the tail of the reversed sublist (node 2) to point to node 1. We can reference node 2 using head.next. So, all we need to do is set head.next.next to head as illustrated below:</p>
+<p>Image represents a linked list data structure before and after inserting a new node.  Initially, a linked list is shown with nodes numbered 1, 2, and 3, where a rectangular box labeled &lsquo;head&rsquo; points to node 1, indicating the beginning of the list.  Each node is a circle containing its numerical value, and arrows represent the <code>next</code> pointers connecting them sequentially. A new node, labeled &lsquo;4&rsquo;, is introduced with a rectangular box labeled &lsquo;new_head&rsquo; pointing to it.  An arrow connects &lsquo;new_head&rsquo; to node 4.  Node 4 is then linked to node 3, reversing the previous order. A dashed rectangular box displays the code snippet &lsquo;head.next.next = head&rsquo;, illustrating the operation performed to insert node 4 at the head of the list by updating the <code>next</code> pointer of the second node (originally pointing to node 3) to now point to the original head (node 1).  This effectively inserts node 4 as the new head of the linked list.
+Image represents a linked list data structure illustrating an insertion operation.  Two rectangular boxes labeled &lsquo;head&rsquo; and &lsquo;new_head&rsquo; represent pointers to the beginning of the list.  A downward arrow from &lsquo;head&rsquo; points to a circular node labeled &lsquo;1,&rsquo; indicating it&rsquo;s the current head of the list.  Nodes &lsquo;1,&rsquo; &lsquo;2,&rsquo; and &lsquo;3&rsquo; are sequentially connected by unidirectional arrows, showing the order of elements. A black arrow from node &lsquo;1&rsquo; points to node &lsquo;2&rsquo;, indicating the next element in the sequence. A light-blue curved arrow points from node &lsquo;2&rsquo; back to node &lsquo;1&rsquo;, suggesting a potential back-link or additional connection. Node &lsquo;3&rsquo; is connected to node &lsquo;4&rsquo; by a unidirectional arrow. A downward arrow from &lsquo;new_head&rsquo; points to node &lsquo;4,&rsquo; indicating that node &lsquo;4&rsquo; is about to be inserted. The overall structure depicts the state of the linked list before the insertion of node &lsquo;4&rsquo; at the end, with the light-blue arrow possibly representing a modification or pointer update during the insertion process.
+The linked list is almost fully reversed now, but node 1 is still pointing to node 2. To remove this link, just set head.next to null. Then, we can return new_head, which is the head of the reversed linked list:</p>
+<p>Image represents a linked list data structure before and after inserting a new node at the head.  Initially, a linked list is shown with nodes numbered 1, 2, and 3, connected sequentially. A rectangular box labeled &lsquo;head&rsquo; points to node 1, indicating it&rsquo;s the head of the list.  A new node, labeled &lsquo;4&rsquo;, is introduced, and a rectangular box labeled &lsquo;new_head&rsquo; points to it.  An arrow from &lsquo;new_head&rsquo; points to node 4, showing its insertion point. Node 4 is then connected to node 3 via a unidirectional arrow.  A dashed rectangular box displays the code snippet &lsquo;head.next = null&rsquo;, illustrating that the next pointer of the original head (node 1) is set to null after the insertion, implying that node 1 is no longer the head of the list.  Node 1 now has a bidirectional connection with node 2, suggesting a possible circular linked list structure within the original list.  The overall diagram depicts the process of prepending a new node to an existing linked list, modifying the head pointer to reflect the change.
+Image represents a linked list data structure before and after insertion of a new node.  On the left, a linked list is shown with a <code>head</code> pointer pointing to a node containing the value <code>1</code>. This node is connected to a node with value <code>2</code>, which is connected to a node with value <code>3</code>.  A light-blue arrow indicates that the beginning of the list is <code>null</code>. On the right, a <code>new_head</code> pointer points to a new node containing the value <code>4</code>, which is inserted at the beginning of the list.  This new node is now connected to the previous head node (containing <code>1</code>). The previous head node (<code>1</code>) is now the second node in the list. A dashed-line box labeled &lsquo;return new_head&rsquo; indicates that the function or operation returns the new head of the modified linked list, which is the node with value <code>4</code>.  The arrows represent the pointers connecting the nodes, showing the direction of the links within the list.
+Try it yourself
+Write your solution to the problem before checking the reference implementation.
+Implementation - Recursive
+Python
+JavaScript
+from ds import ListNode
+   
+def linked_list_reversal_recursive(head: ListNode) -&gt; ListNode:
+    # Base cases.
+    if (not head) or (not head.next):
+        return head
+    # Recursively reverse the sublist starting at the next node.
+    new_head = linked_list_reversal_recursive(head.next)
+    # Connect the reversed sublist to the head node to fully reverse the entire linked list.
+    head.next.next = head
+    head.next = None
+    return new_head</p>
+<p>Complexity Analysis
+Time complexity: The time complexity of linked_list_reversal_recursive is 
+O
+(
+n
+)
+O(n) because it involves a single recursive traversal through the linked list, visiting each node exactly once.</p>
+<p>Space complexity: The space complexity is 
+O
+(
+n
+)
+O(n) due to the stack space taken up by the recursive call stack, which grows up to 
+n
+n levels deep because 
+n
+n recursive calls are made.</p>
+<p>Interview Tip
+Tip: Visualize pointer manipulations.
+Often, it can be tricky to figure out exactly what to do when dealing with linked list manipulation. Drawing pointers as arrows between nodes can be quite helpful. By observing how these arrows should be reoriented to represent changes in the linked list&rsquo;s structure, we can deduce the necessary pointer manipulation logic. This approach also helps identify which nodes we need references to when making these changes.</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="introduction.html"><div class="label">← Anterior</div><div class="title">Introduction to Linked Lists</div></a><a class="next" href="remove-kth-last-node.html"><div class="label">Siguiente →</div><div class="title">Remove the Kth Last Node From a Linked List</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="linked-list-reversal.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

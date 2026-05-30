@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matrix Search · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 6 — Binary Search</span><span class="sep">/</span><span class="current">Matrix Search</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Matrix Search</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">binary-search</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Matrix Search
+Determine if a target value exists in a matrix. Each row of the matrix is sorted in non-decreasing order, and the first value of each row is greater than or equal to the last value of the previous row.</p>
+<p>Example:
+Image represents a 3x4 matrix of numerical data, with a target value declared as &lsquo;target = 21&rsquo; above the matrix.  The matrix is indexed by row and column numbers, starting from 0.  Each cell within the matrix contains a single integer value.  The integers are arranged seemingly randomly, ranging from 2 to 33.  One specific cell, located at row index 2 and column index 1, contains the value 21, which is highlighted with a light green background, visually indicating it matches the declared target value.  No other connections or information flow beyond the simple presentation of the numerical data and the target value are depicted.
+Output: True
+Intuition
+A naive solution to this problem is to linearly scan the matrix until we encounter the target value. However, this isn’t taking advantage of the sorted properties of the matrix.</p>
+<p>A key observation is that all values in a given row are greater than or equal to all values in the previous row. This indicates the entire matrix can be considered as a single, continuous, sorted sequence of values:</p>
+<p>Image represents a data transformation process visualized using a matrix and arrows.  A 3x4 matrix is shown, with rows labeled 0, 1, and 2, and columns labeled 0, 1, 2, and 3.  Each cell in the matrix contains a numerical value (2, 3, 4, 6, 7, 10, 11, 17, 20, 21, 24, 33).  Light orange arrows indicate data flow.  Two arrows originate from the top-left corner of the matrix, one from row 0 and one from row 1, pointing downwards to a horizontal array below the matrix. This array displays the values from the first two rows of the matrix, concatenated horizontally ([2, 3, 4, 6, 7, 10, 11, 17]). A third arrow originates from the right side of the matrix, pointing downwards to another horizontal array, which displays the values from the last row of the matrix, concatenated horizontally ([20, 21, 24, 33]).  The final output is a single horizontal array containing all the values from the matrix, arranged sequentially.
+If we were able to flatten this matrix into a single, sorted array, we could perform a binary search on the array. Creating a separate array and populating it with the matrix’s values still takes 
+O
+(
+m
+⋅
+n
+)
+O(m⋅n) time, and also takes 
+O
+(
+m
+⋅
+n
+)
+O(m⋅n) space, where 
+m
+m and 
+n
+n are the dimensions of the matrix. Is there a way to perform a binary search on the matrix without flattening it?</p>
+<p>Let’s map the indexes of the flattened array to their corresponding cells in the matrix:</p>
+<p>Image represents a 3x4 matrix where each cell contains two numbers.  The top row and leftmost column are labeled with indices 0, 1, 2, and 3.  Each cell displays a larger number in black and a smaller number in peach within a circle. The larger number appears to be the result of some calculation involving the row and column indices. For example, the cell at row 0, column 0 contains 2 (larger number) and 0 (smaller number in a circle).  Below the matrix, a peach-colored horizontal bar displays the larger numbers from each cell, arranged sequentially from left to right, starting with 2 and ending with 33.  Beneath this bar, a second horizontal bar displays the smaller numbers from each cell, also arranged sequentially from left to right, starting with 0 and ending with 11.  The arrangement suggests a mapping or transformation between the row and column indices and the resulting larger and smaller numbers within each cell.
+This index mapping would give us a way to access the elements of the matrix in a similar way to how we would access them in the flattened array. To figure out how to do this, let’s find a way to map any cell (r, c) to its corresponding index in the flattened array.</p>
+<p>Let’s start by examining the mapped indexes of each row of the matrix:</p>
+<p>Row 0 starts at index 0.
+Row 1 starts at index n.
+Row 2 starts at index 2n.
+From the above observations, we see a pattern: for any row r, the first cell of the row corresponds to the index r⋅n.</p>
+<p>Image represents a visual depiction of a coding pattern, likely related to a 2D array or matrix manipulation.  A horizontal number line labeled &lsquo;n = 4&rsquo; shows indices 0, 1, 2, and 3. Below, a 3x4 matrix is displayed, with rows labeled &lsquo;r = 0&rsquo;, &lsquo;r = 1&rsquo;, and &lsquo;r = 2&rsquo;, and columns implicitly corresponding to the number line&rsquo;s indices.  The matrix cells contain numerical values; specifically, the first column shows values 0, n (representing the value of n, which is 4), and 2n (representing 2 times the value of n, which is 8).  Other cells contain seemingly calculated values, possibly based on a specific algorithm.  A downward arrow points from the cell containing &lsquo;2n&rsquo; to the label &lsquo;r . n&rsquo;, suggesting that the matrix&rsquo;s values are somehow related to or result in a calculation involving the row index &lsquo;r&rsquo; and the value &lsquo;n&rsquo;.  The highlighted cells (containing &lsquo;0&rsquo;, &lsquo;n&rsquo;, and &lsquo;2n&rsquo;) emphasize a pattern or relationship within the matrix&rsquo;s first column.
+When we also consider the column value c, we can conclude that for any cell (r, c), the corresponding index in the flattened array is r⋅n + c.</p>
+<p>Now that we understand how the 2D matrix maps to the 1D flattened array, let’s work backward to obtain the row and column indexes from an index in the flattened array. Let i = r⋅n + c. The row and column values are:</p>
+<p>r = i // n
+c = i % n
+We can see how these are obtained below:</p>
+<p>Image represents a comparison of two methods for calculating the quotient (r) and remainder (c) when integer &lsquo;i&rsquo; is divided by integer &lsquo;n&rsquo;.  The left side demonstrates a sequential approach:  First, it establishes the relationship <code>i = rn + c</code>, then derives <code>i - c = rn</code>, followed by <code>(i - c) // n = r</code> (integer division to find the quotient), and finally <code>i // n - c // n = r</code> (showing an alternative calculation for &lsquo;r&rsquo;).  The last line, <code>i // n = r (c &lt; n → c // n = 0)</code>, clarifies that <code>i // n</code> directly equals &lsquo;r&rsquo; only if &lsquo;c&rsquo; is less than &lsquo;n&rsquo;, otherwise, the subtraction of <code>c // n</code> is necessary. The right side presents an alternative, more concise method using the modulo operator (<code>%</code>). It starts with the same initial equation, <code>i = rn + c</code>, then directly calculates the remainder using <code>i % n = (rn + c) % n</code>. This simplifies to <code>i % n = rn % n + c % n</code>, and finally, if &lsquo;c&rsquo; is less than &lsquo;n&rsquo;, it reduces to <code>i % n = c</code>.  The two sides illustrate different mathematical approaches to achieve the same result, highlighting the efficiency of the modulo operator for remainder calculation.
+Now that we have these formulas, let’s use binary search to find the target.</p>
+<p>Binary search
+To define the search space, we need the first and last indexes of the flattened array. The first index is 0, and the last index is m⋅n - 1. So, we set the left and right pointers to 0 and m⋅n - 1 respectively.</p>
+<p>To figure out how to narrow the search space, let’s explore an example matrix that contains the target of 21.</p>
+<p>We can calculate mid using the formula: mid = (left + right) // 2. Then, determine the corresponding row and column values. Here, the value at the midpoint (10) is less than the target, which means the target is to the right of the midpoint. So, let’s narrow the search space toward the right:</p>
+<p>Image represents a visual explanation of a search algorithm within a 4x4 matrix.  The top shows &lsquo;target = 21,&rsquo; indicating the value being searched for. A 4x4 matrix is displayed below, with each cell containing a number and its row and column index shown as subscripts.  The matrix is labeled with &lsquo;left&rsquo;, &lsquo;mid&rsquo;, and &lsquo;right&rsquo; indicating index pointers.  The &lsquo;mid&rsquo; pointer highlights the value 10 at row 1, column 1. To the right, calculations are shown: &lsquo;r = mid // n&rsquo; (integer division of &lsquo;mid&rsquo; by 4, resulting in 1) and &lsquo;c = mid % n&rsquo; (modulo operation of &lsquo;mid&rsquo; by 4, resulting in 1). This determines the row (r=1) and column (c=1) of the element to check. The condition &lsquo;matrix[r][c] &lt; target&rsquo; (10 &lt; 21) is shown, indicating that the element at row 1, column 1 is less than the target.  Finally, the consequence &lsquo;left = mid + 1&rsquo; is shown, suggesting the algorithm updates the &lsquo;left&rsquo; pointer based on the comparison result.  The highlighted cell (21) shows the target value found in the matrix.
+Image represents a 4x4 grid, visually resembling a matrix or table, with rows and columns indexed from 0 to 3.  Each cell contains a number and a smaller subscript indicating an associated value.  A dashed orange line connects a highlighted orange circle in the top-left cell (containing the number 2 and subscript 0) to a cell in the second row and third column. This cell contains the number 11 and subscript 6, and is labeled &lsquo;left&rsquo; with an orange rectangle.  Another orange rectangle labeled &lsquo;right&rsquo; is present in the bottom-right cell (containing the number 33 and subscript 11). A light green circle highlights the number 21 (subscript 9) in the bottom-left cell.  A smaller, light gray rectangle labeled &lsquo;mid&rsquo; is located above and slightly to the left of the &lsquo;left&rsquo; labeled cell, suggesting a possible midpoint or intermediary step in the process indicated by the dashed line. The numbers in the subscripts appear to represent additional data associated with each main number in the grid.
+The new midpoint value is still less than the target, so let’s narrow the search space towards the right:</p>
+<p>Image represents a visual explanation of a search algorithm within a 4x4 matrix.  The top shows &lsquo;target = 21,&rsquo; indicating the value being searched for. A 4x4 matrix is displayed below, with rows labeled 0, 1, 2 and columns labeled 0, 1, 2, 3. Each cell contains a number, and the cell containing 20 is labeled &lsquo;mid&rsquo; (in cyan), the cell containing 11 is labeled &lsquo;left&rsquo; (in orange), and the cell containing 33 is labeled &lsquo;right&rsquo; (in orange).  To the right, a separate box details the calculation process: &lsquo;r = mid // n&rsquo; (integer division of mid by n, where mid is 8 and n is 4, resulting in r=2) and &lsquo;c = mid % n&rsquo; (modulo operation of mid by n, resulting in c=0).  The line &lsquo;matrix[r][c] &lt; target&rsquo; indicates a comparison between the value at matrix position [2][0] (which is 20) and the target value (21). The result of this comparison (20 &lt; 21) leads to the assignment &lsquo;left = mid + 1,&rsquo; implying an adjustment of the search range based on the comparison.  The overall diagram illustrates a step in a binary search or similar algorithm applied to a 2D array.
+Image represents a 3x4 matrix, visually resembling a table or grid, with numerical data organized into cells.  The rows are labeled 0, 1, and 2, and the columns are labeled 0, 1, 2, and 3. Each cell contains two numbers; a larger, prominent number and a smaller, less prominent number below it.  For example, the cell at row 1, column 1 contains &lsquo;10&rsquo; and &lsquo;5&rsquo; below it.  The cells at row 2, column 1 and row 2, column 3 are highlighted in orange with the labels &lsquo;left&rsquo; and &lsquo;right&rsquo; respectively.  A dashed orange line with a checkmark at its end originates from the cell containing &lsquo;10&rsquo; and &lsquo;5&rsquo; and points to the cell containing &lsquo;21&rsquo; and &lsquo;9&rsquo;, indicating a possible connection or flow of information between these two cells.  An orange dot is present in the cell at row 1, column 2, containing &lsquo;11&rsquo; and &lsquo;6&rsquo;.  The numbers in the cells appear to be related, possibly representing some kind of data structure or algorithm, with the smaller numbers potentially representing additional information or indices.
+The midpoint value is now larger than the target, which means the target is to the left of the midpoint. So, let’s move the search space to the left:</p>
+<p>Image represents a visual explanation of a search algorithm within a 4x4 matrix.  The top shows &lsquo;target = 21,&rsquo; indicating the value being searched for. A 4x4 matrix is displayed below, with each cell containing a number and its row and column indices subtly indicated.  The matrix&rsquo;s rows are indexed 0, 1, and 2, and columns are indexed 0, 1, 2, and 3.  The number 21 is highlighted within the matrix, labeled &lsquo;left,&rsquo; indicating its position in the search.  To its right is the number 24, labeled &lsquo;mid,&rsquo; and to its further right is 33, labeled &lsquo;right.&rsquo; These labels suggest a binary search-like approach. A separate box to the right details the calculation process:  &lsquo;r = mid // n&rsquo; and &lsquo;c = mid % n&rsquo; calculate the row (r) and column (c) indices of the &lsquo;mid&rsquo; element (24 in this case), where &lsquo;mid&rsquo; is 10 (its index in a flattened array), &lsquo;n&rsquo; is 4 (the number of columns). The calculations show r = 2 and c = 2.  Finally, &lsquo;matrix[r][c] &gt; target → right = mid - 1&rsquo; indicates that if the value at matrix[2][2] (which is 24) is greater than the target (21), the right boundary of the search is updated to &lsquo;mid - 1&rsquo;, effectively narrowing the search space.
+Image represents a 3x4 matrix, visually resembling a table, with rows and columns indexed from 0 to 2 and 0 to 3 respectively.  Each cell contains a number, with smaller numbers beneath indicating a secondary value.  A dashed orange line with an arrowhead connects cell (1,2) containing &lsquo;11&rsquo; to cell (1,3) containing &lsquo;17&rsquo;, labeled &lsquo;mid&rsquo; near the arrowhead.  Two rectangular orange boxes, labeled &lsquo;left&rsquo; and &lsquo;right&rsquo;, are positioned near cell (2,1) containing &lsquo;21&rsquo;, which is highlighted in a green circle.  The numbers within the matrix appear to be related, possibly representing data or results from a computation, with the orange labels and dashed line suggesting a process or algorithm involving a &lsquo;left&rsquo;, &lsquo;right&rsquo;, and &lsquo;mid&rsquo; component, potentially indicating a partitioning or traversal strategy within the data structure.
+Now, the midpoint is equal to the target, so we return true to conclude the search.</p>
+<p>Image represents a visual explanation of a search algorithm within a matrix.  A 3x4 matrix is shown, with each cell containing a number and its index (row, column) subtly displayed below.  The top row displays column indices (0, 1, 2, 3), and the leftmost column displays row indices (0, 1, 2). The number 21 is highlighted within the matrix at index (2,1), indicating a &lsquo;mid&rsquo; value.  To the right, a separate box details the calculation: <code>r = mid // n</code> (integer division of <code>mid</code> (9) by <code>n</code> (4), resulting in <code>r = 2</code>) and <code>c = mid % n</code> (modulo operation of <code>mid</code> (9) by <code>n</code> (4), resulting in <code>c = 1</code>).  This calculation determines the row (<code>r</code>) and column (<code>c</code>) indices of the element being checked. Finally, the condition <code>matrix[r][c] == target</code> is shown, indicating that if the element at the calculated index (<code>matrix[2][1]</code>) equals the <code>target</code> value (21), the function returns <code>True</code>.  The overall diagram illustrates how a search algorithm might locate a target value within a matrix using integer division and modulo operations to determine the index.
+Note that our exit condition should be while left ≤ right in order to also examine the above search space when left == right.</p>
+<p>Try it yourself
+Write your solution to the problem before checking the reference implementation.
+Implementation
+Python
+JavaScript
+Java
+from typing import List
+    
+def matrix_search(matrix: List[List[int]], target: int) -&gt; bool:
+    m, n = len(matrix), len(matrix[0])
+    left, right = 0, m * n - 1
+    # Perform binary search to find the target.
+    while left &lt;= right:
+        mid = (left + right) // 2
+        r, c = mid // n, mid % n
+        if matrix[r][c] == target:
+            return True
+        elif matrix[r][c] &gt; target:
+            right = mid - 1
+        else:
+            left = mid + 1
+    return False
+Complexity Analysis
+Time complexity: The time complexity of matrix_search is 
+O
+(
+log
+⁡
+(
+m
+⋅
+n
+)
+)
+O(log(m⋅n)) because it performs a binary search over a search space of size 
+m
+⋅
+n
+m⋅n.</p>
+<p>Space complexity: The space complexity is 
+O
+(
+1
+)
+O(1).</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="find-median-from-two-sorted-arrays.html"><div class="label">← Anterior</div><div class="title">Find the Median From Two Sorted Arrays</div></a><a class="next" href="local-maxima-in-array.html"><div class="label">Siguiente →</div><div class="title">Local Maxima in Array</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="matrix-search.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>

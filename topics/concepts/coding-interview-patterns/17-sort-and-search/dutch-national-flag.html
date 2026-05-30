@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dutch National Flag · Personal KB</title>
+<link rel="stylesheet" href="../../../../_assets/kb-style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="home" href="../../../../index.html">📚 KB</a><span class="crumb"><span class="sep">/</span><span>Book III · Ch. 17 — Sort and Search</span><span class="sep">/</span><span class="current">Dutch National Flag</span></span>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>📑 En esta página</h3>
+    <div class="toc-empty">Sin secciones</div>
+  </aside>
+
+  <div class="article-wrap">
+    <article class="article">
+      <header class="meta-header">
+  <h1>Dutch National Flag</h1>
+  <div class="meta-row">
+    <span class="status-badge stub">○ stub</span>
+    <span class="meta-category">concepts</span>
+    <span class="meta-dates">Updated 2026-05-05</span>
+  </div>
+  <div class="meta-tags"><span class="meta-tag">coding-patterns</span><span class="meta-tag">sort-search</span><span class="meta-tag">interview-prep</span></div>
+</header>
+      <div class="stub-banner">
+  <span class="icon">🚧</span>
+  <div class="msg"><strong>STUB.</strong> Este capítulo todavía no fue trabajado en profundidad. El contenido bruto está acá; falta tratamiento (For Dummies, diagramas, amplificaciones).</div>
+</div>
+      <p>Dutch National Flag
+Given an array of 0s, 1s, and 2s representing red, white, and blue, respectively, sort the array in place so that it resembles the Dutch national flag, with all reds (0s) coming first, followed by whites (1s), and finally blues (2s).</p>
+<p>Example:
+Input: nums = [0, 1, 2, 0, 1, 2, 0]
+Output: [0, 0, 0, 1, 1, 2, 2]
+Intuition
+This problem is just asking us to sort three numbers in ascending order. A straightforward solution would be to use an in-built sorting function. However, this is an 
+O
+(
+n
+log
+⁡
+(
+n
+)
+)
+O(nlog(n)) approach, where 
+n
+n denotes the length of the array. However, this isn’t taking advantage of an important problem constraint: there are only three types of elements in the array.</p>
+<p>To sort these numbers, we essentially want to position all 0s to the left, all 2s to the right, and any 1s in between. A key observation is that if we place the 0s and the 2s in their correct positions, the 1s will automatically be positioned correctly:</p>
+<p>Image represents a visual explanation of a sorting algorithm, specifically illustrating how elements naturally group during the process.  The diagram shows an unsorted array <code>[2 0 1 2 0 0 1]</code> where numbers 0 are colored red, 1s are black, and 2s are cyan. A thick black arrow points to a sorted array <code>[0 0 0 1 1 2 2]</code>.  Underneath the sorted array, red and cyan horizontal brackets highlight the groups of 0s and 2s respectively, labeled &lsquo;sort 0s&rsquo; and &lsquo;sort 2s&rsquo; in their respective colors. Above the sorted array, a black bracket highlights the group of 1s, with the text &lsquo;1s will naturally get sorted&rsquo; explaining their position. The overall arrangement demonstrates how, without explicit sorting of 1s, the algorithm implicitly places them in their correct sorted position between the 0s and 2s.
+This allows us to focus on only positioning two numbers.</p>
+<p>One strategy we could use is to iterate through the array and move any 0s we encounter to the left, and any 2s we encounter to the right.</p>
+<p>We can set a left pointer to move any 0s we encounter to the left, and a right pointer to move any 2s to the right. To iterate through the array, we can use a separate pointer, i:</p>
+<p>When we encounter a 0 at index i, swap it with nums[left].</p>
+<p>When we encounter a 2 at index i, swap it with nums[right].</p>
+<p>To understand how we should adjust these pointers after each swap, let’s use the following example:</p>
+<p>Image represents a one-dimensional array or list depicted using square brackets <code>[]</code>.  The array contains seven integer elements: 2, 0, 1, 2, 0, 0, and 1. These elements are displayed in bold, black font and are arranged sequentially within the brackets. Below the array, a sequence of numbers from 0 to 6 is shown in a lighter gray font; these numbers represent the indices of the corresponding elements in the array, starting from index 0 for the first element (2) and ending at index 6 for the last element (1).  There is no explicit information flow or connections between the elements other than their sequential arrangement within the array structure indicated by the brackets and the implicit index mapping provided by the numbers below.
+The first element is 2, so let’s swap it with nums[right]. Then, let’s move the right pointer inward so it points to where the next 2 should be placed:</p>
+<p>Image represents a visual depiction of a sorting algorithm&rsquo;s step, likely part of a quicksort or similar algorithm.  Two labeled boxes, &lsquo;left&rsquo; and &lsquo;i&rsquo; (likely representing an index), point downward with arrows to an array <code>[2 0 1 2 0 0 1]</code>, indicating that the algorithm is focusing on the element at index <code>i</code> (which is 2 in this case).  A separate box labeled &lsquo;right&rsquo; points to the last element of the array (1). A dashed-bordered box to the right details the algorithm&rsquo;s logic:  <code>nums[i] == 2</code> shows the value at index <code>i</code>; <code>→ swap(nums[i], nums[right])</code> indicates that the algorithm will swap the element at index <code>i</code> (value 2) with the element at the &lsquo;right&rsquo; index (value 1); and <code>→ right--</code> shows that the &lsquo;right&rsquo; index will be decremented after the swap.  The numbered indices beneath the array clarify the positions of each element within the array.  The overall diagram illustrates a single iteration of a sorting algorithm&rsquo;s partitioning step, focusing on the comparison and potential swap of elements based on their values relative to a pivot (implicitly defined by the &lsquo;right&rsquo; index).
+Image represents a visual depiction of a sorting algorithm, likely a variation of quicksort or similar, showing a single swap operation.  A numerical array <code>[1 0 1 2 0 0 2]</code> is displayed, with indices 0 through 6 shown below each element.  Two rectangular boxes labeled &lsquo;left&rsquo; (in gray) and &lsquo;right&rsquo; (in light blue) point downwards with arrows to the array&rsquo;s first and last elements, respectively.  A smaller gray box labeled &lsquo;i&rsquo; is positioned near the &lsquo;left&rsquo; box, suggesting an index or pointer.  A curved, light-blue arrow labeled &lsquo;swapped&rsquo; connects the first and last elements (1 and 2), indicating that these elements have been exchanged during the sorting process.  The arrows from &lsquo;left&rsquo; and &lsquo;right&rsquo; highlight the elements selected for comparison and subsequent swapping.
+Image represents a visual depiction of a two-pointer approach to array manipulation.  Two labeled boxes, &lsquo;left&rsquo; (gray) and &lsquo;right&rsquo; (light blue), point downwards towards an array <code>[1 0 1 2 0 0 2]</code>.  The array&rsquo;s indices are displayed below it, ranging from 0 to 6. The &lsquo;left&rsquo; pointer initially targets the first element (index 0), while the &lsquo;right&rsquo; pointer points to the last element (index 6).  A small, dark gray box labeled &lsquo;i&rsquo; is positioned next to the &lsquo;left&rsquo; box, suggesting an index variable.  A dashed, light blue arrow from the &lsquo;right&rsquo; pointer indicates that it might move leftward during the algorithm&rsquo;s execution.  The downward arrows from &lsquo;left&rsquo; and &lsquo;right&rsquo; visually represent the pointers&rsquo; initial positions within the array. The overall diagram illustrates the starting configuration of a common algorithm that likely involves processing the array from both ends, possibly for sorting, searching, or other operations requiring bidirectional traversal.
+Notice that after this swap, there’s now a new element at index i. So, we should not yet advance i, as we still need to decide whether this new element needs to be positioned elsewhere.</p>
+<p>The pointer i is now pointing at a 1. We don’t need to handle any 1s we encounter, so let’s just advance the i pointer:</p>
+<p>Image represents a visual depiction of a code snippet likely involving array traversal and conditional logic.  The diagram shows a numerical array <code>[1 0 1 2 0 0 2]</code> with indices displayed below each element (0 through 6).  A rectangular box labeled &lsquo;left&rsquo; points to the array&rsquo;s first element (at index 0), and another box labeled &lsquo;i&rsquo; (likely representing an index variable) points to the same element.  A downward-pointing arrow from &lsquo;i&rsquo; indicates that the variable <code>i</code> is currently pointing to the first element of the array.  A separate box labeled &lsquo;right&rsquo; points to the array&rsquo;s element at index 5. A dashed-line box to the right describes a conditional statement: <code>nums[i] == 1</code>, which checks if the element at the index <code>i</code> is equal to 1.  If this condition is true, an action <code>i++</code> (incrementing the index <code>i</code>) is performed, implying that the code iterates through the array, checking each element for the value 1 and moving to the next element if found.
+Image represents a visual depiction of a two-pointer approach to array traversal.  A numerical array <code>[1, 0, 1, 2, 0, 0, 2]</code> is shown, with each element&rsquo;s index displayed below it (0 through 6).  Two rectangular boxes labeled &lsquo;left&rsquo; and &lsquo;right&rsquo; point downwards, indicating pointers to the array&rsquo;s beginning and end, respectively. A square box labeled &lsquo;i&rsquo; points downwards to the second element (value 0) of the array. A dashed arrow connects the &lsquo;left&rsquo; pointer (pointing to the first element, value 1) to the &lsquo;i&rsquo; pointer, suggesting an interaction or comparison between these two elements. The &lsquo;right&rsquo; pointer points to the second-to-last element (value 0). The arrangement visually demonstrates the concept of using two pointers, &lsquo;left&rsquo; and &lsquo;right,&rsquo; to traverse and potentially manipulate an array, with the &lsquo;i&rsquo; pointer possibly representing an intermediate index or a point of comparison within the array.  The grayscale variation in the array&rsquo;s element indices suggests a possible focus on a specific sub-section of the array during the traversal.
+Now, pointer i is pointing at a 0, so let’s swap it with nums[left]:</p>
+<p>Image represents a visual depiction of a step within a sorting algorithm, likely a variation of quicksort.  The top shows two labeled boxes, &lsquo;left&rsquo; (in red) and &lsquo;i&rsquo; (in black), pointing down with arrows to the array <code>[1 0 1 2 0 0 2]</code>.  The &lsquo;left&rsquo; arrow points to the element &lsquo;1&rsquo; at index 0, and the &lsquo;i&rsquo; arrow points to the element &lsquo;0&rsquo; at index 1.  A third box labeled &lsquo;right&rsquo; (in grey) points to the element &lsquo;0&rsquo; at index 4.  A dashed-line box to the right contains a conditional statement &lsquo;nums[i] == 0&rsquo; followed by an action &lsquo;→ swap(nums[i], nums[left])&rsquo;. This indicates that if the element at index <code>i</code> (which is 0) is equal to 0, then the algorithm swaps the values at indices <code>i</code> and <code>left</code>.  The indices are shown below the array elements for reference.  The diagram illustrates a single iteration where the algorithm checks a specific element and performs a swap based on a condition.
+Image represents a visual depiction of a sorting algorithm, likely a variation of quicksort or similar, showing a single swap operation.  A red box labeled &lsquo;left&rsquo; points down to the first element (0) of an array [0, 1, 1, 2, 0, 0, 2]. A gray box labeled &lsquo;i&rsquo; points down to the second element (1) of the same array.  Below the array, index numbers (0, 1, 2, 3, 4, 5, 6) are shown for reference. A red curved arrow labeled &lsquo;swapped&rsquo; indicates that the elements at indices 0 and 1 have been exchanged. A gray box labeled &lsquo;right&rsquo; points down to the array&rsquo;s element at index 4 (the first 0 after the initial elements).  The visual emphasizes the interaction between the &lsquo;left&rsquo; and &lsquo;i&rsquo; pointers during a single swap step within a larger sorting process, highlighting the movement and exchange of elements based on their values and the pointers&rsquo; positions.
+After this swap, there’s a new element at index i. Since i is positioned after the left pointer, this element can only be a 1 for the following reasons:</p>
+<p>Before the swap, all 0s originally to the left of i would have already been positioned to the left of the left index.</p>
+<p>Before the swap, all 2s originally to the left of i would have already been positioned to the right of the right index.</p>
+<p>Therefore, we can also advance the i pointer while advancing the left pointer.</p>
+<p>Image represents a visual depiction of a coding pattern, likely illustrating array manipulation.  The diagram shows a numerical array <code>[0 1 1 2 0 0 2]</code> with indices displayed below (0 to 6).  Above the array, two labeled boxes, &lsquo;left&rsquo; (in red) and &lsquo;i&rsquo; (in gray), point downwards with arrows to the array&rsquo;s elements at indices 0 and 1 respectively.  Another labeled box, &lsquo;right&rsquo; (in gray), points to the element at index 5.  To the right, a dashed-line box indicates the resulting actions:  two arrows point to &lsquo;left++&rsquo; and &lsquo;i++&rsquo;, suggesting that the variables &lsquo;left&rsquo; and &lsquo;i&rsquo; are incremented after accessing their respective array elements.  The overall pattern suggests an iterative process involving two pointers (&lsquo;left&rsquo; and &lsquo;i&rsquo;) moving through the array, potentially for comparison or manipulation, with the &lsquo;right&rsquo; pointer possibly indicating a boundary or target.
+Image represents a visual depiction of a data structure manipulation, possibly within an algorithm.  A numerical array <code>[0, 1, 1, 2, 0, 0, 2]</code> is shown, with each element indexed below (0-6).  Two labeled boxes, &lsquo;left&rsquo; (red) and &lsquo;right&rsquo; (gray), indicate operations on the array. A solid black arrow descends from &lsquo;left&rsquo; to the element &lsquo;1&rsquo; at index 1, signifying a direct modification or access. A solid black arrow descends from &lsquo;i&rsquo; (a gray box likely representing an index or iterator) to the element &lsquo;1&rsquo; at index 2, indicating another direct modification or access.  A dashed red arrow connects &lsquo;left&rsquo; to the element &lsquo;0&rsquo; at index 0, suggesting a potential indirect influence or conditional operation. A solid gray arrow descends from &lsquo;right&rsquo; to the element &lsquo;0&rsquo; at index 5, showing a direct modification or access at that location. The overall image illustrates how different parts of an array are accessed and potentially modified from different points of reference (&lsquo;left&rsquo; and &lsquo;right&rsquo;), possibly within a sorting or merging algorithm.
+We now know what to do whenever we encounter a 0, 1, or 2. We can continue applying this logic until the pointer i surpasses the right pointer, indicating all elements have been positioned correctly:</p>
+<p>Image represents a diagram illustrating a coding pattern, possibly related to array traversal or searching.  Three rectangular boxes labeled &lsquo;left,&rsquo; &lsquo;right,&rsquo; and &lsquo;i&rsquo; are positioned above a numerical array represented as <code>[0 0 0 1 1 2 2]</code>, with indices 0 through 6 displayed below the array elements.  Arrows descend from &lsquo;left,&rsquo; &lsquo;right,&rsquo; and &lsquo;i&rsquo; pointing to specific elements within the array: &lsquo;left&rsquo; points to &lsquo;1&rsquo; at index 3, &lsquo;right&rsquo; points to &lsquo;1&rsquo; at index 4, and &lsquo;i&rsquo; points to &lsquo;2&rsquo; at index 5.  The array elements at indices 0, 1, and 2 are colored red, suggesting they might be excluded or processed differently. The element at index 4 is colored light blue, suggesting a different state. A separate, dashed-line box to the right displays the condition &lsquo;i &gt; right → stop,&rsquo; indicating that the algorithm terminates when the value of &lsquo;i&rsquo; exceeds the value of &lsquo;right&rsquo;.  The overall diagram depicts a process where two pointers (&lsquo;left&rsquo; and &lsquo;right&rsquo;) and an index (&lsquo;i&rsquo;) traverse an array, potentially searching or manipulating its elements based on the condition specified in the final box.
+Note that we don’t stop the process when i == right because the i pointer could still be pointing at a 0, which would need to be swapped.</p>
+<p>Why do we advance both i and left pointers when we encounter a 0?
+A question we might have regarding the above process is why we advance the i pointer along with the left pointer when nums[i] == 0.</p>
+<p>The reason becomes clear when we consider the following example:</p>
+<p>The image represents a visual depiction of a merge operation, likely within a merge sort algorithm.  Two labeled sources, &lsquo;left&rsquo; (in red) and &lsquo;right&rsquo; (in gray), each point downwards via arrows to an array-like structure.  The &lsquo;left&rsquo; source points to the first element, &lsquo;0&rsquo;, of the array [0, 1, 2], with the index &lsquo;0&rsquo; shown below it.  The &lsquo;i&rsquo; box, in black and white, also points to the same array&rsquo;s first element, suggesting an index or iterator. The &lsquo;right&rsquo; source points to the element &lsquo;1&rsquo; in the array [1], with the index &lsquo;3&rsquo; shown below it.  The arrays are presented side-by-side, implying that the merge operation combines elements from two sorted sub-arrays (&lsquo;left&rsquo; and &lsquo;right&rsquo;) into a single sorted array. The arrows visually represent the flow of data from the source arrays into the merged array, illustrating the merging process.
+Here, nums[i] == 0, so the first thing we do is swap nums[i] and nums[left], which doesn’t change anything in this case since left and i point to the same element. Now, observe what happens if we only advance the left pointer:</p>
+<p>Image represents a visual depiction of a step in a sorting algorithm, likely a partitioning step within quicksort.  The left side shows an array <code>[0, 1, 2, 1]</code> with indices 0, 1, 2, and 3 displayed below.  A red box labeled &lsquo;left&rsquo; points to the element at index 0 (value 0), and a gray box labeled &lsquo;i&rsquo; points to the element at index 1 (value 1).  A red arrow indicates a connection from &lsquo;left&rsquo; to the element at index 0, suggesting a pointer or index variable. A black arrow from &lsquo;i&rsquo; also points to the element at index 1. A gray box labeled &lsquo;right&rsquo; points to the element at index 3 (value 1). The right side shows a pseudocode block describing the algorithm&rsquo;s logic.  It checks if <code>nums[i]</code> (the element pointed to by &lsquo;i&rsquo;) is equal to 0. If true, it executes <code>swap(nums[i], nums[left])</code>, swapping the elements at indices <code>i</code> and <code>left</code>. Finally, it increments <code>left</code> using <code>left++</code>, moving the &lsquo;left&rsquo; pointer one position to the right.  The overall diagram illustrates the process of partitioning an array based on a pivot value (likely 0 in this case) by comparing elements and swapping them to place elements smaller than the pivot to the left.
+Image represents a visual depiction of an iterative process, likely within a loop in a program.  A gray box labeled &lsquo;i&rsquo; represents a loop counter variable.  A red box labeled &lsquo;left&rsquo; and a gray box labeled &lsquo;right&rsquo; represent index pointers or variables.  Arrows indicate the flow of control.  A downward arrow from &lsquo;i&rsquo; points to the element at index 0 in the array <code>[0, 1, 2, 1]</code>. A downward red arrow from &lsquo;left&rsquo; points to the element at index 1. A dashed red arrow connects the element at index 0 to the element at index 1, suggesting a comparison or operation between these elements. A downward gray arrow from &lsquo;right&rsquo; points to the element at index 3.  The array <code>[0, 1, 2, 1]</code> is indexed from 0 to 3, shown below the array.  The condition <code>(i &lt; left)</code> is displayed, indicating a loop continuation condition where the loop continues as long as the value of <code>i</code> is less than the value of <code>left</code>.  The overall diagram illustrates a step in an algorithm, possibly a search or sorting algorithm, that involves comparing and manipulating elements within an array using index pointers.
+As we can see, the left pointer will surpass the i pointer, which shouldn’t happen since i needs to stay between left and right throughout the algorithm. To avoid this, we advance both the i and left pointers:</p>
+<p>Image represents a visual depiction of a step in a sorting algorithm, likely a variation of quicksort or similar.  The left side shows an array <code>[0, 1, 2, 1]</code> with indices 0, 1, 2, and 3 displayed below.  A red box labeled &lsquo;left&rsquo; points to the element at index 0 (value 0), and a gray box labeled &lsquo;i&rsquo; points to the element at index 0 (value 0) as well. A gray box labeled &lsquo;right&rsquo; points to the element at index 3 (value 1). The right side shows a pseudocode block describing the algorithm&rsquo;s actions.  The first line checks if <code>nums[i]</code> (the element at index <code>i</code>) is equal to 0. If true, the next line executes <code>swap(nums[i], nums[left])</code>, swapping the element at index <code>i</code> with the element at index <code>left</code>. The following lines increment <code>left</code> (<code>left++</code>) and <code>i</code> (<code>i++</code>), moving to the next elements in the array.  The arrows visually connect the code block to the array, illustrating the flow of data and control during the algorithm&rsquo;s execution.  The red arrow from &lsquo;left&rsquo; to the array element 0 highlights the current position of the &lsquo;left&rsquo; pointer.
+Image represents a visual depiction of an array manipulation process, likely within a sorting or searching algorithm.  A numerical array <code>[0, 1, 2, 1]</code> is shown, with indices 0, 1, 2, and 3 displayed below each element.  A red box labeled &lsquo;left&rsquo; points with a solid red arrow to the element &lsquo;1&rsquo; at index 1, indicating a selection or operation on this element.  A dashed red arrow from &lsquo;left&rsquo; curves to the element &lsquo;0&rsquo; at index 0, suggesting a comparison or potential swap. A gray box labeled &lsquo;i&rsquo; points with a solid black arrow to the same element &lsquo;1&rsquo; at index 1, possibly representing an iterator or index variable. Finally, a gray box labeled &lsquo;right&rsquo; points with a solid gray arrow to the element &lsquo;1&rsquo; at index 3, potentially indicating another element involved in the comparison or operation. The overall diagram illustrates the interaction between different parts of an algorithm, focusing on the element at index 1 and its relationship to other elements within the array, possibly during a left-to-right traversal or comparison.
+Try it yourself
+Write your solution to the problem before checking the reference implementation.
+Implementation
+Python
+JavaScript
+Java
+from typing import List
+    
+def dutch_national_flag(nums: List[int]) -&gt; None:
+    i, left, right = 0, 0, len(nums) - 1
+    while i &lt;= right:
+        # Swap 0s with the element at the left pointer.
+        if nums[i] == 0:
+            nums[i], nums[left] = nums[left], nums[i]
+            left += 1
+            i += 1
+        # Swap 2s with the element at the right pointer.
+        elif nums[i] == 2:
+            nums[i], nums[right] = nums[right], nums[i]
+            right -= 1
+        else:
+            i += 1
+Complexity Analysis
+Time complexity: The time complexity of dutch_national_flag is 
+O
+(
+n
+)
+O(n) because we iterate through each element of nums once.</p>
+<p>Space complexity: The space complexity is 
+O
+(
+1
+)
+O(1).</p>
+<blockquote>
+<p><em>Stub — pendiente de redacción.</em></p>
+</blockquote>
+<p><a href="../../../../index.html">⬅ Back to KB index</a></p>
+      <nav class="prev-next"><a class="prev" href="kth-largest-integer.html"><div class="label">← Anterior</div><div class="title">Kth Largest Integer</div></a><a class="next" href="../18-bit-manipulation/introduction.html"><div class="label">Siguiente →</div><div class="title">Introduction to Bit Manipulation</div></a></nav>
+      <div class="article-footer">
+        <span>📚 Personal KB · Gaston Esman</span>
+        <a href="dutch-national-flag.md">📝 Ver fuente .md</a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // ===== TOC active section highlight =====
+  const tocLinks = document.querySelectorAll('.sidebar .toc a');
+  const sections = Array.from(tocLinks).map(a => {
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    return el ? { link: a, el: el } : null;
+  }).filter(Boolean);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 100;
+    let current = null;
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+      else break;
+    }
+    tocLinks.forEach(a => a.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+</script>
+
+</body>
+</html>
