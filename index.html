@@ -1,0 +1,1737 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📚 Personal KB — Gaston Esman</title>
+<style>
+  :root {
+    --bg:           #0a0e14;
+    --bg-elev:      #11161d;
+    --bg-card:      #161c25;
+    --bg-card-hover:#1c2330;
+    --border:       #232b38;
+    --border-soft:  #1a212c;
+    --text:         #e6edf3;
+    --text-dim:     #8b96a8;
+    --text-mute:    #5b6678;
+    --blue:         #6cb6ff;
+    --purple:       #c08cff;
+    --green:        #4ade80;
+    --yellow:       #fbbf24;
+    --orange:       #fb923c;
+    --red:          #f87171;
+    --pink:         #f472b6;
+    --teal:         #2dd4bf;
+    --shadow:       0 4px 20px rgba(0,0,0,.4);
+    --shadow-lg:    0 10px 40px rgba(0,0,0,.5);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(at 15% 0%, rgba(108,182,255,.08) 0px, transparent 50%),
+      radial-gradient(at 85% 0%, rgba(192,140,255,.08) 0px, transparent 50%),
+      radial-gradient(at 50% 100%, rgba(74,222,128,.04) 0px, transparent 50%);
+    background-attachment: fixed;
+  }
+
+  /* ===== TOP NAV ===== */
+  .topnav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,14,20,.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .topnav .brand {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+  }
+  .topnav .brand .emoji { font-size: 20px; }
+  .topnav .brand .sep { color: var(--text-mute); margin: 0 4px; }
+  .topnav .brand .owner { color: var(--text-dim); font-weight: 500; }
+
+  .search-wrap {
+    flex: 1;
+    max-width: 480px;
+    position: relative;
+  }
+  .search-wrap::before {
+    content: "🔍";
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 13px;
+    opacity: .6;
+  }
+  #search {
+    width: 100%;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 9px 12px 9px 36px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: all .15s;
+  }
+  #search:focus {
+    outline: none;
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(108,182,255,.15);
+  }
+  .search-kbd {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 11px;
+    color: var(--text-mute);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: ui-monospace, "SF Mono", monospace;
+  }
+
+  .topnav-links {
+    display: flex;
+    gap: 4px;
+    margin-left: auto;
+  }
+  .topnav-links a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    transition: all .15s;
+  }
+  .topnav-links a:hover {
+    color: var(--text);
+    background: var(--bg-card);
+  }
+
+  /* ===== HERO ===== */
+  .hero {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 56px 24px 32px;
+  }
+  .hero h1 {
+    font-size: clamp(32px, 5vw, 48px);
+    font-weight: 800;
+    letter-spacing: -.02em;
+    background: linear-gradient(135deg, #6cb6ff 0%, #c08cff 50%, #f472b6 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 12px;
+  }
+  .hero .sub {
+    color: var(--text-dim);
+    font-size: 17px;
+    max-width: 640px;
+    margin-bottom: 28px;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .stat {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    transition: all .2s;
+  }
+  .stat:hover {
+    border-color: var(--blue);
+    transform: translateY(-2px);
+  }
+  .stat .n {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+  }
+  .stat .l {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 6px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+  .stat.blue .n { color: var(--blue); }
+  .stat.purple .n { color: var(--purple); }
+  .stat.green .n { color: var(--green); }
+  .stat.orange .n { color: var(--orange); }
+
+  /* ===== FILTERS ===== */
+  .filters {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px 24px 0;
+  }
+  .filter-label {
+    font-size: 12px;
+    color: var(--text-mute);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+  .tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 20px;
+  }
+  .tag {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 5px 11px;
+    border-radius: 999px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all .15s;
+    user-select: none;
+    font-family: ui-monospace, "SF Mono", monospace;
+  }
+  .tag:hover {
+    border-color: var(--blue);
+    color: var(--text);
+  }
+  .tag.active {
+    background: rgba(108,182,255,.15);
+    border-color: var(--blue);
+    color: var(--blue);
+  }
+  .tag .count {
+    color: var(--text-mute);
+    margin-left: 4px;
+    font-size: 11px;
+  }
+  .tag.active .count { color: var(--blue); opacity: .7; }
+
+  /* ===== MAIN ===== */
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 16px 24px 80px;
+  }
+
+  /* ===== PART HEADERS ===== */
+  .part {
+    margin-top: 48px;
+  }
+  .part-header {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 8px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .part-header h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .part-header .roman {
+    color: var(--text-mute);
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: .05em;
+  }
+  .part-desc {
+    color: var(--text-dim);
+    font-size: 14px;
+    font-style: italic;
+    margin-bottom: 24px;
+  }
+  .part.empty .part-desc::after {
+    content: " · sin contenido aún";
+    color: var(--text-mute);
+    font-style: normal;
+  }
+
+  /* ===== BOOK CARD ===== */
+  .book {
+    background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-elev) 100%);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    margin-bottom: 24px;
+    overflow: hidden;
+    transition: all .25s;
+  }
+  .book:hover {
+    border-color: var(--border);
+    box-shadow: var(--shadow);
+  }
+  .book-header {
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-soft);
+    transition: background .15s;
+  }
+  .book-header:hover {
+    background: var(--bg-card-hover);
+  }
+  .book-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex: 1;
+    min-width: 0;
+  }
+  .book-emoji {
+    font-size: 28px;
+    flex-shrink: 0;
+  }
+  .book-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+  .book-sub {
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  .book-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .pill {
+    font-size: 11px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-weight: 600;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+  .pill.active { background: rgba(74,222,128,.12); color: var(--green); border-color: rgba(74,222,128,.3); }
+  .pill.progress { background: rgba(251,191,36,.12); color: var(--yellow); border-color: rgba(251,191,36,.3); }
+  .pill.stub { background: rgba(91,102,120,.12); color: var(--text-mute); }
+
+  .book-toggle {
+    color: var(--text-mute);
+    font-size: 18px;
+    transition: transform .2s;
+  }
+  .book.open .book-toggle { transform: rotate(180deg); }
+
+  .book-body {
+    display: none;
+  }
+  .book.open .book-body { display: block; }
+
+  .book-blurb {
+    padding: 16px 24px;
+    color: var(--text-dim);
+    font-size: 14px;
+    border-bottom: 1px solid var(--border-soft);
+    background: rgba(255,255,255,.01);
+  }
+
+  /* ===== CHAPTERS LIST ===== */
+  .chapters {
+    list-style: none;
+  }
+  .chapter {
+    display: grid;
+    grid-template-columns: 50px 1fr auto;
+    gap: 14px;
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--border-soft);
+    align-items: center;
+    transition: all .15s;
+    position: relative;
+  }
+  .chapter:last-child { border-bottom: none; }
+  .chapter:hover {
+    background: var(--bg-card-hover);
+  }
+  .chapter:hover .chapter-num { color: var(--blue); }
+
+  .chapter-num {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", monospace;
+    color: var(--text-mute);
+    font-size: 13px;
+    text-align: center;
+    font-weight: 600;
+    transition: color .15s;
+  }
+  .chapter-num.dual {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    font-size: 11px;
+  }
+  .chapter-num.dual .kb { color: var(--blue); }
+  .chapter-num.dual .src { color: var(--text-mute); font-size: 10px; }
+
+  .chapter-content { min-width: 0; }
+  .chapter-title {
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    display: inline-block;
+    margin-bottom: 4px;
+  }
+  .chapter-title:hover { color: var(--blue); }
+  .chapter-title.disabled {
+    color: var(--text-mute);
+    cursor: not-allowed;
+  }
+  .chapter-title.disabled:hover { color: var(--text-mute); }
+
+  .chapter-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 4px;
+  }
+  .chapter-tag {
+    font-size: 10.5px;
+    color: var(--text-mute);
+    background: var(--bg);
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-family: ui-monospace, monospace;
+    border: 1px solid var(--border-soft);
+  }
+
+  .chapter-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  /* ===== NESTED (Two Pointers problems) ===== */
+  .nested-toggle {
+    display: inline-block;
+    margin-left: 8px;
+    font-size: 11px;
+    color: var(--purple);
+    cursor: pointer;
+    user-select: none;
+    padding: 2px 8px;
+    border: 1px solid rgba(192,140,255,.25);
+    border-radius: 4px;
+    background: rgba(192,140,255,.08);
+    transition: all .15s;
+  }
+  .nested-toggle:hover {
+    background: rgba(192,140,255,.18);
+    border-color: var(--purple);
+  }
+
+  .nested {
+    display: none;
+    grid-column: 1 / -1;
+    margin: 12px 0 4px;
+    padding: 12px;
+    background: var(--bg);
+    border-radius: 8px;
+    border: 1px solid var(--border-soft);
+  }
+  .nested.open { display: block; }
+  .nested table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .nested th {
+    text-align: left;
+    color: var(--text-mute);
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .nested td {
+    padding: 9px 10px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .nested tr:last-child td { border-bottom: none; }
+  .nested a {
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .nested a:hover { color: var(--blue); }
+  .difficulty {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .difficulty.easy   { background: rgba(74,222,128,.12); color: var(--green); }
+  .difficulty.medium { background: rgba(251,191,36,.12); color: var(--yellow); }
+  .difficulty.hard   { background: rgba(248,113,113,.12); color: var(--red); }
+  .strategy-tag {
+    font-size: 11px;
+    color: var(--purple);
+    background: rgba(192,140,255,.1);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: ui-monospace, monospace;
+  }
+
+  /* ===== FOOTER NOTES ===== */
+  .footer-tip {
+    background: var(--bg-card);
+    border-left: 3px solid var(--blue);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 20px 0;
+    font-size: 14px;
+    color: var(--text-dim);
+  }
+  .footer-tip strong { color: var(--text); }
+  .footer-tip code {
+    background: var(--bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12.5px;
+    color: var(--blue);
+  }
+
+  .changelog-section {
+    margin-top: 56px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+  }
+  .changelog-section summary {
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    list-style: none;
+    user-select: none;
+  }
+  .changelog-section summary::-webkit-details-marker { display: none; }
+  .changelog-section summary::before {
+    content: "▸ ";
+    color: var(--text-mute);
+    transition: transform .15s;
+    display: inline-block;
+  }
+  .changelog-section[open] summary::before {
+    transform: rotate(90deg);
+  }
+  .changelog-list {
+    list-style: none;
+    padding-left: 0;
+  }
+  .changelog-list li {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-soft);
+    font-size: 13.5px;
+    color: var(--text-dim);
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 14px;
+  }
+  .changelog-list .date {
+    color: var(--blue);
+    font-family: ui-monospace, monospace;
+    font-size: 12.5px;
+    font-weight: 600;
+  }
+
+  /* ===== NO RESULTS ===== */
+  .no-results {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-mute);
+    display: none;
+  }
+  .no-results.show { display: block; }
+  .no-results .emoji { font-size: 48px; margin-bottom: 12px; }
+
+  /* ===== SCROLLBAR ===== */
+  ::-webkit-scrollbar { width: 12px; height: 12px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 6px;
+    border: 3px solid var(--bg);
+  }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-mute); }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 700px) {
+    .topnav { flex-wrap: wrap; }
+    .topnav-links { width: 100%; justify-content: center; order: 3; margin-left: 0; }
+    .chapter { grid-template-columns: 40px 1fr; }
+    .chapter-meta { grid-column: 1 / -1; padding-left: 54px; }
+    .search-kbd { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="brand">
+    <span class="emoji">📚</span>
+    <span>Personal KB</span>
+    <span class="sep">·</span>
+    <span class="owner">Gaston Esman</span>
+  </div>
+  <div class="search-wrap">
+    <input id="search" type="text" placeholder="Buscar capítulos, tags, conceptos…" autocomplete="off">
+    <span class="search-kbd">/</span>
+  </div>
+  <div class="topnav-links">
+    <a href="#book-1">Book I</a>
+    <a href="#book-2">Book II</a>
+    <a href="#book-3">Book III</a>
+    <a href="#book-4">Book IV</a>
+    <a href="STYLE.md">Style</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <h1>Personal Knowledge Base</h1>
+  <p class="sub">Notas técnicas, system design, OOD, y patrones de coding interview. Cada capítulo incluye <strong>"For Dummies"</strong> con analogías cotidianas, diagramas renderizados, traces paso a paso, y amplificaciones.</p>
+
+  <div class="stats">
+    <div class="stat blue">
+      <div class="n">4</div>
+      <div class="l">Books</div>
+    </div>
+    <div class="stat green">
+      <div class="n">13</div>
+      <div class="l">Active</div>
+    </div>
+    <div class="stat orange">
+      <div class="n">72</div>
+      <div class="l">Stubs</div>
+    </div>
+    <div class="stat purple">
+      <div class="n">~120</div>
+      <div class="l">Problemas</div>
+    </div>
+  </div>
+</section>
+
+<section class="filters">
+  <div class="filter-label">Filtrar por tag · click para alternar · multi-select</div>
+  <div class="tag-row" id="tagRow"></div>
+</section>
+
+<main>
+
+<!-- ============================================ -->
+<!-- PART I — CONCEPTS                              -->
+<!-- ============================================ -->
+<section class="part" id="part-1">
+  <div class="part-header">
+    <h2>📘 Part I — Concepts</h2>
+    <span class="roman">Definitions, mental models, "what is X?"</span>
+  </div>
+  <p class="part-desc">Tres libros: System Design (ByteByteGo), Object-Oriented Design, y Coding Interview Patterns.</p>
+
+  <!-- BOOK I -->
+  <article class="book open" id="book-1" data-search="book i system design bytebytego scaling">
+    <header class="book-header" onclick="toggleBook(this)">
+      <div class="book-title-wrap">
+        <span class="book-emoji">📘</span>
+        <div>
+          <div class="book-title">Book I — System Design Interview <span style="color:var(--text-mute);font-weight:500">(ByteByteGo)</span></div>
+          <div class="book-sub">30 capítulos · numeración del KB vs curso</div>
+        </div>
+      </div>
+      <div class="book-meta">
+        <span class="pill active">5 active</span>
+        <span class="pill stub">25 stubs</span>
+        <span class="book-toggle">▼</span>
+      </div>
+    </header>
+    <div class="book-body">
+      <div class="book-blurb">
+        Numeración: del curso (ByteByteGo). Los caps. <strong>1–5</strong> del KB corresponden a los caps. <strong>1–6</strong> del curso (off-by-one porque el curso suma una unidad introductoria). Desde el cap. 6 en adelante la numeración coincide.
+      </div>
+      <ul class="chapters">
+
+        <li class="chapter" data-tags="system-design scalability distributed-systems" data-status="active" data-search="scaling zero millions users">
+          <div class="chapter-num dual"><span class="kb">KB·1</span><span class="src">curso·1</span></div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/scaling-from-zero-to-millions.html">Scaling from Zero to Millions of Users</a>
+            <div class="chapter-tags">
+              <span class="chapter-tag">system-design</span>
+              <span class="chapter-tag">scalability</span>
+              <span class="chapter-tag">distributed-systems</span>
+            </div>
+          </div>
+          <div class="chapter-meta"><span class="pill active">✓ active</span></div>
+        </li>
+
+        <li class="chapter" data-tags="system-design estimation interview-prep capacity-planning" data-status="active" data-search="back envelope estimation">
+          <div class="chapter-num dual"><span class="kb">KB·2</span><span class="src">curso·2</span></div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/back-of-the-envelope-estimation.html">Back-of-the-envelope Estimation</a>
+            <div class="chapter-tags">
+              <span class="chapter-tag">system-design</span>
+              <span class="chapter-tag">estimation</span>
+              <span class="chapter-tag">interview-prep</span>
+              <span class="chapter-tag">capacity-planning</span>
+            </div>
+          </div>
+          <div class="chapter-meta"><span class="pill active">✓ active</span></div>
+        </li>
+
+        <li class="chapter" data-tags="system-design interview-prep framework methodology" data-status="active" data-search="framework system design interviews">
+          <div class="chapter-num dual"><span class="kb">KB·3</span><span class="src">curso·3</span></div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/framework-system-design-interviews.html">A Framework for System Design Interviews</a>
+            <div class="chapter-tags">
+              <span class="chapter-tag">system-design</span>
+              <span class="chapter-tag">interview-prep</span>
+              <span class="chapter-tag">framework</span>
+              <span class="chapter-tag">methodology</span>
+            </div>
+          </div>
+          <div class="chapter-meta"><span class="pill active">✓ active</span></div>
+        </li>
+
+        <li class="chapter" data-tags="system-design rate-limiting algorithms distributed-systems" data-status="active" data-search="rate limiter">
+          <div class="chapter-num dual"><span class="kb">KB·4</span><span class="src">curso·4–5</span></div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/design-rate-limiter.html">Design A Rate Limiter</a>
+            <div class="chapter-tags">
+              <span class="chapter-tag">system-design</span>
+              <span class="chapter-tag">rate-limiting</span>
+              <span class="chapter-tag">algorithms</span>
+              <span class="chapter-tag">distributed-systems</span>
+            </div>
+          </div>
+          <div class="chapter-meta"><span class="pill active">✓ active</span></div>
+        </li>
+
+        <li class="chapter" data-tags="system-design consistent-hashing sharding distributed-systems" data-status="active" data-search="consistent hashing">
+          <div class="chapter-num dual"><span class="kb">KB·5</span><span class="src">curso·6</span></div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/design-consistent-hashing.html">Design Consistent Hashing</a>
+            <div class="chapter-tags">
+              <span class="chapter-tag">system-design</span>
+              <span class="chapter-tag">consistent-hashing</span>
+              <span class="chapter-tag">sharding</span>
+              <span class="chapter-tag">distributed-systems</span>
+            </div>
+          </div>
+          <div class="chapter-meta"><span class="pill active">✓ active</span></div>
+        </li>
+
+        <!-- STUBS Book I -->
+        <li class="chapter" data-tags="system-design key-value-store distributed-systems storage" data-status="stub" data-search="key value store">
+          <div class="chapter-num dual"><span class="kb">—</span><span class="src">curso·7</span></div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/design-key-value-store.html">Design a Key-Value Store</a>
+            <div class="chapter-tags">
+              <span class="chapter-tag">key-value-store</span>
+              <span class="chapter-tag">distributed-systems</span>
+              <span class="chapter-tag">storage</span>
+            </div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+
+        <li class="chapter" data-tags="system-design unique-id snowflake distributed-systems" data-status="stub" data-search="unique id generator snowflake">
+          <div class="chapter-num dual"><span class="kb">—</span><span class="src">curso·8</span></div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/design-unique-id-generator.html">Design a Unique ID Generator in Distributed Systems</a>
+            <div class="chapter-tags">
+              <span class="chapter-tag">unique-id</span>
+              <span class="chapter-tag">snowflake</span>
+              <span class="chapter-tag">distributed-systems</span>
+            </div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+
+        <li class="chapter" data-tags="system-design url-shortener hashing" data-status="stub" data-search="url shortener">
+          <div class="chapter-num dual"><span class="kb">—</span><span class="src">curso·9</span></div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/design-url-shortener.html">Design a URL Shortener</a>
+            <div class="chapter-tags">
+              <span class="chapter-tag">url-shortener</span>
+              <span class="chapter-tag">hashing</span>
+            </div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+
+        <li class="chapter" data-tags="system-design web-crawler distributed-systems" data-status="stub" data-search="web crawler">
+          <div class="chapter-num dual"><span class="kb">—</span><span class="src">curso·10</span></div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/design-web-crawler.html">Design a Web Crawler</a>
+            <div class="chapter-tags">
+              <span class="chapter-tag">web-crawler</span>
+              <span class="chapter-tag">distributed-systems</span>
+            </div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+
+        <li class="chapter" data-tags="system-design notifications messaging" data-status="stub" data-search="notification system">
+          <div class="chapter-num dual"><span class="kb">—</span><span class="src">curso·11</span></div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/design-notification-system.html">Design a Notification System</a>
+            <div class="chapter-tags">
+              <span class="chapter-tag">notifications</span>
+              <span class="chapter-tag">messaging</span>
+            </div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+
+        <li class="chapter" data-tags="system-design news-feed fanout" data-status="stub" data-search="news feed">
+          <div class="chapter-num dual"><span class="kb">—</span><span class="src">curso·12</span></div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/design-news-feed-system.html">Design a News Feed System</a>
+            <div class="chapter-tags">
+              <span class="chapter-tag">news-feed</span>
+              <span class="chapter-tag">fanout</span>
+            </div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+
+        <li class="chapter" data-tags="system-design chat websockets messaging" data-status="stub" data-search="chat system">
+          <div class="chapter-num dual"><span class="kb">—</span><span class="src">curso·13</span></div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/design-chat-system.html">Design a Chat System</a>
+            <div class="chapter-tags">
+              <span class="chapter-tag">chat</span>
+              <span class="chapter-tag">websockets</span>
+              <span class="chapter-tag">messaging</span>
+            </div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+
+        <li class="chapter" data-tags="system-design autocomplete trie search" data-status="stub" data-search="autocomplete search trie">
+          <div class="chapter-num dual"><span class="kb">—</span><span class="src">curso·14</span></div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/design-search-autocomplete-system.html">Design a Search Autocomplete System</a>
+            <div class="chapter-tags">
+              <span class="chapter-tag">autocomplete</span>
+              <span class="chapter-tag">trie</span>
+              <span class="chapter-tag">search</span>
+            </div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+
+        <li class="chapter" data-tags="system-design video streaming cdn" data-status="stub" data-search="youtube video streaming">
+          <div class="chapter-num dual"><span class="kb">—</span><span class="src">curso·15</span></div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/design-youtube.html">Design YouTube</a>
+            <div class="chapter-tags">
+              <span class="chapter-tag">video</span>
+              <span class="chapter-tag">streaming</span>
+              <span class="chapter-tag">cdn</span>
+            </div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+
+        <li class="chapter" data-tags="system-design file-storage sync" data-status="stub" data-search="google drive file storage">
+          <div class="chapter-num dual"><span class="kb">—</span><span class="src">curso·16</span></div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/design-google-drive.html">Design Google Drive</a>
+            <div class="chapter-tags">
+              <span class="chapter-tag">file-storage</span>
+              <span class="chapter-tag">sync</span>
+            </div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+
+        <li class="chapter" data-tags="system-design proximity geospatial geohash" data-status="stub" data-search="proximity service geospatial">
+          <div class="chapter-num dual"><span class="kb">—</span><span class="src">curso·17</span></div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/design-proximity-service.html">Design a Proximity Service</a>
+            <div class="chapter-tags">
+              <span class="chapter-tag">proximity</span>
+              <span class="chapter-tag">geospatial</span>
+              <span class="chapter-tag">geohash</span>
+            </div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+
+        <li class="chapter" data-tags="system-design location real-time pub-sub" data-status="stub" data-search="nearby friends location">
+          <div class="chapter-num dual"><span class="kb">—</span><span class="src">curso·18</span></div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/design-nearby-friends.html">Design Nearby Friends</a>
+            <div class="chapter-tags">
+              <span class="chapter-tag">location</span>
+              <span class="chapter-tag">real-time</span>
+              <span class="chapter-tag">pub-sub</span>
+            </div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+
+        <li class="chapter" data-tags="system-design maps geospatial routing" data-status="stub" data-search="google maps routing">
+          <div class="chapter-num dual"><span class="kb">—</span><span class="src">curso·19</span></div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/design-google-maps.html">Design Google Maps</a>
+            <div class="chapter-tags">
+              <span class="chapter-tag">maps</span>
+              <span class="chapter-tag">geospatial</span>
+              <span class="chapter-tag">routing</span>
+            </div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+
+        <li class="chapter" data-tags="system-design message-queue kafka distributed-systems" data-status="stub" data-search="distributed message queue kafka">
+          <div class="chapter-num dual"><span class="kb">—</span><span class="src">curso·20</span></div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/design-distributed-message-queue.html">Design a Distributed Message Queue</a>
+            <div class="chapter-tags">
+              <span class="chapter-tag">message-queue</span>
+              <span class="chapter-tag">kafka</span>
+              <span class="chapter-tag">distributed-systems</span>
+            </div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+
+        <li class="chapter" data-tags="system-design monitoring alerting time-series observability" data-status="stub" data-search="metrics monitoring alerting">
+          <div class="chapter-num dual"><span class="kb">—</span><span class="src">curso·21</span></div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/design-metrics-monitoring-alerting.html">Design a Metrics Monitoring and Alerting System</a>
+            <div class="chapter-tags">
+              <span class="chapter-tag">monitoring</span>
+              <span class="chapter-tag">alerting</span>
+              <span class="chapter-tag">time-series</span>
+              <span class="chapter-tag">observability</span>
+            </div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+
+        <li class="chapter" data-tags="system-design streaming aggregation big-data" data-status="stub" data-search="ad click event aggregation">
+          <div class="chapter-num dual"><span class="kb">—</span><span class="src">curso·22</span></div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/design-ad-click-event-aggregation.html">Design Ad Click Event Aggregation</a>
+            <div class="chapter-tags">
+              <span class="chapter-tag">streaming</span>
+              <span class="chapter-tag">aggregation</span>
+              <span class="chapter-tag">big-data</span>
+            </div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+
+        <li class="chapter" data-tags="system-design reservations concurrency" data-status="stub" data-search="hotel reservation">
+          <div class="chapter-num dual"><span class="kb">—</span><span class="src">curso·23</span></div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/design-hotel-reservation-system.html">Design a Hotel Reservation System</a>
+            <div class="chapter-tags">
+              <span class="chapter-tag">reservations</span>
+              <span class="chapter-tag">concurrency</span>
+            </div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+
+        <li class="chapter" data-tags="system-design email smtp distributed-systems" data-status="stub" data-search="email service smtp">
+          <div class="chapter-num dual"><span class="kb">—</span><span class="src">curso·24</span></div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/design-distributed-email-service.html">Design a Distributed Email Service</a>
+            <div class="chapter-tags">
+              <span class="chapter-tag">email</span>
+              <span class="chapter-tag">smtp</span>
+              <span class="chapter-tag">distributed-systems</span>
+            </div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+
+        <li class="chapter" data-tags="system-design object-storage s3 distributed-systems" data-status="stub" data-search="s3 object storage">
+          <div class="chapter-num dual"><span class="kb">—</span><span class="src">curso·25</span></div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/design-s3-like-object-storage.html">Design an S3-like Object Storage</a>
+            <div class="chapter-tags">
+              <span class="chapter-tag">object-storage</span>
+              <span class="chapter-tag">s3</span>
+              <span class="chapter-tag">distributed-systems</span>
+            </div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+
+        <li class="chapter" data-tags="system-design leaderboard redis sorted-sets" data-status="stub" data-search="gaming leaderboard redis">
+          <div class="chapter-num dual"><span class="kb">—</span><span class="src">curso·26</span></div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/design-realtime-gaming-leaderboard.html">Design a Real-time Gaming Leaderboard</a>
+            <div class="chapter-tags">
+              <span class="chapter-tag">leaderboard</span>
+              <span class="chapter-tag">redis</span>
+              <span class="chapter-tag">sorted-sets</span>
+            </div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+
+        <li class="chapter" data-tags="system-design payments idempotency transactions" data-status="stub" data-search="payment system">
+          <div class="chapter-num dual"><span class="kb">—</span><span class="src">curso·27</span></div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/design-payment-system.html">Design a Payment System</a>
+            <div class="chapter-tags">
+              <span class="chapter-tag">payments</span>
+              <span class="chapter-tag">idempotency</span>
+              <span class="chapter-tag">transactions</span>
+            </div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+
+        <li class="chapter" data-tags="system-design wallet payments ledger" data-status="stub" data-search="digital wallet">
+          <div class="chapter-num dual"><span class="kb">—</span><span class="src">curso·28</span></div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/design-digital-wallet.html">Design a Digital Wallet</a>
+            <div class="chapter-tags">
+              <span class="chapter-tag">wallet</span>
+              <span class="chapter-tag">payments</span>
+              <span class="chapter-tag">ledger</span>
+            </div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+
+        <li class="chapter" data-tags="system-design stock-exchange low-latency matching-engine" data-status="stub" data-search="stock exchange matching engine">
+          <div class="chapter-num dual"><span class="kb">—</span><span class="src">curso·29</span></div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/design-stock-exchange.html">Design a Stock Exchange</a>
+            <div class="chapter-tags">
+              <span class="chapter-tag">stock-exchange</span>
+              <span class="chapter-tag">low-latency</span>
+              <span class="chapter-tag">matching-engine</span>
+            </div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+
+        <li class="chapter" data-tags="system-design wrap-up" data-status="stub" data-search="the learning continues">
+          <div class="chapter-num dual"><span class="kb">—</span><span class="src">curso·30</span></div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/the-learning-continues.html">The Learning Continues</a>
+            <div class="chapter-tags">
+              <span class="chapter-tag">wrap-up</span>
+            </div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+
+      </ul>
+    </div>
+  </article>
+
+  <!-- BOOK II -->
+  <article class="book" id="book-2" data-search="book ii object oriented design ood">
+    <header class="book-header" onclick="toggleBook(this)">
+      <div class="book-title-wrap">
+        <span class="book-emoji">📕</span>
+        <div>
+          <div class="book-title">Book II — Object-Oriented Design Interview</div>
+          <div class="book-sub">14 capítulos · OOP fundamentals + 11 problemas clásicos</div>
+        </div>
+      </div>
+      <div class="book-meta">
+        <span class="pill stub">14 stubs</span>
+        <span class="book-toggle">▼</span>
+      </div>
+    </header>
+    <div class="book-body">
+      <div class="book-blurb">
+        Libro de OOD: cubre fundamentos de OOP + 11 problemas clásicos de OOD interview (parking lot, vending machine, elevator, ATM, etc.). Archivos en <code>topics/concepts/ood/</code>.
+      </div>
+      <ul class="chapters">
+
+        <li class="chapter" data-tags="ood interview-prep oop" data-status="stub">
+          <div class="chapter-num">1</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/ood/what-is-ood-interview.html">What is an Object-Oriented Design Interview</a>
+            <div class="chapter-tags"><span class="chapter-tag">ood</span><span class="chapter-tag">interview-prep</span><span class="chapter-tag">oop</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+        <li class="chapter" data-tags="ood interview-prep framework methodology" data-status="stub">
+          <div class="chapter-num">2</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/ood/framework-ood-interview.html">A Framework for the OOD Interview</a>
+            <div class="chapter-tags"><span class="chapter-tag">ood</span><span class="chapter-tag">framework</span><span class="chapter-tag">methodology</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+        <li class="chapter" data-tags="ood oop encapsulation inheritance polymorphism abstraction" data-status="stub">
+          <div class="chapter-num">3</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/ood/oop-fundamentals.html">OOP Fundamentals</a>
+            <div class="chapter-tags"><span class="chapter-tag">oop</span><span class="chapter-tag">encapsulation</span><span class="chapter-tag">inheritance</span><span class="chapter-tag">polymorphism</span><span class="chapter-tag">abstraction</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+        <li class="chapter" data-tags="ood parking-lot design-patterns" data-status="stub">
+          <div class="chapter-num">4</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/ood/design-parking-lot.html">Design a Parking Lot</a>
+            <div class="chapter-tags"><span class="chapter-tag">parking-lot</span><span class="chapter-tag">design-patterns</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+        <li class="chapter" data-tags="ood booking concurrency" data-status="stub">
+          <div class="chapter-num">5</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/ood/design-movie-ticket-booking.html">Design a Movie Ticket Booking System</a>
+            <div class="chapter-tags"><span class="chapter-tag">booking</span><span class="chapter-tag">concurrency</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+        <li class="chapter" data-tags="ood filesystem design-patterns" data-status="stub">
+          <div class="chapter-num">6</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/ood/design-unix-file-search.html">Design a Unix File Search System</a>
+            <div class="chapter-tags"><span class="chapter-tag">filesystem</span><span class="chapter-tag">design-patterns</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+        <li class="chapter" data-tags="ood state-machine design-patterns" data-status="stub">
+          <div class="chapter-num">7</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/ood/design-vending-machine.html">Design a Vending Machine</a>
+            <div class="chapter-tags"><span class="chapter-tag">state-machine</span><span class="chapter-tag">design-patterns</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+        <li class="chapter" data-tags="ood state-machine scheduling" data-status="stub">
+          <div class="chapter-num">8</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/ood/design-elevator-system.html">Design an Elevator System</a>
+            <div class="chapter-tags"><span class="chapter-tag">state-machine</span><span class="chapter-tag">scheduling</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+        <li class="chapter" data-tags="ood retail inventory" data-status="stub">
+          <div class="chapter-num">9</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/ood/design-grocery-store.html">Design a Grocery Store System</a>
+            <div class="chapter-tags"><span class="chapter-tag">retail</span><span class="chapter-tag">inventory</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+        <li class="chapter" data-tags="ood game" data-status="stub">
+          <div class="chapter-num">10</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/ood/design-tic-tac-toe.html">Design a Tic Tac Toe Game</a>
+            <div class="chapter-tags"><span class="chapter-tag">game</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+        <li class="chapter" data-tags="ood game cards" data-status="stub">
+          <div class="chapter-num">11</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/ood/design-blackjack.html">Design a Blackjack Game</a>
+            <div class="chapter-tags"><span class="chapter-tag">game</span><span class="chapter-tag">cards</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+        <li class="chapter" data-tags="ood lockers logistics" data-status="stub">
+          <div class="chapter-num">12</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/ood/design-shipping-locker.html">Design a Shipping Locker System</a>
+            <div class="chapter-tags"><span class="chapter-tag">lockers</span><span class="chapter-tag">logistics</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+        <li class="chapter" data-tags="ood atm banking state-machine" data-status="stub">
+          <div class="chapter-num">13</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/ood/design-atm.html">Design an ATM System</a>
+            <div class="chapter-tags"><span class="chapter-tag">atm</span><span class="chapter-tag">banking</span><span class="chapter-tag">state-machine</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+        <li class="chapter" data-tags="ood restaurant" data-status="stub">
+          <div class="chapter-num">14</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/ood/design-restaurant-management.html">Design a Restaurant Management System</a>
+            <div class="chapter-tags"><span class="chapter-tag">restaurant</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+
+      </ul>
+    </div>
+  </article>
+
+  <!-- BOOK III -->
+  <article class="book open" id="book-3" data-search="book iii coding interview patterns leetcode">
+    <header class="book-header" onclick="toggleBook(this)">
+      <div class="book-title-wrap">
+        <span class="book-emoji">📗</span>
+        <div>
+          <div class="book-title">Book III — Coding Interview Patterns</div>
+          <div class="book-sub">19 capítulos · ~120 problemas</div>
+        </div>
+      </div>
+      <div class="book-meta">
+        <span class="pill active">1 active</span>
+        <span class="pill stub">18 stubs</span>
+        <span class="book-toggle">▼</span>
+      </div>
+    </header>
+    <div class="book-body">
+      <div class="book-blurb">
+        Libro de patrones para coding interviews: cada capítulo introduce un patrón (Two Pointers, Sliding Windows, DP, etc.) y ejercicios canónicos. Archivos en <code>topics/concepts/coding-interview-patterns/</code>.
+      </div>
+      <ul class="chapters">
+
+        <li class="chapter" data-tags="coding-patterns two-pointers interview-prep" data-status="active" data-search="two pointers">
+          <div class="chapter-num">1</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/coding-interview-patterns/01-two-pointers/introduction.html">Two Pointers</a>
+            <span class="nested-toggle" onclick="event.preventDefault(); event.stopPropagation(); toggleNested(this)">▸ 7 problemas</span>
+            <div class="chapter-tags">
+              <span class="chapter-tag">two-pointers</span>
+              <span class="chapter-tag">interview-prep</span>
+              <span class="chapter-tag">inward-traversal</span>
+              <span class="chapter-tag">unidirectional-traversal</span>
+              <span class="chapter-tag">staged-traversal</span>
+            </div>
+            <div class="nested">
+              <table>
+                <thead>
+                  <tr><th>#</th><th>Problema</th><th>Strategy</th><th>Difficulty</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>—</td><td><a href="topics/concepts/coding-interview-patterns/01-two-pointers/introduction.html">Introduction</a> <span style="color:var(--text-mute)">— overview, 3 traversals, decision matrix</span></td><td>—</td><td>—</td></tr>
+                  <tr><td>1</td><td><a href="topics/concepts/coding-interview-patterns/01-two-pointers/pair-sum-sorted.html">Pair Sum — Sorted</a></td><td><span class="strategy-tag">Inward</span></td><td><span class="difficulty easy">🟢 Easy</span></td></tr>
+                  <tr><td>2</td><td><a href="topics/concepts/coding-interview-patterns/01-two-pointers/triplet-sum.html">Triplet Sum (3Sum)</a></td><td><span class="strategy-tag">Inward + loop</span></td><td><span class="difficulty medium">🟡 Medium</span></td></tr>
+                  <tr><td>3</td><td><a href="topics/concepts/coding-interview-patterns/01-two-pointers/largest-container.html">Largest Container</a></td><td><span class="strategy-tag">Inward</span></td><td><span class="difficulty medium">🟡 Medium</span></td></tr>
+                  <tr><td>4</td><td><a href="topics/concepts/coding-interview-patterns/01-two-pointers/is-palindrome-valid.html">Is Palindrome Valid</a></td><td><span class="strategy-tag">Inward</span></td><td><span class="difficulty easy">🟢 Easy</span></td></tr>
+                  <tr><td>5</td><td><a href="topics/concepts/coding-interview-patterns/01-two-pointers/shift-zeros-to-the-end.html">Shift Zeros to the End</a></td><td><span class="strategy-tag">Unidirectional</span></td><td><span class="difficulty easy">🟢 Easy</span></td></tr>
+                  <tr><td>6</td><td><a href="topics/concepts/coding-interview-patterns/01-two-pointers/next-lexicographical-sequence.html">Next Lexicographical Sequence</a></td><td><span class="strategy-tag">Staged</span></td><td><span class="difficulty medium">🟡 Medium</span></td></tr>
+                </tbody>
+              </table>
+              <p style="margin-top:12px; font-size:12.5px; color:var(--text-dim); line-height:1.5;">
+                Cada entrada incluye <strong>🎓 For Dummies</strong> (analogía cotidiana), diagramas PNG renderizados, trace paso a paso, decision flowchart, complexity, test cases, ⭐ amplification con variantes y follow-ups, ⚠️ pitfalls, interview tips, y navegación prev/next.
+              </p>
+            </div>
+          </div>
+          <div class="chapter-meta">
+            <span class="pill stub">7 probs</span>
+            <span class="pill active">✓ active</span>
+          </div>
+        </li>
+
+        <li class="chapter" data-tags="coding-patterns hash-maps-sets interview-prep" data-status="stub">
+          <div class="chapter-num">2</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/coding-interview-patterns/02-hash-maps-and-sets/introduction.html">Hash Maps and Sets</a>
+            <div class="chapter-tags"><span class="chapter-tag">hash-maps-sets</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">6 probs</span></div>
+        </li>
+        <li class="chapter" data-tags="coding-patterns linked-lists interview-prep" data-status="stub">
+          <div class="chapter-num">3</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/coding-interview-patterns/03-linked-lists/introduction.html">Linked Lists</a>
+            <div class="chapter-tags"><span class="chapter-tag">linked-lists</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">7 probs</span></div>
+        </li>
+        <li class="chapter" data-tags="coding-patterns fast-slow-pointers interview-prep" data-status="stub">
+          <div class="chapter-num">4</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/coding-interview-patterns/04-fast-and-slow-pointers/introduction.html">Fast and Slow Pointers</a>
+            <div class="chapter-tags"><span class="chapter-tag">fast-slow-pointers</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">4 probs</span></div>
+        </li>
+        <li class="chapter" data-tags="coding-patterns sliding-window interview-prep" data-status="stub">
+          <div class="chapter-num">5</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/coding-interview-patterns/05-sliding-windows/introduction.html">Sliding Windows</a>
+            <div class="chapter-tags"><span class="chapter-tag">sliding-window</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">4 probs</span></div>
+        </li>
+        <li class="chapter" data-tags="coding-patterns binary-search interview-prep" data-status="stub">
+          <div class="chapter-num">6</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/coding-interview-patterns/06-binary-search/introduction.html">Binary Search</a>
+            <div class="chapter-tags"><span class="chapter-tag">binary-search</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">9 probs</span></div>
+        </li>
+        <li class="chapter" data-tags="coding-patterns stacks interview-prep" data-status="stub">
+          <div class="chapter-num">7</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/coding-interview-patterns/07-stacks/introduction.html">Stacks</a>
+            <div class="chapter-tags"><span class="chapter-tag">stacks</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">7 probs</span></div>
+        </li>
+        <li class="chapter" data-tags="coding-patterns heaps interview-prep" data-status="stub">
+          <div class="chapter-num">8</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/coding-interview-patterns/08-heaps/introduction.html">Heaps</a>
+            <div class="chapter-tags"><span class="chapter-tag">heaps</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">5 probs</span></div>
+        </li>
+        <li class="chapter" data-tags="coding-patterns intervals interview-prep" data-status="stub">
+          <div class="chapter-num">9</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/coding-interview-patterns/09-intervals/introduction.html">Intervals</a>
+            <div class="chapter-tags"><span class="chapter-tag">intervals</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">4 probs</span></div>
+        </li>
+        <li class="chapter" data-tags="coding-patterns prefix-sums interview-prep" data-status="stub">
+          <div class="chapter-num">10</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/coding-interview-patterns/10-prefix-sums/introduction.html">Prefix Sums</a>
+            <div class="chapter-tags"><span class="chapter-tag">prefix-sums</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">4 probs</span></div>
+        </li>
+        <li class="chapter" data-tags="coding-patterns trees interview-prep" data-status="stub">
+          <div class="chapter-num">11</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/coding-interview-patterns/11-trees/introduction.html">Trees</a>
+            <div class="chapter-tags"><span class="chapter-tag">trees</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">13 probs</span></div>
+        </li>
+        <li class="chapter" data-tags="coding-patterns tries interview-prep" data-status="stub">
+          <div class="chapter-num">12</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/coding-interview-patterns/12-tries/introduction.html">Tries</a>
+            <div class="chapter-tags"><span class="chapter-tag">tries</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">4 probs</span></div>
+        </li>
+        <li class="chapter" data-tags="coding-patterns graphs interview-prep" data-status="stub">
+          <div class="chapter-num">13</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/coding-interview-patterns/13-graphs/introduction.html">Graphs</a>
+            <div class="chapter-tags"><span class="chapter-tag">graphs</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">11 probs</span></div>
+        </li>
+        <li class="chapter" data-tags="coding-patterns backtracking interview-prep" data-status="stub">
+          <div class="chapter-num">14</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/coding-interview-patterns/14-backtracking/introduction.html">Backtracking</a>
+            <div class="chapter-tags"><span class="chapter-tag">backtracking</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">6 probs</span></div>
+        </li>
+        <li class="chapter" data-tags="coding-patterns dynamic-programming interview-prep" data-status="stub">
+          <div class="chapter-num">15</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/coding-interview-patterns/15-dynamic-programming/introduction.html">Dynamic Programming</a>
+            <div class="chapter-tags"><span class="chapter-tag">dynamic-programming</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">10 probs</span></div>
+        </li>
+        <li class="chapter" data-tags="coding-patterns greedy interview-prep" data-status="stub">
+          <div class="chapter-num">16</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/coding-interview-patterns/16-greedy/introduction.html">Greedy</a>
+            <div class="chapter-tags"><span class="chapter-tag">greedy</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">4 probs</span></div>
+        </li>
+        <li class="chapter" data-tags="coding-patterns sort-search interview-prep" data-status="stub">
+          <div class="chapter-num">17</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/coding-interview-patterns/17-sort-and-search/introduction.html">Sort and Search</a>
+            <div class="chapter-tags"><span class="chapter-tag">sort-search</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">5 probs</span></div>
+        </li>
+        <li class="chapter" data-tags="coding-patterns bit-manipulation interview-prep" data-status="stub">
+          <div class="chapter-num">18</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/coding-interview-patterns/18-bit-manipulation/introduction.html">Bit Manipulation</a>
+            <div class="chapter-tags"><span class="chapter-tag">bit-manipulation</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">4 probs</span></div>
+        </li>
+        <li class="chapter" data-tags="coding-patterns math-geometry interview-prep" data-status="stub">
+          <div class="chapter-num">19</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/coding-interview-patterns/19-math-and-geometry/introduction.html">Math and Geometry</a>
+            <div class="chapter-tags"><span class="chapter-tag">math-geometry</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">6 probs</span></div>
+        </li>
+
+      </ul>
+    </div>
+  </article>
+
+  <!-- BOOK IV — Programming TypeScript -->
+  <article class="book open" id="book-4" data-search="book iv programming typescript boris cherny oreilly">
+    <header class="book-header" onclick="toggleBook(this)">
+      <div class="book-title-wrap">
+        <span class="book-emoji">📒</span>
+        <div>
+          <div class="book-title">Book IV — Programming TypeScript <span style="color:var(--text-mute);font-weight:500">(Boris Cherny · O'Reilly 2019)</span></div>
+          <div class="book-sub">12 capítulos + 2 appendices · cap. 6 trabajado a fondo</div>
+        </div>
+      </div>
+      <div class="book-meta">
+        <span class="pill active">1 active</span>
+        <span class="pill stub">13 stubs</span>
+        <span class="book-toggle">▼</span>
+      </div>
+    </header>
+    <div class="book-body">
+      <div class="book-blurb">
+        Libro de referencia de TypeScript de Boris Cherny (O'Reilly, 2019). Cubre desde fundamentos hasta type-level programming avanzado, async, frameworks frontend/backend, modules, interop con JS, y build/deploy. <strong>Cap. 6 (Advanced Types)</strong> es el único trabajado en profundidad con For Dummies, ejemplos, amplificación y ejercicios. El resto son stubs basados en el TOC del libro.
+      </div>
+      <ul class="chapters">
+
+        <li class="chapter" data-tags="typescript intro" data-status="stub">
+          <div class="chapter-num">1</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/programming-typescript/01-introduction.html">Introduction</a>
+            <div class="chapter-tags"><span class="chapter-tag">typescript</span><span class="chapter-tag">intro</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+
+        <li class="chapter" data-tags="typescript compiler tsconfig" data-status="stub">
+          <div class="chapter-num">2</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/programming-typescript/02-typescript-10000-foot-view.html">TypeScript: A 10,000 Foot View</a>
+            <div class="chapter-tags"><span class="chapter-tag">compiler</span><span class="chapter-tag">tsconfig</span><span class="chapter-tag">setup</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+
+        <li class="chapter" data-tags="typescript types primitives" data-status="stub">
+          <div class="chapter-num">3</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/programming-typescript/03-all-about-types.html">All About Types</a>
+            <div class="chapter-tags"><span class="chapter-tag">types</span><span class="chapter-tag">primitives</span><span class="chapter-tag">unions</span><span class="chapter-tag">intersections</span><span class="chapter-tag">tuples</span><span class="chapter-tag">enums</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+
+        <li class="chapter" data-tags="typescript functions generics polymorphism" data-status="stub">
+          <div class="chapter-num">4</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/programming-typescript/04-functions.html">Functions</a>
+            <div class="chapter-tags"><span class="chapter-tag">functions</span><span class="chapter-tag">generics</span><span class="chapter-tag">polymorphism</span><span class="chapter-tag">overloads</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+
+        <li class="chapter" data-tags="typescript classes interfaces oop design-patterns" data-status="stub">
+          <div class="chapter-num">5</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/programming-typescript/05-classes-and-interfaces.html">Classes and Interfaces</a>
+            <div class="chapter-tags"><span class="chapter-tag">classes</span><span class="chapter-tag">interfaces</span><span class="chapter-tag">oop</span><span class="chapter-tag">design-patterns</span><span class="chapter-tag">mixins</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+
+        <li class="chapter" data-tags="typescript advanced-types variance refinement mapped-types conditional-types type-guards nominal-types generics" data-status="active" data-search="advanced types variance refinement mapped conditional infer keyof brand">
+          <div class="chapter-num">6</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/programming-typescript/06-advanced-types.html">Advanced Types</a>
+            <div class="chapter-tags">
+              <span class="chapter-tag">advanced-types</span>
+              <span class="chapter-tag">variance</span>
+              <span class="chapter-tag">refinement</span>
+              <span class="chapter-tag">mapped-types</span>
+              <span class="chapter-tag">conditional-types</span>
+              <span class="chapter-tag">type-guards</span>
+              <span class="chapter-tag">nominal-types</span>
+              <span class="chapter-tag">generics</span>
+            </div>
+          </div>
+          <div class="chapter-meta"><span class="pill active">✓ active</span></div>
+        </li>
+
+        <li class="chapter" data-tags="typescript error-handling option-type" data-status="stub">
+          <div class="chapter-num">7</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/programming-typescript/07-handling-errors.html">Handling Errors</a>
+            <div class="chapter-tags"><span class="chapter-tag">error-handling</span><span class="chapter-tag">option-type</span><span class="chapter-tag">exceptions</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+
+        <li class="chapter" data-tags="typescript async promises concurrency parallelism web-workers" data-status="stub">
+          <div class="chapter-num">8</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/programming-typescript/08-async-concurrency-parallelism.html">Async, Concurrency & Parallelism</a>
+            <div class="chapter-tags"><span class="chapter-tag">async</span><span class="chapter-tag">promises</span><span class="chapter-tag">web-workers</span><span class="chapter-tag">event-loop</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+
+        <li class="chapter" data-tags="typescript react angular frameworks apis" data-status="stub">
+          <div class="chapter-num">9</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/programming-typescript/09-frontend-backend-frameworks.html">Frontend and Backend Frameworks</a>
+            <div class="chapter-tags"><span class="chapter-tag">react</span><span class="chapter-tag">angular</span><span class="chapter-tag">apis</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+
+        <li class="chapter" data-tags="typescript modules namespaces import-export" data-status="stub">
+          <div class="chapter-num">10</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/programming-typescript/10-namespaces-modules.html">Namespaces & Modules</a>
+            <div class="chapter-tags"><span class="chapter-tag">modules</span><span class="chapter-tag">namespaces</span><span class="chapter-tag">import-export</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+
+        <li class="chapter" data-tags="typescript javascript migration definitely-typed jsdoc" data-status="stub">
+          <div class="chapter-num">11</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/programming-typescript/11-interoperating-with-javascript.html">Interoperating with JavaScript</a>
+            <div class="chapter-tags"><span class="chapter-tag">migration</span><span class="chapter-tag">jsdoc</span><span class="chapter-tag">definitely-typed</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+
+        <li class="chapter" data-tags="typescript build tsc compile-target source-maps npm" data-status="stub">
+          <div class="chapter-num">12</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/programming-typescript/12-building-and-running-typescript.html">Building and Running TypeScript</a>
+            <div class="chapter-tags"><span class="chapter-tag">build</span><span class="chapter-tag">tsc</span><span class="chapter-tag">npm</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+
+        <li class="chapter" data-tags="typescript tsc compiler-flags safety" data-status="stub">
+          <div class="chapter-num">F</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/programming-typescript/appendix-f-tsc-compiler-flags-for-safety.html">Appendix F — TSC Compiler Flags for Safety</a>
+            <div class="chapter-tags"><span class="chapter-tag">compiler-flags</span><span class="chapter-tag">safety</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+
+        <li class="chapter" data-tags="typescript tsx jsx react" data-status="stub">
+          <div class="chapter-num">G</div>
+          <div class="chapter-content">
+            <a class="chapter-title" href="topics/concepts/programming-typescript/appendix-g-tsx.html">Appendix G — TSX</a>
+            <div class="chapter-tags"><span class="chapter-tag">tsx</span><span class="chapter-tag">jsx</span><span class="chapter-tag">react</span></div>
+          </div>
+          <div class="chapter-meta"><span class="pill stub">stub</span></div>
+        </li>
+
+      </ul>
+    </div>
+  </article>
+
+</section>
+
+<!-- ============================================ -->
+<!-- EMPTY PARTS                                    -->
+<!-- ============================================ -->
+<section class="part empty">
+  <div class="part-header"><h2>🔧 Part II — Procedures</h2><span class="roman">Step-by-step how-to guides</span></div>
+  <p class="part-desc">Aún sin capítulos</p>
+</section>
+<section class="part empty">
+  <div class="part-header"><h2>🐛 Part III — Troubleshooting</h2><span class="roman">Known issues + fixes</span></div>
+  <p class="part-desc">Aún sin capítulos</p>
+</section>
+<section class="part empty">
+  <div class="part-header"><h2>🔗 Part IV — References</h2><span class="roman">Cheatsheets, lookup tables, links</span></div>
+  <p class="part-desc">Aún sin capítulos</p>
+</section>
+<section class="part empty">
+  <div class="part-header"><h2>🛠 Part V — Tools</h2><span class="roman">Tool-specific notes (CLI, apps, platforms)</span></div>
+  <p class="part-desc">Aún sin capítulos</p>
+</section>
+<section class="part empty">
+  <div class="part-header"><h2>👥 Part VI — People & Teams</h2><span class="roman">Who owns what, key contacts</span></div>
+  <p class="part-desc">Aún sin capítulos</p>
+</section>
+<section class="part empty">
+  <div class="part-header"><h2>📐 Part VII — Architecture</h2><span class="roman">Systems, diagrams, integrations</span></div>
+  <p class="part-desc">Aún sin capítulos</p>
+</section>
+<section class="part empty">
+  <div class="part-header"><h2>📝 Part VIII — Meetings & Decisions</h2><span class="roman">Meeting notes, ADRs</span></div>
+  <p class="part-desc">Aún sin capítulos</p>
+</section>
+
+<div class="no-results" id="noResults">
+  <div class="emoji">🔍</div>
+  <div>Sin resultados. Probá con otro tag o palabra clave.</div>
+</div>
+
+<div class="footer-tip">
+  💡 <strong>Tip de navegación:</strong> dentro de cualquier sub-capítulo de Two Pointers, usá las pills <code>⬅ Prev · 🏠 Chapter · Next ➡ · 📚 KB Index</code> que aparecen al inicio y al final de cada archivo .md.
+</div>
+<div class="footer-tip" style="border-left-color: var(--purple);">
+  📂 <strong>Convenciones:</strong> Entradas siguen <a href="_template.md" style="color:var(--purple)">_template.md</a>. Style guide: <a href="STYLE.md" style="color:var(--purple)">STYLE.md</a>. Plantillas reutilizables en <a href="prompts/" style="color:var(--purple)">prompts/</a>.
+</div>
+
+<details class="changelog-section">
+  <summary>🗒️ Changelog</summary>
+  <ul class="changelog-list">
+    <li><span class="date">2026-05-30</span><span><strong>Book IV creado</strong> — Programming TypeScript (Boris Cherny, O'Reilly 2019). 12 capítulos + 2 appendices stubeados desde el TOC. <strong>Cap. 6 "Advanced Types" trabajado a fondo</strong> (variance, refinement, mapped/conditional types, infer, type branding, prototype extension) con For Dummies, ejemplos en TS, amplificación y ejercicios resueltos.</span></li>
+    <li><span class="date">2026-05-11</span><span><strong>Book III Ch. 1</strong> — code samples migrados a JavaScript + C# (antes Python/JS/Java). 7 archivos actualizados.</span></li>
+    <li><span class="date">2026-05-08</span><span><strong>Book III Ch. 1</strong> — diagramas reescritos a calidad Book I (13 PNG matplotlib + 7 mermaid flowcharts). Navegación intra-capítulo añadida.</span></li>
+    <li><span class="date">2026-05-07</span><span><strong>Book III Ch. 1 (Two Pointers) fully written.</strong> 7 entries activas con For Dummies, diagramas, traces, complexity, amplifications, pitfalls.</span></li>
+    <li><span class="date">2026-05-05</span><span>Book III creado: 19 capítulos, 120 problem stubs.</span></li>
+    <li><span class="date">2026-05-04</span><span>Book II — Object-Oriented Design Interview (14 stubs). Realineación con curso ByteByteGo: stubs Ch. 17–30.</span></li>
+    <li><span class="date">2026-05-04</span><span>Stubs Ch. 6–16 (Key-Value, Snowflake, URL Shortener, Crawler, Notification, News Feed, Chat, Autocomplete, YouTube, Drive).</span></li>
+    <li><span class="date">2026-05-01</span><span>Ch. 5 (Consistent Hashing) — analogía sillas musicales, 14 hash ring diagrams matplotlib.</span></li>
+    <li><span class="date">2026-05-01</span><span>Ch. 4 (Rate Limiter) — 5 algoritmos con For Dummies. 13 PNG diagrams.</span></li>
+    <li><span class="date">2026-05-01</span><span>Ch. 3 (Framework) — analogía chef, 6 PNG diagrams. Carpeta <code>prompts/</code> con plantillas reutilizables.</span></li>
+    <li><span class="date">2026-04-30</span><span>Ch. 2 (Back-of-the-envelope) — analogías asado, biblioteca. 4 diagrams. Sección "🎓 For Dummies" añadida.</span></li>
+    <li><span class="date">2026-04-30</span><span>Ch. 1 (Scaling) reescrito con amplification blocks. 23 PNG diagrams.</span></li>
+    <li><span class="date">2026-04-29</span><span>KB initialized — structure, template, style guide.</span></li>
+  </ul>
+</details>
+
+</main>
+
+<script>
+  // ============ BOOK TOGGLE ============
+  function toggleBook(header) {
+    header.closest('.book').classList.toggle('open');
+  }
+
+  // ============ NESTED TOGGLE ============
+  function toggleNested(el) {
+    const nested = el.parentElement.querySelector('.nested');
+    if (nested) {
+      nested.classList.toggle('open');
+      el.innerHTML = nested.classList.contains('open') ? '▾ ocultar' : '▸ 7 problemas';
+    }
+  }
+
+  // ============ TAG FILTER + SEARCH ============
+  const chapters = Array.from(document.querySelectorAll('.chapter'));
+  const tagCounts = {};
+  chapters.forEach(ch => {
+    const tags = (ch.dataset.tags || '').split(/\s+/).filter(Boolean);
+    tags.forEach(t => { tagCounts[t] = (tagCounts[t] || 0) + 1; });
+  });
+
+  const sortedTags = Object.entries(tagCounts)
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+
+  const tagRow = document.getElementById('tagRow');
+  sortedTags.forEach(([t, c]) => {
+    const el = document.createElement('span');
+    el.className = 'tag';
+    el.dataset.tag = t;
+    el.innerHTML = `${t} <span class="count">${c}</span>`;
+    el.onclick = () => { el.classList.toggle('active'); applyFilters(); };
+    tagRow.appendChild(el);
+  });
+
+  const searchInput = document.getElementById('search');
+  searchInput.addEventListener('input', applyFilters);
+
+  function applyFilters() {
+    const activeTags = Array.from(document.querySelectorAll('.tag.active')).map(t => t.dataset.tag);
+    const q = searchInput.value.trim().toLowerCase();
+    let anyVisible = false;
+
+    chapters.forEach(ch => {
+      const chapTags = (ch.dataset.tags || '').toLowerCase();
+      const chapText = (ch.textContent + ' ' + (ch.dataset.search || '')).toLowerCase();
+      const tagMatch = activeTags.length === 0 || activeTags.every(t => chapTags.includes(t));
+      const textMatch = !q || chapText.includes(q);
+      const show = tagMatch && textMatch;
+      ch.style.display = show ? '' : 'none';
+      if (show) anyVisible = true;
+    });
+
+    // Hide books with no visible chapters when filters are active
+    document.querySelectorAll('.book').forEach(book => {
+      const visibleChs = book.querySelectorAll('.chapter:not([style*="display: none"])');
+      const hasFilter = activeTags.length > 0 || q.length > 0;
+      if (hasFilter && visibleChs.length === 0) {
+        book.style.display = 'none';
+      } else {
+        book.style.display = '';
+        if (hasFilter) book.classList.add('open'); // auto-expand when filtering
+      }
+    });
+
+    document.getElementById('noResults').classList.toggle('show', !anyVisible);
+  }
+
+  // ============ KEYBOARD SHORTCUTS ============
+  document.addEventListener('keydown', e => {
+    if (e.key === '/' && document.activeElement !== searchInput) {
+      e.preventDefault();
+      searchInput.focus();
+      searchInput.select();
+    }
+    if (e.key === 'Escape' && document.activeElement === searchInput) {
+      searchInput.value = '';
+      applyFilters();
+      searchInput.blur();
+    }
+  });
+</script>
+
+</body>
+</html>
